@@ -22,7 +22,8 @@
 		 "path": [[2250,1100],[2380,1350],[2470,1640],[2540,1900]]}
 	],
 	"zones": [
-		{"id": "shelter_shade", "type": "shade", "polygon": [[505,1045],[1015,1045],[1015,1435],[505,1435]]}
+		{"id": "shelter_shade", "type": "shade", "_note": "roof footprint shifted by its cast-shadow offset (0.45, 0.55) x height 64", "polygon": [[530,1075],[1040,1075],[1040,1468],[530,1468]]},
+		{"id": "awning_shade", "type": "shade", "_note": "salt-works awning; footprint shifted by its cast-shadow offset x height 50", "polygon": [[2042,1506],[2402,1506],[2402,1778],[2042,1778]]}
 	],
 	"props": [
 		{"id": "shelter_floor", "asset": "shelter.floor", "pos": [760, 1240], "layer": "floor"},
@@ -37,6 +38,12 @@
 		{"id": "shelter_roof", "asset": "shelter.roof", "pos": [760, 1240], "layer": "overhead", "occlude": true},
 		{"id": "shelter_flag", "asset": "shelter.flag", "pos": [1010, 1048], "layer": "overhead"},
 		{"id": "cistern", "asset": "shelter.cistern", "pos": [430, 975], "layer": "low", "collision": {"circle": 52}},
+		{"id": "awning_post_nw", "asset": "shelter.post", "pos": [2026, 1486], "layer": "low", "collision": {"circle": 14}},
+		{"id": "awning_post_ne", "asset": "shelter.post", "pos": [2374, 1486], "layer": "low", "collision": {"circle": 14}},
+		{"id": "awning_post_sw", "asset": "shelter.post", "pos": [2026, 1754], "layer": "low", "collision": {"circle": 14}},
+		{"id": "awning_post_se", "asset": "shelter.post", "pos": [2374, 1754], "layer": "low", "collision": {"circle": 14}},
+		{"id": "awning_crates", "asset": "prop.scrap_pile", "pos": [2080, 1540], "rot": 30, "layer": "low", "collision": {"circle": 36}},
+		{"id": "awning_sail", "asset": "shelter.awning", "pos": [2200, 1620], "layer": "overhead", "occlude": true},
 		{"id": "wreck_pump_rig", "asset": "wreck.pump_rig", "pos": [2900, 950], "layer": "low", "collision": {"rect": [270, 190]}},
 		{"id": "wreck_hauler", "asset": "wreck.hauler", "pos": [2720, 2060], "rot": 18, "layer": "low", "collision": {"rect": [260, 150]}},
 		{"id": "rock_l1", "asset": "prop.rock_large_a", "pos": [1250, 820], "layer": "low", "collision": {"circle": 52}},
@@ -44,7 +51,7 @@
 		{"id": "rock_l3", "asset": "prop.rock_large_a", "pos": [2300, 760], "rot": 160, "layer": "low", "collision": {"circle": 52}},
 		{"id": "rock_l4", "asset": "prop.rock_large_b", "pos": [3150, 1300], "rot": 260, "layer": "low", "collision": {"circle": 44}},
 		{"id": "rock_l5", "asset": "prop.rock_large_a", "pos": [420, 1720], "rot": 300, "layer": "low", "collision": {"circle": 52}},
-		{"id": "rock_l6", "asset": "prop.rock_large_b", "pos": [2120, 1420], "rot": 120, "layer": "low", "collision": {"circle": 44}},
+		{"id": "rock_l6", "asset": "prop.rock_large_b", "pos": [1960, 1390], "rot": 120, "layer": "low", "collision": {"circle": 44}},
 		{"id": "rock_l7", "asset": "prop.rock_large_a", "pos": [3300, 700], "rot": 70, "layer": "low", "collision": {"circle": 52}},
 		{"id": "pylon_1", "asset": "prop.pylon", "pos": [1080, 980], "rot": -24, "layer": "low", "collision": {"rect": [180, 40]}},
 		{"id": "pylon_2", "asset": "prop.pylon", "pos": [2560, 1300], "rot": 62, "layer": "low", "collision": {"rect": [180, 40]}},
@@ -53,7 +60,7 @@
 		{"id": "scrap_1", "asset": "prop.scrap_pile", "pos": [3060, 870], "layer": "low", "collision": {"circle": 40}},
 		{"id": "scrap_2", "asset": "prop.scrap_pile", "pos": [2480, 2140], "rot": 200, "layer": "low", "collision": {"circle": 40}},
 		{"id": "solar_1", "asset": "prop.solar_wreck", "pos": [1120, 1460], "rot": 8, "layer": "low", "collision": {"rect": [140, 80]}},
-		{"id": "solar_2", "asset": "prop.solar_wreck", "pos": [2860, 1660], "rot": -30, "layer": "low", "collision": {"rect": [140, 80]}}
+		{"id": "solar_2", "asset": "prop.solar_wreck", "pos": [3420, 2420], "rot": -30, "layer": "low", "collision": {"rect": [140, 80]}}
 	],
 	"scatter": [
 		{"seed": 11, "count": 70, "area": [0, 0, 3600, 2600], "spacing": 70,
@@ -61,7 +68,11 @@
 		{"seed": 23, "count": 26, "area": [1980, 1480, 1500, 1000], "spacing": 90, "inside": "saltpan",
 		 "assets": ["prop.mineral_a", "prop.mineral_b", "prop.mineral_a"]}
 	],
-	"scatter_avoid": [[480, 1010, 580, 460], [2700, 820, 420, 330], [2520, 1900, 380, 320], [360, 900, 150, 150]],
+	"enemies": [
+		{"id": "enemy_scrapper_01", "type": "scrapper", "spawn": [3000, 1760], "heading_deg": 270,
+		 "patrol": [[2720, 1720], [3250, 1760], [3260, 2320], [2620, 2330]]}
+	],
+	"scatter_avoid": [[1990, 1460, 430, 340], [480, 1010, 580, 460], [2700, 820, 420, 330], [2520, 1900, 380, 320], [360, 900, 150, 150]],
 	"salvage": [
 		{"id": "salvage_pump_rig", "pos": [2760, 1092], "item": "radiator_core", "count": 1, "label": "SALVAGE_PUMP_RIG"},
 		{"id": "salvage_hauler", "pos": [2575, 1965], "item": "radiator_core", "count": 1, "label": "SALVAGE_HAULER"}

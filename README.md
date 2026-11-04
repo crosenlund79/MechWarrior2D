@@ -6,6 +6,9 @@ life support, and its greatest enemy is heat.
 
 **First playable loop:** drive → overheat → stop → exit → scavenge → return → repair → continue.
 
+**First hostile encounter:** a weak scrapper mech patrols the salt pan in the south-east. Shoot its exposed
+rear radiator to cook it, retreat to the awning's shade when you run hot, then strip its wreck on foot.
+
 ## Run it (Windows)
 1. On GitHub, open the branch you want and choose **Code → Download ZIP**. Extract it.
 2. Start **Godot 4.7.2** (standard, not .NET), choose **Import**, and pick `project.godot`.
@@ -17,8 +20,9 @@ More detail: [`docs/guides/TESTING_AND_LAUNCH.md`](docs/guides/TESTING_AND_LAUNC
 | In the mech | On foot |
 |---|---|
 | W/S throttle, A/D turn | WASD walk |
+| Mouse aims the turret, **left click** (or Space) fires | |
 | E exit (when stopped) | E salvage / enter mech / pick up |
-| R open/close radiator shutters | R repair radiator (needs a core) |
+| R open/close radiator shutters | R repair radiator (core) / patch hull (2 scrap, or a slow free emergency patch) |
 | Mouse wheel or +/− zoom · F5 quick save · Esc pause · F3 dev overlay | |
 
 ## Docs

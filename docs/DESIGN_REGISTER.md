@@ -19,6 +19,15 @@ review · **DEFERRED** = explicitly out of scope for now.
 | HS-12 | Tank-style mech controls (W/S throttle, A/D turn); 8-way walking on foot | EXPLORING | |
 | HS-13 | Dirty Ink Wasteland visual direction (Red Thaw DNA, desert palette, `desertize()`) | EXPLORING | creator review pending |
 | HS-14 | Working title "Heat Signature" | EXPLORING | provisional, not final |
+| HS-21 | First hostile: one weak "scrapper" mech, patrol → detect → engage → disengage, telegraphed slow shots | EXPLORING | values in `tuning.json` `enemy`, `combat` |
+| HS-22 | Detection grows with the target mech's heat ("heat signature") | EXPLORING | enemy ignores pilots on foot |
+| HS-23 | Two damage categories: structural integrity + cooling system (hit area = the illustrated radiator) | EXPLORING | no limbs, no armour penetration |
+| HS-24 | Heat impairs movement (−50 % at critical) for every mech; firing adds heat | EXPLORING | |
+| HS-25 | Enemy disabled at 0 integrity, or with destroyed cooling at critical heat → persistent wreck | EXPLORING | |
+| HS-26 | Wreck salvage on foot: 3.5 s, once per wreck, 4 scrap + 1 radiator core | EXPLORING | |
+| HS-27 | Scrap patches the hull (2 → +35); free slow emergency patch to 25 % when crippled | EXPLORING | loss is always recoverable |
+| HS-28 | Shade zones aligned with each roof's cast shadow; second shade (salt-works awning) near the encounter | EXPLORING | |
+| HS-29 | Mouse aim + left click / Space fire; turret rotates independently of the legs | EXPLORING | |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |
 | HS-17 | Western-style towns, trade economy, factions, NPCs | DEFERRED | |

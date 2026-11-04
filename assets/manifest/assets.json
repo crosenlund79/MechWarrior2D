@@ -522,6 +522,109 @@
 				0
 			],
 			"note": "main menu background, shown with cover scaling"
+		},
+		"mech.gun": {
+			"path": "mechs/starter/gun",
+			"display": [
+				52,
+				104
+			],
+			"source": [
+				104,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.72
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "turret; rotates toward the mouse around its mount"
+		},
+		"enemy.hull": {
+			"path": "mechs/scrapper/hull",
+			"display": [
+				150,
+				170
+			],
+			"source": [
+				300,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "hostile scrapper; exposed radiator at the rear (cooling hit area)"
+		},
+		"enemy.leg": {
+			"path": "mechs/scrapper/leg",
+			"display": [
+				46,
+				104
+			],
+			"source": [
+				92,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"enemy.wreck": {
+			"path": "mechs/scrapper/wreck",
+			"display": [
+				190,
+				190
+			],
+			"source": [
+				380,
+				380
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "disabled scrapper incl. collapsed legs"
+		},
+		"item.scrap": {
+			"path": "items/scrap",
+			"display": [
+				40,
+				36
+			],
+			"source": [
+				80,
+				72
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"shelter.awning": {
+			"path": "structures/awning/sail",
+			"display": [
+				390,
+				310
+			],
+			"source": [
+				780,
+				620
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 50,
+			"note": "overhead shade sail; fades while the player is underneath"
 		}
 	},
 	"tiles": {
@@ -677,6 +780,41 @@
 		"ui.click": {
 			"path": "audio/ui/click",
 			"bus": "UI",
+			"loop": false
+		},
+		"sfx.gun_fire": {
+			"path": "audio/sfx/gun_fire",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.enemy_charge": {
+			"path": "audio/sfx/enemy_charge",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.enemy_fire": {
+			"path": "audio/sfx/enemy_fire",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.impact": {
+			"path": "audio/sfx/impact",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.cooling_hit": {
+			"path": "audio/sfx/cooling_hit",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.enemy_alert": {
+			"path": "audio/sfx/enemy_alert",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.wreck": {
+			"path": "audio/sfx/wreck",
+			"bus": "SFX",
 			"loop": false
 		}
 	}

@@ -4,6 +4,7 @@ Automated (run before every push):
 - [ ] `godot --headless --path . --import` — no script errors
 - [ ] `godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests` — 0 failed
 - [ ] `python3 tools/regression.py` — PASS
+- [ ] `python3 tools/regression_encounter.py` — PASS
 - [ ] `python3 tools/check_script_guides.py` — OK
 
 Manual (Windows, ~5 min):
@@ -20,3 +21,9 @@ Manual (Windows, ~5 min):
 - [ ] Drop a PNG into `%APPDATA%\HeatSignature\overrides\mechs\starter\hull.png` → Reload art → visible;
       delete it → Reload → template returns
 - [ ] 21:9 window: HUD anchored, nothing stretched
+- [ ] Encounter: scrapper patrols; spots a hot mech; red telegraph before each shot; shots dodgeable
+- [ ] Mouse aim + left click; tracers visible; hits spark; radiator hits spray coolant
+- [ ] Enemy overheats (steam) when its radiator is shot; wreck smokes, stops; ring until stripped
+- [ ] Awning shade: HUD "Shade", notice on enter/leave; heat settles lower; suit drains slower
+- [ ] Strip wreck once (scrap + core); repair radiator + hull; quit/restart keeps wreck + salvage state
+- [ ] Hull 0 → crippled → emergency patch → drive again

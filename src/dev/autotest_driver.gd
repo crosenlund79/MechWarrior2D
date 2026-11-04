@@ -103,6 +103,37 @@ func _run(line: String) -> void:
 			ok = Session.pilot_pos().distance_to(target2) <= 12.0
 			if not ok:
 				err = "did not reach target"
+		"aim":  # aim <x> <y> (world)
+			Session.aim_point = Vector2(float(a[0]), float(a[1]))
+		"aim_enemy":  # aim at the first live enemy, optional local offset: aim_enemy [ox oy]
+			for eid in Session.state.get("enemies", {}):
+				var e: Dictionary = Session.state["enemies"][eid]
+				var off := Vector2(float(a[0]), float(a[1])) if a.size() >= 2 else Vector2.ZERO
+				Session.aim_point = Content.v2(e["pos"]) + off.rotated(float(e["heading"]))
+		"fire_for":  # fire_for <seconds> [track]: hold the trigger, optionally re-aiming at the enemy's cooling area
+			var t5 := 0.0
+			var track := a.size() > 1
+			while t5 < float(a[0]):
+				Session.fire_held = true
+				if track:
+					for eid in Session.state.get("enemies", {}):
+						var e2: Dictionary = Session.state["enemies"][eid]
+						if str(e2["ai"]) != "wreck":
+							Session.aim_point = Combat.cooling_point(Content.v2(e2["pos"]), float(e2["heading"]), Session.tun("combat")["enemy_hit"]) if a[1] == "cooling" else Content.v2(e2["pos"])
+				await get_tree().physics_frame
+				t5 += get_physics_process_delta_time()
+			Session.fire_held = false
+		"set_enemy":  # set_enemy <x> <y> <heading_deg> [ai]
+			for eid in Session.state.get("enemies", {}):
+				var e3: Dictionary = Session.state["enemies"][eid]
+				e3["pos"] = [float(a[0]), float(a[1])]
+				e3["heading"] = deg_to_rad(float(a[2]))
+				e3["speed"] = 0.0
+				if a.size() > 3:
+					e3["ai"] = a[3]
+				if main.game:
+					main.game.world.enemy_views[eid].sync_from_state()
+			await _wait(0.1)
 		"interact":
 			ok = Session.request("interact")
 		"service":
@@ -193,6 +224,8 @@ func _state() -> Dictionary:
 		st["interactions"] = Session.interactions()
 		st["hint"] = Session.hint()
 		st["zone"] = Session.mech_zone.get("id", "")
+		st["projectiles"] = Session.projectiles.size()
+		st["gun_angle"] = Session.gun_angle
 		st["pilot_zone"] = Session.pilot_zone.get("id", "")
 		if main and main.game:
 			st["roof_faded"] = main.game.world.any_roof_overhead()

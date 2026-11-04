@@ -12,6 +12,7 @@ var _foot_t := 0.0
 func _ready() -> void:
 	Audio.loop("wind", "amb.wind", -2.0)
 	Session.mech_event.connect(_on_event)
+	Session.combat_event.connect(_on_combat)
 
 
 func _exit_tree() -> void:
@@ -77,3 +78,23 @@ func _on_event(ev: String) -> void:
 			Audio.play("sfx.suit_alarm", 0.0, 1.0, 400)
 		"abrasion":
 			Audio.play("sfx.grit", -10.0, randf_range(0.9, 1.1), 900)
+
+
+func _on_combat(kind: String, data: Dictionary) -> void:
+	match kind:
+		"muzzle":
+			if str(data.get("owner", "")) == "player":
+				Audio.play("sfx.gun_fire", -4.0, randf_range(0.95, 1.05), 40)
+			else:
+				Audio.play("sfx.enemy_fire", -2.0)
+		"impact":
+			Audio.play("sfx.impact", -6.0, randf_range(0.9, 1.1), 40)
+		"cooling_hit":
+			Audio.play("sfx.cooling_hit", -3.0)
+		"enemy_windup":
+			Audio.play("sfx.enemy_charge", -4.0)
+		"enemy_alert":
+			Audio.play("sfx.enemy_alert", -2.0, 1.0, 1500)
+		"enemy_disabled":
+			Audio.play("sfx.wreck", 0.0)
+			Audio.play("sfx.steam", -4.0, 0.8)

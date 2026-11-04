@@ -5,6 +5,9 @@ extends UiRoot
 ## interaction prompts with task progress, cargo, notices, objective pointer,
 ## heat-danger edge and collapse fade.
 
+var hull_bar: ProgressBar
+var hull_label: Label
+var reticle: Control
 var heat_bar: ProgressBar
 var heat_label: Label
 var trend_label: Label
@@ -75,6 +78,9 @@ func _build() -> void:
 	trend_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hrow.add_child(trend_label)
 	heat_bar = _bar(v, UiTheme.WARNING)
+	hull_label = UiTheme.label("", 12, UiTheme.DIM)
+	v.add_child(hull_label)
+	hull_bar = _bar(v, UiTheme.STRAW)
 	v.add_child(UiTheme.label(tr("HUD_COOLING"), 12, UiTheme.DIM))
 	cool_bar = _bar(v, UiTheme.COOLANT)
 	cool_label = UiTheme.label("", 13, UiTheme.PAPER)
@@ -84,7 +90,7 @@ func _build() -> void:
 	# --- suit panel (below)
 	suit_panel = PanelContainer.new()
 	suit_panel.add_theme_stylebox_override("panel", UiTheme.panel(0.82))
-	suit_panel.position = Vector2(16, 210)
+	suit_panel.position = Vector2(16, 246)
 	suit_panel.custom_minimum_size = Vector2(300, 0)
 	add_child(suit_panel)
 	var sv := VBoxContainer.new()
@@ -144,6 +150,10 @@ func _build() -> void:
 	prompt_label.add_theme_constant_override("outline_size", 7)
 	prompt_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
 	pb.add_child(prompt_label)
+	reticle = Reticle.new()
+	reticle.set_anchors_preset(Control.PRESET_FULL_RECT)
+	reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(reticle)
 	pointer = ObjectivePointer.new()
 	pointer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pointer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -186,6 +196,10 @@ func _process(delta: float) -> void:
 	var eq := Thermal.equilibrium(m, Session.engine_on(), speed_frac, Session.mech_zone, tt)
 	var arrow := "▲" if eq > heat + 1.5 else ("▼" if eq < heat - 1.5 else "■")
 	trend_label.text = tr("HUD_TREND") % [arrow, int(round(eq))]
+	var integ := float(m["integrity"]) / float(Session.tun("mech").get("integrity", 100.0))
+	hull_bar.value = integ
+	hull_label.text = tr("HUD_HULL") % int(round(integ * 100.0))
+	hull_label.add_theme_color_override("font_color", UiTheme.DANGER if integ < 0.25 else UiTheme.DIM)
 	cool_bar.value = Thermal.efficiency(float(m["radiator"]), tt) * Thermal.airflow(bool(m["shutters_open"]), tt)
 	cool_label.text = tr("HUD_RADIATOR") % [int(round(float(m["radiator"]) * 100.0)),
 		tr("HUD_SHUTTERS_OPEN") if m["shutters_open"] else tr("HUD_SHUTTERS_CLOSED")]
@@ -216,7 +230,7 @@ func _process(delta: float) -> void:
 	task_bar.max_value = 1.0
 	task_bar.value = maxf(tp, 0.0)
 	var item := Session.repair_item()
-	cargo_label.text = tr("HUD_CARGO") % [GameState.count(p["pack"], item), GameState.count(m["storage"], item)]
+	cargo_label.text = tr("HUD_CARGO") % [GameState.count(p["pack"], item), GameState.count(m["storage"], item), Session.scrap_available()]
 	zone_label.text = tr("HUD_ZONE") % [tr(str(Session.pilot_zone.get("label", "ZONE_OPEN_SAND"))), int(Session.pilot_zone.get("ambient", 58))]
 	# Danger edge: suit strain on foot, or a critical mech.
 	var dmg := 0.0

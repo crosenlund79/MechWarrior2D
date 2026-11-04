@@ -20,8 +20,9 @@ const ACTIONS := {
 	"quick_save": [KEY_F5],
 	"dev_overlay": [KEY_F3],
 	"pause": [KEY_ESCAPE],
+	"fire": [KEY_SPACE],
 }
-const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "interact", "service", "zoom_in", "zoom_out"]
+const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "interact", "service", "fire", "zoom_in", "zoom_out"]
 
 var values := {
 	"volume_Master": 0.8, "volume_Music": 0.55, "volume_Ambience": 0.8, "volume_SFX": 0.85, "volume_UI": 0.7,
@@ -56,6 +57,10 @@ func _rebuild_input() -> void:
 			var ev := InputEventKey.new()
 			ev.physical_keycode = k
 			InputMap.action_add_event(action, ev)
+	# Left mouse fires (in addition to the remappable key); wheel zooms.
+	var lmb := InputEventMouseButton.new()
+	lmb.button_index = MOUSE_BUTTON_LEFT
+	InputMap.action_add_event("fire", lmb)
 	# Mouse wheel zoom is always available in addition to the keys.
 	for pair in [["zoom_in", MOUSE_BUTTON_WHEEL_UP], ["zoom_out", MOUSE_BUTTON_WHEEL_DOWN]]:
 		var mb := InputEventMouseButton.new()

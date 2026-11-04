@@ -19,6 +19,7 @@ Never modify another project. Never alter `backup/*` branches.
 - `godot --headless --path . --import`
 - `godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests` (exit 0)
 - `python3 tools/regression.py` (real game process: loop, restart persistence, overrides, settings)
+- `python3 tools/regression_encounter.py` (enemy AI, combat, wreck salvage, shade, restart persistence)
 - `python3 tools/check_script_guides.py` — update EN + DA script guides for new/removed scripts
 
 ## Architecture rules

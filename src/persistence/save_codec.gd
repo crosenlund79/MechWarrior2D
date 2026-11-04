@@ -9,11 +9,12 @@ extends RefCounted
 ## upgrades version N-1 to N. Old saves are migrated step by step on load.
 
 const FORMAT := "heat_signature_save"
-const VERSION := 1
+const VERSION := 2
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
 	0: _migrate_0_to_1,
+	1: _migrate_1_to_2,
 }
 
 
@@ -65,6 +66,19 @@ static func _migrate_0_to_1(env: Dictionary) -> Dictionary:
 	return env
 
 
+## Version 2 (first hostile encounter): mech structural integrity and enemy
+## state. Old saves get a full-integrity mech; enemies are created fresh from the
+## location on load (GameState.sanitize).
+static func _migrate_1_to_2(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	if s.get("mech") is Dictionary and not s["mech"].has("integrity"):
+		s["mech"]["integrity"] = 100.0
+	if not s.has("enemies"):
+		s["enemies"] = {}
+	env["version"] = 2
+	return env
+
+
 ## Structural validation of a CURRENT-version envelope. Returns "" when valid.
 ## Ranges are clamped later (GameState.sanitize); this rejects corruption.
 static func validate(env: Dictionary) -> String:
@@ -89,6 +103,14 @@ static func validate(env: Dictionary) -> String:
 		return "state.mode invalid"
 	if not (s["world"].get("taken", {}) is Dictionary):
 		return "state.world.taken invalid"
+	if not _finite(s["mech"].get("integrity")):
+		return "state.mech.integrity invalid"
+	if not (s.get("enemies", {}) is Dictionary):
+		return "state.enemies invalid"
+	for id in s.get("enemies", {}):
+		var e = s["enemies"][id]
+		if not (e is Dictionary) or not (e.get("pos") is Array) or e["pos"].size() != 2 or not _finite(e["pos"][0]) or not _finite(e["pos"][1]):
+			return "state.enemies.%s invalid" % id
 	return ""
 
 

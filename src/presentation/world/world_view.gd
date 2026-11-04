@@ -19,6 +19,8 @@ var markers: Node2D
 var mech_view: MechView
 var pilot_view: PilotView
 var camera: CameraRig
+var enemy_views := {}
+var projectiles_view: ProjectilesView
 var atmosphere: Node
 var props: Array[PropView] = []
 var _salvage_nodes := {}   # id -> Node2D
@@ -52,10 +54,19 @@ func _ready() -> void:
 	pilot_view.name = "Pilot"
 	pilot_view.z_index = Z["pilot"]
 	add_child(pilot_view)
+	for d in loc.get("enemies", []):
+		var ev := EnemyView.new()
+		ev.setup(str(d["id"]))
+		ev.z_index = Z["mech"]
+		add_child(ev)
+		enemy_views[str(d["id"])] = ev
+	projectiles_view = ProjectilesView.new()
+	add_child(projectiles_view)
 	camera = CameraRig.new()
 	add_child(camera)
 	camera.make_current()
 	Session.spot_is_free = _spot_is_free
+	Session.shot_blocked = _shot_blocked
 	Session.mode_changed.connect(_on_mode_changed)
 	_sync_markers()
 
@@ -93,9 +104,16 @@ func _spot_is_free(p: Vector2) -> bool:
 	c.radius = 18.0
 	q.shape = c
 	q.transform = Transform2D(0.0, p)
-	q.collision_mask = 1
+	q.collision_mask = 1 | 4
 	q.exclude = [mech_view.get_rid()]
 	return get_world_2d().direct_space_state.intersect_shape(q, 1).is_empty()
+
+
+## Projectiles stop at static obstacles (layer 1: props, walls, bounds). Mechs
+## are on layer 4 and are hit-tested by the simulation instead.
+func _shot_blocked(a: Vector2, b: Vector2) -> bool:
+	var q := PhysicsRayQueryParameters2D.create(a, b, 1)
+	return not get_world_2d().direct_space_state.intersect_ray(q).is_empty()
 
 
 func _on_mode_changed(m: String) -> void:

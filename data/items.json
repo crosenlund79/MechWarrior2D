@@ -1,3 +1,14 @@
 {
-	"radiator_core": {"name": "ITEM_RADIATOR_CORE", "asset": "item.radiator_core", "stack": 9}
+	"radiator_core": {
+		"name": "ITEM_RADIATOR_CORE",
+		"asset": "item.radiator_core",
+		"stack": 9,
+		"bulk": 1
+	},
+	"scrap": {
+		"name": "ITEM_SCRAP",
+		"asset": "item.scrap",
+		"stack": 99,
+		"bulk": 0
+	}
 }

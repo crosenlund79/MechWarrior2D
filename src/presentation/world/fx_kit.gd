@@ -72,3 +72,90 @@ static func ramp(offsets: Array, colors: Array) -> Gradient:
 	g.offsets = PackedFloat32Array(offsets)
 	g.colors = PackedColorArray(colors)
 	return g
+
+
+static func coolant_leak() -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.texture = dot()
+	p.amount = 14
+	p.lifetime = 1.2
+	p.emitting = false
+	p.local_coords = false
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.emission_rect_extents = Vector2(40, 4)
+	p.direction = Vector2(0, 1)
+	p.spread = 30.0
+	p.gravity = Vector2.ZERO
+	p.initial_velocity_min = 8.0
+	p.initial_velocity_max = 20.0
+	p.scale_amount_min = 0.3
+	p.scale_amount_max = 0.7
+	p.color_ramp = ramp([0.0, 0.2, 1.0], [Color(0.3, 0.75, 0.7, 0.0), Color(0.3, 0.75, 0.7, 0.8), Color(0.25, 0.45, 0.4, 0.0)])
+	p.z_index = 1
+	return p
+
+
+static func damage_smoke() -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.texture = dot()
+	p.amount = 16
+	p.lifetime = 2.4
+	p.emitting = false
+	p.local_coords = false
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = 14.0
+	p.direction = Vector2(1, 0.25)
+	p.spread = 25.0
+	p.gravity = Vector2(14, 3)
+	p.initial_velocity_min = 10.0
+	p.initial_velocity_max = 24.0
+	p.scale_amount_min = 1.4
+	p.scale_amount_max = 3.2
+	p.color_ramp = ramp([0.0, 0.15, 1.0], [Color(0.18, 0.15, 0.12, 0.0), Color(0.18, 0.15, 0.12, 0.45), Color(0.3, 0.27, 0.22, 0.0)])
+	p.z_index = 7
+	return p
+
+
+static func sparks() -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.texture = dot()
+	p.amount = 10
+	p.lifetime = 0.5
+	p.one_shot = true
+	p.explosiveness = 0.95
+	p.local_coords = false
+	p.direction = Vector2(0, -1)
+	p.spread = 180.0
+	p.gravity = Vector2.ZERO
+	p.initial_velocity_min = 60.0
+	p.initial_velocity_max = 160.0
+	p.damping_min = 120.0
+	p.damping_max = 200.0
+	p.scale_amount_min = 0.15
+	p.scale_amount_max = 0.35
+	p.color_ramp = ramp([0.0, 0.5, 1.0], [Color(1.0, 0.9, 0.55, 1.0), Color(1.0, 0.55, 0.2, 0.9), Color(0.6, 0.2, 0.1, 0.0)])
+	p.z_index = 24
+	return p
+
+
+static func puff(color: Color, amount: int = 10) -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.texture = dot()
+	p.amount = amount
+	p.lifetime = 0.9
+	p.one_shot = true
+	p.explosiveness = 0.9
+	p.local_coords = false
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = 6.0
+	p.spread = 180.0
+	p.gravity = Vector2(10, 2)
+	p.initial_velocity_min = 15.0
+	p.initial_velocity_max = 45.0
+	p.damping_min = 30.0
+	p.damping_max = 50.0
+	p.scale_amount_min = 0.8
+	p.scale_amount_max = 1.8
+	p.color_ramp = ramp([0.0, 0.2, 1.0], [Color(color, 0.0), Color(color, color.a), Color(color, 0.0)])
+	p.z_index = 23
+	return p

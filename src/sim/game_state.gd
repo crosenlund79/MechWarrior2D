@@ -27,6 +27,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"radiator": Content.t("thermal", "start_radiator", 0.3),
 			"shutters_open": true,
 			"engine": "running",
+			"integrity": Content.t("mech", "integrity", 100.0),
 			"storage": {},
 		},
 		"pilot": {
@@ -37,8 +38,25 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"pack": {},
 		},
 		"world": {"taken": {}, "drops": [], "next_drop": 1},
+		"enemies": create_enemies(loc),
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0},
 	}
+
+
+## Enemy mechs from the location definition, keyed by their stable IDs.
+static func create_enemies(loc: Dictionary) -> Dictionary:
+	var out := {}
+	for d in loc.get("enemies", []):
+		out[str(d["id"])] = new_enemy(d)
+	return out
+
+
+static func new_enemy(d: Dictionary) -> Dictionary:
+	var p := Content.v2(d.get("spawn", [0, 0]))
+	return {"type": str(d.get("type", "scrapper")), "pos": [p.x, p.y], "heading": deg_to_rad(float(d.get("heading_deg", 0.0))),
+		"speed": 0.0, "heat": Content.t("enemy", "start_heat", 66.0), "radiator": Content.t("enemy", "start_radiator", 0.75),
+		"shutters_open": true, "engine": "running", "integrity": Content.t("enemy", "integrity", 55.0),
+		"ai": "patrol", "salvaged": false}
 
 
 ## Fills missing keys with defaults and clamps ranges. Used after loading.
@@ -77,6 +95,27 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 			dr["items"] = clean_inventory(dr.get("items", {}))
 			drops.append(dr)
 	s["world"]["drops"] = drops
+	m["integrity"] = clampf(float(m["integrity"]), 0.0, Content.t("mech", "integrity", 100.0))
+	# Enemies: keep known IDs, add missing ones, drop ones no longer in the location.
+	var en := {}
+	var have: Dictionary = s.get("enemies", {}) if s.get("enemies") is Dictionary else {}
+	for ed in loc.get("enemies", []):
+		var id := str(ed["id"])
+		var fresh := new_enemy(ed)
+		var e: Dictionary = have.get(id, fresh) if have.get(id) is Dictionary else fresh
+		for k in fresh:
+			if not e.has(k):
+				e[k] = fresh[k]
+		if not (str(e["ai"]) in ["patrol", "alert", "engage", "return", "wreck"]):
+			e["ai"] = "patrol"
+		if str(e["ai"]) in ["alert", "engage"]:
+			e["ai"] = "return"   # resume calmly after loading
+		e["speed"] = 0.0
+		e["salvaged"] = bool(e["salvaged"])
+		e["radiator"] = clampf(float(e["radiator"]), 0.0, 1.0)
+		e["integrity"] = maxf(0.0, float(e["integrity"]))
+		en[id] = e
+	s["enemies"] = en
 	var b: Array = loc.get("bounds", [0, 0, 3600, 2600])
 	for arr in [m["pos"], pl["pos"]]:
 		arr[0] = clampf(float(arr[0]), float(b[0]) + 40.0, float(b[0]) + float(b[2]) - 40.0)

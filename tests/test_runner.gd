@@ -294,3 +294,221 @@ func test_settings_roundtrip() -> void:
 	Settings.reset_bindings()
 	Settings.set_value("volume_Music", old)
 	check(not FileAccess.get_file_as_string(Paths.settings_file()).contains("radiator"), "settings file holds no game state")
+
+
+# ---------------------------------------------------------------- first hostile encounter
+
+func _fresh_session(slot := 3) -> Dictionary:
+	Content.reload()
+	Session.loc = Content.location()
+	Session.slot = slot
+	Session.state = GameState.create(Session.loc, slot)
+	Session.projectiles.clear()
+	Session.brains.clear()
+	Session.enemy_intents.clear()
+	Session.running = true
+	Session.spot_is_free = Callable()
+	Session.shot_blocked = Callable()
+	return Session.state
+
+
+func _enemy_id() -> String:
+	return str(Session.loc["enemies"][0]["id"])
+
+
+func test_enemy_created_with_stable_id() -> void:
+	var s := _fresh_session()
+	var id := _enemy_id()
+	check(s["enemies"].has(id), "enemy state keyed by stable id")
+	check(s["enemies"][id]["ai"] == "patrol", "enemy starts patrolling")
+	var start := Content.v2(Session.loc["mech_start"]["pos"])
+	check(Content.v2(s["enemies"][id]["pos"]).distance_to(start) > 1500.0, "enemy placed away from the start")
+	Session.running = false
+
+
+func test_combat_hit_areas() -> void:
+	var eh: Dictionary = Content.tuning["combat"]["enemy_hit"]
+	var w: Dictionary = Content.tuning["combat"]["player_weapon"]
+	var rng := RandomNumberGenerator.new()
+	var pos := Vector2(1000, 1000)
+	var heading := 0.0
+	var cp := Combat.cooling_point(pos, heading, eh)
+	check(cp.y > pos.y, "cooling area sits at the rear (facing up)")
+	var shot := Combat.make_shot("player", cp + Vector2(0, 60), Vector2(0, -1), {"speed": 100, "spread_deg": 0, "radius": 4, "damage": 7, "cooling_damage": 0.1}, rng)
+	shot["prev"] = cp + Vector2(0, 60)
+	shot["pos"] = cp
+	check(Combat.hit_test(shot, pos, heading, eh) == "cooling", "shot into the radiator hits cooling")
+	shot["prev"] = pos + Vector2(-200, -40)
+	shot["pos"] = pos + Vector2(0, -40)
+	check(Combat.hit_test(shot, pos, heading, eh) == "structure", "shot into the front hits structure")
+	shot["prev"] = pos + Vector2(-300, -300)
+	shot["pos"] = pos + Vector2(-250, -300)
+	check(Combat.hit_test(shot, pos, heading, eh) == "", "far shot misses")
+	var m := {"integrity": 50.0, "radiator": 0.8}
+	Combat.apply_hit(m, shot, "cooling")
+	check(float(m["radiator"]) < 0.8 and float(m["integrity"]) < 50.0, "cooling hit damages radiator (and a little structure)")
+	var m2 := {"integrity": 50.0, "radiator": 0.8}
+	Combat.apply_hit(m2, shot, "structure")
+	approx(float(m2["integrity"]), 43.0, 0.01, "structural hit damage")
+
+
+func test_heat_impairs_movement() -> void:
+	var th: Dictionary = Content.tuning["thermal"]
+	approx(Drive.impairment(80.0, th, 0.5), 1.0, 0.001, "no impairment when cool")
+	check(Drive.impairment(float(th["warn_temp"]) + 8.0, th, 0.5) < 0.85, "hot mech is slowed")
+	approx(Drive.impairment(float(th["critical_temp"]), th, 0.5), 0.5, 0.001, "max impairment at critical")
+
+
+func test_enemy_ai_patrol_detect_engage_disengage() -> void:
+	var s := _fresh_session()
+	var id := _enemy_id()
+	var e: Dictionary = s["enemies"][id]
+	var defn: Dictionary = Session.loc["enemies"][0]
+	var te: Dictionary = Content.tuning["enemy"]
+	var w: Dictionary = Content.tuning["combat"]["enemy_weapon"]
+	var brain := {"wp": 0, "t_state": 0.0, "windup": 0.0, "cooldown": 0.0}
+	var far := {"valid": true, "pos": Content.v2(e["pos"]) + Vector2(2000, 0), "heat": 70.0}
+	var r := EnemyAI.think(e, brain, far, defn, te, Content.tuning["thermal"], w, 0.1)
+	check(e["ai"] == "patrol" and absf(float(r["throttle"])) > 0.0, "patrols when nobody is near")
+	var near := {"valid": true, "pos": Content.v2(e["pos"]) + Vector2(0, -300), "heat": 80.0}
+	EnemyAI.think(e, brain, near, defn, te, Content.tuning["thermal"], w, 0.1)
+	check(e["ai"] == "alert", "detects a nearby mech")
+	for i in 20:
+		EnemyAI.think(e, brain, near, defn, te, Content.tuning["thermal"], w, 0.1)
+	check(e["ai"] == "engage", "engages after its (slow) reaction time")
+	var fired := false
+	var saw_windup := false
+	for i in 80:
+		var rr := EnemyAI.think(e, brain, near, defn, te, Content.tuning["thermal"], w, 0.1)
+		e["heading"] = 0.0   # already facing the target (up)
+		saw_windup = saw_windup or float(rr["windup"]) > 0.0
+		if rr["fire"]:
+			fired = true
+			break
+	check(saw_windup and fired, "fires only after a visible wind-up")
+	var gone := {"valid": true, "pos": Content.v2(e["pos"]) + Vector2(3000, 0), "heat": 80.0}
+	EnemyAI.think(e, brain, gone, defn, te, Content.tuning["thermal"], w, 0.1)
+	check(e["ai"] == "return", "disengages when the target escapes")
+	var cold := {"valid": true, "pos": Content.v2(e["pos"]) + Vector2(0, -500), "heat": 60.0}
+	check(EnemyAI.detect_radius(60.0, te) < EnemyAI.detect_radius(110.0, te), "hot mechs are seen from farther away")
+	Session.running = false
+
+
+func test_enemy_overheats_and_is_disabled() -> void:
+	var s := _fresh_session()
+	var id := _enemy_id()
+	var e: Dictionary = s["enemies"][id]
+	e["radiator"] = 0.0
+	e["heat"] = 100.0
+	Session.mech()["pos"] = [100.0, 100.0]  # far away
+	for i in 400:
+		Session.tick(0.1)
+		if e["ai"] == "wreck":
+			break
+	check(e["ai"] == "wreck", "cooked enemy (no cooling, critical heat) is disabled")
+	check(float(e["speed"]) == 0.0, "wreck is stationary")
+	var s2 := _fresh_session()
+	var e2: Dictionary = s2["enemies"][id]
+	e2["integrity"] = 1.0
+	var sh := {"owner": "player", "pos": Content.v2(e2["pos"]) + Vector2(-40, -10), "prev": Content.v2(e2["pos"]) + Vector2(-140, -10),
+		"vel": Vector2(500, 0), "travelled": 0.0, "range": 600.0, "damage": 7.0, "cooling_damage": 0.1, "structural_cooling_damage": 0.0, "radius": 5.0}
+	Session.projectiles = [sh]
+	sh["pos"] = sh["prev"]
+	Session.tick(0.25)
+	check(e2["ai"] == "wreck", "structural destruction disables the enemy")
+	Session.running = false
+	Saves.delete_slot(3)
+
+
+func test_wreck_salvage_single_use_and_persistent() -> void:
+	var s := _fresh_session(2)
+	var id := _enemy_id()
+	var e: Dictionary = s["enemies"][id]
+	e["ai"] = "wreck"
+	e["integrity"] = 0.0
+	Session.mech()["pos"] = [Content.v2(e["pos"]).x - 400.0, Content.v2(e["pos"]).y]
+	Session.mech()["speed"] = 0.0
+	check(Session.exit_mech(), "exit near the wreck")
+	s["pilot"]["pos"] = [Content.v2(e["pos"]).x - 80.0, Content.v2(e["pos"]).y]
+	var suit0 := float(s["pilot"]["suit"])
+	check(Session.request("interact"), "start stripping the wreck")
+	for i in 50:
+		Session.tick(0.1)
+	check(bool(e["salvaged"]), "wreck marked salvaged")
+	check(GameState.count(s["pilot"]["pack"], "scrap") == int(Content.tuning["wreck_salvage"]["scrap"]), "scrap recovered")
+	check(GameState.count(s["pilot"]["pack"], "radiator_core") == 1, "cooling component recovered")
+	check(float(s["pilot"]["suit"]) < suit0 - 4.0, "salvaging costs suit exposure")
+	approx(float(s["mech"]["radiator"]), Content.t("thermal", "start_radiator", 0.3), 0.001, "salvage does not repair the mech by itself")
+	var again := false
+	for it in Session.interactions():
+		if it["kind"] == "wreck":
+			again = true
+	check(not again, "the same wreck cannot be stripped twice")
+	check(Session.save_now("test"), "save")
+	var r := Saves.load_slot(2)
+	var loaded := GameState.sanitize(r["state"], Session.loc)
+	check(loaded["enemies"][id]["ai"] == "wreck" and bool(loaded["enemies"][id]["salvaged"]), "defeat + salvage state persisted")
+	Session.running = false
+	Saves.delete_slot(2)
+
+
+func test_hull_repair_and_emergency_patch() -> void:
+	var s := _fresh_session()
+	s["mech"]["integrity"] = 0.0
+	s["mech"]["radiator"] = 1.0
+	check(not Session.can_drive(), "crippled mech cannot drive")
+	check(not Session.can_fire(), "crippled mech cannot fire")
+	Session.exit_mech()
+	s["pilot"]["pos"] = [float(s["mech"]["pos"][0]) + 140.0, float(s["mech"]["pos"][1])]
+	check(Session.request("service"), "emergency patch available without scrap")
+	for i in 70:
+		Session.tick(0.1)
+	approx(float(s["mech"]["integrity"]), 25.0, 0.01, "emergency patch restores minimum integrity")
+	GameState.add(s["pilot"]["pack"], "scrap", 2)
+	check(Session.request("service"), "scrap hull repair")
+	for i in 40:
+		Session.tick(0.1)
+	approx(float(s["mech"]["integrity"]), 60.0, 0.01, "scrap repair adds integrity")
+	check(Session.scrap_available() == 0, "scrap consumed")
+	Session.running = false
+	Saves.delete_slot(3)
+
+
+func test_shade_reduces_heat_gain_and_suit_drain() -> void:
+	var loc := Content.location()
+	var shade := Content.zone_at(loc, Vector2(2220, 1640))
+	check(shade["type"] == "shade", "awning shade zone near the encounter")
+	var sun := Content.zone_at(loc, Vector2(2220, 1300))
+	var th: Dictionary = Content.tuning["thermal"]
+	var m := {"heat": 100.0, "radiator": 0.6, "shutters_open": true, "engine": "off"}
+	check(Thermal.equilibrium(m, false, 0.0, shade, th) < Thermal.equilibrium(m, false, 0.0, sun, th) - 10.0, "parking in shade lowers the equilibrium")
+	var m2 := m.duplicate()
+	Thermal.step(m2, shade, th, 1.0, 0.0, false)
+	check(float(m2["heat"]) > 90.0, "shade does not instantly remove accumulated heat")
+	var s := _fresh_session()
+	Session.exit_mech()
+	s["pilot"]["pos"] = [2220.0, 1640.0]
+	var a := float(s["pilot"]["suit"])
+	Session.tick(1.0)
+	var shade_drain := a - float(s["pilot"]["suit"])
+	s["pilot"]["pos"] = [2220.0, 1300.0]
+	a = float(s["pilot"]["suit"])
+	Session.tick(1.0)
+	var sun_drain := a - float(s["pilot"]["suit"])
+	check(shade_drain > 0.0 and shade_drain < sun_drain * 0.6, "shade slows (but does not stop) suit drain")
+	Session.running = false
+	Saves.delete_slot(3)
+
+
+func test_migration_v1_to_v2() -> void:
+	var loc := Content.location()
+	var env := SaveCodec.encode(GameState.create(loc, 1))
+	env["version"] = 1
+	env["state"]["mech"].erase("integrity")
+	env["state"].erase("enemies")
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 2, "v1 migrates to v2")
+	check(SaveCodec.validate(up) == "", "migrated save validates")
+	var st := GameState.sanitize(up["state"], loc)
+	approx(float(st["mech"]["integrity"]), 100.0, 0.01, "integrity added")
+	check(st["enemies"].size() == loc["enemies"].size(), "enemies created on load")

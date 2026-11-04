@@ -281,6 +281,178 @@ def gen_mech_shutters():
     c.save(out("mech.shutters"))
 
 
+def gen_mech_gun():
+    c = canvas_for("mech.gun", 306)
+    W, H = 104, 208
+    cx, my = W / 2, 150           # mount (pivot 0.72 of 208)
+    c.fill_ellipse((cx - 32, my - 30, cx + 32, my + 30), STEEL_D, tex=0.3)
+    c.shade(c.ellipse_mask((cx - 32, my - 30, cx + 32, my + 30)), 1, .6, 4, 80)
+    c.ink_ellipse((cx - 32, my - 30, cx + 32, my + 30), 2.4)
+    barrel = [(cx - 9, my - 20), (cx + 9, my - 20), (cx + 8, 14), (cx - 8, 14)]
+    plate(c, barrel, STEEL, line=2.2, grime=0.3, hatch_alpha=60)
+    for y in range(40, int(my - 30), 14):   # cooling jacket rings
+        c.ink([(cx - 12, y), (cx + 12, y)], 2.2, wobble=0.2)
+    c.fill([(cx - 12, 4), (cx + 12, 4), (cx + 12, 18), (cx - 12, 18)], CHAR, tex=0.2)   # muzzle brake
+    c.ink_poly([(cx - 12, 4), (cx + 12, 4), (cx + 12, 18), (cx - 12, 18)], 1.8)
+    c.fill([(cx - 22, my - 6), (cx + 22, my - 6), (cx + 22, my + 16), (cx - 22, my + 16)], PAINT_G, tex=0.3)
+    c.ink_poly([(cx - 22, my - 6), (cx + 22, my - 6), (cx + 22, my + 16), (cx - 22, my + 16)], 1.8)
+    c.rivets([(cx - 16, my + 10), (cx + 16, my + 10)], 1.6)
+    c.desertize(dust=0.4, abrasion=0.5, bleach=0.3, seams=0.5, heat=[(cx, 30, 30, 0.6)])
+    c.save(out("mech.gun"))
+
+
+# ======================================================================= ENEMY SCRAPPER
+ENEMY_RED = (142, 62, 42)
+OXIDE = (118, 70, 50)
+
+
+def draw_scrapper(c, cx, cy, wrecked=False, seed=0):
+    """Top-down hostile scrapper centred at (cx, cy), facing up (source px)."""
+    r = random.Random(seed)
+    j = (lambda v: v + r.uniform(-6, 6)) if wrecked else (lambda v: v)
+    # chassis spine
+    spine = [(cx - 52, cy - 120), (cx + 50, cy - 118), (cx + 70, cy + 70), (cx + 60, cy + 150), (cx - 60, cy + 150), (cx - 72, cy + 70)]
+    m = plate(c, [(j(x), j(y)) for x, y in spine], CHAR, line=3.0, grime=0.5, hatch_alpha=90)
+    # crude cannon: a pipe welded on, protruding forward
+    bx = cx + 6
+    barrel = [(bx - 11, cy - 70), (bx + 11, cy - 70), (bx + 10, cy - 168), (bx - 10, cy - 168)]
+    if wrecked:
+        barrel = [(bx - 11, cy - 70), (bx + 11, cy - 70), (bx + 34, cy - 140), (bx + 16, cy - 146)]
+    plate(c, barrel, RUST_D, line=2.4, grime=0.4, hatch_alpha=70)
+    for k in range(3):
+        y = cy - 90 - k * 22
+        c.ink([(bx - 14, y), (bx + 14, y)], 3.0, wobble=0.6, color=STEEL_D)
+    end = barrel[2]
+    c.fill_ellipse((end[0] - 14, end[1] - 6, end[0] + 4, end[1] + 10), HOLE, tex=0.1)
+    # armour: mismatched welded plates (oxide red, bare steel, rust) with raider stripes
+    plates = [([(cx - 70, cy - 70), (cx - 10, cy - 84), (cx - 6, cy + 20), (cx - 76, cy + 30)], ENEMY_RED),
+              ([(cx + 2, cy - 66), (cx + 66, cy - 60), (cx + 74, cy + 34), (cx + 6, cy + 24)], OXIDE),
+              ([(cx - 40, cy + 22), (cx + 44, cy + 26), (cx + 40, cy + 70), (cx - 44, cy + 68)], STEEL)]
+    for poly, col in plates:
+        poly = [(j(x), j(y)) for x, y in poly]
+        plate(c, poly, col, line=2.4, grime=0.6, hatch_alpha=80)
+        bolts_along(c, poly, 20, 6)
+    for k in range(3):
+        y = cy - 50 + k * 22
+        c.ink([(cx - 64, y), (cx - 22, y - 10)], 5.0, wobble=0.8, alpha=200, color=HOLE)
+    # cockpit: small boxy cab offset left with a viewing slit
+    cab = [(cx - 54, cy - 116), (cx - 14, cy - 118), (cx - 12, cy - 74), (cx - 56, cy - 72)]
+    plate(c, [(j(x), j(y)) for x, y in cab], STEEL_L, line=2.4, grime=0.4)
+    c.ink([(cx - 48, cy - 106), (cx - 20, cy - 108)], 4.0, wobble=0.3, color=HOLE)
+    # scrap spikes / bars on the shoulders
+    for sx in (-1, 1):
+        for k in range(3):
+            y = cy - 30 + k * 26
+            c.ink([(cx + sx * 74, y), (cx + sx * 92, y - 8)], 3.0, wobble=0.4, color=STEEL_D)
+    # EXPOSED RADIATOR on the back (the cooling hit area): frame, fins, fan, coolant hoses
+    ry = cy + 116
+    rad = [(cx - 52, ry - 34), (cx + 52, ry - 34), (cx + 54, ry + 32), (cx - 54, ry + 32)]
+    plate(c, rad, STEEL_D, line=2.8, grime=0.3, hatch=False)
+    c.fill([(cx - 46, ry - 28), (cx + 46, ry - 28), (cx + 46, ry + 26), (cx - 46, ry + 26)], (60, 58, 52), tex=0.2)
+    for i in range(22):
+        x = cx - 44 + i * 4.2
+        c.ink([(x, ry - 26), (x, ry + 24)], 1.0, wobble=0.15, alpha=210)
+    if not wrecked:
+        c.fill_ellipse((cx - 22, ry - 22, cx + 22, ry + 22), (40, 36, 32), tex=0.2)
+        for k in range(5):
+            a = k / 5 * math.tau
+            c.fill([(cx, ry), (cx + math.cos(a) * 20, ry + math.sin(a) * 20), (cx + math.cos(a + .55) * 18, ry + math.sin(a + .55) * 18)], STEEL_L, tex=0.1)
+        c.ink_ellipse((cx - 22, ry - 22, cx + 22, ry + 22), 2.0)
+    else:
+        for k in range(5):
+            x = cx + r.uniform(-40, 40)
+            c.ink([(x, ry - 26), (x + r.uniform(-10, 10), ry + 24)], 2.2, wobble=1.4)
+    for sx in (-1, 1):
+        c.ink([(cx + sx * 30, cy + 40), (cx + sx * 50, cy + 80), (cx + sx * 50, ry - 30)], 5.0, wobble=0.5, color=(48, 92, 88), alpha=255)
+        c.ink([(cx + sx * 30, cy + 40), (cx + sx * 50, cy + 80), (cx + sx * 50, ry - 30)], 2.6, wobble=0.4, color=COOLANT, alpha=255)
+    c.ink_poly(rad, 2.8)
+
+
+def gen_enemy():
+    c = canvas_for("enemy.hull", 901)
+    draw_scrapper(c, 150, 166)
+    c.desertize(dust=0.5, abrasion=0.5, bleach=0.3, seams=0.7, heat=[(156, 60, 40, 0.5)])
+    c.save(out("enemy.hull"))
+    c = canvas_for("enemy.leg", 902)
+    W, H = 92, 208
+    cx = W / 2
+    for dx in (-18, 18):
+        toe = [(cx + dx - 9, 26), (cx + dx + 9, 26), (cx + dx + 12, 4), (cx + dx - 12, 4)]
+        plate(c, toe, STEEL_D, line=1.8, grime=0.2, hatch_alpha=60)
+    pad = blob(cx, 40, 34, 20, 16, 0.08, 3)
+    plate(c, pad, RUST, line=2.2, grime=0.5)
+    plate(c, [(cx - 9, 56), (cx + 9, 56), (cx + 8, 130), (cx - 8, 130)], CHAR, line=1.8, grime=0.2)
+    c.fill_ellipse((cx - 18, 118, cx + 18, 154), STEEL, tex=0.3)
+    c.ink_ellipse((cx - 18, 118, cx + 18, 154), 2.0)
+    thigh = [(cx - 24, 146), (cx + 24, 146), (cx + 26, 196), (cx - 26, 196)]
+    plate(c, thigh, ENEMY_RED, line=2.2, grime=0.6)
+    c.desertize(dust=0.6, abrasion=0.5, bleach=0.3, seams=0.6)
+    c.save(out("enemy.leg"))
+    # wreck: collapsed body, splayed legs, scorched, half drifted over with sand
+    c = canvas_for("enemy.wreck", 903)
+    W, H = 380, 380
+    c.soft_shadow((40, 50, 350, 350), 120, 14)
+    for sx, ang in ((-1, -0.6), (1, 0.9)):
+        lx, ly = 190 + sx * 96, 210
+        leg = [(lx - 18, ly - 60), (lx + 18, ly - 60), (lx + 22, ly + 60), (lx - 22, ly + 60)]
+        rot = [(lx + (x - lx) * math.cos(ang) - (y - ly) * math.sin(ang), ly + (x - lx) * math.sin(ang) + (y - ly) * math.cos(ang)) for x, y in leg]
+        plate(c, rot, RUST_D, line=2.2, grime=0.6)
+    draw_scrapper(c, 190, 196, wrecked=True, seed=4)
+    # scorch and soot blooms, a torn plate on the ground
+    for k in range(5):
+        b = blob(190 + random.Random(k).uniform(-70, 70), 196 + random.Random(k + 9).uniform(-90, 90), 34, 24, 14, 0.4, k)
+        c.fill(b, (34, 28, 24), tex=0.6, cell=6)
+    plate(c, [(40, 300), (96, 290), (104, 330), (44, 344)], OXIDE, line=2.0, grime=0.5)
+    d = blob(300, 330, 60, 30, 18, 0.25, 7)
+    c.fill(d, SAND_L, tex=0.3)
+    c.desertize(dust=0.8, abrasion=0.5, bleach=0.4, seams=0.7, heat=[(190, 300, 60, 0.3), (190, 120, 50, 0.35)])
+    c.save(out("enemy.wreck"))
+
+
+def gen_scrap_item():
+    c = canvas_for("item.scrap", 503)
+    for k, (x, y, col) in enumerate(((26, 30, RUST), (48, 26, STEEL), (40, 46, OXIDE))):
+        pl = blob(x, y, 18, 12, 8, 0.25, k, rot=k * 0.7)
+        plate(c, pl, col, line=1.8, grime=0.3, hatch_alpha=60)
+    c.rivets([(30, 30), (46, 44)], 1.6)
+    c.desertize(dust=0.4, abrasion=0.4, bleach=0.3, seams=0.4)
+    c.save(out("item.scrap"))
+
+
+def gen_awning():
+    """Salt-works shade sail: stitched tarp panels stretched to four posts, sagging edges."""
+    c = canvas_for("shelter.awning", 611)
+    W, H = 780, 620
+    corners = [(30, 30), (W - 30, 30), (W - 30, H - 30), (30, H - 30)]
+    sail = [(40, 40), (W / 2, 70), (W - 40, 40), (W - 70, H / 2), (W - 40, H - 40), (W / 2, H - 72), (40, H - 40), (68, H / 2)]
+    m = c.fill(sail, (186, 140, 90), tex=0.4, cell=22, light=(-1, -1, 0.35))
+    cols = [(176, 112, 70), (196, 160, 104), (160, 98, 62)]
+    for k in range(5):  # stitched panels
+        x0 = 40 + k * (W - 80) / 5
+        pnl = [(x0, 40), (x0 + (W - 80) / 5, 40), (x0 + (W - 80) / 5, H - 40), (x0, H - 40)]
+        pm = Image.fromarray(np.minimum(np.asarray(m), np.asarray(c.mask(pnl))))
+        c.fill(None, cols[k % 3], tex=0.35, cell=20, m=pm)
+        if k:
+            c.ink([(x0, 60), (x0 + 3, H / 2), (x0, H - 60)], 1.2, wobble=0.8, alpha=150)
+            for y in range(70, H - 60, 16):
+                c.ink([(x0 - 3, y), (x0 + 3, y + 4)], 0.8, wobble=0.1, alpha=120)
+    c.shade(m, 1, .6, 6.0, 55, reach=0.45)
+    for k in range(4):  # sag folds
+        c.ink([(120 + k * 160, 90), (150 + k * 160, H / 2), (120 + k * 160, H - 90)], 1.0, wobble=2.0, alpha=90)
+    patch = [(470, 380), (560, 372), (566, 450), (474, 458)]
+    plate(c, patch, (120, 120, 104), line=1.6, grime=0.2, hatch=False)
+    c.desertize(dust=0.6, abrasion=0.2, bleach=0.6, seams=0.4)
+    hole = blob(250, 420, 18, 12, 12, 0.4, 3)
+    hm = Image.new("L", c.img.size, 255)
+    ImageDraw.Draw(hm).polygon([(px * SS, py * SS) for px, py in hole], fill=0)
+    c.img.putalpha(Image.fromarray(np.minimum(np.asarray(c.img.split()[3]), np.asarray(hm))))
+    c.ink_poly(hole, 1.6)
+    c.ink_poly(sail, 2.6)
+    for (a, b) in zip(corners, [sail[0], sail[2], sail[4], sail[6]]):   # ropes to the posts
+        c.ink([a, b], 1.6, wobble=0.4, color=(90, 70, 50))
+    c.save(out("shelter.awning"))
+
+
 # ======================================================================= PILOT
 def gen_pilot():
     c = canvas_for("pilot.suit", 401)
@@ -899,7 +1071,7 @@ def gen_fx():
     Image.fromarray(np.dstack([np.full((24, 24, 3), 255), np.clip(1 - d2, 0, 1) * 255]).astype(np.uint8), "RGBA").save(os.path.join(fx, "dust_mote.png"))
 
 
-GENS = [gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
+GENS = [gen_mech_gun, gen_enemy, gen_scrap_item, gen_awning, gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

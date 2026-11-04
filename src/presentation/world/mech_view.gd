@@ -22,14 +22,20 @@ var shadow: Node2D        # world-aligned shadow (does not rotate the offset)
 var heat_glow: PointLight2D
 var steam: CPUParticles2D
 var dust: CPUParticles2D
+var gun_holder: Node2D
+var gun: Sprite2D
+var leak: CPUParticles2D
+var smoke: CPUParticles2D
+var _flash := 0.0
+var _recoil := 0.0
 var _stride := 0.0
 var _shutter_t := 1.0
 var _shake := 0.0
 
 
 func _ready() -> void:
-	collision_layer = 1
-	collision_mask = 1
+	collision_layer = 4   # mechs
+	collision_mask = 1 | 4
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	var cs := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
@@ -51,7 +57,21 @@ func _ready() -> void:
 	radiator = _part("mech.radiator", Vector2(0, 92), body)
 	radiator_damage = _part("mech.radiator_damage", Vector2(0, 92), body)
 	shutters = _part("mech.shutters", Vector2(0, 92), body)
+	gun_holder = Node2D.new()
+	gun_holder.name = "Gun"
+	add_child(gun_holder)
+	gun = Sprite2D.new()
+	gun.set_meta("asset", "mech.gun")
+	gun_holder.add_child(gun)
+	Assets.apply_to_sprite(gun, "mech.gun")
+	gun_holder.material = LightKit.rotating_light_material()
+	gun.use_parent_material = true
 	_build_shadow()
+	leak = FxKit.coolant_leak()
+	leak.position = Vector2(0, 110)
+	body.add_child(leak)
+	smoke = FxKit.damage_smoke()
+	add_child(smoke)
 	heat_glow = LightKit.glow(Color(1.0, 0.45, 0.2), 1.3, 0.0)
 	heat_glow.position = Vector2(0, 96)
 	body.add_child(heat_glow)
@@ -64,6 +84,7 @@ func _ready() -> void:
 	for s in [hull, leg_l, leg_r, radiator, radiator_damage, shutters]:
 		s.use_parent_material = true
 	Session.mech_event.connect(_on_mech_event)
+	Session.combat_event.connect(on_combat)
 	Assets.reloaded.connect(_rebuild_art)
 	sync_from_state()
 
@@ -104,7 +125,7 @@ func _build_shadow() -> void:
 
 
 func _rebuild_art() -> void:
-	for s in [hull, leg_l, leg_r, radiator, radiator_damage, shutters]:
+	for s in [hull, leg_l, leg_r, radiator, radiator_damage, shutters, gun]:
 		Assets.apply_to_sprite(s, str(s.get_meta("asset")))
 	_build_shadow()
 
@@ -161,6 +182,17 @@ func _process(delta: float) -> void:
 	heat_glow.energy = glow_f * (0.55 + 0.15 * sin(Time.get_ticks_msec() * 0.008))
 	radiator.modulate = Color(1, 1, 1).lerp(Color(1.35, 0.8, 0.62), glow_f * 0.6)
 	steam.emitting = heat >= warn or engine == "shutdown"
+	# Turret: rotates toward the aim point around its mount on the deck.
+	_recoil = move_toward(_recoil, 0.0, delta * 40.0)
+	gun_holder.position = Vector2(0, 8).rotated(body.rotation) - Drive.forward(Session.gun_angle) * _recoil
+	gun_holder.rotation = Session.gun_angle if Session.mode() == "mech" else lerp_angle(gun_holder.rotation, body.rotation, delta * 2.0)
+	# Damage feedback: coolant leak (cooling < 35 %), smoke (integrity < 45 %), hit flash.
+	leak.emitting = float(m["radiator"]) < 0.35
+	var integ := float(m["integrity"]) / float(Session.tun("mech").get("integrity", 100.0))
+	smoke.emitting = integ < 0.45
+	smoke.global_position = global_position + Vector2(-20, -30).rotated(body.rotation)
+	_flash = move_toward(_flash, 0.0, delta * 3.0)
+	body.modulate = Color(1, 1, 1).lerp(Color(1.9, 0.55, 0.5), _flash)
 	dust.emitting = frac > 0.15
 	dust.global_position = global_position + Vector2(-sin(body.rotation), cos(body.rotation)) * 60.0
 	# Shadow follows the mech but keeps a fixed world-space offset (sun upper-left).
@@ -180,3 +212,13 @@ func _on_mech_event(ev: String) -> void:
 			_shake = 1.0
 		"repaired":
 			_shake = 0.3
+
+
+func on_combat(kind: String, data: Dictionary) -> void:
+	match kind:
+		"player_hit":
+			_flash = 0.8
+			_shake = maxf(_shake, 0.35)
+		"muzzle":
+			if str(data.get("owner", "")) == "player":
+				_recoil = 6.0

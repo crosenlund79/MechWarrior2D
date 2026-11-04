@@ -91,7 +91,23 @@ Danger is signalled by an edge glow on the UI layer, not by grading the world. P
 and the amber visor keep the small figure readable on sand. Coolant teal appears only on cooling
 hardware and water.
 
-## 9. Known limitations / open questions for the creator
+## 9. First hostile encounter (same pipeline)
+- **Scrapper** (`enemy.hull`, `enemy.leg`, `enemy.wreck`): narrower and hunched, in oxide red and rust
+  with welded mismatched plates, a cab offset to the left and a crude welded pipe cannon. Its **exposed
+  rear radiator** with teal hoses marks the cooling hit area, so you can tell it from the player's
+  yellow/green mech at a glance.
+- **Wreck:** a separate sprite with collapsed splayed legs, a bent barrel, smashed fins, soot blooms
+  and a sand drift. The body is dimmed, with slow smoke, occasional sparks and a salvage glint until
+  stripped.
+- **Telegraph:** a red aim line from the muzzle with a growing glow (UI-free, in-world).
+  **Shots:** player = thin amber tracers; enemy = slow, fat glowing slug with a soot trail.
+  **Hits:** small spark burst; cooling hits add a teal coolant puff and steam.
+- **Damage states:** a coolant leak below 35 % cooling, smoke below 45–50 % integrity, steam when hot,
+  a hit flash (Red Thaw recipe).
+- **Turret** (`mech.gun`) rotates over the hull. The **awning** (`shelter.awning`) is a stitched tarp
+  sail on four posts. Its shade zone equals its cast-shadow footprint and it fades when you are under it.
+
+## 10. Known limitations / open questions for the creator
 - All art is **generated placeholder illustration** in the ink pipeline, not hand-drawn. It exists
   to evaluate the style and is fully replaceable (see `guides/ASSET_REPLACEMENT.md`).
 - The menu backdrop (`ui.menu_backdrop`) is a capture of the running game

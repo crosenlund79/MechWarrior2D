@@ -10,8 +10,10 @@
 		"turn_rate_full_speed": 0.95,
 		"exit_max_speed": 15.0,
 		"collision_radius": 104.0,
-		"enter_radius": 150.0,
-		"service_radius": 175.0
+		"enter_radius": 160.0,
+		"service_radius": 175.0,
+		"impair_max": 0.5,
+		"integrity": 100.0
 	},
 	"thermal": {
 		"start_heat": 72.0,
@@ -30,7 +32,7 @@
 		"overheat_damage": 0.004,
 		"abrasion_wear": 0.0008,
 		"cabin_safe_temp": 105.0,
-		"start_radiator": 0.30
+		"start_radiator": 0.3
 	},
 	"suit": {
 		"max": 100.0,
@@ -56,5 +58,86 @@
 	"salvage": {
 		"duration": 1.6
 	},
-	"autosave_interval": 60.0
+	"autosave_interval": 60.0,
+	"combat": {
+		"_note": "Projectiles are simulated in Session (not saved). damage = structural; cooling_damage applies when the shot lands inside the target's cooling hit area.",
+		"player_weapon": {
+			"damage": 7.0,
+			"cooling_damage": 0.09,
+			"structural_cooling_damage": 0.01,
+			"speed": 560.0,
+			"range": 640.0,
+			"cooldown": 0.5,
+			"heat_per_shot": 1.4,
+			"spread_deg": 2.5,
+			"radius": 5.0
+		},
+		"enemy_weapon": {
+			"damage": 6.0,
+			"cooling_damage": 0.05,
+			"structural_cooling_damage": 0.005,
+			"speed": 250.0,
+			"range": 560.0,
+			"cooldown": 3.4,
+			"telegraph": 1.2,
+			"heat_per_shot": 3.5,
+			"spread_deg": 5.0,
+			"radius": 9.0
+		},
+		"player_hit": {
+			"body_radius": 104.0,
+			"cooling_offset": [
+				0,
+				92
+			],
+			"cooling_radius": 42.0
+		},
+		"enemy_hit": {
+			"body_radius": 66.0,
+			"cooling_offset": [
+				0,
+				58
+			],
+			"cooling_radius": 32.0
+		}
+	},
+	"enemy": {
+		"_note": "Scrapper: weak, slow, telegraphs every shot. Detection grows with the target mech's heat (heat signature).",
+		"integrity": 55.0,
+		"start_radiator": 0.75,
+		"start_heat": 66.0,
+		"max_speed": 78.0,
+		"reverse_speed": 40.0,
+		"accel": 60.0,
+		"brake": 160.0,
+		"coast_drag": 50.0,
+		"turn_rate": 1.0,
+		"turn_rate_full_speed": 0.75,
+		"collision_radius": 66.0,
+		"patrol_throttle": 0.45,
+		"detect_base": 330.0,
+		"detect_per_degree": 4.0,
+		"detect_max": 620.0,
+		"lose_radius": 760.0,
+		"leash_radius": 800.0,
+		"reaction_time": 1.1,
+		"preferred_range": 330.0,
+		"fire_cone_deg": 12.0,
+		"cool_off_temp": 104.0,
+		"disable_radiator": 0.04
+	},
+	"wreck_salvage": {
+		"duration": 3.5,
+		"scrap": 4,
+		"item": "radiator_core",
+		"item_count": 1
+	},
+	"hull_repair": {
+		"scrap_cost": 2,
+		"restore": 35.0,
+		"duration": 3.0,
+		"emergency_below": 25.0,
+		"emergency_to": 25.0,
+		"emergency_duration": 6.0
+	}
 }

@@ -19,11 +19,27 @@
    crossing the dunes: the sand there shreds an open radiator.
 7. Quit, restart Godot, **Continue**: the salvage stays taken and the repair stays done.
 
+## The hostile encounter (about 4 minutes)
+1. Follow the south track toward the salt pan. A rusty-red **scrapper** patrols around the dead hauler.
+   It sees a hot mech from farther away.
+2. When it engages, it turns to face you. A red aim line and a glowing muzzle warn about 1.2 s before
+   each slow, fat shot. Step sideways to dodge.
+3. Aim with the mouse and hold left click. Body hits wear down its hull. Hits on its **exposed rear
+   radiator** (teal hoses) wreck its cooling, so it overheats, slows, and stops shooting to cool.
+   Firing heats your mech too.
+4. Running hot? Back off into the shade of the **salt-works awning** (north-west of the salt pan). It
+   lowers heat gain and slows suit drain, but it doesn't erase heat.
+5. Once it is a wreck (smoke, sparks, glinting ring), park, step out and strip it (E, 3.5 s, costs suit
+   time). You get 4 scrap and a radiator core. Each wreck can be stripped once.
+6. Back at your mech: R repairs the radiator with the core, and R again patches the hull with 2 scrap.
+   If your hull hits 0, the mech is crippled. Step out and R gives a slow, free emergency patch to 25 %.
+
 ## Automated checks (any OS with Godot 4.7.2 on PATH as `godot`)
 ```bash
 godot --headless --path . --import
 godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests
 python3 tools/regression.py
+python3 tools/regression_encounter.py
 python3 tools/check_script_guides.py
 ```
 - `run_tests.tscn`: unit and regression suite covering content, manifest, zones, thermal maths,

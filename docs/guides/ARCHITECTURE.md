@@ -38,8 +38,25 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
 - **Zones**: polygons in the location file (shade, dunes, salt) set ambient, solar, abrasion, drag and
   suit factors.
 
+## Combat and the hostile encounter
+- `src/sim/drive.gd`: one drive model for every mech, with heat impairment
+  (`impairment = 1 − impair_max · clamp((T − warn)/(crit − warn))`).
+- `src/sim/combat.gd`: projectiles are runtime dictionaries in `Session.projectiles` and are not
+  saved. Hits are segment-vs-circle tests against each mech's **body** circle and its **cooling** circle
+  (a local offset at the illustrated radiator). Static obstacles stop shots via a world-view raycast
+  (`Session.shot_blocked`, physics layer 1). Mechs sit on layer 4 and the pilot on layer 2.
+- `src/sim/enemy_ai.gd`: a pure decision function (patrol / alert / engage / return / wreck).
+  `Session._tick_enemies` runs the same `Thermal.step` (enemy thermal overrides), weapon heat and zone
+  rules as for the player. A mech is disabled at 0 integrity, or when its radiator is ≤ 4 % at critical heat.
+- `state.enemies[<stable id>]` = `{type, pos, heading, speed, heat, radiator, shutters_open, engine,
+  integrity, ai, salvaged}`. Brains (timers, waypoint) are runtime-only. Engaged enemies load as
+  "return", so a reload never resumes mid-attack.
+- Views: `EnemyView` (movement executor + telegraph and damage FX) and `ProjectilesView` (tracers and
+  impacts). Both react to `Session.combat_event`.
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
+Format version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
 Write: temp → read back → validate → previous file to `.bak` → replace. Load: main → validate/migrate →
 else `.bak` (reported as "recovered"). Migrations: `SaveCodec.MIGRATIONS[from_version]`. Stable IDs:
 salvage nodes and props are named in location data; drops get `drop_<n>`. Autosave: new game, enter

@@ -15,6 +15,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/sim/thermal.gd` | Pure thermal model: heat in/out, equilibrium, shutdown, wear. |
 | `src/sim/game_state.gd` | Creates and sanitises the plain-data game state; inventory helpers. |
 | `src/sim/game_session.gd` | Autoload `Session`: owns the running game, tick, modes, interactions, autosave. |
+| `src/sim/drive.gd` | Shared walker drive dynamics + heat impairment (player and enemy). |
+| `src/sim/combat.gd` | Projectiles as data, cooling vs structure hit areas, damage. |
+| `src/sim/enemy_ai.gd` | Scrapper AI: patrol, detect (heat-based), engage with telegraph, disengage. |
 | `src/persistence/save_codec.gd` | Save envelope, validation, migrations. |
 | `src/persistence/save_service.gd` | Autoload `Saves`: slot files, backup recovery, summaries. |
 | `src/presentation/app/main.gd` | Root: switches menu ↔ game, starts the autotest driver. |
@@ -29,6 +32,8 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/world/camera_rig.gd` | Follow camera with look-ahead, zoom and bounds. |
 | `src/presentation/world/player_input.gd` | Input actions → Session intents and requests. |
 | `src/presentation/world/sound_director.gd` | Maps state/events to loops and one-shots. |
+| `src/presentation/world/enemy_view.gd` | Enemy mech: movement, telegraph line, damage FX, wreck state. |
+| `src/presentation/world/projectiles_view.gd` | Draws projectiles; impact, cooling-hit and muzzle effects. |
 | `src/presentation/world/light_kit.gd` | Shared glow texture, rotating-light and shadow shaders. |
 | `src/presentation/world/fx_kit.gd` | Particle presets (steam, dust). |
 | `src/presentation/world/atmosphere.gd` | Phase B atmosphere: day light, colour grade, dust haze, heat shimmer, dust particles. |
@@ -37,6 +42,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/ui/ui_root.gd` | UI root that applies the UI scale setting. |
 | `src/presentation/ui/hud.gd` | HUD: mech, suit, objective, prompts, cargo, notices, danger edge. |
 | `src/presentation/ui/objective_pointer.gd` | Edge chevron / ring toward the current objective. |
+| `src/presentation/ui/reticle.gd` | Mouse reticle while piloting. |
 | `src/presentation/ui/main_menu.gd` | Continue / new game with slot picker / settings / quit. |
 | `src/presentation/ui/settings_menu.gd` | Audio, display, UI scale, zoom, language, key remapping, asset reload. |
 | `src/presentation/ui/pause_menu.gd` | Resume / save / settings / quit. |
@@ -45,6 +51,8 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tests/test_runner.gd` | Unit/regression suite (headless). |
 | `tools/hs_driver.py` | Python helper that drives game processes. |
 | `tools/regression.py` | Runtime regression: loop, restart persistence, overrides, settings. |
+| `tools/regression_encounter.py` | Runtime regression for the hostile encounter (combat, AI, wreck, shade, restart). |
+| `tools/shots_encounter.py` | Screenshots of the hostile encounter. |
 | `tools/shots.py` | Captures screenshots of the running game. |
 | `tools/shots_b.py` | Phase B screenshots; `--backdrop` captures the menu backdrop template. |
 | `tools/art/inkkit.py` | Ink pipeline (Red Thaw kit + desertize, top-down finish, seamless tiles). |

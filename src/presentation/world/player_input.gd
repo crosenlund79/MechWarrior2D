@@ -21,10 +21,14 @@ func _process(_delta: float) -> void:
 		Session.drive_throttle = -y
 		Session.drive_turn = x
 		Session.walk_dir = Vector2.ZERO
+		if screen and screen.world:
+			Session.aim_point = screen.world.get_global_mouse_position()
+		Session.fire_held = Input.is_action_pressed("fire")
 	else:
 		Session.drive_throttle = 0.0
 		Session.drive_turn = 0.0
 		Session.walk_dir = Vector2(x, y)
+		Session.fire_held = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
