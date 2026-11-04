@@ -1,0 +1,6 @@
+.godot/
+*.translation
+tests/_out/
+__pycache__/
+*.tmp
+export/

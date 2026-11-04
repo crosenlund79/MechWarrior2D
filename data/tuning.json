@@ -1,0 +1,60 @@
+{
+	"_note": "All gameplay balance lives here. Temperatures in °C, rates per second, distances in px (≈42 px per metre).",
+	"mech": {
+		"max_speed": 150.0,
+		"reverse_speed": 65.0,
+		"accel": 95.0,
+		"brake": 240.0,
+		"coast_drag": 60.0,
+		"turn_rate": 1.5,
+		"turn_rate_full_speed": 0.95,
+		"exit_max_speed": 15.0,
+		"collision_radius": 74.0,
+		"enter_radius": 125.0,
+		"service_radius": 150.0
+	},
+	"thermal": {
+		"start_heat": 72.0,
+		"heat_capacity": 1.0,
+		"idle_heat": 0.9,
+		"move_heat": 2.0,
+		"solar_heat": 0.8,
+		"cooling_coeff": 0.12,
+		"min_efficiency": 0.18,
+		"shutters_closed_airflow": 0.45,
+		"engine_off_heat": 0.0,
+		"warn_temp": 98.0,
+		"critical_temp": 115.0,
+		"restart_temp": 90.0,
+		"max_temp": 135.0,
+		"overheat_damage": 0.004,
+		"abrasion_wear": 0.0008,
+		"cabin_safe_temp": 105.0,
+		"start_radiator": 0.30
+	},
+	"suit": {
+		"max": 100.0,
+		"drain": 1.4,
+		"recover_in_mech": 9.0,
+		"hot_cabin_drain": 0.5,
+		"strain_time": 10.0,
+		"strain_recover": 0.25,
+		"collapse_fade": 2.5,
+		"after_collapse_protection": 25.0
+	},
+	"pilot": {
+		"speed": 100.0,
+		"accel": 900.0,
+		"interact_radius": 85.0,
+		"pack_capacity": 2
+	},
+	"repair": {
+		"item": "radiator_core",
+		"restore": 0.55,
+		"duration": 3.0
+	},
+	"salvage": {
+		"duration": 1.6
+	},
+	"autosave_interval": 60.0
+}
