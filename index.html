@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Iron Siege</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="title" class="overlay">
+  <div class="panel">
+    <h1>IRON SIEGE</h1>
+    <p class="sub">Mech Survival — hold the wasteland as long as you can</p>
+    <div class="controls">
+      <div><kbd>W</kbd><kbd>S</kbd> Throttle</div>
+      <div><kbd>A</kbd><kbd>D</kbd> Turn legs</div>
+      <div><kbd>Mouse</kbd> Twist torso / aim</div>
+      <div><kbd>LMB</kbd> Twin lasers (hot)</div>
+      <div><kbd>RMB</kbd> Autocannon (ammo)</div>
+      <div><kbd>Space</kbd> Missile salvo (locks near cursor)</div>
+      <div><kbd>C</kbd> Coolant flush</div>
+      <div><kbd>P</kbd> Pause &nbsp; <kbd>M</kbd> Mute</div>
+    </div>
+    <p class="tip">Watch your heat. At 100% the reactor shuts down. Hits to your back armor deal 50% more damage.</p>
+    <p class="best">Best score: <span id="bestScore">0</span></p>
+    <button id="startBtn">DEPLOY</button>
+  </div>
+</div>
+
+<div id="hangar" class="overlay hidden">
+  <div class="panel wide">
+    <h2>MOBILE HANGAR — WAVE <span id="hgWave"></span> SURVIVED</h2>
+    <div class="hgTop">
+      <div class="scrap">SALVAGE: <span id="hgScrap"></span></div>
+      <div id="hgStatus"></div>
+    </div>
+    <div id="upgrades"></div>
+    <button id="nextWaveBtn">LAUNCH NEXT WAVE</button>
+  </div>
+</div>
+
+<div id="pause" class="overlay hidden">
+  <div class="panel">
+    <h2>PAUSED</h2>
+    <p>Press <kbd>P</kbd> or <kbd>Esc</kbd> to resume</p>
+  </div>
+</div>
+
+<div id="gameover" class="overlay hidden">
+  <div class="panel">
+    <h2>MECH DESTROYED</h2>
+    <div id="goStats"></div>
+    <button id="restartBtn">REDEPLOY</button>
+  </div>
+</div>
+
+<script src="js/game.js"></script>
+</body>
+</html>
