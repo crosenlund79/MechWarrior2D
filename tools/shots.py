@@ -18,8 +18,8 @@ try:
     shot("02_start_in_shelter")
     g.cmd("drive_to 1500 1160 30"); g.cmd("drive 1 0 1.2")
     shot("03_driving_track")
-    g.cmd("drive_to 2650 1080 40")
-    for _ in range(12):
+    g.cmd("drive_to 2520 1100 40")
+    for _ in range(20):
         st = g.cmd("drive 1 1 3")["state"]
         if st["game"]["stats"]["overheats"] > 0:
             break
@@ -33,7 +33,7 @@ try:
     shot("06_salvaging")
     g.cmd("wait_task")
     mp = g.state()["game"]["mech"]["pos"]
-    g.cmd("walk_to 2760 1210 20"); g.cmd(f"walk_to {mp[0]} {mp[1] + 110} 20")
+    g.cmd("walk_to 2760 1210 20"); g.cmd(f"walk_to {mp[0]} {mp[1] + 140} 20")
     g.cmd("service"); g.cmd("wait 1.5")
     shot("07_repairing")
     g.cmd("wait_task"); g.cmd("ui dev on")

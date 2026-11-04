@@ -9,9 +9,9 @@
 		"turn_rate": 1.5,
 		"turn_rate_full_speed": 0.95,
 		"exit_max_speed": 15.0,
-		"collision_radius": 74.0,
-		"enter_radius": 125.0,
-		"service_radius": 150.0
+		"collision_radius": 104.0,
+		"enter_radius": 150.0,
+		"service_radius": 175.0
 	},
 	"thermal": {
 		"start_heat": 72.0,

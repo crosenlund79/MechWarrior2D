@@ -145,6 +145,12 @@ func _run(line: String) -> void:
 				"dev":
 					if main.game:
 						main.game.dev.visible = on
+				"hud":
+					if main.game:
+						main.game.hud.visible = on
+				"grade":
+					if main.game:
+						main.game.world.atmosphere.set_enabled(on)
 				"pause":
 					if main.game and on != get_tree().paused:
 						main.game.toggle_pause()

@@ -17,6 +17,10 @@ func _ready() -> void:
 	name = "Game"
 	world = WorldView.new()
 	add_child(world)
+	var atmo := Atmosphere.new()
+	atmo.world = world
+	add_child(atmo)
+	world.atmosphere = atmo
 	var hl := CanvasLayer.new()
 	hl.layer = 10
 	add_child(hl)

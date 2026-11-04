@@ -31,7 +31,9 @@ python3 tools/check_script_guides.py
 - `regression.py`: starts the **real game** twice (via `--autotest`). It plays drive → overheat → stop →
   exit → salvage → return → repair → continue, then restarts Godot and verifies persistence, settings
   persistence, external override → removal → template fallback, and the suit-collapse consequence.
-- Screenshots (needs a display): `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots.py docs/screenshots/<dir> <prefix>`.
+- Screenshots (needs a display): `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots.py docs/screenshots/<dir> <prefix>`
+  (Phase A flow) or `python3 tools/shots_b.py docs/screenshots/phase_b` (illustrated location).
+- Regenerate art: `python3 tools/art/gen_art.py` (needs Python 3 + Pillow + numpy; ~1 min). Not needed to run the game.
 
 ## Windows export (optional)
 `export_presets.cfg` contains a *Windows Desktop* preset. In Godot: *Project → Export → Windows Desktop

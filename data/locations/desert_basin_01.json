@@ -35,6 +35,7 @@
 		{"id": "shelter_toolrack", "asset": "shelter.toolrack", "pos": [548, 1290], "layer": "low", "collision": {"rect": [30, 140]}},
 		{"id": "shelter_barrels", "asset": "shelter.barrels", "pos": [940, 1110], "layer": "low", "collision": {"circle": 38}},
 		{"id": "shelter_roof", "asset": "shelter.roof", "pos": [760, 1240], "layer": "overhead", "occlude": true},
+		{"id": "shelter_flag", "asset": "shelter.flag", "pos": [1010, 1048], "layer": "overhead"},
 		{"id": "cistern", "asset": "shelter.cistern", "pos": [430, 975], "layer": "low", "collision": {"circle": 52}},
 		{"id": "wreck_pump_rig", "asset": "wreck.pump_rig", "pos": [2900, 950], "layer": "low", "collision": {"rect": [270, 190]}},
 		{"id": "wreck_hauler", "asset": "wreck.hauler", "pos": [2720, 2060], "rot": 18, "layer": "low", "collision": {"rect": [260, 150]}},

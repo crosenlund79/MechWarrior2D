@@ -31,6 +31,8 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/world/sound_director.gd` | Maps state/events to loops and one-shots. |
 | `src/presentation/world/light_kit.gd` | Shared glow texture, rotating-light and shadow shaders. |
 | `src/presentation/world/fx_kit.gd` | Particle presets (steam, dust). |
+| `src/presentation/world/atmosphere.gd` | Phase B atmosphere: day light, colour grade, dust haze, heat shimmer, dust particles. |
+| `src/presentation/world/wind_streaks.gd` | Faint screen-space wind streaks under the grade. |
 | `src/presentation/ui/ui_theme.gd` | Flat UI theme and small widget helpers. |
 | `src/presentation/ui/ui_root.gd` | UI root that applies the UI scale setting. |
 | `src/presentation/ui/hud.gd` | HUD: mech, suit, objective, prompts, cargo, notices, danger edge. |
@@ -44,6 +46,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/hs_driver.py` | Python helper that drives game processes. |
 | `tools/regression.py` | Runtime regression: loop, restart persistence, overrides, settings. |
 | `tools/shots.py` | Captures screenshots of the running game. |
+| `tools/shots_b.py` | Phase B screenshots; `--backdrop` captures the menu backdrop template. |
+| `tools/art/inkkit.py` | Ink pipeline (Red Thaw kit + desertize, top-down finish, seamless tiles). |
+| `tools/art/gen_art.py` | Generates all illustrated templates and FX textures. |
 | `tools/gen_placeholders.py` | Phase A diagnostic placeholder sprites. |
 | `tools/gen_audio.py` | Synthesises the bundled placeholder sounds. |
 | `tools/locale_src.py` | Source of all UI text (EN/DA) → locale/strings.csv. |

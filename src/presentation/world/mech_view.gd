@@ -44,15 +44,15 @@ func _ready() -> void:
 	body = Node2D.new()
 	body.name = "Body"
 	add_child(body)
-	leg_l = _part("mech.leg", Vector2(-88, 0), body)
-	leg_r = _part("mech.leg", Vector2(88, 0), body)
+	leg_l = _part("mech.leg", Vector2(-98, 0), body)
+	leg_r = _part("mech.leg", Vector2(98, 0), body)
 	leg_r.get_parent().scale.x = -1
 	hull = _part("mech.hull", Vector2.ZERO, body)
 	radiator = _part("mech.radiator", Vector2(0, 92), body)
 	radiator_damage = _part("mech.radiator_damage", Vector2(0, 92), body)
 	shutters = _part("mech.shutters", Vector2(0, 92), body)
 	_build_shadow()
-	heat_glow = LightKit.glow(Color(1.0, 0.45, 0.2), 2.2, 0.0)
+	heat_glow = LightKit.glow(Color(1.0, 0.45, 0.2), 1.3, 0.0)
 	heat_glow.position = Vector2(0, 96)
 	body.add_child(heat_glow)
 	steam = FxKit.steam()
@@ -137,8 +137,8 @@ func _process(delta: float) -> void:
 	# Stride: legs swing forward/back in opposite phase; the hull sways slightly.
 	_stride += delta * (2.0 + 5.5 * frac) * signf(speed if absf(speed) > 1.0 else 0.0)
 	var swing := sin(_stride) * 22.0 * minf(1.0, frac * 3.0)
-	leg_l.get_parent().position = Vector2(-88, -swing)
-	leg_r.get_parent().position = Vector2(88, swing)
+	leg_l.get_parent().position = Vector2(-98, -swing)
+	leg_r.get_parent().position = Vector2(98, swing)
 	hull.get_parent().rotation = sin(_stride * 2.0) * 0.018 * frac
 	hull.get_parent().position = Vector2(sin(_stride) * 2.0 * frac, 0)
 	var engine := str(m["engine"])
@@ -158,7 +158,7 @@ func _process(delta: float) -> void:
 	var warn := float(tth.get("warn_temp", 98.0))
 	var crit := float(tth.get("critical_temp", 115.0))
 	var glow_f := clampf((heat - (warn - 20.0)) / (crit - warn + 20.0), 0.0, 1.0)
-	heat_glow.energy = glow_f * (0.9 + 0.25 * sin(Time.get_ticks_msec() * 0.008))
+	heat_glow.energy = glow_f * (0.55 + 0.15 * sin(Time.get_ticks_msec() * 0.008))
 	radiator.modulate = Color(1, 1, 1).lerp(Color(1.35, 0.8, 0.62), glow_f * 0.6)
 	steam.emitting = heat >= warn or engine == "shutdown"
 	dust.emitting = frac > 0.15

@@ -31,6 +31,8 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/world/sound_director.gd` | Kobler tilstand/hændelser til lydløkker og enkeltlyde. |
 | `src/presentation/world/light_kit.gd` | Delt glødtekstur, roterende lys- og skyggeshadere. |
 | `src/presentation/world/fx_kit.gd` | Partikelforudindstillinger (damp, støv). |
+| `src/presentation/world/atmosphere.gd` | Fase B-atmosfære: dagslys, farvekorrektion, støvdis, varmeflimmer, støvpartikler. |
+| `src/presentation/world/wind_streaks.gd` | Svage vindstriber i skærmrummet under farvekorrektionen. |
 | `src/presentation/ui/ui_theme.gd` | Flad UI-stil og små hjælpere. |
 | `src/presentation/ui/ui_root.gd` | UI-rod der anvender brugerflade-skalaen. |
 | `src/presentation/ui/hud.gd` | HUD: mech, dragt, mål, handlinger, last, beskeder, farekant. |
@@ -44,6 +46,9 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/hs_driver.py` | Python-hjælper der styrer spilprocesser. |
 | `tools/regression.py` | Kørselsregression: løkke, vedvarende gem efter genstart, erstatninger, indstillinger. |
 | `tools/shots.py` | Tager skærmbilleder af det kørende spil. |
+| `tools/shots_b.py` | Fase B-skærmbilleder; `--backdrop` optager menu-baggrunden. |
+| `tools/art/inkkit.py` | Blækpipeline (Red Thaw-sæt + desertize, top-down finish, sømløse fliser). |
+| `tools/art/gen_art.py` | Genererer alle illustrerede skabeloner og FX-teksturer. |
 | `tools/gen_placeholders.py` | Diagnostiske pladsholder-sprites (fase A). |
 | `tools/gen_audio.py` | Syntetiserer de medfølgende pladsholderlyde. |
 | `tools/locale_src.py` | Kilde til al UI-tekst (EN/DA) → locale/strings.csv. |

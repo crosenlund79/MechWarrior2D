@@ -42,11 +42,35 @@ func setup(d: Dictionary) -> void:
 	sprite.set_meta("asset", asset)
 	holder.add_child(sprite)
 	Assets.apply_to_sprite(sprite, asset)
+	if str(AssetCatalog.entry(asset).get("anim", "")) == "flutter":
+		sprite.material = flutter_material()
 	var disp := Assets.display_size(asset)
 	_box = Rect2(-disp * Assets.pivot(asset), disp)
 	if d.has("collision"):
 		_add_collision(d["collision"], rot)
 	Assets.reloaded.connect(_on_reload)
+
+
+const FLUTTER_SHADER := """
+shader_type canvas_item;
+// Top-down cloth flutter: the free end (UV.x → 1) waves across the wind direction.
+uniform float strength = 3.0;
+void vertex() {
+	vec2 world = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xy;
+	float phase = world.x * 0.013 + world.y * 0.007;
+	VERTEX.y += sin(TIME * 5.0 + UV.x * 7.0 + phase) * strength * UV.x * UV.x * 2.0;
+}
+"""
+static var _flutter: ShaderMaterial
+
+
+static func flutter_material() -> ShaderMaterial:
+	if _flutter == null:
+		var sh := Shader.new()
+		sh.code = FLUTTER_SHADER
+		_flutter = ShaderMaterial.new()
+		_flutter.shader = sh
+	return _flutter
 
 
 func _add_collision(c: Dictionary, rot: float) -> void:

@@ -42,10 +42,10 @@ try:
     check(abs(pos[0] - m0["pos"][0]) > 300, "mech moved")
     heat_after_drive = r["state"]["game"]["mech"]["heat"]
     check(heat_after_drive > m0["heat"], f"driving heats the core ({m0['heat']:.1f} → {heat_after_drive:.1f})")
-    r = g.cmd("drive_to 2650 1080 40")
+    r = g.cmd("drive_to 2520 1100 40")
     check(r["ok"], "mech reaches the wreck site")
     # Keep the engine working hard (tight circles) until the damaged radiator gives out.
-    for _ in range(12):
+    for _ in range(20):
         st = g.cmd("drive 1 1 3")["state"]
         if st["game"]["stats"]["overheats"] > 0:
             break
@@ -71,7 +71,7 @@ try:
     print("3. return, repair, continue")
     mp = st["game"]["mech"]["pos"]
     g.cmd("walk_to 2760 1210 20")
-    g.cmd(f"walk_to {mp[0]} {mp[1] + 110} 20")
+    g.cmd(f"walk_to {mp[0]} {mp[1] + 140} 20")
     rad0 = g.state()["game"]["mech"]["radiator"]
     r = g.cmd("service"); g.cmd("wait_task")
     st = g.state()
@@ -91,8 +91,8 @@ try:
     g.cmd("setting volume_SFX 0.42")
     g.cmd("rebind interact G")
     g.cmd("setting ui_scale 1.25")
-    saved_state = g.state()["game"]
-    g.cmd("save")
+    g.cmd("stop")
+    saved_state = g.cmd("save")["state"]["game"]
 finally:
     g.quit()
 
