@@ -22,12 +22,16 @@ var shadow: Node2D        # world-aligned shadow (does not rotate the offset)
 var heat_glow: PointLight2D
 var steam: CPUParticles2D
 var dust: CPUParticles2D
-var gun_holder: Node2D
-var gun: Sprite2D
+var housing_holder: Node2D   # rotates with Session.housing_angle (independent of the legs)
+var housing: Sprite2D
+var guns: Array[Sprite2D] = []
+var gun_holders: Array[Node2D] = []
+var housing_shadow: Node2D
+var _recoil := [0.0, 0.0]
+const GUN_MOUNTS := [Vector2(-92, -10), Vector2(92, -10)]
 var leak: CPUParticles2D
 var smoke: CPUParticles2D
 var _flash := 0.0
-var _recoil := 0.0
 var _stride := 0.0
 var _shutter_t := 1.0
 var _shake := 0.0
@@ -57,15 +61,30 @@ func _ready() -> void:
 	radiator = _part("mech.radiator", Vector2(0, 92), body)
 	radiator_damage = _part("mech.radiator_damage", Vector2(0, 92), body)
 	shutters = _part("mech.shutters", Vector2(0, 92), body)
-	gun_holder = Node2D.new()
-	gun_holder.name = "Gun"
-	add_child(gun_holder)
-	gun = Sprite2D.new()
-	gun.set_meta("asset", "mech.gun")
-	gun_holder.add_child(gun)
-	Assets.apply_to_sprite(gun, "mech.gun")
-	gun_holder.material = LightKit.rotating_light_material()
-	gun.use_parent_material = true
+	housing_holder = Node2D.new()
+	housing_holder.name = "Housing"
+	add_child(housing_holder)
+	housing_holder.material = LightKit.rotating_light_material()
+	var hh := Node2D.new()
+	housing_holder.add_child(hh)
+	housing = Sprite2D.new()
+	housing.set_meta("asset", "mech.housing")
+	housing.use_parent_material = true
+	hh.add_child(housing)
+	Assets.apply_to_sprite(housing, "mech.housing")
+	for i in 2:
+		var gh := Node2D.new()
+		gh.position = GUN_MOUNTS[i]
+		if i == 1:
+			gh.scale.x = -1
+		housing_holder.add_child(gh)
+		var g := Sprite2D.new()
+		g.set_meta("asset", "mech.twin_gun")
+		g.use_parent_material = true
+		gh.add_child(g)
+		Assets.apply_to_sprite(g, "mech.twin_gun")
+		guns.append(g)
+		gun_holders.append(gh)
 	_build_shadow()
 	leak = FxKit.coolant_leak()
 	leak.position = Vector2(0, 110)
@@ -122,10 +141,27 @@ func _build_shadow() -> void:
 		h.set_meta("src", src)
 		holder.add_child(h)
 	holder.modulate = Color(1, 1, 1, 0.36)
+	# The housing (and its guns) casts its own shadow, rotating with the housing.
+	housing_shadow = Node2D.new()
+	housing_shadow.name = "HousingShadow"
+	housing_shadow.modulate = Color(1, 1, 1, 0.36)
+	shadow.add_child(housing_shadow)
+	for src in [housing] + guns:
+		var s2 := Sprite2D.new()
+		s2.texture = src.texture
+		s2.centered = false
+		s2.scale = src.scale
+		s2.position = src.position
+		s2.material = LightKit.shadow_material()
+		var h2 := Node2D.new()
+		h2.position = src.get_parent().position
+		h2.scale = src.get_parent().scale
+		h2.add_child(s2)
+		housing_shadow.add_child(h2)
 
 
 func _rebuild_art() -> void:
-	for s in [hull, leg_l, leg_r, radiator, radiator_damage, shutters, gun]:
+	for s in [hull, leg_l, leg_r, radiator, radiator_damage, shutters, housing] + guns:
 		Assets.apply_to_sprite(s, str(s.get_meta("asset")))
 	_build_shadow()
 
@@ -183,9 +219,12 @@ func _process(delta: float) -> void:
 	radiator.modulate = Color(1, 1, 1).lerp(Color(1.35, 0.8, 0.62), glow_f * 0.6)
 	steam.emitting = heat >= warn or engine == "shutdown"
 	# Turret: rotates toward the aim point around its mount on the deck.
-	_recoil = move_toward(_recoil, 0.0, delta * 40.0)
-	gun_holder.position = Vector2(0, 8).rotated(body.rotation) - Drive.forward(Session.gun_angle) * _recoil
-	gun_holder.rotation = Session.gun_angle if Session.mode() == "mech" else lerp_angle(gun_holder.rotation, body.rotation, delta * 2.0)
+	# Upper housing: rotates independently toward the aim; guns kick back per barrel.
+	housing_holder.rotation = Session.housing_angle
+	housing_holder.position = hull.get_parent().position.rotated(body.rotation)
+	for i in 2:
+		_recoil[i] = move_toward(_recoil[i], 0.0, delta * 60.0)
+		gun_holders[i].position = GUN_MOUNTS[i] + Vector2(0, _recoil[i])
 	# Damage feedback: coolant leak (cooling < 35 %), smoke (integrity < 45 %), hit flash.
 	leak.emitting = float(m["radiator"]) < 0.35
 	var integ := float(m["integrity"]) / float(Session.tun("mech").get("integrity", 100.0))
@@ -197,6 +236,8 @@ func _process(delta: float) -> void:
 	dust.global_position = global_position + Vector2(-sin(body.rotation), cos(body.rotation)) * 60.0
 	# Shadow follows the mech but keeps a fixed world-space offset (sun upper-left).
 	shadow.global_position = global_position + SHADOW_OFFSET
+	if housing_shadow:
+		housing_shadow.rotation = housing_holder.rotation
 	var sb: Node2D = shadow.get_child(0) if shadow.get_child_count() > 0 else null
 	if sb:
 		sb.rotation = body.rotation
@@ -221,4 +262,4 @@ func on_combat(kind: String, data: Dictionary) -> void:
 			_shake = maxf(_shake, 0.35)
 		"muzzle":
 			if str(data.get("owner", "")) == "player":
-				_recoil = 6.0
+				_recoil[int(data.get("barrel", 0)) % 2] = 12.0

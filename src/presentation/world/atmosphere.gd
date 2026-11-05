@@ -11,6 +11,7 @@ extends Node
 ## space through the canvas transform so they never slide with the camera).
 
 const DAY_LIGHT := Color(1.0, 0.97, 0.9)
+const CAVE_LIGHT := Color(0.74, 0.76, 0.84)   # under rock: cooler and darker; lamps carry the warmth
 
 ## Presets: "sun" (open desert) and "shade" (pilot/mech under the shelter roof).
 const PRESETS := {
@@ -20,6 +21,9 @@ const PRESETS := {
 	"shade": {"saturation": 0.86, "contrast": 1.08, "shadow_tone": Vector3(0.88, 0.92, 0.97),
 		"highlight_tone": Vector3(1.03, 1.0, 0.92), "vignette_tone": Vector3(0.50, 0.42, 0.34),
 		"vignette_strength": 0.40, "grain_strength": 0.08, "fog_strength": 0.04, "shimmer": 0.25},
+	"cave": {"saturation": 0.82, "contrast": 1.07, "shadow_tone": Vector3(0.86, 0.90, 0.98),
+		"highlight_tone": Vector3(1.0, 0.98, 0.96), "vignette_tone": Vector3(0.40, 0.40, 0.46),
+		"vignette_strength": 0.44, "grain_strength": 0.08, "fog_strength": 0.0, "shimmer": 0.08},
 }
 
 const GRADE_SHADER := """
@@ -74,6 +78,7 @@ var mat: ShaderMaterial
 var streaks: WindStreaks
 var enabled := true
 var _blend := 0.0   # 0 = sun, 1 = shade
+var _cave := 0.0    # 0 = open sky, 1 = under rock cover
 
 
 func _ready() -> void:
@@ -172,6 +177,11 @@ func _process(delta: float) -> void:
 		return
 	var in_shade := str((Session.pilot_zone if Session.mode() == "foot" else Session.mech_zone).get("type", "")) == "shade"
 	_blend = move_toward(_blend, 1.0 if in_shade else 0.0, delta * 1.2)
+	var cover := world.cover_amount() if world else 0.0
+	var zt := str((Session.pilot_zone if Session.mode() == "foot" else Session.mech_zone).get("type", ""))
+	var cave_t := maxf(cover, 0.35 if zt == "canyon" else 0.0)
+	_cave = move_toward(_cave, cave_t, delta * 0.8)
+	light.color = DAY_LIGHT.lerp(CAVE_LIGHT, smoothstep(0.0, 1.0, _cave))
 	_apply(delta)
 	var vp := get_viewport()
 	mat.set_shader_parameter("screen_size", vp.get_visible_rect().size)
@@ -183,14 +193,16 @@ func _process(delta: float) -> void:
 func _apply(_delta: float) -> void:
 	var a: Dictionary = PRESETS["sun"]
 	var b: Dictionary = PRESETS["shade"]
+	var c: Dictionary = PRESETS["cave"]
+	var kc := smoothstep(0.0, 1.0, _cave)
 	for k in a:
 		var v = a[k]
 		if v is Vector3:
-			mat.set_shader_parameter(k, (v as Vector3).lerp(b[k], _blend))
+			mat.set_shader_parameter(k, (v as Vector3).lerp(b[k], _blend).lerp(c[k], kc))
 		else:
-			mat.set_shader_parameter(k, lerpf(float(v), float(b[k]), _blend))
+			mat.set_shader_parameter(k, lerpf(lerpf(float(v), float(b[k]), _blend), float(c[k]), kc))
 	# A hot mech makes the air above the scene wobble a little more.
 	if Session.running:
 		var heat := float(Session.mech()["heat"])
 		var extra := clampf((heat - 95.0) / 25.0, 0.0, 1.0) * 0.6
-		mat.set_shader_parameter("shimmer", lerpf(float(a["shimmer"]), float(b["shimmer"]), _blend) + extra)
+		mat.set_shader_parameter("shimmer", lerpf(lerpf(float(a["shimmer"]), float(b["shimmer"]), _blend), float(c["shimmer"]), kc) + extra * (1.0 - kc))

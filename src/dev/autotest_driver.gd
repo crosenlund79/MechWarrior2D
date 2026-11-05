@@ -43,10 +43,23 @@ func _wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds, true, true).timeout
 
 
+## Enemy commands act on one enemy: `id=<enemy id>` anywhere in the line, else the first.
+func _target_ids(a: PackedStringArray) -> Array:
+	for t in a:
+		if t.begins_with("id="):
+			return [t.substr(3)]
+	var ids: Array = Session.state.get("enemies", {}).keys()
+	return ids.slice(0, 1)
+
+
 func _run(line: String) -> void:
 	var parts := line.split(" ", false)
 	var cmd := parts[0] if parts.size() > 0 else ""
-	var a := parts.slice(1)
+	var targets := _target_ids(parts)
+	var a := PackedStringArray()
+	for t in parts.slice(1):
+		if not t.begins_with("id="):
+			a.append(t)
 	var ok := true
 	var err := ""
 	match cmd:
@@ -105,8 +118,8 @@ func _run(line: String) -> void:
 				err = "did not reach target"
 		"aim":  # aim <x> <y> (world)
 			Session.aim_point = Vector2(float(a[0]), float(a[1]))
-		"aim_enemy":  # aim at the first live enemy, optional local offset: aim_enemy [ox oy]
-			for eid in Session.state.get("enemies", {}):
+		"aim_enemy":  # aim at an enemy, optional local offset: aim_enemy [ox oy] [id=..]
+			for eid in targets:
 				var e: Dictionary = Session.state["enemies"][eid]
 				var off := Vector2(float(a[0]), float(a[1])) if a.size() >= 2 else Vector2.ZERO
 				Session.aim_point = Content.v2(e["pos"]) + off.rotated(float(e["heading"]))
@@ -116,15 +129,15 @@ func _run(line: String) -> void:
 			while t5 < float(a[0]):
 				Session.fire_held = true
 				if track:
-					for eid in Session.state.get("enemies", {}):
+					for eid in targets:
 						var e2: Dictionary = Session.state["enemies"][eid]
 						if str(e2["ai"]) != "wreck":
 							Session.aim_point = Combat.cooling_point(Content.v2(e2["pos"]), float(e2["heading"]), Session.tun("combat")["enemy_hit"]) if a[1] == "cooling" else Content.v2(e2["pos"])
 				await get_tree().physics_frame
 				t5 += get_physics_process_delta_time()
 			Session.fire_held = false
-		"set_enemy":  # set_enemy <x> <y> <heading_deg> [ai]
-			for eid in Session.state.get("enemies", {}):
+		"set_enemy":  # set_enemy <x> <y> <heading_deg> [ai] [id=..]
+			for eid in targets:
 				var e3: Dictionary = Session.state["enemies"][eid]
 				e3["pos"] = [float(a[0]), float(a[1])]
 				e3["heading"] = deg_to_rad(float(a[2]))
@@ -134,6 +147,18 @@ func _run(line: String) -> void:
 				if main.game:
 					main.game.world.enemy_views[eid].sync_from_state()
 			await _wait(0.1)
+		"music_seek":  # music_seek <seconds before the end of the current track>
+			var pl: AudioStreamPlayer = Audio._music[Audio._music_cur]
+			if pl.playing and pl.stream:
+				pl.seek(maxf(0.0, pl.stream.get_length() - float(a[0])))
+			await _wait(0.2)
+		"menu_music":
+			Audio.music_play("music.theme", 0.5)
+			await _wait(0.6)
+		"music_cue":
+			if main.game:
+				main.game.sound.start_cue()
+			await _wait(0.2)
 		"interact":
 			ok = Session.request("interact")
 		"service":
@@ -218,13 +243,19 @@ func _state() -> Dictionary:
 	var st := {"running": Session.running, "notices": _notices.duplicate(), "save_status": Session.save_status,
 		"recovered": Session.recovered_from_backup, "paused": get_tree().paused,
 		"settings": Settings.values.duplicate(), "bindings": Settings.bindings.duplicate(),
-		"asset_sources": Assets.source.duplicate(), "recent_slot": Saves.most_recent_slot()}
+		"asset_sources": Assets.source.duplicate(), "recent_slot": Saves.most_recent_slot(), "music_id": Audio.music_id, "music_pos": Audio.music_position(),
+		"music_bus_db": AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music"))}
 	if Session.running:
 		st["game"] = Session.state.duplicate(true)
 		st["interactions"] = Session.interactions()
 		st["hint"] = Session.hint()
 		st["zone"] = Session.mech_zone.get("id", "")
 		st["projectiles"] = Session.projectiles.size()
+		st["housing_angle"] = Session.housing_angle
+		if main and main.game:
+			st["cover"] = main.game.world.cover_amount()
+			st["exposure"] = main.game.sound.exposure
+			st["music_cue"] = main.game.sound.cue_active()
 		st["gun_angle"] = Session.gun_angle
 		st["pilot_zone"] = Session.pilot_zone.get("id", "")
 		if main and main.game:

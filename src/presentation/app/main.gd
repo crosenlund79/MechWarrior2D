@@ -19,7 +19,7 @@ func _ready() -> void:
 	Session.started.connect(_on_started)
 	Session.ended.connect(_on_ended)
 	_show_menu()
-	Audio.loop("music", "music.drone")
+	Audio.music_play("music.theme", 2.5)
 	if Paths.has_arg("autotest"):
 		var d := AutotestDriver.new()
 		d.main = self
@@ -64,5 +64,5 @@ func _on_ended(_reason: String) -> void:
 		game.queue_free()
 		game = null
 	Audio.stop_all_loops()
-	Audio.loop("music", "music.drone")
+	Audio.music_play("music.theme", 3.0)
 	_show_menu()

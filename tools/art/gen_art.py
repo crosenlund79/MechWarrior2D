@@ -77,94 +77,123 @@ def bolts_along(c, pts, every=18, inset=5):
 
 # ======================================================================= MECH
 def gen_mech_hull():
+    """Lower chassis: frame, hip joints, turret ring, rear radiator rails, exhausts, strapped cargo."""
     c = canvas_for("mech.hull", 101)
     W, H = 400, 440
     cx = W / 2
-    # hip joints (sit under the side armour, where the legs attach at ±176 px)
     for sx in (-1, 1):
         x = cx + sx * 150
         c.fill_ellipse((x - 34, 186, x + 34, 254), STEEL_D, tex=0.3)
         c.ink_ellipse((x - 34, 186, x + 34, 254), 2.2)
         c.fill_ellipse((x - 16, 204, x + 16, 236), STEEL_L, tex=0.2)
         c.ink_ellipse((x - 16, 204, x + 16, 236), 1.4)
-    # chassis frame (dark, underneath everything)
+        # hip actuators reaching from the frame to the joints
+        c.ink([(cx + sx * 100, 200), (cx + sx * 130, 210)], 9.0, wobble=0.3, color=STEEL_D, alpha=255)
+        c.ink([(cx + sx * 100, 236), (cx + sx * 130, 228)], 9.0, wobble=0.3, color=STEEL_D, alpha=255)
     frame = [(cx - 120, 70), (cx + 120, 70), (cx + 150, 130), (cx + 150, 330), (cx + 118, 420), (cx - 118, 420), (cx - 150, 330), (cx - 150, 130)]
     m = c.fill(frame, CHAR, tex=0.35, cell=12)
     c.shade(m, 1, .6, 4.0, 90, cross=True)
     c.ink_poly(frame, 3.0)
-    # rear mounting rails for the radiator
+    # cross members and floor plates visible around the housing
+    for y in (96, 360):
+        plate(c, [(cx - 110, y - 10), (cx + 110, y - 10), (cx + 110, y + 12), (cx - 110, y + 12)], STEEL_D, hatch=False, line=1.6, grime=0.3)
+    for sx in (-1, 1):
+        side = [(cx + sx * 104, 120), (cx + sx * 144, 140), (cx + sx * 144, 320), (cx + sx * 104, 336)]
+        plate(c, side, RUST, line=2.0, grime=0.6, hatch_alpha=70)
+        bolts_along(c, side, 24, 6)
+    # turret ring (the housing sits on this bearing)
+    c.fill_ellipse((cx - 98, 122, cx + 98, 318), STEEL, tex=0.3)
+    c.ink_ellipse((cx - 98, 122, cx + 98, 318), 3.0)
+    c.ink_ellipse((cx - 86, 134, cx + 86, 306), 1.4, alpha=170)
+    c.rivets([(cx + math.cos(a) * 92, 220 + math.sin(a) * 92) for a in np.linspace(0, math.tau, 18, endpoint=False)], 1.8)
     for sx in (-1, 1):
         rail = [(cx + sx * 70 - 9, 330), (cx + sx * 70 + 9, 330), (cx + sx * 70 + 9, 438), (cx + sx * 70 - 9, 438)]
         plate(c, rail, STEEL_D, hatch=False, line=1.6, grime=0)
-    # side armour plates (faded yellow, mismatched patch on the right)
-    for sx, col, seed in ((-1, PAINT_Y, 3), (1, PAINT_Y, 4)):
-        p = [(cx + sx * 96, 96), (cx + sx * 140, 128), (cx + sx * 142, 318), (cx + sx * 112, 350), (cx + sx * 92, 340)]
-        if sx > 0:
-            p = [(x, y) for x, y in p]
-        m = plate(c, p, col, line=2.6, grime=0.45)
-        bolts_along(c, p, 22, 7)
-        # worn hazard chevrons near the front
-        for k in range(3):
-            y0 = 140 + k * 22
-            st = [(cx + sx * 100, y0), (cx + sx * 138, y0 + 12), (cx + sx * 138, y0 + 22), (cx + sx * 100, y0 + 10)]
-            c.fill(st, CHAR, tex=0.4)
-    # patch panel (different metal, welded)
-    patch = [(cx + 104, 250), (cx + 140, 246), (cx + 141, 300), (cx + 108, 306)]
-    plate(c, patch, STEEL_L, line=1.6, grime=0.2)
-    c.ink([(cx + 104, 250), (cx + 108, 306)], 1.0, wobble=1.4, alpha=160)
-    # central spine / engine deck (oxidised steel)
-    deck = [(cx - 88, 176), (cx + 88, 176), (cx + 92, 330), (cx + 70, 360), (cx - 70, 360), (cx - 92, 330)]
-    m = plate(c, deck, STEEL, line=2.4, grime=0.5, hatch_alpha=70)
-    # engine vent grilles
-    for vx in (-46, 46):
-        g = [(cx + vx - 26, 226), (cx + vx + 26, 226), (cx + vx + 26, 300), (cx + vx - 26, 300)]
-        c.fill(g, HOLE, tex=0.2)
-        c.slots(cx + vx - 22, 230, cx + vx + 22, 296, 7, vertical=False, width=2.0, alpha=230)
-        for k in range(7):
-            yy = 233 + k * 9.4
-            c.ink([(cx + vx - 22, yy), (cx + vx + 22, yy)], 0.8, wobble=0.2, alpha=90, color=(170, 160, 140))
-        c.ink_poly(g, 1.8)
-    # exhaust stacks (round openings seen from above)
     for ex in (-62, 62):
-        c.fill_ellipse((cx + ex - 15, 318, cx + ex + 15, 348), RUST, tex=0.4)
-        c.fill_ellipse((cx + ex - 9, 324, cx + ex + 9, 342), HOLE, tex=0.1)
-        c.ink_ellipse((cx + ex - 15, 318, cx + ex + 15, 348), 1.8)
-    # coolant lines from cockpit to the radiator (faded coolant teal)
+        c.fill_ellipse((cx + ex - 15, 334, cx + ex + 15, 364), RUST, tex=0.4)
+        c.fill_ellipse((cx + ex - 9, 340, cx + ex + 9, 358), HOLE, tex=0.1)
+        c.ink_ellipse((cx + ex - 15, 334, cx + ex + 15, 364), 1.8)
     for sx in (-1, 1):
-        pts = [(cx + sx * 30, 182), (cx + sx * 34, 230), (cx + sx * 20, 300), (cx + sx * 26, 360), (cx + sx * 44, 420)]
+        pts = [(cx + sx * 40, 318), (cx + sx * 30, 380), (cx + sx * 44, 420)]
         c.ink(pts, 6.0, wobble=0.5, alpha=255, color=(48, 92, 88))
         c.ink(pts, 3.2, wobble=0.4, alpha=255, color=(78, 140, 130))
-        c.ink([(x - 1.5, y - 1) for x, y in pts], 1.0, wobble=0.3, alpha=120, color=(170, 210, 196))
-    # cockpit pod (front centre): armoured shell + canopy with dark glass
-    pod = blob(cx, 132, 74, 70, 26, 0.04, 7)
-    m = plate(c, pod, PAINT_G, line=3.0, grime=0.4, hatch_alpha=90)
-    canopy = blob(cx, 118, 46, 40, 22, 0.03, 8)
-    c.fill(canopy, (52, 66, 66), tex=0.5, cell=8, light=(-1, -1, 0.5))
-    c.shade(c.mask(canopy), 1, .6, 3.5, 70)
-    c.ink([(cx - 30, 100), (cx - 14, 88)], 3.0, wobble=0.3, alpha=150, color=(214, 226, 210))  # glare
-    c.ink([(cx - 20, 108), (cx - 10, 101)], 1.6, wobble=0.2, alpha=110, color=(214, 226, 210))
-    c.ink_poly(canopy, 2.4)
-    # visor slit + grille bars at the very front
-    c.ink([(cx - 30, 80), (cx + 30, 80)], 5.0, wobble=0.4, alpha=245, color=HOLE)
-    for gx in range(-24, 30, 12):
-        c.ink([(cx + gx, 72), (cx + gx, 90)], 1.4, wobble=0.2)
-    # hatch ring on the pod rear
-    c.ink_ellipse((cx - 22, 160, cx + 22, 190), 1.6)
-    c.rivets([(cx - 18, 175), (cx + 18, 175), (cx, 162), (cx, 188)], 1.4)
-    # strapped cargo: water jerrycan (left) and a rolled tarp (right)
-    can = [(cx - 132, 330), (cx - 104, 334), (cx - 106, 376), (cx - 134, 372)]
+    can = [(cx - 132, 344), (cx - 104, 348), (cx - 106, 390), (cx - 134, 386)]
     plate(c, can, PAINT_R, line=1.8, grime=0.3)
-    c.ink([(cx - 126, 340), (cx - 110, 368)], 1.2, wobble=0.3)
-    roll = [(cx + 98, 336), (cx + 136, 330), (cx + 140, 360), (cx + 102, 368)]
+    roll = [(cx + 98, 350), (cx + 136, 344), (cx + 140, 374), (cx + 102, 382)]
     plate(c, roll, CANVAS_T, line=1.8, grime=0.2)
-    for k in range(3):
-        c.ink([(cx + 106 + k * 11, 334), (cx + 108 + k * 11, 365)], 1.0, wobble=0.6, alpha=150)
-    # amber warning beacon + antenna
-    c.fill_ellipse((cx + 56, 86, cx + 72, 102), AMBER, tex=0.2)
-    c.ink_ellipse((cx + 56, 86, cx + 72, 102), 1.4)
-    c.ink([(cx - 62, 92), (cx - 96, 52)], 1.4, wobble=0.6)
-    c.desertize(dust=0.45, abrasion=0.45, bleach=0.35, seams=0.6, heat=[(cx - 62, 333, 34, 0.7), (cx + 62, 333, 34, 0.7)])
+    c.desertize(dust=0.5, abrasion=0.45, bleach=0.3, seams=0.6, heat=[(cx - 62, 349, 34, 0.7), (cx + 62, 349, 34, 0.7)])
     c.save(out("mech.hull"))
+
+
+def gen_mech_housing():
+    """Rotating upper housing: heavy armoured block with cockpit, vents and gun cheeks."""
+    c = canvas_for("mech.housing", 107)
+    W, H = 352, 368
+    cx, cy = W / 2, H / 2
+    body = [(cx - 96, 40), (cx + 96, 40), (cx + 140, 96), (cx + 146, 250), (cx + 110, 322), (cx - 110, 322), (cx - 146, 250), (cx - 140, 96)]
+    m = plate(c, body, PAINT_Y, line=3.2, grime=0.55, hatch_alpha=95)
+    bolts_along(c, body, 26, 9)
+    # gun cheeks (heavy brackets, the guns attach outside at ±120)
+    for sx in (-1, 1):
+        ch = [(cx + sx * 118, 150), (cx + sx * 170, 158), (cx + sx * 170, 236), (cx + sx * 118, 244)]
+        plate(c, ch, STEEL_D, line=2.6, grime=0.4, hatch_alpha=80)
+        c.rivets([(cx + sx * 132, 168), (cx + sx * 156, 168), (cx + sx * 132, 226), (cx + sx * 156, 226)], 2.2)
+    # central deck plate + vents
+    deck = [(cx - 80, 150), (cx + 80, 150), (cx + 86, 300), (cx - 86, 300)]
+    plate(c, deck, STEEL, line=2.4, grime=0.5, hatch_alpha=70)
+    for vx in (-42, 42):
+        g = [(cx + vx - 26, 196), (cx + vx + 26, 196), (cx + vx + 26, 276), (cx + vx - 26, 276)]
+        c.fill(g, HOLE, tex=0.2)
+        c.slots(cx + vx - 22, 200, cx + vx + 22, 272, 8, vertical=False, width=2.0, alpha=230)
+        c.ink_poly(g, 1.8)
+    # hazard chevrons on the front armour
+    for k in range(4):
+        x0 = cx - 120 + k * 22
+        c.fill([(x0, 108), (x0 + 12, 108), (x0 + 24, 136), (x0 + 12, 136)], CHAR, tex=0.4)
+    for k in range(4):
+        x0 = cx + 54 + k * 22
+        c.fill([(x0, 108), (x0 + 12, 108), (x0 + 24, 136), (x0 + 12, 136)], CHAR, tex=0.4)
+    # cockpit at the front: armoured shell with canopy and visor slit
+    pod = blob(cx, 92, 62, 52, 24, 0.04, 7)
+    plate(c, pod, PAINT_G, line=3.0, grime=0.4, hatch_alpha=90)
+    canopy = blob(cx, 84, 40, 30, 20, 0.03, 8)
+    c.fill(canopy, (52, 66, 66), tex=0.5, cell=8, light=(-1, -1, 0.5))
+    c.ink([(cx - 26, 72), (cx - 12, 64)], 3.0, wobble=0.3, alpha=150, color=(214, 226, 210))
+    c.ink_poly(canopy, 2.4)
+    c.ink([(cx - 30, 46), (cx + 30, 46)], 5.0, wobble=0.4, alpha=245, color=HOLE)
+    # welded patch, beacon, antenna, cable bundle
+    plate(c, [(cx + 92, 262), (cx + 128, 258), (cx + 130, 300), (cx + 96, 306)], STEEL_L, line=1.6, grime=0.2)
+    c.fill_ellipse((cx + 64, 40, cx + 82, 58), AMBER, tex=0.2)
+    c.ink_ellipse((cx + 64, 40, cx + 82, 58), 1.4)
+    c.ink([(cx - 70, 60), (cx - 104, 18)], 1.6, wobble=0.6)
+    c.ink([(cx - 60, 300), (cx - 100, 286), (cx - 124, 236)], 4.0, wobble=0.8, color=CHAR)
+    c.desertize(dust=0.45, abrasion=0.5, bleach=0.35, seams=0.65)
+    c.save(out("mech.housing"))
+
+
+def gen_twin_gun():
+    """Heavy side gun (left; mirrored for the right). Mount bracket at 62 % height."""
+    c = canvas_for("mech.twin_gun", 108)
+    W, H = 112, 300
+    cx, my = W / 2, 186
+    c.soft_shadow((cx - 40, my - 30, cx + 44, my + 100), 90, 6)
+    box = rrect(cx - 40, my - 20, cx + 40, my + 100, 8, 0.6, 2)   # receiver / ammo box
+    plate(c, box, RUST, line=2.8, grime=0.6, hatch_alpha=90)
+    c.rivets([(cx - 30, my - 8), (cx + 30, my - 8), (cx - 30, my + 88), (cx + 30, my + 88)], 2.2)
+    c.ink([(cx - 30, my + 40), (cx + 30, my + 40)], 2.0, wobble=0.4)
+    feed = [(cx + 20, my + 60), (cx + 54, my + 64), (cx + 54, my + 96), (cx + 20, my + 96)]
+    plate(c, feed, PAINT_G, line=2.0, grime=0.4)
+    barrel = [(cx - 15, my - 20), (cx + 15, my - 20), (cx + 12, 22), (cx - 12, 22)]
+    plate(c, barrel, STEEL, line=2.6, grime=0.4, hatch_alpha=80)
+    for y in range(40, int(my - 30), 16):   # cooling jacket
+        c.ink([(cx - 19, y), (cx + 19, y)], 3.0, wobble=0.25)
+    c.ink([(cx - 4, 30), (cx - 4, my - 26)], 1.4, alpha=120, color=(220, 210, 190))
+    brake = [(cx - 19, 4), (cx + 19, 4), (cx + 19, 26), (cx - 19, 26)]
+    plate(c, brake, CHAR, line=2.2, grime=0.2, hatch=False)
+    for x in (cx - 12, cx, cx + 12):
+        c.ink([(x, 8), (x, 22)], 1.6, color=HOLE)
+    c.desertize(dust=0.4, abrasion=0.5, bleach=0.3, seams=0.6, heat=[(cx, 40, 40, 0.65)])
+    c.save(out("mech.twin_gun"))
 
 
 def gen_mech_leg():
@@ -281,26 +310,6 @@ def gen_mech_shutters():
     c.save(out("mech.shutters"))
 
 
-def gen_mech_gun():
-    c = canvas_for("mech.gun", 306)
-    W, H = 104, 208
-    cx, my = W / 2, 150           # mount (pivot 0.72 of 208)
-    c.fill_ellipse((cx - 32, my - 30, cx + 32, my + 30), STEEL_D, tex=0.3)
-    c.shade(c.ellipse_mask((cx - 32, my - 30, cx + 32, my + 30)), 1, .6, 4, 80)
-    c.ink_ellipse((cx - 32, my - 30, cx + 32, my + 30), 2.4)
-    barrel = [(cx - 9, my - 20), (cx + 9, my - 20), (cx + 8, 14), (cx - 8, 14)]
-    plate(c, barrel, STEEL, line=2.2, grime=0.3, hatch_alpha=60)
-    for y in range(40, int(my - 30), 14):   # cooling jacket rings
-        c.ink([(cx - 12, y), (cx + 12, y)], 2.2, wobble=0.2)
-    c.fill([(cx - 12, 4), (cx + 12, 4), (cx + 12, 18), (cx - 12, 18)], CHAR, tex=0.2)   # muzzle brake
-    c.ink_poly([(cx - 12, 4), (cx + 12, 4), (cx + 12, 18), (cx - 12, 18)], 1.8)
-    c.fill([(cx - 22, my - 6), (cx + 22, my - 6), (cx + 22, my + 16), (cx - 22, my + 16)], PAINT_G, tex=0.3)
-    c.ink_poly([(cx - 22, my - 6), (cx + 22, my - 6), (cx + 22, my + 16), (cx - 22, my + 16)], 1.8)
-    c.rivets([(cx - 16, my + 10), (cx + 16, my + 10)], 1.6)
-    c.desertize(dust=0.4, abrasion=0.5, bleach=0.3, seams=0.5, heat=[(cx, 30, 30, 0.6)])
-    c.save(out("mech.gun"))
-
-
 # ======================================================================= ENEMY SCRAPPER
 ENEMY_RED = (142, 62, 42)
 OXIDE = (118, 70, 50)
@@ -407,6 +416,199 @@ def gen_enemy():
     c.fill(d, SAND_L, tex=0.3)
     c.desertize(dust=0.8, abrasion=0.5, bleach=0.4, seams=0.7, heat=[(190, 300, 60, 0.3), (190, 120, 50, 0.35)])
     c.save(out("enemy.wreck"))
+
+
+def gen_enemy_pilot():
+    c = canvas_for("enemy.pilot", 410)
+    W, H = 92, 108
+    cx = W / 2
+    SUIT = (96, 74, 62)
+    pack = rrect(cx - 22, 62, cx + 22, 98, 6, 0.4, 5)
+    plate(c, pack, RUST_D, line=2.2, grime=0.4, hatch_alpha=70)
+    for sx in (-1, 1):
+        arm = [(cx + sx * 26, 40), (cx + sx * 36, 44), (cx + sx * 34, 22), (cx + sx * 26, 16)]
+        plate(c, arm, SUIT, line=2.0, grime=0.3, hatch_alpha=60)
+        c.fill_ellipse((cx + sx * 30 - 6, 8, cx + sx * 30 + 6, 20), CHAR, tex=0.2)
+        c.ink_ellipse((cx + sx * 30 - 6, 8, cx + sx * 30 + 6, 20), 1.4)
+    torso = blob(cx, 52, 30, 20, 20, 0.07, 6)
+    plate(c, torso, SUIT, line=2.6, grime=0.4, hatch_alpha=80)
+    c.ink([(cx - 26, 50), (cx + 26, 54)], 3.0, wobble=0.6, color=ENEMY_RED)   # sash / strap
+    c.fill_ellipse((cx - 18, 22, cx + 18, 58), (120, 112, 100), tex=0.3, light=(-1, -1, 0.45))
+    c.shade(c.ellipse_mask((cx - 18, 22, cx + 18, 58)), 1, .6, 3.5, 80)
+    visor = [(cx - 14, 32), (cx - 6, 24), (cx + 6, 24), (cx + 14, 32), (cx + 10, 36), (cx - 10, 36)]
+    c.fill(visor, (176, 52, 36), tex=0.3, light=(-1, -1, 0.6))
+    c.ink_poly(visor, 1.6)
+    c.ink_ellipse((cx - 18, 22, cx + 18, 58), 2.4)
+    c.desertize(dust=0.5, abrasion=0.2, bleach=0.2, seams=0.4)
+    c.save(out("enemy.pilot"))
+
+
+def gen_refuge():
+    # parking bay decal on rock floor (no finish; soft edge)
+    c = canvas_for("refuge.parking", 1001)
+    W, H = 640, 560
+    r = random.Random(1)
+    for k in range(7):
+        st = blob(r.uniform(200, 440), r.uniform(180, 380), r.uniform(30, 70), r.uniform(20, 46), 16, 0.4, k)
+        c.fill(st, (60, 52, 44), tex=0.5, cell=10)
+    for x0 in (60, 580):
+        c.ink([(x0, 60), (x0 + r.uniform(-4, 4), 500)], 9.0, wobble=1.2, alpha=150, color=(214, 178, 90))
+    c.ink([(60, 500), (580, 500)], 9.0, wobble=1.2, alpha=150, color=(214, 178, 90))
+    for k in range(5):
+        x = 120 + k * 100
+        c.ink([(x, 470), (x + 40, 500)], 6.0, wobble=0.8, alpha=130, color=(214, 178, 90))
+    for k in range(4):
+        x = 230 + k * 50
+        c.ink([(x, 80), (x + r.uniform(-20, 20), 470)], 4.0, wobble=2.0, alpha=60, color=(40, 32, 26))
+    a = c.img.split()[3].filter(ImageFilter.GaussianBlur(2 * SS)); c.img.putalpha(a)
+    c.save(out("refuge.parking"), finish=False)
+    # workshop floor: plank floor + rug
+    c = canvas_for("refuge.workshop_floor", 1002)
+    W, H = 568, 448
+    m = c.fill([(10, 10), (W - 10, 10), (W - 10, H - 10), (10, H - 10)], (128, 98, 70), tex=0.3, cell=20)
+    for y in range(30, H - 10, 32):
+        c.ink([(14, y), (W - 14, y + r.uniform(-2, 2))], 1.2, wobble=0.6, alpha=150)
+    rug = rrect(200, 170, 380, 300, 8, 1.0, 3)
+    c.fill(rug, (140, 70, 50), tex=0.4)
+    c.ink_poly(rug, 1.8)
+    for y in (190, 280):
+        c.ink([(214, y), (366, y)], 3.0, wobble=0.6, alpha=170, color=(196, 160, 90))
+    c.grime(m, 0.5, streaks=6)
+    c.desertize(dust=0.4, abrasion=0.0, bleach=0.1, seams=0.4)
+    c.save(out("refuge.workshop_floor"), finish=False)
+    # workshop roof
+    c = canvas_for("refuge.workshop_roof", 1003)
+    W, H = 600, 480
+    x = 14; k = 0
+    cols = [(140, 118, 96), (124, 82, 56), (150, 132, 110)]
+    while x < W - 30:
+        x1 = min(W - 14, x + r.uniform(110, 150))
+        poly = [(x, 20 + r.uniform(-3, 3)), (x1, 20 + r.uniform(-3, 3)), (x1, H - 20 + r.uniform(-3, 3)), (x, H - 20 + r.uniform(-3, 3))]
+        mm = c.corrugate(poly, cols[k % 3], spacing=10, vertical=False, alpha=100)
+        c.shade(mm, 1, .6, 5.0, 55, reach=0.4)
+        c.ink_poly(poly, 2.4)
+        x = x1 - 8; k += 1
+    c.fill_ellipse((440, 90, 492, 142), STEEL_D, tex=0.2)   # stove pipe
+    c.fill_ellipse((452, 102, 480, 130), HOLE, tex=0.1)
+    c.ink_ellipse((440, 90, 492, 142), 2.2)
+    c.desertize(dust=0.6, abrasion=0.3, bleach=0.4, seams=0.6)
+    c.save(out("refuge.workshop_roof"))
+    # sliding door
+    c = canvas_for("refuge.door", 1004)
+    plate(c, [(4, 4), (36, 4), (36, 160), (4, 160)], PAINT_G, line=2.2, grime=0.4)
+    c.ink([(20, 10), (20, 154)], 1.4, wobble=0.4, alpha=140)
+    c.desertize(dust=0.3, abrasion=0.3, bleach=0.3, seams=0.4)
+    c.save(out("refuge.door"))
+    # wall strip (tiles along the wall)
+    c = Canvas(256, 48, 1005)
+    c.corrugate([(0, 4), (256, 4), (256, 44), (0, 44)], (124, 100, 78), spacing=12, vertical=True, alpha=110)
+    c.ink([(0, 4), (256, 4)], 2.4, wobble=0.6)
+    c.ink([(0, 44), (256, 44)], 2.4, wobble=0.6)
+    for x in (2, 128):
+        c.fill([(x, 2), (x + 14, 2), (x + 14, 46), (x, 46)], STEEL_D, tex=0.2)
+    c.img.resize((256, 48), Image.LANCZOS).save(out("refuge.wall_strip"))
+    # industrial generator
+    c = canvas_for("refuge.generator", 1006)
+    W, H = 300, 208
+    c.soft_shadow((10, 14, 292, 200), 120, 8)
+    skid = [(10, 20), (290, 16), (292, 192), (12, 196)]
+    plate(c, skid, STEEL_D, line=3.0, grime=0.6, hatch_alpha=60)
+    eng = rrect(30, 34, 190, 176, 10, 0.6, 3)
+    plate(c, eng, PAINT_Y, line=2.8, grime=0.7, hatch_alpha=90)
+    bolts_along(c, eng, 24, 8)
+    c.slots(44, 52, 176, 100, 9, vertical=True, width=2.0)
+    grill = [(196, 34), (276, 34), (276, 120), (196, 120)]
+    c.fill(grill, HOLE, tex=0.2)
+    for y in range(40, 118, 8):
+        c.ink([(198, y), (274, y)], 1.4, wobble=0.2, color=(110, 104, 92))
+    c.ink_poly(grill, 2.2)
+    c.fill_ellipse((210, 136, 250, 176), RUST, tex=0.3)   # exhaust stack
+    c.fill_ellipse((220, 146, 240, 166), HOLE, tex=0.1)
+    c.ink_ellipse((210, 136, 250, 176), 2.2)
+    panel = [(54, 116), (130, 116), (130, 168), (54, 168)]
+    plate(c, panel, STEEL_L, line=1.8, grime=0.3, hatch=False)
+    for gx in (72, 110):
+        c.fill_ellipse((gx - 11, 130, gx + 11, 152), BONE, tex=0.1)
+        c.ink_ellipse((gx - 11, 130, gx + 11, 152), 1.4)
+        c.ink([(gx, 141), (gx + 6, 134)], 1.4)
+    c.fill_ellipse((140, 150, 152, 162), (90, 200, 120), tex=0.1)   # running lamp
+    term = [(256, 140), (286, 140), (286, 186), (256, 186)]
+    plate(c, term, CHAR, line=1.8, grime=0.2, hatch=False)
+    c.desertize(dust=0.4, abrasion=0.2, bleach=0.3, seams=0.7, heat=[(230, 156, 40, 0.7)])
+    c.save(out("refuge.generator"))
+    # light post head (top view)
+    c = canvas_for("refuge.light_post", 1007)
+    c.fill_ellipse((6, 6, 54, 54), STEEL_D, tex=0.3, light=(-1, -1, 0.5))
+    c.fill_ellipse((16, 16, 44, 44), (250, 220, 150), tex=0.1)
+    c.ink_ellipse((6, 6, 54, 54), 2.2)
+    c.ink([(30, 6), (30, 0)], 2.0)
+    c.save(out("refuge.light_post"))
+    # crates
+    c = canvas_for("refuge.crates", 1008)
+    for k, (x0, y0, w, h, col) in enumerate(((10, 30, 100, 90, (150, 112, 70)), (100, 14, 90, 80, (132, 96, 60)), (60, 100, 110, 72, STEEL))):
+        pl = [(x0, y0), (x0 + w, y0 + 3), (x0 + w - 2, y0 + h), (x0 + 2, y0 + h - 2)]
+        plate(c, pl, col, line=2.4, grime=0.5, hatch_alpha=80)
+        c.ink([(x0 + 6, y0 + 6), (x0 + w - 6, y0 + h - 6)], 1.6, wobble=0.6, alpha=170)
+        c.ink([(x0 + w - 6, y0 + 6), (x0 + 6, y0 + h - 6)], 1.6, wobble=0.6, alpha=170)
+    c.desertize(dust=0.5, abrasion=0.2, bleach=0.3, seams=0.5)
+    c.save(out("refuge.crates"))
+    # coolant canisters
+    c = canvas_for("refuge.coolant_cans", 1009)
+    for (x, y) in ((40, 44), (92, 40), (62, 92), (106, 96)):
+        can = rrect(x - 20, y - 24, x + 20, y + 24, 5, 0.4, int(x))
+        plate(c, can, COOLANT, line=2.2, grime=0.3, hatch_alpha=70)
+        c.fill([(x - 6, y - 30), (x + 6, y - 30), (x + 6, y - 22), (x - 6, y - 22)], CHAR, tex=0.1)
+        c.ink([(x - 12, y - 10), (x + 12, y + 10)], 1.4, wobble=0.4, alpha=160)
+    c.desertize(dust=0.5, abrasion=0.3, bleach=0.45, seams=0.4)
+    c.save(out("refuge.coolant_cans"))
+
+
+def gen_rock_tiles():
+    S = 512
+    SSz = S * SS
+    t = Tile(S, 51)
+    t.base((150, 112, 80), (178, 136, 96), (204, 164, 120), cell=150, octaves=5)
+    yy, xx = np.mgrid[0:SSz, 0:SSz].astype(np.float32)
+    warp = value_noise(SSz, SSz, 120 * SS, 7, 3, wrap=True)
+    strata = np.sin((yy / SSz + xx / SSz * 0.25 + warp * 0.35) * 2 * math.pi * 7)
+    arr = np.asarray(t.c.img, np.float32)
+    arr[..., :3] *= (1 + strata[..., None] * 0.05)
+    varnish = np.clip((value_noise(SSz, SSz, 60 * SS, 8, 3, wrap=True) - 0.6) * 2.5, 0, 1) * 0.35
+    arr[..., :3] = arr[..., :3] * (1 - varnish[..., None]) + np.array((86, 58, 44)) * varnish[..., None]
+    t.c.img = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA")
+    rr = random.Random(51); marks = [(rr.uniform(0, S), rr.uniform(0, S), rr.uniform(20, 60)) for _ in range(26)]
+    def draw(ox, oy):
+        for x, y, L in marks:
+            x += ox; y += oy
+            if -80 < x < S + 80 and -80 < y < S + 80:
+                t.c.ink([(x, y), (x + L * .4, y + L * .25), (x + L, y + L * .1)], 1.0, wobble=1.0, alpha=110)
+    t.wrap_draw(draw)
+    t.save(out("ground.rock_top"))
+    t = Tile(S, 52)
+    t.base((118, 100, 84), (140, 120, 98), (160, 140, 114), cell=100, octaves=5)
+    rr = random.Random(52); pebbles = [(rr.uniform(0, S), rr.uniform(0, S), rr.uniform(1.5, 4)) for _ in range(110)]
+    def draw2(ox, oy):
+        for x, y, r0 in pebbles:
+            x += ox; y += oy
+            if -20 < x < S + 20 and -20 < y < S + 20:
+                t.c.fill_ellipse((x - r0, y - r0 * .8, x + r0, y + r0 * .8), (104, 90, 76), tex=0.2, cell=3)
+                t.c.ink([(x - r0 * .3, y + r0 * .8), (x + r0, y + r0 * .2)], 0.8, wobble=0.1, alpha=140)
+    t.wrap_draw(draw2)
+    t.save(out("ground.canyon_floor"))
+    # cliff rim strip: rock edge (top) → hatched face → soft shadow on the floor (bottom)
+    W, H = 256, 64
+    c = Canvas(W, H, 53)
+    yy = np.mgrid[0:H * SS, 0:W * SS][0] / (H * SS)
+    n = value_noise(W * SS, H * SS, 10 * SS, 53, 3, wrap=True)
+    rgb = np.zeros((H * SS, W * SS, 3), np.float32) + np.array((96, 72, 54))
+    rgb *= (0.85 + n[..., None] * 0.3)
+    alpha = np.clip(1.0 - np.clip((yy - 0.45) / 0.55, 0, 1) ** 0.8, 0, 1) * 0.85
+    c.img = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), alpha * 255]).astype(np.uint8), "RGBA")
+    for k in range(0, W + 8, 6):
+        for ox in (-W, 0, W):
+            c.ink([(k + ox, 4), (k + ox + 10, 28)], 1.0, wobble=0.3, alpha=120)
+    c.ink([(0, 3), (W, 3)], 2.6, wobble=0.8)
+    c.img.resize((W, H), Image.LANCZOS).save(out("terrain.cliff_rim"))
 
 
 def gen_scrap_item():
@@ -1071,7 +1273,7 @@ def gen_fx():
     Image.fromarray(np.dstack([np.full((24, 24, 3), 255), np.clip(1 - d2, 0, 1) * 255]).astype(np.uint8), "RGBA").save(os.path.join(fx, "dust_mote.png"))
 
 
-GENS = [gen_mech_gun, gen_enemy, gen_scrap_item, gen_awning, gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
+GENS = [gen_mech_housing, gen_twin_gun, gen_enemy_pilot, gen_refuge, gen_rock_tiles, gen_enemy, gen_scrap_item, gen_awning, gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

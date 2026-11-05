@@ -18,6 +18,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/sim/drive.gd` | Fælles gangdynamik + varmehæmning (spiller og fjende). |
 | `src/sim/combat.gd` | Projektiler som data, træfzoner for køler vs. skrog, skade. |
 | `src/sim/enemy_ai.gd` | Skrotmech-AI: patrulje, opdagelse (varmebaseret), angreb med varsel, tilbagetrækning. |
+| `src/sim/encounter.gd` | Parkeret-mech-møde: pilotens reaktion, ombordstigning, opstart, flugt, indlæsning. |
 | `src/persistence/save_codec.gd` | Gemmefilens kuvert, validering, migreringer. |
 | `src/persistence/save_service.gd` | Autoload `Saves`: gemmepladser, gendannelse fra backup, resuméer. |
 | `src/presentation/app/main.gd` | Rod: skifter mellem menu og spil, starter testdriveren. |
@@ -34,6 +35,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/world/sound_director.gd` | Kobler tilstand/hændelser til lydløkker og enkeltlyde. |
 | `src/presentation/world/enemy_view.gd` | Fjendtlig mech: bevægelse, sigtelinje, skadeeffekter, vragtilstand. |
 | `src/presentation/world/projectiles_view.gd` | Tegner projektiler; nedslag, kølertræf og mundingsglimt. |
+| `src/presentation/world/terrain_view.gd` | Klippemasser, overdækninger der toner ud, byggede vægge og strømkabler. |
 | `src/presentation/world/light_kit.gd` | Delt glødtekstur, roterende lys- og skyggeshadere. |
 | `src/presentation/world/fx_kit.gd` | Partikelforudindstillinger (damp, støv). |
 | `src/presentation/world/atmosphere.gd` | Fase B-atmosfære: dagslys, farvekorrektion, støvdis, varmeflimmer, støvpartikler. |
@@ -53,6 +55,9 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/regression.py` | Kørselsregression: løkke, vedvarende gem efter genstart, erstatninger, indstillinger. |
 | `tools/regression_encounter.py` | Kørselsregression for fjendemødet (kamp, AI, vrag, skygge, genstart). |
 | `tools/shots_encounter.py` | Skærmbilleder af fjendemødet. |
+| `tools/regression_refuge.py` | Kørselsregression: tårn/tvillingkanoner, kløft, overhæng, værksted, tilflugtsvarme, musik, parkeret-mech-møde. |
+| `tools/shots_refuge.py` | Skærmbilleder af tilflugten + ombordstignings-sekvens. |
+| `tools/import_audio.py` | Importerer udvalgt lyd fra indbakken til skabeloner. |
 | `tools/shots.py` | Tager skærmbilleder af det kørende spil. |
 | `tools/shots_b.py` | Fase B-skærmbilleder; `--backdrop` optager menu-baggrunden. |
 | `tools/art/inkkit.py` | Blækpipeline (Red Thaw-sæt + desertize, top-down finish, sømløse fliser). |

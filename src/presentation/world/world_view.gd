@@ -21,6 +21,9 @@ var pilot_view: PilotView
 var camera: CameraRig
 var enemy_views := {}
 var projectiles_view: ProjectilesView
+var terrain: TerrainView
+var rock: Node2D
+var cover_layer: Node2D
 var atmosphere: Node
 var props: Array[PropView] = []
 var _salvage_nodes := {}   # id -> Node2D
@@ -37,6 +40,11 @@ func _ready() -> void:
 	markers = _layer("Markers", 2)
 	overhead = _layer("Overhead", Z["overhead"])
 	GroundBuilder.build(ground, loc)
+	rock = _layer("Rock", 3)
+	cover_layer = _layer("Covers", 21)
+	terrain = TerrainView.new()
+	add_child(terrain)
+	terrain.build(loc, rock, cover_layer, floor_layer)
 	_build_bounds(loc)
 	for d in loc.get("props", []):
 		var pv := PropView.new()
@@ -130,6 +138,8 @@ func _process(delta: float) -> void:
 		pts.append(Session.pilot_pos())
 	for pv in props:
 		pv.update_occlusion(pts, delta)
+		pv.animate(delta)
+	terrain.update(pts, delta)
 	_sync_markers()
 	for id in _salvage_nodes:
 		var n: Node2D = _salvage_nodes[id]
@@ -141,7 +151,12 @@ func any_roof_overhead() -> bool:
 	for pv in props:
 		if pv.occlude and pv.is_faded():
 			return true
-	return false
+	return terrain.coverage([Session.actor_pos()]) > 0.5
+
+
+## 0..1: how far the active actor is under rock cover (atmosphere / audio).
+func cover_amount() -> float:
+	return terrain.coverage([Session.actor_pos()])
 
 
 func _sync_markers() -> void:

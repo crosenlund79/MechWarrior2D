@@ -8,6 +8,9 @@ Permanent project rules. Keep this file short; details live in `docs/`.
   Compatibility renderer, Windows desktop target. Do not upgrade the engine silently.
 - `index.html` / `style.css` at the root are an unrelated, pre-existing "Iron Siege" web shell.
   Leave them untouched until the creator decides.
+- `assets/audio inbox/` holds the creator's original audio (Godot-ignored, never edit). Implemented
+  clips are imported via `tools/audio_map.json` + `tools/import_audio.py`; see `docs/AUDIO.md`.
+  Never generate music: the theme "Where the Ice Once Lay" is the musical identity.
 - Red Thaw (`crosenlund79/ZombieSurvival2D`, branch `iteration/010-red-thaw`) is a **read-only**
   visual reference. Never modify it.
 
@@ -20,6 +23,7 @@ Never modify another project. Never alter `backup/*` branches.
 - `godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests` (exit 0)
 - `python3 tools/regression.py` (real game process: loop, restart persistence, overrides, settings)
 - `python3 tools/regression_encounter.py` (enemy AI, combat, wreck salvage, shade, restart persistence)
+- `python3 tools/regression_refuge.py` (housing/twin guns, canyon + overhang, workshop, music, parked-mech encounter)
 - `python3 tools/check_script_guides.py` — update EN + DA script guides for new/removed scripts
 
 ## Architecture rules

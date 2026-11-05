@@ -232,6 +232,10 @@ func _process(delta: float) -> void:
 	var item := Session.repair_item()
 	cargo_label.text = tr("HUD_CARGO") % [GameState.count(p["pack"], item), GameState.count(m["storage"], item), Session.scrap_available()]
 	zone_label.text = tr("HUD_ZONE") % [tr(str(Session.pilot_zone.get("label", "ZONE_OPEN_SAND"))), int(Session.pilot_zone.get("ambient", 58))]
+	var sheltered := bool(Session.pilot_zone.get("sheltered", false))
+	if sheltered:
+		zone_label.text += "  ·  " + tr("HUD_SHELTERED")
+	zone_label.add_theme_color_override("font_color", UiTheme.COOLANT if sheltered else UiTheme.DIM)
 	# Danger edge: suit strain on foot, or a critical mech.
 	var dmg := 0.0
 	if md == "foot" and suit < 25.0:

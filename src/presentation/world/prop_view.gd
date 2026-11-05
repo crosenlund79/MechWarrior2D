@@ -11,6 +11,12 @@ var sprite: Sprite2D
 var shadow: Node2D
 var occlude := false
 var _box := Rect2()
+var anim := ""
+var _t := 0.0
+var _door_open := Vector2.ZERO
+var _door_f := 0.0
+var lamp: PointLight2D
+var _hum: AudioStreamPlayer2D
 
 
 func setup(d: Dictionary) -> void:
@@ -48,6 +54,23 @@ func setup(d: Dictionary) -> void:
 	_box = Rect2(-disp * Assets.pivot(asset), disp)
 	if d.has("collision"):
 		_add_collision(d["collision"], rot)
+	anim = str(d.get("anim", ""))
+	_t = position.x * 0.013 + position.y * 0.007
+	_door_open = Content.v2(d.get("door_open", [0, 0]))
+	if anim == "generator":
+		var smoke := FxKit.damage_smoke()
+		smoke.emitting = true
+		smoke.amount = 10
+		smoke.position = Vector2(30, 22)
+		add_child(smoke)
+		var g := LightKit.glow(Color(0.6, 1.0, 0.65), 0.25, 0.4)
+		g.position = Vector2(-77, 26)
+		add_child(g)
+		_hum = Audio.positional_loop(self, "sfx.generator_hum", -2.0, 1500.0, 1.6)
+	if bool(d.get("light", false)):
+		lamp = LightKit.glow(Color(1.0, 0.8, 0.5), 2.6, 0.85)
+		add_child(lamp)
+		_hum = Audio.positional_loop(self, "sfx.electric_hum", -14.0, 260.0, 2.0)
 	Assets.reloaded.connect(_on_reload)
 
 
@@ -98,6 +121,20 @@ func _on_reload() -> void:
 	if shadow:
 		var ss: Sprite2D = shadow.get_child(0)
 		Assets.apply_to_sprite(ss, str(ss.get_meta("asset")))
+
+
+## Small looping animations: generator shake, lamp flicker, sliding door.
+func animate(delta: float) -> void:
+	_t += delta
+	match anim:
+		"generator":
+			sprite.get_parent().position = Vector2(sin(_t * 61.0), cos(_t * 47.0)) * 0.9
+		"door":
+			var near := Session.mode() == "foot" and Session.pilot_pos().distance_to(position) < 95.0
+			_door_f = move_toward(_door_f, 1.0 if near else 0.0, delta * 2.5)
+			sprite.get_parent().position = _door_open * smoothstep(0.0, 1.0, _door_f)
+	if lamp:
+		lamp.energy = 0.8 + 0.06 * sin(_t * 9.0) + (0.12 * sin(_t * 31.0) if fmod(_t, 7.3) < 0.25 else 0.0)
 
 
 ## Overhead structures fade while an actor is underneath.

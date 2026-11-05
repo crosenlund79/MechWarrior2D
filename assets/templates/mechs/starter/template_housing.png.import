@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bn1l0cnvb1dwu"
-path="res://.godot/imported/template_gun.png-f1e41293e55e72a5895efdee9a583f53.ctex"
+uid="uid://l0krq1cf2qfi"
+path="res://.godot/imported/template_housing.png-60ba32fb67a5270de39eeb4604147c38.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/templates/mechs/starter/template_gun.png"
-dest_files=["res://.godot/imported/template_gun.png-f1e41293e55e72a5895efdee9a583f53.ctex"]
+source_file="res://assets/templates/mechs/starter/template_housing.png"
+dest_files=["res://.godot/imported/template_housing.png-60ba32fb67a5270de39eeb4604147c38.ctex"]
 
 [params]
 

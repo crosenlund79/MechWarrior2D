@@ -275,7 +275,7 @@ func test_asset_override_priority_and_fallback() -> void:
 
 func test_audio_resolves() -> void:
 	Assets.reload()
-	for id in ["sfx.warning", "amb.wind", "music.drone", "ui.click"]:
+	for id in ["sfx.warning", "amb.wind", "music.theme", "music.theme_alt", "sfx.generator_hum", "sfx.gun_fire", "ui.click"]:
 		check(Assets.audio_stream(id) != null, "sound resolves: %s" % id)
 
 
@@ -507,8 +507,184 @@ func test_migration_v1_to_v2() -> void:
 	env["state"]["mech"].erase("integrity")
 	env["state"].erase("enemies")
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 2, "v1 migrates to v2")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION, "v1 migrates to current")
 	check(SaveCodec.validate(up) == "", "migrated save validates")
 	var st := GameState.sanitize(up["state"], loc)
 	approx(float(st["mech"]["integrity"]), 100.0, 0.01, "integrity added")
 	check(st["enemies"].size() == loc["enemies"].size(), "enemies created on load")
+
+
+
+# ---------------------------------------------------------------- canyon refuge iteration
+
+func _enc_id() -> String:
+	return "enemy_scrapper_02"
+
+
+func test_housing_rotates_independently() -> void:
+	var s := _fresh_session()
+	var h0 := float(s["mech"]["heading"])
+	Session.housing_angle = h0
+	Session.aim_point = Session.mech_pos() + Vector2(-500, 0)   # due west
+	for i in 30:
+		Session.tick(0.05)
+	approx(float(s["mech"]["heading"]), h0, 0.0001, "aiming does not turn the chassis")
+	approx(wrapf(Session.housing_angle - (-PI / 2.0), -PI, PI), 0.0, 0.05, "housing turns to face the aim point")
+	Session.aim_point = Session.mech_pos() + Vector2(0, 500)
+	Session.tick(0.05)
+	var moved := absf(wrapf(Session.housing_angle - (-PI / 2.0), -PI, PI))
+	check(moved > 0.05 and moved < 0.6, "housing rotation is smooth (rate-limited), not instant")
+	Session.running = false
+
+
+func test_twin_guns_fire_from_both_muzzles_at_target() -> void:
+	var s := _fresh_session()
+	s["mech"]["engine"] = "running"
+	Session.housing_angle = 0.0
+	var target := Session.mech_pos() + Vector2(40, -260)   # close, slightly right
+	Session.aim_point = target
+	for i in 20:
+		Session.tick(0.05)
+	Session.projectiles.clear()
+	Session.fire_held = true
+	var origins := []
+	for i in 30:
+		Session.tick(0.05)
+		for sh in Session.projectiles:
+			pass
+	Session.fire_held = false
+	check(Session.projectiles.size() > 0, "guns fire")
+	var left := Session.muzzle_pos(0)
+	var right := Session.muzzle_pos(1)
+	check(left.distance_to(right) > 150.0, "muzzles are on opposite sides of the housing")
+	var hit_l := false
+	var hit_r := false
+	for sh in Session.projectiles:
+		var d: Vector2 = (sh["vel"] as Vector2).normalized()
+		var o: Vector2 = (sh["pos"] as Vector2) - d * float(sh["travelled"])
+		var miss := Combat.seg_dist(o, o + d * 2000.0, target)
+		if o.distance_to(left) < 30.0 and miss < 25.0:
+			hit_l = true
+		if o.distance_to(right) < 30.0 and miss < 25.0:
+			hit_r = true
+	check(hit_l and hit_r, "both barrels fire from their own muzzle toward the actual target (close range)")
+	Session.running = false
+
+
+func test_parked_encounter_sequence() -> void:
+	var s := _fresh_session()
+	var id := _enc_id()
+	var e: Dictionary = s["enemies"][id]
+	check(e["ai"] == "unpiloted" and e["pilot"]["state"] == "outside", "starts unpiloted with the pilot outside")
+	var p0 := Content.v2(e["pos"])
+	for i in 40:
+		Session.tick(0.1)
+	check(e["ai"] == "unpiloted" and Content.v2(e["pos"]).distance_to(p0) < 0.5, "parked mech does nothing while unaware")
+	# Bring the player close.
+	s["mech"]["pos"] = [p0.x + 320.0, p0.y + 120.0]
+	var seen := ["unpiloted"]
+	var pilot_path := 0.0
+	var last := Content.v2(e["pilot"]["pos"])
+	for i in 200:
+		Session.tick(0.05)
+		if seen.is_empty() or seen[-1] != e["ai"]:
+			seen.append(e["ai"])
+		pilot_path += Content.v2(e["pilot"]["pos"]).distance_to(last)
+		last = Content.v2(e["pilot"]["pos"])
+		check(e["ai"] != "engage" or e["pilot"]["state"] == "aboard", "never active without a pilot aboard")
+	check(seen.slice(0, 5) == ["unpiloted", "alerted", "boarding", "starting", "engage"], "sequence UNPILOTED→ALERTED→BOARDING→STARTING→ACTIVE (%s)" % str(seen))
+	check(pilot_path > 60.0, "the pilot really travels to the cockpit (%.0f px)" % pilot_path)
+	check(e["pilot"]["state"] == "aboard", "pilot aboard")
+	Session.running = false
+
+
+func test_mech_cannot_move_or_fire_before_startup() -> void:
+	var s := _fresh_session()
+	var id := _enc_id()
+	var e: Dictionary = s["enemies"][id]
+	e["ai"] = "starting"
+	e["pilot"]["state"] = "aboard"
+	Session.brains[id] = {"wp": 0, "t_state": 0.0, "windup": 0.0, "cooldown": 0.0}
+	Session.enemy_intents[id] = {"throttle": 1.0, "turn": 1.0}
+	var v := Session.enemy_velocity(id, 0.1)
+	approx(v.length(), 0.0, 0.001, "no movement during startup")
+	Session.projectiles.clear()
+	s["mech"]["pos"] = [Content.v2(e["pos"]).x, Content.v2(e["pos"]).y - 300.0]
+	for i in 20:
+		Session.tick(0.05)
+	var enemy_shots := 0
+	for sh in Session.projectiles:
+		if sh["owner"] == id:
+			enemy_shots += 1
+	check(enemy_shots == 0, "no firing during startup")
+	Session.running = false
+
+
+func test_encounter_interrupted_and_load_resolution() -> void:
+	var s := _fresh_session()
+	var id := _enc_id()
+	var e: Dictionary = s["enemies"][id]
+	e["ai"] = "boarding"
+	e["integrity"] = 0.0
+	Session.brains[id] = {"wp": 0, "t_state": 0.0, "windup": 0.0, "cooldown": 0.0}
+	Session.tick(0.1)
+	check(e["ai"] == "wreck", "destroyed while boarding → wreck")
+	check(e["pilot"]["state"] == "fled", "pilot outside flees instead of vanishing or boarding")
+	for i in 120:
+		Session.tick(0.1)
+	check(e["pilot"]["state"] == "gone", "fled pilot leaves the scene for good")
+	var loc := Content.location()
+	for st in ["alerted", "boarding", "starting"]:
+		var e2 := GameState.new_enemy(loc["enemies"][1])
+		e2["ai"] = st
+		var dummy := GameState.create(loc, 1)
+		dummy["enemies"][id] = e2
+		var clean := GameState.sanitize(dummy, loc)
+		var r: Dictionary = clean["enemies"][id]
+		check(r["ai"] == "return" and r["pilot"]["state"] == "aboard" and r["engine"] == "running", "loading during '%s' resolves forward, no replay/duplicate" % st)
+	var e3 := GameState.new_enemy(loc["enemies"][1])
+	e3["ai"] = "wreck"
+	var d3 := GameState.create(loc, 1)
+	d3["enemies"][id] = e3
+	check(GameState.sanitize(d3, loc)["enemies"][id]["pilot"]["state"] == "gone", "a wreck never respawns its pilot")
+	Session.running = false
+	Saves.delete_slot(3)
+
+
+func test_refuge_terrain_and_thermal() -> void:
+	var loc := Content.location()
+	var masses := Content.terrain(loc, "masses")
+	check(masses.size() >= 1 and masses[0]["shape"].size() > loc["terrain"]["masses"][0]["polygon"].size(), "rock mass outline is roughened (organic)")
+	check(Content.terrain(loc, "masses")[0]["shape"] == masses[0]["shape"], "roughening is deterministic (visual = collision)")
+	var road := Content.poly(loc["patches"][loc["patches"].size() - 1]["path"])
+	for p in road:
+		check(not Geometry2D.is_point_in_polygon(p, masses[0]["shape"]), "refuge road stays out of the rock at %s" % str(p))
+	var refuge := Content.zone_at(loc, Vector2(-1500, 800))
+	var canyon := Content.zone_at(loc, Vector2(-700, 1550))
+	var open := Content.zone_at(loc, Vector2(300, 2000))
+	check(refuge["type"] == "refuge" and canyon["type"] == "canyon" and open["type"] == "open", "open → canyon → refuge zones")
+	var th: Dictionary = Content.tuning["thermal"]
+	var m := {"heat": 100.0, "radiator": 0.6, "shutters_open": true, "engine": "off"}
+	var eq_r := Thermal.equilibrium(m, false, 0.0, refuge, th)
+	var eq_c := Thermal.equilibrium(m, false, 0.0, canyon, th)
+	var eq_o := Thermal.equilibrium(m, false, 0.0, open, th)
+	check(eq_r < eq_c and eq_c < eq_o, "heat pressure falls gradually toward the refuge (%.0f/%.0f/%.0f)" % [eq_o, eq_c, eq_r])
+	check(Thermal.cooling_rate(m, refuge, th) > Thermal.cooling_rate(m, open, th) * 1.3, "mech cools more effectively in the refuge")
+	check(float(refuge["suit"]) <= 0.2, "suit exposure low enough for on-foot work")
+	var m2 := {"heat": 100.0, "radiator": 0.3, "shutters_open": true, "engine": "off", "integrity": 40.0}
+	Thermal.step(m2, refuge, th, 5.0, 0.0, false)
+	approx(float(m2["radiator"]), 0.3, 0.0001, "refuge does not repair components")
+
+
+func test_migration_v2_to_v3_adds_pilots() -> void:
+	var loc := Content.location()
+	var env := SaveCodec.encode(GameState.create(loc, 1))
+	env["version"] = 2
+	for id in env["state"]["enemies"]:
+		env["state"]["enemies"][id].erase("pilot")
+	env["state"]["enemies"].erase(_enc_id())
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 3, "v2 → v3")
+	var st := GameState.sanitize(up["state"], loc)
+	check(st["enemies"]["enemy_scrapper_01"]["pilot"]["state"] == "aboard", "existing enemy gets an aboard pilot")
+	check(st["enemies"][_enc_id()]["ai"] == "unpiloted", "new parked encounter appears in old saves")

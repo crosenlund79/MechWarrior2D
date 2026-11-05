@@ -6,6 +6,11 @@ life support, and its greatest enemy is heat.
 
 **First playable loop:** drive → overheat → stop → exit → scavenge → return → repair → continue.
 
+**Canyon Refuge:** follow the worn road west from the start shelter, down the canyon and around the
+bend, until you pass under the overhang. The cavern base has a parking bay, a walk-in workshop, a running
+generator and powered lamps. It's cool enough to work on foot. North of the pump-rig area, a
+survivor stands beside a parked scrapper. Get close and they run for it, climb in and power up.
+
 **First hostile encounter:** a weak scrapper mech patrols the salt pan in the south-east. Shoot its exposed
 rear radiator to cook it, retreat to the awning's shade when you run hot, then strip its wreck on foot.
 
@@ -20,7 +25,7 @@ More detail: [`docs/guides/TESTING_AND_LAUNCH.md`](docs/guides/TESTING_AND_LAUNC
 | In the mech | On foot |
 |---|---|
 | W/S throttle, A/D turn | WASD walk |
-| Mouse aims the turret, **left click** (or Space) fires | |
+| Mouse turns the **upper housing**; **left click** (or Space) fires the twin guns | |
 | E exit (when stopped) | E salvage / enter mech / pick up |
 | R open/close radiator shutters | R repair radiator (core) / patch hull (2 scrap, or a slow free emergency patch) |
 | Mouse wheel or +/− zoom · F5 quick save · Esc pause · F3 dev overlay | |

@@ -31,13 +31,13 @@ static func heat_in(engine_on: bool, speed_frac: float, zone: Dictionary, tun: D
 
 
 static func cooling_rate(m: Dictionary, zone: Dictionary, tun: Dictionary) -> float:
-	var k := float(tun.get("cooling_coeff", 0.12))
+	var k := float(tun.get("cooling_coeff", 0.12)) * float(zone.get("cooling", 1.0))
 	var dt_amb := float(m["heat"]) - float(zone.get("ambient", 58.0))
 	return k * efficiency(float(m["radiator"]), tun) * airflow(bool(m["shutters_open"]), tun) * dt_amb
 
 
 static func equilibrium(m: Dictionary, engine_on: bool, speed_frac: float, zone: Dictionary, tun: Dictionary) -> float:
-	var k := float(tun.get("cooling_coeff", 0.12)) * efficiency(float(m["radiator"]), tun) * airflow(bool(m["shutters_open"]), tun)
+	var k := float(tun.get("cooling_coeff", 0.12)) * float(zone.get("cooling", 1.0)) * efficiency(float(m["radiator"]), tun) * airflow(bool(m["shutters_open"]), tun)
 	return float(zone.get("ambient", 58.0)) + heat_in(engine_on, speed_frac, zone, tun) / maxf(k, 0.0001)
 
 

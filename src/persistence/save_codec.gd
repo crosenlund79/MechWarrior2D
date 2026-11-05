@@ -9,12 +9,13 @@ extends RefCounted
 ## upgrades version N-1 to N. Old saves are migrated step by step on load.
 
 const FORMAT := "heat_signature_save"
-const VERSION := 2
+const VERSION := 3
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
 	0: _migrate_0_to_1,
 	1: _migrate_1_to_2,
+	2: _migrate_2_to_3,
 }
 
 
@@ -76,6 +77,19 @@ static func _migrate_1_to_2(env: Dictionary) -> Dictionary:
 	if not s.has("enemies"):
 		s["enemies"] = {}
 	env["version"] = 2
+	return env
+
+
+## Version 3 (canyon refuge): enemies carry their pilot. Existing enemies were
+## already crewed, so they get an aboard pilot; new encounters come from the
+## location on load.
+static func _migrate_2_to_3(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	for id in s.get("enemies", {}):
+		var e = s["enemies"][id]
+		if e is Dictionary and not e.has("pilot"):
+			e["pilot"] = {"state": "aboard", "pos": e.get("pos", [0, 0]), "facing": 0.0}
+	env["version"] = 3
 	return env
 
 

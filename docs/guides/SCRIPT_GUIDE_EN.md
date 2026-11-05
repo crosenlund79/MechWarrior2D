@@ -18,6 +18,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/sim/drive.gd` | Shared walker drive dynamics + heat impairment (player and enemy). |
 | `src/sim/combat.gd` | Projectiles as data, cooling vs structure hit areas, damage. |
 | `src/sim/enemy_ai.gd` | Scrapper AI: patrol, detect (heat-based), engage with telegraph, disengage. |
+| `src/sim/encounter.gd` | Parked-mech encounter: pilot reaction, boarding, startup, flee, load resolution. |
 | `src/persistence/save_codec.gd` | Save envelope, validation, migrations. |
 | `src/persistence/save_service.gd` | Autoload `Saves`: slot files, backup recovery, summaries. |
 | `src/presentation/app/main.gd` | Root: switches menu ↔ game, starts the autotest driver. |
@@ -34,6 +35,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/world/sound_director.gd` | Maps state/events to loops and one-shots. |
 | `src/presentation/world/enemy_view.gd` | Enemy mech: movement, telegraph line, damage FX, wreck state. |
 | `src/presentation/world/projectiles_view.gd` | Draws projectiles; impact, cooling-hit and muzzle effects. |
+| `src/presentation/world/terrain_view.gd` | Rock masses, fading overhead covers, built walls and power cables. |
 | `src/presentation/world/light_kit.gd` | Shared glow texture, rotating-light and shadow shaders. |
 | `src/presentation/world/fx_kit.gd` | Particle presets (steam, dust). |
 | `src/presentation/world/atmosphere.gd` | Phase B atmosphere: day light, colour grade, dust haze, heat shimmer, dust particles. |
@@ -53,6 +55,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/regression.py` | Runtime regression: loop, restart persistence, overrides, settings. |
 | `tools/regression_encounter.py` | Runtime regression for the hostile encounter (combat, AI, wreck, shade, restart). |
 | `tools/shots_encounter.py` | Screenshots of the hostile encounter. |
+| `tools/regression_refuge.py` | Runtime regression: housing/twin guns, canyon, overhang, workshop, refuge heat, music, parked-mech encounter. |
+| `tools/shots_refuge.py` | Refuge screenshots + boarding sequence sheet/GIF. |
+| `tools/import_audio.py` | Imports selected creator audio from the inbox into templates. |
 | `tools/shots.py` | Captures screenshots of the running game. |
 | `tools/shots_b.py` | Phase B screenshots; `--backdrop` captures the menu backdrop template. |
 | `tools/art/inkkit.py` | Ink pipeline (Red Thaw kit + desertize, top-down finish, seamless tiles). |

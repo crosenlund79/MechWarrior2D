@@ -17,7 +17,8 @@
 				0.5
 			],
 			"facing": "up",
-			"rotates": true
+			"rotates": true,
+			"note": "lower chassis (legs attach at the hip joints, turret ring in the middle); the upper housing is mech.housing"
 		},
 		"mech.leg": {
 			"path": "mechs/starter/leg",
@@ -523,24 +524,6 @@
 			],
 			"note": "main menu background, shown with cover scaling"
 		},
-		"mech.gun": {
-			"path": "mechs/starter/gun",
-			"display": [
-				52,
-				104
-			],
-			"source": [
-				104,
-				208
-			],
-			"pivot": [
-				0.5,
-				0.72
-			],
-			"facing": "up",
-			"rotates": true,
-			"note": "turret; rotates toward the mouse around its mount"
-		},
 		"enemy.hull": {
 			"path": "mechs/scrapper/hull",
 			"display": [
@@ -625,6 +608,186 @@
 			],
 			"height": 50,
 			"note": "overhead shade sail; fades while the player is underneath"
+		},
+		"mech.housing": {
+			"path": "mechs/starter/housing",
+			"display": [
+				176,
+				184
+			],
+			"source": [
+				352,
+				368
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "rotating upper housing (cockpit, armour, gun cheeks); turns toward the mouse"
+		},
+		"mech.twin_gun": {
+			"path": "mechs/starter/twin_gun",
+			"display": [
+				62,
+				160
+			],
+			"source": [
+				112,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.62
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "one of the two side guns (left; the right gun is mirrored). Pivot = mount bracket"
+		},
+		"enemy.pilot": {
+			"path": "characters/enemy_pilot/suit",
+			"display": [
+				46,
+				54
+			],
+			"source": [
+				92,
+				108
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"refuge.parking": {
+			"path": "structures/refuge/parking",
+			"display": [
+				320,
+				280
+			],
+			"source": [
+				640,
+				560
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"refuge.workshop_floor": {
+			"path": "structures/refuge/workshop_floor",
+			"display": [
+				284,
+				224
+			],
+			"source": [
+				568,
+				448
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"refuge.workshop_roof": {
+			"path": "structures/refuge/workshop_roof",
+			"display": [
+				300,
+				240
+			],
+			"source": [
+				600,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30,
+			"note": "overhead; fades while the player is inside"
+		},
+		"refuge.door": {
+			"path": "structures/refuge/door",
+			"display": [
+				20,
+				82
+			],
+			"source": [
+				40,
+				164
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "slides open when the pilot is near"
+		},
+		"refuge.generator": {
+			"path": "structures/refuge/generator",
+			"display": [
+				150,
+				104
+			],
+			"source": [
+				300,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 22
+		},
+		"refuge.light_post": {
+			"path": "structures/refuge/light_post",
+			"display": [
+				30,
+				30
+			],
+			"source": [
+				60,
+				60
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40
+		},
+		"refuge.crates": {
+			"path": "structures/refuge/crates",
+			"display": [
+				100,
+				90
+			],
+			"source": [
+				200,
+				180
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"refuge.coolant_cans": {
+			"path": "structures/refuge/coolant_cans",
+			"display": [
+				70,
+				70
+			],
+			"source": [
+				140,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
 		}
 	},
 	"tiles": {
@@ -691,6 +854,70 @@
 				0
 			],
 			"note": "strip texture, tiles along the path; transparent soft edges top/bottom"
+		},
+		"ground.rock_top": {
+			"path": "ground/rock_top",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline (rock plateau / overhang)"
+		},
+		"ground.canyon_floor": {
+			"path": "ground/canyon_floor",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline"
+		},
+		"terrain.cliff_rim": {
+			"path": "ground/cliff_rim",
+			"display": [
+				256,
+				64
+			],
+			"source": [
+				256,
+				64
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip drawn along rock edges (top = rock side)"
+		},
+		"refuge.wall_strip": {
+			"path": "structures/refuge/wall_strip",
+			"display": [
+				128,
+				24
+			],
+			"source": [
+				256,
+				48
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip tiled along built walls"
 		}
 	},
 	"sounds": {
@@ -768,14 +995,8 @@
 		},
 		"amb.wind": {
 			"path": "audio/ambience/wind",
-			"bus": "Ambience",
+			"bus": "Wind",
 			"loop": true
-		},
-		"music.drone": {
-			"path": "audio/music/drone",
-			"bus": "Music",
-			"loop": true,
-			"volume_db": -6
 		},
 		"ui.click": {
 			"path": "audio/ui/click",
@@ -816,6 +1037,78 @@
 			"path": "audio/sfx/wreck",
 			"bus": "SFX",
 			"loop": false
+		},
+		"sfx.generator_hum": {
+			"path": "audio/sfx/generator_hum",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.electric_hum": {
+			"path": "audio/sfx/electric_hum",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.servo": {
+			"path": "audio/sfx/servo",
+			"bus": "SFX",
+			"loop": true
+		},
+		"sfx.mech_startup": {
+			"path": "audio/sfx/mech_startup",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.power_up": {
+			"path": "audio/sfx/power_up",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.hatch_close": {
+			"path": "audio/sfx/hatch_close",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.climb": {
+			"path": "audio/sfx/climb",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.pilot_shout": {
+			"path": "audio/sfx/pilot_shout",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.gun_fire_b": {
+			"path": "audio/sfx/gun_fire_b",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.impact_metal": {
+			"path": "audio/sfx/impact_metal",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.armor_break": {
+			"path": "audio/sfx/armor_break",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.distant": {
+			"path": "audio/ambience/distant",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"music.theme": {
+			"path": "audio/music/theme",
+			"bus": "Music",
+			"loop": false,
+			"volume_db": -3
+		},
+		"music.theme_alt": {
+			"path": "audio/music/theme_alt",
+			"bus": "Music",
+			"loop": false,
+			"volume_db": -7
 		}
 	}
 }

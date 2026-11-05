@@ -216,4 +216,6 @@ func _load_audio_file(path: String) -> AudioStream:
 	var g := ProjectSettings.globalize_path(path)
 	if path.get_extension().to_lower() == "ogg":
 		return AudioStreamOggVorbis.load_from_file(g)
+	if path.get_extension().to_lower() == "mp3":
+		return AudioStreamMP3.load_from_file(g)
 	return AudioStreamWAV.load_from_file(g)

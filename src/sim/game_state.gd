@@ -53,10 +53,13 @@ static func create_enemies(loc: Dictionary) -> Dictionary:
 
 static func new_enemy(d: Dictionary) -> Dictionary:
 	var p := Content.v2(d.get("spawn", [0, 0]))
+	var parked := bool(d.get("parked", false))
+	var pp := Content.v2(d.get("pilot_spawn", d.get("spawn", [0, 0])))
 	return {"type": str(d.get("type", "scrapper")), "pos": [p.x, p.y], "heading": deg_to_rad(float(d.get("heading_deg", 0.0))),
-		"speed": 0.0, "heat": Content.t("enemy", "start_heat", 66.0), "radiator": Content.t("enemy", "start_radiator", 0.75),
-		"shutters_open": true, "engine": "running", "integrity": Content.t("enemy", "integrity", 55.0),
-		"ai": "patrol", "salvaged": false}
+		"speed": 0.0, "heat": Content.t("enemy", "start_heat", 66.0) - (8.0 if parked else 0.0), "radiator": Content.t("enemy", "start_radiator", 0.75),
+		"shutters_open": true, "engine": "off" if parked else "running", "integrity": Content.t("enemy", "integrity", 55.0),
+		"ai": "unpiloted" if parked else "patrol", "salvaged": false,
+		"pilot": {"state": "outside" if parked else "aboard", "pos": [pp.x, pp.y], "facing": 0.0}}
 
 
 ## Fills missing keys with defaults and clamps ranges. Used after loading.
@@ -106,10 +109,13 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 		for k in fresh:
 			if not e.has(k):
 				e[k] = fresh[k]
-		if not (str(e["ai"]) in ["patrol", "alert", "engage", "return", "wreck"]):
+		if not (str(e["ai"]) in ["patrol", "alert", "engage", "return", "wreck"] or Encounter.is_encounter_state(str(e["ai"]))):
 			e["ai"] = "patrol"
+		if not (e["pilot"] is Dictionary) or not e["pilot"].has("state"):
+			e["pilot"] = fresh["pilot"]
 		if str(e["ai"]) in ["alert", "engage"]:
 			e["ai"] = "return"   # resume calmly after loading
+		Encounter.resolve_on_load(e)
 		e["speed"] = 0.0
 		e["salvaged"] = bool(e["salvaged"])
 		e["radiator"] = clampf(float(e["radiator"]), 0.0, 1.0)

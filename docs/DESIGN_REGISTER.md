@@ -28,6 +28,13 @@ review · **DEFERRED** = explicitly out of scope for now.
 | HS-27 | Scrap patches the hull (2 → +35); free slow emergency patch to 25 % when crippled | EXPLORING | loss is always recoverable |
 | HS-28 | Shade zones aligned with each roof's cast shadow; second shade (salt-works awning) near the encounter | EXPLORING | |
 | HS-29 | Mouse aim + left click / Space fire; turret rotates independently of the legs | EXPLORING | |
+| HS-30 | Rotating upper housing (follows the mouse, rate-limited 5.5 rad/s) with twin side guns, alternating barrels | EXPLORING | chassis movement independent |
+| HS-31 | Canyon Refuge: road down a rock canyon, around a bend, under an overhang into a cavern base | EXPLORING | first player base, no upgrades yet |
+| HS-32 | Overhead covers fade to outline-only while the player is under them (reusable caves/tunnels/roofs) | EXPLORING | |
+| HS-33 | Refuge thermal: ambient 34 °C, no sun, ×1.3 cooling, suit ×0.12; canyon is intermediate | EXPLORING | no auto-repair |
+| HS-34 | Workshop (walkable, sliding door), generator + cables + 5 powered lamps | EXPLORING | no interior gameplay |
+| HS-35 | Theme "Where the Ice Once Lay" on the menu; occasional exploration cue; silence by default | APPROVED | creator-provided |
+| HS-36 | Parked-mech encounter: UNPILOTED → ALERTED → BOARDING → STARTING → ACTIVE → DISABLED | EXPLORING | loads resolve forward |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |
 | HS-17 | Western-style towns, trade economy, factions, NPCs | DEFERRED | |

@@ -45,8 +45,12 @@ var projectiles: Array = []
 var brains := {}         # enemy id -> {wp, t_state, windup, cooldown}
 var enemy_intents := {}  # enemy id -> {throttle, turn, windup}
 var enemy_zones := {}
-var gun_angle := 0.0
+var gun_angle := 0.0          # = housing_angle (kept for tools/tests)
+var housing_angle := 0.0      # world angle of the rotating upper housing (runtime)
+var housing_speed := 0.0      # rad/s actually turned last tick (audio)
+var _muzzle_i := 0
 var _fire_cd := 0.0
+var _zone_type := ""
 var _rng := RandomNumberGenerator.new()
 var _in_shade := false
 
@@ -112,10 +116,13 @@ func _begin() -> void:
 	aim_point = Vector2.INF
 	fire_held = false
 	_fire_cd = 0.0
+	housing_angle = float(state["mech"]["heading"])
+	gun_angle = housing_angle
 	_rng.seed = hash(str(state.get("id", "")))
 	running = true
 	_refresh_zones()
 	_in_shade = _actor_zone_type() == "shade"
+	_zone_type = _actor_zone_type()
 	started.emit()
 
 
@@ -254,11 +261,20 @@ func tick(dt: float) -> void:
 	_tick_player_weapon(dt)
 	_tick_enemies(dt)
 	_tick_projectiles(dt)
-	var shade := _actor_zone_type() == "shade"
-	if shade != _in_shade:
-		_in_shade = shade
-		notice.emit("NOTICE_ENTER_SHADE" if shade else "NOTICE_LEAVE_SHADE", [])
-		mech_event.emit("shade_on" if shade else "shade_off")
+	var zt := _actor_zone_type()
+	if zt != _zone_type:
+		var was := _zone_type
+		_zone_type = zt
+		if zt == "refuge":
+			notice.emit("NOTICE_ENTER_REFUGE", [])
+		elif was == "refuge":
+			notice.emit("NOTICE_LEAVE_REFUGE", [])
+		elif zt == "shade":
+			notice.emit("NOTICE_ENTER_SHADE", [])
+		elif was == "shade":
+			notice.emit("NOTICE_LEAVE_SHADE", [])
+		mech_event.emit("zone_" + zt)
+	_in_shade = zt == "shade" or zt == "refuge"
 	_tick_suit(dt)
 	_tick_task(dt)
 	if mode() == "collapsed":
@@ -749,7 +765,20 @@ func _consume(item: String, n: int) -> bool:
 # ---------------------------------------------------------------- combat: player weapon
 
 func gun_mount() -> Vector2:
-	return mech_pos() + Vector2(0, 8).rotated(float(mech()["heading"]))
+	return mech_pos()
+
+
+## World position of muzzle i of the twin guns (they rotate with the housing).
+func muzzle_pos(i: int) -> Vector2:
+	var ms: Array = tun("combat")["player_weapon"].get("muzzles", [[0, -90]])
+	return mech_pos() + Content.v2(ms[i % ms.size()]).rotated(housing_angle)
+
+
+func in_combat() -> bool:
+	for id in state.get("enemies", {}):
+		if str(state["enemies"][id]["ai"]) in ["alert", "engage", "alerted", "boarding", "starting"]:
+			return true
+	return false
 
 
 func can_fire() -> bool:
@@ -758,19 +787,38 @@ func can_fire() -> bool:
 
 func _tick_player_weapon(dt: float) -> void:
 	_fire_cd = maxf(0.0, _fire_cd - dt)
-	if aim_point != Vector2.INF and mode() == "mech":
-		var to := aim_point - gun_mount()
+	var w: Dictionary = tun("combat")["player_weapon"]
+	var before := housing_angle
+	var want := housing_angle
+	if aim_point != Vector2.INF and mode() == "mech" and float(mech()["integrity"]) > 0.0:
+		var to := aim_point - mech_pos()
 		if to.length() > 4.0:
-			gun_angle = atan2(to.x, -to.y)
+			want = atan2(to.x, -to.y)
+		# Heavy but responsive: eases in over the last ~0.3 rad, capped turn rate.
+		var err := wrapf(want - housing_angle, -PI, PI)
+		var rate := float(tun("mech").get("housing_turn_rate", 5.5))
+		var stepv := clampf(err * 10.0 * dt, -rate * dt, rate * dt)
+		housing_angle = wrapf(housing_angle + stepv, -PI, PI)
+	housing_speed = absf(wrapf(housing_angle - before, -PI, PI)) / maxf(dt, 0.0001)
+	gun_angle = housing_angle
 	if not fire_held or _fire_cd > 0.0 or not can_fire():
 		return
-	var w: Dictionary = tun("combat")["player_weapon"]
+	if absf(wrapf(want - housing_angle, -PI, PI)) > deg_to_rad(float(w.get("fire_cone_deg", 25.0))):
+		return   # housing still swinging toward the target
 	_fire_cd = float(w["cooldown"])
-	var dir := Drive.forward(gun_angle)
-	var origin := gun_mount() + dir * 72.0
+	var i := _muzzle_i
+	_muzzle_i = (_muzzle_i + 1) % 2
+	var origin := muzzle_pos(i)
+	var fwd := Drive.forward(housing_angle)
+	var dir := fwd
+	if aim_point != Vector2.INF:
+		var to2 := aim_point - origin
+		# Converge on the real target point, also at close range; never shoot backwards.
+		if to2.length() >= float(w.get("min_aim_distance", 50.0)) and to2.normalized().dot(fwd) > 0.2:
+			dir = to2.normalized()
 	projectiles.append(Combat.make_shot("player", origin, dir, w, _rng))
 	mech()["heat"] = minf(float(mech()["heat"]) + float(w["heat_per_shot"]), Content.t("thermal", "max_temp", 135.0))
-	combat_event.emit("muzzle", {"owner": "player", "pos": origin, "angle": gun_angle})
+	combat_event.emit("muzzle", {"owner": "player", "pos": origin, "angle": atan2(dir.x, -dir.y), "barrel": i})
 
 
 # ---------------------------------------------------------------- combat: enemies
@@ -780,12 +828,16 @@ func _tick_enemies(dt: float) -> void:
 	var thermal := enemy_thermal()
 	var w: Dictionary = tun("combat")["enemy_weapon"]
 	var target := {"valid": float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"])}
+	var tenc := tun("encounter")
+	var player := {"mech_valid": float(mech()["integrity"]) > 0.0, "mech_pos": mech_pos(), "mech_heat": float(mech()["heat"]),
+		"foot": mode() == "foot", "foot_pos": pilot_pos()}
 	for id in state.get("enemies", {}):
 		var e: Dictionary = state["enemies"][id]
 		if not brains.has(id):
 			brains[id] = {"wp": 0, "t_state": 0.0, "windup": 0.0, "cooldown": 1.0}
 		if str(e["ai"]) == "wreck":
 			enemy_intents[id] = {"throttle": 0.0, "turn": 0.0, "windup": 0.0}
+			Encounter.tick_flee(e, tenc, dt)
 			continue
 		var zone := Content.zone_at(loc, Content.v2(e["pos"]))
 		enemy_zones[id] = zone
@@ -796,7 +848,19 @@ func _tick_enemies(dt: float) -> void:
 			elif ev == "shutdown":
 				combat_event.emit("enemy_shutdown", {"id": id, "pos": Content.v2(e["pos"])})
 		var intent := {"throttle": 0.0, "turn": 0.0, "windup": 0.0}
-		if str(e["engine"]) == "running":
+		if Encounter.is_encounter_state(str(e["ai"])):
+			var ev2 := Encounter.step(e, brains[id], player, tenc, te, dt)
+			if ev2 != "":
+				combat_event.emit(ev2, {"id": id, "pos": Content.v2(e["pos"]), "pilot": Content.v2(e["pilot"]["pos"])})
+				match ev2:
+					"pilot_alert":
+						notice.emit("NOTICE_PILOT_ALERT", [])
+					"startup":
+						notice.emit("NOTICE_MECH_STARTUP", [])
+					"active":
+						notice.emit("NOTICE_ENEMY_ALERT", [])
+				Log.info("encounter", ev2, {"id": id})
+		elif str(e["engine"]) == "running":
 			var defn := enemy_def(id)
 			var r := EnemyAI.think(e, brains[id], target, defn, te, thermal, w, dt)
 			intent = r
@@ -825,6 +889,7 @@ func _check_enemy_disabled(id: String, e: Dictionary, thermal: Dictionary) -> vo
 	if float(e["integrity"]) > 0.0 and not cooked:
 		return
 	e["ai"] = "wreck"
+	Encounter.flee(e)
 	e["engine"] = "off"
 	e["speed"] = 0.0
 	e["salvaged"] = false
@@ -841,7 +906,7 @@ func enemy_velocity(id: String, dt: float) -> Vector2:
 	if e.is_empty():
 		return Vector2.ZERO
 	var it: Dictionary = enemy_intents.get(id, {})
-	var ok := str(e["engine"]) == "running" and str(e["ai"]) != "wreck"
+	var ok := str(e["engine"]) == "running" and str(e["ai"]) != "wreck" and not Encounter.is_encounter_state(str(e["ai"]))
 	return Drive.step(e, float(it.get("throttle", 0.0)), float(it.get("turn", 0.0)), ok, tun("enemy"), enemy_thermal(),
 		enemy_zones.get(id, {}), dt)
 
@@ -880,6 +945,11 @@ func _tick_projectiles(dt: float) -> void:
 					if str(e["ai"]) == "patrol" or str(e["ai"]) == "return":
 						e["ai"] = "alert"   # being shot always gets its attention
 						brains[id]["t_state"] = 0.0
+					elif str(e["ai"]) == "unpiloted":
+						e["ai"] = "alerted"
+						brains[id]["t_state"] = 0.0
+						notice.emit("NOTICE_PILOT_ALERT", [])
+						combat_event.emit("pilot_alert", {"id": id, "pos": Content.v2(e["pos"]), "pilot": Content.v2(e["pilot"]["pos"])})
 					_check_enemy_disabled(id, e, enemy_thermal())
 				combat_event.emit("cooling_hit" if kind == "cooling" else "impact", {"pos": sh["pos"], "target": id})
 				break

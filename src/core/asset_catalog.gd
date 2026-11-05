@@ -8,7 +8,7 @@ const MANIFEST := "res://assets/manifest/assets.json"
 const TEMPLATE_ROOT := "res://assets/templates/"
 const BUNDLED_ROOT := "res://assets/overrides/"
 const IMAGE_EXTS := ["png", "webp", "jpg"]
-const AUDIO_EXTS := ["wav", "ogg"]
+const AUDIO_EXTS := ["wav", "ogg", "mp3"]
 
 static var _entries: Dictionary = {}
 static var problems: Array[String] = []

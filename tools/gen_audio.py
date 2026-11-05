@@ -12,7 +12,14 @@ SR = 44100
 rng = np.random.default_rng(42)
 
 
+import json as _json
+_IMPORTED = {_json.load(open(os.path.join(ROOT, "assets/manifest/assets.json")))["sounds"][k]["path"]
+             for k in _json.load(open(os.path.join(ROOT, "tools/audio_map.json"))) if not k.startswith("_")}
+
+
 def save(rel, x):
+    if rel in _IMPORTED:   # creator-provided audio wins (tools/import_audio.py)
+        return
     d, n = os.path.split(rel)
     p = os.path.join(ROOT, "assets/templates", d, "template_" + n + ".wav")
     os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -97,11 +104,7 @@ wind = lowpass(noise(10.0), 0.02) * 3.0
 wind *= 0.6 + 0.4 * np.sin(2 * np.pi * 0.11 * wd) * np.sin(2 * np.pi * 0.047 * wd + 1)
 wind += (noise(10.0) - lowpass(noise(10.0), 0.3)) * 0.03 * (0.5 + 0.5 * np.sin(2 * np.pi * 0.2 * wd))
 save("audio/ambience/wind", loopify(wind * 0.45, 1.0))
-dt_ = t(16.0)
-drone = sum(a * np.sin(2 * np.pi * f * dt_ + p) for a, f, p in [(0.25, 55, 0), (0.18, 82.4, 1), (0.1, 110.3, 2), (0.06, 164.6, 0.5)])
-drone *= 0.7 + 0.3 * np.sin(2 * np.pi * dt_ / 16.0)
-drone += lowpass(noise(16.0), 0.01) * 0.6
-save("audio/music/drone", loopify(drone * 0.35, 2.0))
+# (music: the creator's theme is used — no generated music)
 ct = t(0.06)
 save("audio/ui/click", np.sin(2 * np.pi * 1500 * ct) * np.exp(-ct * 80) * 0.3)
 print("audio written")
@@ -122,3 +125,30 @@ save("audio/sfx/enemy_alert", np.sin(2 * np.pi * (300 + 150 * (al > 0.4)) * al) 
 wr = t(1.8)
 save("audio/sfx/wreck", lowpass(noise(1.8), 0.06) * np.exp(-wr * 2.5) * 1.6 + np.sin(2 * np.pi * 40 * wr) * np.exp(-wr * 3) * 0.6)
 print("combat audio written")
+
+
+# ---- canyon refuge (no suitable creator clips: generated)
+gt2 = t(6.0)
+hum = (0.30 * np.sin(2 * np.pi * 50 * gt2) + 0.22 * np.sin(2 * np.pi * 100 * gt2 + 0.4) + 0.1 * np.sin(2 * np.pi * 150 * gt2)
+       + 0.12 * np.sign(np.sin(2 * np.pi * 25 * gt2)) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.5 * gt2)))
+rattle = lowpass(noise(6.0), 0.4) * (np.sin(2 * np.pi * 12.5 * gt2) > 0.6) * 0.25
+hum = hum * (0.9 + 0.1 * np.sin(2 * np.pi * 1.3 * gt2)) + rattle + lowpass(noise(6.0), 0.03) * 0.5
+save("audio/sfx/generator_hum", loopify(hum * 0.55, 0.5))
+et2 = t(4.0)
+buzz = (np.sin(2 * np.pi * 100 * et2) * 0.2 + np.sign(np.sin(2 * np.pi * 100 * et2)) * 0.04 + np.sin(2 * np.pi * 200 * et2) * 0.06)
+buzz *= 0.85 + 0.15 * np.sin(2 * np.pi * 0.7 * et2)
+save("audio/sfx/electric_hum", loopify(buzz * 0.5, 0.4))
+sv = t(2.0)
+servo = np.sin(2 * np.pi * (260 + 20 * np.sin(2 * np.pi * 3 * sv)) * sv) * 0.12 + lowpass(noise(2.0), 0.3) * 0.25
+servo += np.sign(np.sin(2 * np.pi * 37 * sv)) * 0.03
+save("audio/sfx/servo", loopify(servo * 0.7, 0.3))
+st2 = t(3.4)
+f = 40 + 140 * (st2 / 3.4) ** 1.4
+ph = 2 * np.pi * np.cumsum(f) / SR
+startup = (np.sin(ph) * 0.35 + np.sin(ph * 2.01) * 0.15 + np.sign(np.sin(ph * 0.5)) * 0.06) * env(len(st2), 0.4, 0.5)
+startup += lowpass(noise(3.4), 0.05) * 0.6 * np.linspace(0.2, 1.0, len(st2))
+for k, at in enumerate((0.9, 1.8, 2.6)):
+    i = int(at * SR); seg = st2[: len(st2) - i]
+    startup[i:] += np.sin(2 * np.pi * 70 * seg) * np.exp(-seg * 14) * 0.5   # actuator clunks
+save("audio/sfx/mech_startup", startup * 0.8)
+print("refuge audio written")

@@ -54,9 +54,27 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
 - Views: `EnemyView` (movement executor + telegraph and damage FX) and `ProjectilesView` (tracers and
   impacts). Both react to `Session.combat_event`.
 
+## Canyon refuge iteration
+- **Housing:** `Session.housing_angle` (runtime) turns toward `aim_point` at ≤ 5.5 rad/s with easing.
+  Shots alternate between the two muzzles (`combat.player_weapon.muzzles`, housing-local). Each one
+  aims from its own muzzle at the aim point (converging, also at close range) and fires only once the
+  housing is within 25° of the target. The chassis heading comes only from drive input.
+- **Terrain** (`location.terrain`):
+  - `masses`: rock, roughened by `Content.organic`, which is deterministic, so the visual polygon is
+    the collision polygon
+  - `covers`: overhead rock. `TerrainView.coverage()` and fading use the signed distance to the outline.
+  - `walls`: textured strips with matching rectangle colliders
+  - `cables`: visual only
+- **Zones** gain `cooling` (a multiplier on the cooling coefficient) and `sheltered` (the HUD tag).
+  Zone types: canyon, refuge.
+- **Encounter** (`src/sim/encounter.gd`): `enemy.pilot = {state, pos, facing}` with states outside →
+  climbing → aboard (or fled → gone). The parked mech has no drive or weapon until it reaches the
+  ACTIVE states. Loading in alerted, boarding or starting resolves to an active "return" state with
+  the pilot aboard, and a wreck never respawns its pilot.
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
-Format version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
+Format version **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
 Write: temp → read back → validate → previous file to `.bak` → replace. Load: main → validate/migrate →
 else `.bak` (reported as "recovered"). Migrations: `SaveCodec.MIGRATIONS[from_version]`. Stable IDs:
 salvage nodes and props are named in location data; drops get `drop_<n>`. Autosave: new game, enter

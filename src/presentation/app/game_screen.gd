@@ -41,6 +41,7 @@ func _ready() -> void:
 	input.screen = self
 	add_child(input)
 	sound = SoundDirector.new()
+	sound.world = world
 	add_child(sound)
 
 
