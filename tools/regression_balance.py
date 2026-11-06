@@ -74,8 +74,11 @@ try:
     check(cooled < hot - 8, f"the refuge pulls heat down ({hot:.0f} → {cooled:.0f} °C in 6 s)")
 
     print("5. stacked pressure: damaged cooling + sandstorm + combat")
-    g.cmd("set_mech 300 2100 90"); g.cmd("debug damage 0.3"); g.cmd("dev weather start 1.0"); g.cmd("wait 9")
-    g.cmd("debug heat -60"); g.cmd("wait 0.3"); g.cmd("aim 300 1600")
+    # Deterministic start (earlier scenarios leave varying heat and wear): radiator 25 %, 60 °C.
+    g.cmd("set_mech 300 2100 90"); g.cmd("dev weather start 1.0"); g.cmd("wait 9")
+    m = g.state()["game"]["mech"]
+    g.cmd(f"debug damage {float(m['radiator']) - 0.25:.4f}")
+    g.cmd(f"debug heat {60.0 - float(m['heat']):.2f}"); g.cmd("wait 0.3"); g.cmd("aim 300 1600")
     warned_at, crit_at, t = None, None, 0.0
     for k in range(30):
         st = g.cmd("fire_for 2")["state"]; t += 2
@@ -90,6 +93,21 @@ try:
     g.cmd("dev weather clear"); g.cmd("dev teleport refuge"); g.cmd("debug timescale 4"); g.cmd("wait 8"); g.cmd("debug timescale 1")
     st = g.state()
     check(st["game"]["mech"]["engine"] == "running", "recovers and restarts in shelter")
+    # The warning is actionable: same stacked setup, but cease fire on the first warning.
+    g.cmd("set_mech 300 2100 90"); g.cmd("dev weather start 1.0"); g.cmd("wait 9")
+    m = g.state()["game"]["mech"]
+    g.cmd(f"debug damage {float(m['radiator']) - 0.25:.4f}")
+    g.cmd(f"debug heat {60.0 - float(m['heat']):.2f}"); g.cmd("wait 0.3"); g.cmd("aim 300 1600")
+    over0 = g.state()["game"]["stats"]["overheats"]
+    for k in range(30):
+        st = g.cmd("fire_for 1")["state"]
+        if st["game"]["mech"]["heat"] >= WARN or "NOTICE_HEAT_WARNING" in st["notices"]:
+            break
+    g.cmd("wait 15")
+    st = g.state()
+    check(st["game"]["stats"]["overheats"] == over0 and st["game"]["mech"]["engine"] == "running",
+          f"ceasing fire at the warning avoids shutdown, even in a storm with 25 % cooling ({st['game']['mech']['heat']:.0f} °C)")
+    g.cmd("dev weather clear")
 
     print("6. damaged cooling while cruising: slow build, recoverable by easing off")
     g.cmd("dev repair"); g.cmd("debug damage 0.75"); g.cmd("set_mech 1500 2100 90"); g.cmd("debug heat -60"); g.cmd("wait 0.3")
