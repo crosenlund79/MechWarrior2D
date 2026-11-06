@@ -90,6 +90,15 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
   `Audio.set_storm` muffles SFX and distant one-shots.
 - **Save v4:** adds weather and turrets.
 
+## Movement & heat balance
+- **Drive:** `tuning.mech` sets 245 px/s, accel 290, brake 520, turn 2.6 → 1.75 rad/s. The sense
+  of weight is visual (`feel_squat`, `feel_lean`, `feel_step_shake`) plus sound and recoil.
+- **Thermal:** heat capacity 2.2 gives slower swings and longer warnings. Cooling is 0.15, move heat
+  1.2, shot heat 0.85, and the start radiator 55 %. Open-sand abrasion is 0.00025/s; dunes and storms
+  multiply it.
+- `python3 tools/heat_balance.py` prints the resulting situation table. Keep "ordinary travel: never
+  warns" and "stacked pressure: overheats after a warning".
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
 Format version **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).

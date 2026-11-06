@@ -82,24 +82,53 @@ func test_thermal_equilibrium_matches_simulation() -> void:
 	check(eq < float(tun["warn_temp"]), "repaired mech at full speed stays below warning (eq %.1f)" % eq)
 
 
-func test_damaged_radiator_overheats_and_shuts_down() -> void:
+func test_heat_balance_forgiving_start_progressive_pressure() -> void:
 	var tun: Dictionary = Content.tuning["thermal"]
-	var zone := {"ambient": 58.0, "solar": 1.0, "abrasion": 0.0}
-	var m := _mech(float(tun["start_radiator"]), true, float(tun["start_heat"]))
+	var loc := Content.location()
+	var open := Content.zone_at(loc, Vector2(300, 2100))
+	var start_r := float(tun["start_radiator"])
+	var m := _mech(start_r, true, float(tun["start_heat"]))
+	for i in 6000:   # 10 minutes of ordinary full-speed driving
+		Thermal.step(m, open, tun, 0.1, 1.0, true)
+	check(float(m["heat"]) < float(tun["warn_temp"]), "ordinary driving with the starting radiator never reaches a warning (%.1f °C)" % m["heat"])
+	var good := _mech(1.0, true, float(tun["start_heat"]))
+	check(Thermal.equilibrium(good, true, 1.0, open, tun) < float(tun["warn_temp"]) - 12.0, "a healthy radiator handles exploration comfortably")
+	# Prolonged combat with a damaged radiator overheats, but only after a warning period.
+	var w: Dictionary = Content.tuning["combat"]["player_weapon"]
+	var fire_heat := float(w["heat_per_shot"]) / float(w["cooldown"])
+	var bad := _mech(0.25, true, float(tun["start_heat"]))
 	var t := 0.0
+	var t_warn := -1.0
 	var shut := false
-	while t < 120.0 and not shut:
-		shut = Thermal.step(m, zone, tun, 0.05, 1.0, true).has("shutdown")
-		t += 0.05
-	check(shut, "damaged radiator overheats at full speed")
-	check(t > 15.0 and t < 60.0, "overheat takes a playable time (%.1f s)" % t)
-	check(m["engine"] == "shutdown", "engine state shutdown")
+	while t < 300.0 and not shut:
+		bad["heat"] = float(bad["heat"]) + fire_heat * 0.1 / float(tun["heat_capacity"])
+		for ev in Thermal.step(bad, open, tun, 0.1, 0.6, true):
+			if ev == "shutdown":
+				shut = true
+		if t_warn < 0.0 and float(bad["heat"]) >= float(tun["warn_temp"]):
+			t_warn = t
+		t += 0.1
+	check(shut, "a damaged radiator under sustained fire still overheats")
+	check(t_warn > 10.0 and t - t_warn > 10.0, "with ample warning (warn at %.0f s, shutdown at %.0f s)" % [t_warn, t])
+	var engine_off := {"heat": float(tun["critical_temp"]) + 1.0, "radiator": 0.25, "shutters_open": true, "engine": "shutdown"}
+	var t2 := 0.0
 	var restarted := false
-	t = 0.0
-	while t < 180.0 and not restarted:
-		restarted = Thermal.step(m, zone, tun, 0.05, 0.0, false).has("restart")
-		t += 0.05
-	check(restarted, "engine-off cooling allows restart (%.1f s)" % t)
+	while t2 < 300.0 and not restarted:
+		restarted = Thermal.step(engine_off, open, tun, 0.1, 0.0, false).has("restart")
+		t2 += 0.1
+	check(restarted and t2 < 150.0, "a shut-down mech recovers by itself in reasonable time (%.0f s)" % t2)
+
+
+func test_storm_and_hot_regions_raise_pressure() -> void:
+	var tun: Dictionary = Content.tuning["thermal"]
+	var loc := Content.location()
+	var open := Content.zone_at(loc, Vector2(300, 2100))
+	var salt := Content.zone_at(loc, Vector2(2700, 2000))
+	var stormy := Weather.apply(open, {"state": "storm", "intensity": 1.0}, Content.tuning["weather"])
+	var m := _mech(float(tun["start_radiator"]), true, 70.0)
+	var e_open := Thermal.equilibrium(m, true, 1.0, open, tun)
+	check(Thermal.equilibrium(m, true, 1.0, salt, tun) > e_open + 4.0, "hotter regions add pressure")
+	check(Thermal.equilibrium(m, true, 1.0, stormy, tun) > e_open + 15.0, "sandstorms add substantial pressure")
 
 
 func test_cooling_depends_on_condition_and_shutters() -> void:
@@ -120,7 +149,7 @@ func test_abrasion_only_with_open_shutters() -> void:
 	for i in 200:
 		Thermal.step(open_m, dunes, tun, 0.05, 1.0, true)
 		Thermal.step(shut_m, dunes, tun, 0.05, 1.0, true)
-	check(float(open_m["radiator"]) < 0.9, "open shutters wear in dunes (%.3f)" % open_m["radiator"])
+	check(float(open_m["radiator"]) < 0.97, "open shutters wear in dunes (%.3f)" % open_m["radiator"])
 	approx(float(shut_m["radiator"]), 1.0, 0.0001, "closed shutters protect")
 
 
@@ -156,7 +185,7 @@ func test_session_loop_in_memory() -> void:
 	check(Session.request("service"), "start repair")
 	for i in 40:
 		Session.tick(0.1)
-	check(float(s["mech"]["radiator"]) > before + 0.5, "radiator repaired")
+	check(float(s["mech"]["radiator"]) >= minf(1.0, before + 0.5) - 0.001, "radiator repaired")
 	check(GameState.count(s["pilot"]["pack"], "radiator_core") == 0, "core consumed")
 	check(Session.enter_mech(), "re-enter")
 	var suit1 := float(s["pilot"]["suit"])
@@ -401,7 +430,7 @@ func test_enemy_overheats_and_is_disabled() -> void:
 	e["radiator"] = 0.0
 	e["heat"] = 100.0
 	Session.mech()["pos"] = [100.0, 100.0]  # far away
-	for i in 400:
+	for i in 2400:
 		Session.tick(0.1)
 		if e["ai"] == "wreck":
 			break

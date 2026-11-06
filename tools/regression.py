@@ -44,12 +44,14 @@ try:
     check(heat_after_drive > m0["heat"], f"driving heats the core ({m0['heat']:.1f} → {heat_after_drive:.1f})")
     r = g.cmd("drive_to 2520 1100 40")
     check(r["ok"], "mech reaches the wreck site")
-    # Keep the engine working hard (tight circles) until the damaged radiator gives out.
+    check(r["state"]["game"]["mech"]["heat"] < 98, f"ordinary driving stays below the warning ({r['state']['game']['mech']['heat']:.0f} °C)")
+    g.cmd("debug damage 0.3")   # a damaged radiator is what makes the mech overheat
+    # Keep the engine working hard (tight circles + firing) until the damaged radiator gives out.
     for k in range(20):
-        if k >= 6:   # heat impairment slows a hot mech; firing the guns pushes it over the edge
+        if k >= 1:   # firing the guns is the main heat load
             m = g.state()["game"]["mech"]["pos"]
             g.cmd(f"aim {m[0]} {m[1] - 400}")
-            st = g.cmd("fire_for 2")["state"]
+            st = g.cmd("fire_for 4")["state"]
         st = g.cmd("drive 1 1 3")["state"]
         if st["game"]["stats"]["overheats"] > 0:
             break

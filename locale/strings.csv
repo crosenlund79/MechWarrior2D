@@ -131,7 +131,7 @@ ITEM_RADIATOR_CORE,radiator core,kølerkerne
 LOC_DESERT_BASIN,Basin of the old ice shelf,Bassinet ved den gamle ishylde
 SALVAGE_PUMP_RIG,Wrecked pump rig,Forliset pumperig
 SALVAGE_HAULER,Dead hauler,Død fragter
-HINT_FIND_CORE,Your radiator is failing. Salvage a radiator core — the wrecked pump rig lies east along the track.,Din køler svigter. Bjærg en kølerkerne — den forliste pumperig ligger mod øst ad sporet.
+HINT_FIND_CORE,Your radiator is worn. Salvage a radiator core — the wrecked pump rig lies east along the track.,Din køler er slidt. Bjærg en kølerkerne — den forliste pumperig ligger mod øst ad sporet.
 HINT_SCAVENGE,Find the salvage and get back before the suit gives out.,"Find bjærgningen og kom tilbage, før dragten svigter."
 HINT_EXIT_TO_REPAIR,"You have a core. Stop, step outside and repair the radiator.","Du har en kerne. Stop, stig ud og reparer køleren."
 HINT_REPAIR,Stand by the mech and repair the radiator.,Stil dig ved mechen og reparer køleren.

@@ -65,6 +65,9 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/regression_junkers.py` | Kørselsregression: rekyl, sandstorm, udviklermenu, udforskning, skrotterbase, tårne, forsvarere. |
 | `tools/shots_junkers.py` | Skærmbilleder + rekyl-GIF for Sydskrotter-iterationen. |
 | `tools/build_world_south.py` | Skriver og validerer det udvidede kort / skrotterbasen i lokationsfilen. |
+| `tools/heat_balance.py` | Udskriver varmebalancetabellen (ligevægt, tid til advarsel/kritisk) fra tuning.json. |
+| `tools/regression_balance.py` | Kørselsregression: fart/respons og gradvist varmepres. |
+| `tools/shots_balance.py` | Skærmbilleder af bevægelses-/varmeomlægningen. |
 | `tools/shots.py` | Tager skærmbilleder af det kørende spil. |
 | `tools/shots_b.py` | Fase B-skærmbilleder; `--backdrop` optager menu-baggrunden. |
 | `tools/art/inkkit.py` | Blækpipeline (Red Thaw-sæt + desertize, top-down finish, sømløse fliser). |

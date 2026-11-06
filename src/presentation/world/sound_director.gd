@@ -111,7 +111,9 @@ func _process(delta: float) -> void:
 		_step_t -= delta * (0.9 + frac * 1.6)
 		if _step_t <= 0.0:
 			_step_t = 1.0
-			Audio.play("sfx.mech_step", -6.0 + frac * 3.0, randf_range(0.9, 1.05))
+			Audio.play("sfx.mech_step", -6.0 + frac * 4.0, randf_range(0.82, 0.95))
+			if world and world.camera and frac > 0.45:
+				world.camera.add_shake(float(Session.tun("mech").get("feel_step_shake", 0.07)) * frac, 0.25)
 	if Session.mode() == "foot" and Session.walk_dir.length() > 0.1:
 		_foot_t -= delta
 		if _foot_t <= 0.0:

@@ -134,6 +134,7 @@ try:
     check(not r["ok"] and r["state"]["game"]["mech"]["pos"][1] < 4930, "the main workshop is solid")
     g.cmd("drive_to 4900 4720 25"); g.cmd("drive_to 4800 5000 20"); g.cmd("drive_to 4580 5260 20"); r = g.cmd("drive_to 4180 5270 20")
     check(r["ok"], "leave through the west breach")
+    g.cmd("set_enemy 4950 4700 0 patrol id=junker_yard_guard")   # guard patrols through this lane: move it away first
     g.cmd("set_mech 5700 5250 90"); g.cmd("drive_to 5800 5410 10"); r = g.cmd("drive_to 6150 5420 20")
     check(r["ok"], "the east breach is passable")
     g.cmd("set_mech 5500 4650 0"); r = g.cmd("drive_to 5560 4300 8")

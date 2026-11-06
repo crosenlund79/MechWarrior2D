@@ -9,9 +9,11 @@
    User Data Folder*).
 
 ## Playing the first loop (about 3 minutes)
-1. You start parked in the shade shelter. The radiator is at 30 %. Drive east along the track (W/A/D).
-2. Watch **MECH CORE**: "settling at" shows where the temperature is heading. Near the wreck you will
-   probably overheat (engine shutdown, steam, alarm).
+1. You start parked in the shade shelter. The radiator is worn (55 %). Drive east along the track (W/A/D).
+   The mech is fast now, and ordinary driving stays below the warning.
+2. Watch **MECH CORE**: "settling at" shows where the temperature is heading. Heat builds with
+   sustained fire, the hot salt pan, sandstorms and damaged cooling. Combine them and you can still
+   overheat (engine shutdown, steam, alarm), always after a warning.
 3. Stop, press **E** to exit. The suit drains (~70 s in open sun; slower in shade, faster on salt).
 4. Walk to the wrecked pump rig (the pointer shows the way), press **E** to salvage the radiator core.
 5. Walk back to the mech and press **R** to repair (3 s; standing still). Cooling jumps to ~85 %.

@@ -25,6 +25,8 @@ Never modify another project. Never alter `backup/*` branches.
 - `python3 tools/regression_encounter.py` (enemy AI, combat, wreck salvage, shade, restart persistence)
 - `python3 tools/regression_refuge.py` (housing/twin guns, canyon + overhang, workshop, music, parked-mech encounter)
 - `python3 tools/regression_junkers.py` (recoil, sandstorm, F10 dev menu, exploration, Junker base, turrets, defenders)
+- `python3 tools/regression_balance.py` (speed/responsiveness, progressive heat pressure)
+- Heat tuning changes: run `python3 tools/heat_balance.py` — ordinary travel must never warn.
 - Map layout changes: edit `tools/build_world_south.py` (south/east content) and run it — it validates roads vs rock/props.
 - `python3 tools/check_script_guides.py` — update EN + DA script guides for new/removed scripts
 

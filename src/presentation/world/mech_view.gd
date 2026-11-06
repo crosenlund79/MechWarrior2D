@@ -47,6 +47,9 @@ var leak: CPUParticles2D
 var smoke: CPUParticles2D
 var _flash := 0.0
 var _stride := 0.0
+var _last_speed := 0.0
+var _accel_s := 0.0     # smoothed acceleration (px/s²) for squat/dip
+var _lean := 0.0
 var _shutter_t := 1.0
 var _shake := 0.0
 
@@ -237,8 +240,17 @@ func _process(delta: float) -> void:
 	var swing := sin(_stride) * 22.0 * minf(1.0, frac * 3.0)
 	leg_l.get_parent().position = Vector2(-98, -swing)
 	leg_r.get_parent().position = Vector2(98, swing)
-	hull.get_parent().rotation = sin(_stride * 2.0) * 0.018 * frac
-	hull.get_parent().position = Vector2(sin(_stride) * 2.0 * frac, 0)
+	# Mass: the hull squats back when accelerating, dips forward when braking and
+	# leans into turns (visual only; the chassis physics are unchanged).
+	var tmf := Session.tun("mech")
+	var acc := (speed - _last_speed) / maxf(delta, 0.0001)
+	_last_speed = speed
+	_accel_s = lerpf(_accel_s, acc, 1.0 - exp(-8.0 * delta))
+	var squat := clampf(_accel_s * float(tmf.get("feel_squat", 0.035)), -9.0, 9.0)
+	var turning := Session.drive_turn if Session.mode() == "mech" and Session.engine_on() else 0.0
+	_lean = lerpf(_lean, turning * frac * float(tmf.get("feel_lean", 0.06)), 1.0 - exp(-5.0 * delta))
+	hull.get_parent().rotation = sin(_stride * 2.0) * 0.018 * frac + _lean
+	hull.get_parent().position = Vector2(sin(_stride) * 2.0 * frac, squat)
 	var engine := str(m["engine"])
 	if engine == "running" and absf(speed) < 2.0:
 		hull.get_parent().position += Vector2(sin(Time.get_ticks_msec() * 0.045) * 0.5, 0)  # idle shudder

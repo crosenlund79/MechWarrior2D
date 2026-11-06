@@ -65,6 +65,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/regression_junkers.py` | Runtime regression: recoil, sandstorm, dev menu, exploration, Junker base, turrets, defenders. |
 | `tools/shots_junkers.py` | Screenshots + recoil GIF for the Southern Junkers iteration. |
 | `tools/build_world_south.py` | Writes and validates the expanded map / Junker base in the location file. |
+| `tools/heat_balance.py` | Prints the heat balance table (settle temperature, time to warning/critical) from tuning.json. |
+| `tools/regression_balance.py` | Runtime regression: speed/responsiveness and progressive heat pressure. |
+| `tools/shots_balance.py` | Screenshots for the movement/heat rebalance. |
 | `tools/shots.py` | Captures screenshots of the running game. |
 | `tools/shots_b.py` | Phase B screenshots; `--backdrop` captures the menu backdrop template. |
 | `tools/art/inkkit.py` | Ink pipeline (Red Thaw kit + desertize, top-down finish, seamless tiles). |

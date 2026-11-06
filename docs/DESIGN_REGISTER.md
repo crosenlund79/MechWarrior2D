@@ -44,6 +44,7 @@ review · **DEFERRED** = explicitly out of scope for now.
 | HS-43 | 5 perimeter turrets (easy), max 2 engage at once, LOS, telegraph, destructible + salvageable, persistent | EXPLORING | |
 | HS-44 | 3 Junker defenders (yard patrol, gate guard, parked mech with pilot boarding); type stats + 0.7 damage | EXPLORING | no endless spawns |
 | HS-45 | Named area discovery notices | EXPLORING | |
+| HS-46 | Movement & heat rebalance: 245 px/s, fast accel/turning; weight via hull squat/lean, footfall thump, recoil. Start radiator 55 %; ordinary travel never warns; pressure stacks from combat, hot regions, storms, damage (≥8 s warning before critical) | EXPLORING | `tools/heat_balance.py` |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |
 | HS-17 | Western-style towns, trade economy, factions, NPCs | DEFERRED | |
