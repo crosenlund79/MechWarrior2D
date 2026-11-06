@@ -1,0 +1,1692 @@
+{
+	"_doc": "Replaceable art & audio. path = <dir>/<name>; template file = assets/templates/<dir>/template_<name>.png; override = assets/overrides/<dir>/<name>.png or <exe>/overrides/<dir>/<name>.png or user://overrides/<dir>/<name>.png. display = in-game box (px), source = recommended drawing size (2x), pivot = node origin as fraction of the box (top-down: centre for rotating parts), facing = which way the art points, height = cast-shadow length in px (0 = none). Sun from the upper left.",
+	"version": 1,
+	"sprites": {
+		"mech.hull": {
+			"path": "mechs/starter/hull",
+			"display": [
+				200,
+				220
+			],
+			"source": [
+				400,
+				440
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "lower chassis (legs attach at the hip joints, turret ring in the middle); the upper housing is mech.housing"
+		},
+		"mech.leg": {
+			"path": "mechs/starter/leg",
+			"display": [
+				64,
+				150
+			],
+			"source": [
+				128,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "left leg; the right leg is the same art mirrored"
+		},
+		"mech.radiator": {
+			"path": "mechs/starter/radiator",
+			"display": [
+				150,
+				64
+			],
+			"source": [
+				300,
+				128
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"mech.radiator_damage": {
+			"path": "mechs/starter/radiator_damage",
+			"display": [
+				150,
+				64
+			],
+			"source": [
+				300,
+				128
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "overlay; opacity follows damage"
+		},
+		"mech.shutters": {
+			"path": "mechs/starter/shutters",
+			"display": [
+				160,
+				72
+			],
+			"source": [
+				320,
+				144
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "closed armour louvres over the radiator"
+		},
+		"pilot.suit": {
+			"path": "characters/pilot/suit",
+			"display": [
+				46,
+				54
+			],
+			"source": [
+				92,
+				108
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"item.radiator_core": {
+			"path": "items/radiator_core",
+			"display": [
+				42,
+				42
+			],
+			"source": [
+				84,
+				84
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.dropped_pack": {
+			"path": "items/dropped_pack",
+			"display": [
+				40,
+				36
+			],
+			"source": [
+				80,
+				72
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"shelter.floor": {
+			"path": "structures/shelter/floor",
+			"display": [
+				540,
+				420
+			],
+			"source": [
+				1080,
+				840
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"shelter.roof": {
+			"path": "structures/shelter/roof",
+			"display": [
+				560,
+				440
+			],
+			"source": [
+				1024,
+				806
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 64,
+			"note": "overhead; fades while the player is underneath"
+		},
+		"shelter.post": {
+			"path": "structures/shelter/post",
+			"display": [
+				34,
+				34
+			],
+			"source": [
+				68,
+				68
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"shelter.wall_h": {
+			"path": "structures/shelter/wall_h",
+			"display": [
+				530,
+				48
+			],
+			"source": [
+				1024,
+				92
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"shelter.wall_v": {
+			"path": "structures/shelter/wall_v",
+			"display": [
+				48,
+				410
+			],
+			"source": [
+				92,
+				790
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"shelter.workbench": {
+			"path": "structures/shelter/workbench",
+			"display": [
+				134,
+				66
+			],
+			"source": [
+				268,
+				132
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"shelter.toolrack": {
+			"path": "structures/shelter/toolrack",
+			"display": [
+				40,
+				150
+			],
+			"source": [
+				80,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"shelter.barrels": {
+			"path": "structures/shelter/barrels",
+			"display": [
+				96,
+				96
+			],
+			"source": [
+				192,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"shelter.cistern": {
+			"path": "structures/shelter/cistern",
+			"display": [
+				128,
+				128
+			],
+			"source": [
+				256,
+				256
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 34
+		},
+		"wreck.pump_rig": {
+			"path": "structures/wrecks/pump_rig",
+			"display": [
+				360,
+				290
+			],
+			"source": [
+				720,
+				580
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40
+		},
+		"wreck.hauler": {
+			"path": "structures/wrecks/hauler",
+			"display": [
+				320,
+				210
+			],
+			"source": [
+				640,
+				420
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"prop.rock_large_a": {
+			"path": "props/rocks/rock_large_a",
+			"display": [
+				150,
+				130
+			],
+			"source": [
+				300,
+				260
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 24
+		},
+		"prop.rock_large_b": {
+			"path": "props/rocks/rock_large_b",
+			"display": [
+				124,
+				110
+			],
+			"source": [
+				248,
+				220
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"prop.rock_small_a": {
+			"path": "props/rocks/rock_small_a",
+			"display": [
+				50,
+				44
+			],
+			"source": [
+				100,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 7
+		},
+		"prop.rock_small_b": {
+			"path": "props/rocks/rock_small_b",
+			"display": [
+				40,
+				36
+			],
+			"source": [
+				80,
+				72
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 6
+		},
+		"prop.stones": {
+			"path": "props/rocks/stones",
+			"display": [
+				72,
+				52
+			],
+			"source": [
+				144,
+				104
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 3
+		},
+		"prop.mineral_a": {
+			"path": "props/minerals/mineral_a",
+			"display": [
+				84,
+				62
+			],
+			"source": [
+				168,
+				124
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 4
+		},
+		"prop.mineral_b": {
+			"path": "props/minerals/mineral_b",
+			"display": [
+				62,
+				50
+			],
+			"source": [
+				124,
+				100
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 3
+		},
+		"prop.pylon": {
+			"path": "props/debris/pylon",
+			"display": [
+				210,
+				84
+			],
+			"source": [
+				420,
+				168
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"prop.pipe": {
+			"path": "props/debris/pipe",
+			"display": [
+				226,
+				62
+			],
+			"source": [
+				452,
+				124
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 16
+		},
+		"prop.scrap_pile": {
+			"path": "props/debris/scrap_pile",
+			"display": [
+				116,
+				96
+			],
+			"source": [
+				232,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"prop.solar_wreck": {
+			"path": "props/debris/solar_wreck",
+			"display": [
+				168,
+				112
+			],
+			"source": [
+				336,
+				224
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"shelter.flag": {
+			"path": "structures/shelter/flag",
+			"display": [
+				110,
+				40
+			],
+			"source": [
+				220,
+				80
+			],
+			"pivot": [
+				0.08,
+				0.5
+			],
+			"height": 10,
+			"anim": "flutter",
+			"note": "cloth strip blowing downwind (to the right); the free end flutters"
+		},
+		"ui.menu_backdrop": {
+			"path": "ui/menu_backdrop",
+			"display": [
+				1600,
+				900
+			],
+			"source": [
+				1600,
+				900
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "main menu background, shown with cover scaling"
+		},
+		"enemy.hull": {
+			"path": "mechs/scrapper/hull",
+			"display": [
+				150,
+				170
+			],
+			"source": [
+				300,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "hostile scrapper; exposed radiator at the rear (cooling hit area)"
+		},
+		"enemy.leg": {
+			"path": "mechs/scrapper/leg",
+			"display": [
+				46,
+				104
+			],
+			"source": [
+				92,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"enemy.wreck": {
+			"path": "mechs/scrapper/wreck",
+			"display": [
+				190,
+				190
+			],
+			"source": [
+				380,
+				380
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "disabled scrapper incl. collapsed legs"
+		},
+		"item.scrap": {
+			"path": "items/scrap",
+			"display": [
+				40,
+				36
+			],
+			"source": [
+				80,
+				72
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"shelter.awning": {
+			"path": "structures/awning/sail",
+			"display": [
+				390,
+				310
+			],
+			"source": [
+				780,
+				620
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 50,
+			"note": "overhead shade sail; fades while the player is underneath"
+		},
+		"mech.housing": {
+			"path": "mechs/starter/housing",
+			"display": [
+				176,
+				184
+			],
+			"source": [
+				352,
+				368
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "rotating upper housing (cockpit, armour, gun cheeks); turns toward the mouse"
+		},
+		"mech.twin_gun": {
+			"path": "mechs/starter/twin_gun",
+			"display": [
+				62,
+				160
+			],
+			"source": [
+				112,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.62
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "one of the two side guns (left; the right gun is mirrored). Pivot = mount bracket"
+		},
+		"enemy.pilot": {
+			"path": "characters/enemy_pilot/suit",
+			"display": [
+				46,
+				54
+			],
+			"source": [
+				92,
+				108
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"refuge.parking": {
+			"path": "structures/refuge/parking",
+			"display": [
+				320,
+				280
+			],
+			"source": [
+				640,
+				560
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"refuge.workshop_floor": {
+			"path": "structures/refuge/workshop_floor",
+			"display": [
+				284,
+				224
+			],
+			"source": [
+				568,
+				448
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"refuge.workshop_roof": {
+			"path": "structures/refuge/workshop_roof",
+			"display": [
+				300,
+				240
+			],
+			"source": [
+				600,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30,
+			"note": "overhead; fades while the player is inside"
+		},
+		"refuge.door": {
+			"path": "structures/refuge/door",
+			"display": [
+				20,
+				82
+			],
+			"source": [
+				40,
+				164
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "slides open when the pilot is near"
+		},
+		"refuge.generator": {
+			"path": "structures/refuge/generator",
+			"display": [
+				150,
+				104
+			],
+			"source": [
+				300,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 22
+		},
+		"refuge.light_post": {
+			"path": "structures/refuge/light_post",
+			"display": [
+				30,
+				30
+			],
+			"source": [
+				60,
+				60
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40
+		},
+		"refuge.crates": {
+			"path": "structures/refuge/crates",
+			"display": [
+				100,
+				90
+			],
+			"source": [
+				200,
+				180
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"refuge.coolant_cans": {
+			"path": "structures/refuge/coolant_cans",
+			"display": [
+				70,
+				70
+			],
+			"source": [
+				140,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"enemy.junker_hull": {
+			"path": "mechs/junker/hull",
+			"display": [
+				150,
+				170
+			],
+			"source": [
+				300,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "Southern Junkers scrapper variant (orange/black, insignia)"
+		},
+		"enemy.junker_wreck": {
+			"path": "mechs/junker/wreck",
+			"display": [
+				190,
+				190
+			],
+			"source": [
+				380,
+				380
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"junker.turret_base": {
+			"path": "junker/turret_base",
+			"display": [
+				104,
+				104
+			],
+			"source": [
+				208,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"junker.turret_gun": {
+			"path": "junker/turret_gun",
+			"display": [
+				72,
+				128
+			],
+			"source": [
+				144,
+				256
+			],
+			"pivot": [
+				0.5,
+				0.62
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "rotating turret housing; pivot = slewing ring"
+		},
+		"junker.turret_wreck": {
+			"path": "junker/turret_wreck",
+			"display": [
+				112,
+				112
+			],
+			"source": [
+				224,
+				224
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 10
+		},
+		"junker.workshop": {
+			"path": "junker/workshop",
+			"display": [
+				580,
+				410
+			],
+			"source": [
+				1160,
+				820
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40,
+			"note": "main building (top view of the roof)"
+		},
+		"junker.shed": {
+			"path": "junker/shed",
+			"display": [
+				210,
+				170
+			],
+			"source": [
+				420,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"junker.shed_b": {
+			"path": "junker/shed_b",
+			"display": [
+				210,
+				170
+			],
+			"source": [
+				420,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"junker.scrap_stack": {
+			"path": "junker/scrap_stack",
+			"display": [
+				160,
+				130
+			],
+			"source": [
+				320,
+				260
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"junker.cooler": {
+			"path": "junker/cooler",
+			"display": [
+				170,
+				130
+			],
+			"source": [
+				340,
+				260
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 22
+		},
+		"junker.generator": {
+			"path": "junker/generator",
+			"display": [
+				160,
+				110
+			],
+			"source": [
+				320,
+				220
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"junker.tarp": {
+			"path": "junker/tarp",
+			"display": [
+				320,
+				240
+			],
+			"source": [
+				640,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40,
+			"note": "overhead shade; fades when underneath"
+		},
+		"junker.burn_barrel": {
+			"path": "junker/burn_barrel",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 10
+		},
+		"junker.insignia": {
+			"path": "junker/insignia",
+			"display": [
+				180,
+				180
+			],
+			"source": [
+				360,
+				360
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted faction mark (floor decal)"
+		},
+		"junker.lamp": {
+			"path": "junker/lamp",
+			"display": [
+				30,
+				30
+			],
+			"source": [
+				60,
+				60
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40
+		},
+		"cs.cooling_tower": {
+			"path": "cooling_station/cooling_tower",
+			"display": [
+				330,
+				330
+			],
+			"source": [
+				660,
+				660
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 70
+		},
+		"cs.tank": {
+			"path": "cooling_station/tank",
+			"display": [
+				150,
+				150
+			],
+			"source": [
+				300,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 34
+		},
+		"cs.radiator_bank": {
+			"path": "cooling_station/radiator_bank",
+			"display": [
+				280,
+				120
+			],
+			"source": [
+				560,
+				240
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"cs.pipe_rack": {
+			"path": "cooling_station/pipe_rack",
+			"display": [
+				300,
+				70
+			],
+			"source": [
+				600,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"cs.control_shed": {
+			"path": "cooling_station/control_shed",
+			"display": [
+				220,
+				170
+			],
+			"source": [
+				440,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"road.lot": {
+			"path": "roadside/lot",
+			"display": [
+				480,
+				340
+			],
+			"source": [
+				960,
+				680
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"road.kiosk": {
+			"path": "roadside/kiosk",
+			"display": [
+				250,
+				170
+			],
+			"source": [
+				500,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"road.pump": {
+			"path": "roadside/pump",
+			"display": [
+				36,
+				52
+			],
+			"source": [
+				72,
+				104
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"road.canopy": {
+			"path": "roadside/canopy",
+			"display": [
+				440,
+				300
+			],
+			"source": [
+				880,
+				600
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 46,
+			"note": "overhead; fades when underneath"
+		},
+		"road.car": {
+			"path": "roadside/car",
+			"display": [
+				180,
+				96
+			],
+			"source": [
+				360,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"road.billboard": {
+			"path": "roadside/billboard",
+			"display": [
+				300,
+				64
+			],
+			"source": [
+				600,
+				128
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"road.sign": {
+			"path": "roadside/sign",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"prop.engine_block": {
+			"path": "props/debris/engine_block",
+			"display": [
+				90,
+				80
+			],
+			"source": [
+				180,
+				160
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"prop.tire_stack": {
+			"path": "props/debris/tire_stack",
+			"display": [
+				70,
+				70
+			],
+			"source": [
+				140,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		}
+	},
+	"tiles": {
+		"ground.sand": {
+			"path": "ground/sand",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline"
+		},
+		"ground.dunes": {
+			"path": "ground/dunes",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline"
+		},
+		"ground.saltpan": {
+			"path": "ground/saltpan",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline"
+		},
+		"ground.track": {
+			"path": "ground/track",
+			"display": [
+				256,
+				128
+			],
+			"source": [
+				256,
+				128
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip texture, tiles along the path; transparent soft edges top/bottom"
+		},
+		"ground.rock_top": {
+			"path": "ground/rock_top",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline (rock plateau / overhang)"
+		},
+		"ground.canyon_floor": {
+			"path": "ground/canyon_floor",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "seamless, no outline"
+		},
+		"terrain.cliff_rim": {
+			"path": "ground/cliff_rim",
+			"display": [
+				256,
+				64
+			],
+			"source": [
+				256,
+				64
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip drawn along rock edges (top = rock side)"
+		},
+		"refuge.wall_strip": {
+			"path": "structures/refuge/wall_strip",
+			"display": [
+				128,
+				24
+			],
+			"source": [
+				256,
+				48
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip tiled along built walls"
+		},
+		"junker.wall_strip": {
+			"path": "junker/wall_strip",
+			"display": [
+				128,
+				30
+			],
+			"source": [
+				256,
+				60
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip tiled along Junker walls"
+		},
+		"ground.junker_dirt": {
+			"path": "ground/junker_dirt",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			]
+		},
+		"ground.asphalt": {
+			"path": "ground/asphalt",
+			"display": [
+				256,
+				128
+			],
+			"source": [
+				256,
+				128
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "cracked, sand-drifted highway strip"
+		}
+	},
+	"sounds": {
+		"sfx.mech_engine": {
+			"path": "audio/sfx/mech_engine",
+			"bus": "SFX",
+			"loop": true,
+			"volume_db": 0
+		},
+		"sfx.cooling_fan": {
+			"path": "audio/sfx/cooling_fan",
+			"bus": "SFX",
+			"loop": true,
+			"volume_db": 0
+		},
+		"sfx.mech_step": {
+			"path": "audio/sfx/mech_step",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.footstep": {
+			"path": "audio/sfx/footstep",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.warning": {
+			"path": "audio/sfx/warning",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.alarm": {
+			"path": "audio/sfx/alarm",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.steam": {
+			"path": "audio/sfx/steam",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.hatch": {
+			"path": "audio/sfx/hatch",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.pickup": {
+			"path": "audio/sfx/pickup",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.repair": {
+			"path": "audio/sfx/repair",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.tool": {
+			"path": "audio/sfx/tool",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.shutters": {
+			"path": "audio/sfx/shutters",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.suit_alarm": {
+			"path": "audio/sfx/suit_alarm",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.grit": {
+			"path": "audio/sfx/grit",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.wind": {
+			"path": "audio/ambience/wind",
+			"bus": "Wind",
+			"loop": true
+		},
+		"ui.click": {
+			"path": "audio/ui/click",
+			"bus": "UI",
+			"loop": false
+		},
+		"sfx.gun_fire": {
+			"path": "audio/sfx/gun_fire",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.enemy_charge": {
+			"path": "audio/sfx/enemy_charge",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.enemy_fire": {
+			"path": "audio/sfx/enemy_fire",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.impact": {
+			"path": "audio/sfx/impact",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.cooling_hit": {
+			"path": "audio/sfx/cooling_hit",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.enemy_alert": {
+			"path": "audio/sfx/enemy_alert",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.wreck": {
+			"path": "audio/sfx/wreck",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.generator_hum": {
+			"path": "audio/sfx/generator_hum",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.electric_hum": {
+			"path": "audio/sfx/electric_hum",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.servo": {
+			"path": "audio/sfx/servo",
+			"bus": "SFX",
+			"loop": true
+		},
+		"sfx.mech_startup": {
+			"path": "audio/sfx/mech_startup",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.power_up": {
+			"path": "audio/sfx/power_up",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.hatch_close": {
+			"path": "audio/sfx/hatch_close",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.climb": {
+			"path": "audio/sfx/climb",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.pilot_shout": {
+			"path": "audio/sfx/pilot_shout",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.gun_fire_b": {
+			"path": "audio/sfx/gun_fire_b",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.impact_metal": {
+			"path": "audio/sfx/impact_metal",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.armor_break": {
+			"path": "audio/sfx/armor_break",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.distant": {
+			"path": "audio/ambience/distant",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"music.theme": {
+			"path": "audio/music/theme",
+			"bus": "Music",
+			"loop": false,
+			"volume_db": -3
+		},
+		"music.theme_alt": {
+			"path": "audio/music/theme_alt",
+			"bus": "Music",
+			"loop": false,
+			"volume_db": -7
+		},
+		"sfx.gun_cycle": {
+			"path": "audio/sfx/gun_cycle",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.gun_ring": {
+			"path": "audio/sfx/gun_ring",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.gun_report": {
+			"path": "audio/sfx/gun_report",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"amb.storm": {
+			"path": "audio/ambience/storm",
+			"bus": "Wind",
+			"loop": true
+		},
+		"sfx.gust": {
+			"path": "audio/sfx/gust",
+			"bus": "Ambience",
+			"loop": false
+		},
+		"sfx.gust_b": {
+			"path": "audio/sfx/gust_b",
+			"bus": "Ambience",
+			"loop": false
+		},
+		"sfx.sand_hit": {
+			"path": "audio/sfx/sand_hit",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.turret_fire": {
+			"path": "audio/sfx/turret_fire",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.turret_destroyed": {
+			"path": "audio/sfx/turret_destroyed",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.fire_barrel": {
+			"path": "audio/ambience/fire_barrel",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.clank": {
+			"path": "audio/sfx/clank",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.junker_machine": {
+			"path": "audio/ambience/junker_machine",
+			"bus": "Ambience",
+			"loop": true
+		}
+	}
+}

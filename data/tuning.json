@@ -1,0 +1,250 @@
+{
+	"_note": "All gameplay balance lives here. Temperatures in °C, rates per second, distances in px (≈42 px per metre).",
+	"mech": {
+		"max_speed": 245.0,
+		"reverse_speed": 115.0,
+		"accel": 290.0,
+		"brake": 520.0,
+		"coast_drag": 180.0,
+		"turn_rate": 2.6,
+		"turn_rate_full_speed": 1.75,
+		"exit_max_speed": 15.0,
+		"collision_radius": 104.0,
+		"enter_radius": 160.0,
+		"service_radius": 175.0,
+		"impair_max": 0.5,
+		"integrity": 100.0,
+		"housing_turn_rate": 5.5,
+		"_feel_note": "weight comes from visuals: hull squat/dip on acceleration (feel_squat), turn lean (feel_lean), footfall camera thump (feel_step_shake)",
+		"feel_squat": 0.035,
+		"feel_lean": 0.06,
+		"feel_step_shake": 0.07
+	},
+	"thermal": {
+		"start_heat": 64.0,
+		"heat_capacity": 2.2,
+		"idle_heat": 0.8,
+		"move_heat": 1.2,
+		"solar_heat": 0.7,
+		"cooling_coeff": 0.15,
+		"min_efficiency": 0.18,
+		"shutters_closed_airflow": 0.45,
+		"engine_off_heat": 0.0,
+		"warn_temp": 98.0,
+		"critical_temp": 115.0,
+		"restart_temp": 90.0,
+		"max_temp": 135.0,
+		"overheat_damage": 0.004,
+		"abrasion_wear": 0.00025,
+		"cabin_safe_temp": 105.0,
+		"start_radiator": 0.55,
+		"_balance_note": "Run python3 tools/heat_balance.py after changing these: ordinary travel should never warn; combat, heat, storms and damage should stack."
+	},
+	"suit": {
+		"max": 100.0,
+		"drain": 1.4,
+		"recover_in_mech": 9.0,
+		"hot_cabin_drain": 0.5,
+		"strain_time": 10.0,
+		"strain_recover": 0.25,
+		"collapse_fade": 2.5,
+		"after_collapse_protection": 25.0
+	},
+	"pilot": {
+		"speed": 100.0,
+		"accel": 900.0,
+		"interact_radius": 85.0,
+		"pack_capacity": 2
+	},
+	"repair": {
+		"item": "radiator_core",
+		"restore": 0.55,
+		"duration": 3.0
+	},
+	"salvage": {
+		"duration": 1.6
+	},
+	"autosave_interval": 60.0,
+	"combat": {
+		"_note": "Projectiles are simulated in Session (not saved). damage = structural; cooling_damage applies when the shot lands inside the target's cooling hit area.",
+		"player_weapon": {
+			"damage": 5.0,
+			"cooling_damage": 0.07,
+			"structural_cooling_damage": 0.01,
+			"speed": 560.0,
+			"range": 640.0,
+			"cooldown": 0.3,
+			"heat_per_shot": 0.85,
+			"spread_deg": 1.5,
+			"radius": 5.0,
+			"muzzles": [
+				[
+					-92,
+					-109
+				],
+				[
+					92,
+					-109
+				]
+			],
+			"fire_cone_deg": 25.0,
+			"min_aim_distance": 50.0
+		},
+		"enemy_weapon": {
+			"damage": 6.0,
+			"cooling_damage": 0.05,
+			"structural_cooling_damage": 0.005,
+			"speed": 250.0,
+			"range": 560.0,
+			"cooldown": 3.4,
+			"telegraph": 1.2,
+			"heat_per_shot": 3.5,
+			"spread_deg": 5.0,
+			"radius": 9.0
+		},
+		"player_hit": {
+			"body_radius": 104.0,
+			"cooling_offset": [
+				0,
+				92
+			],
+			"cooling_radius": 42.0
+		},
+		"enemy_hit": {
+			"body_radius": 66.0,
+			"cooling_offset": [
+				0,
+				58
+			],
+			"cooling_radius": 32.0
+		},
+		"recoil": {
+			"_note": "Visual only (no displacement of the mech).",
+			"gun_kick": 22.0,
+			"housing_kick": 7.0,
+			"housing_rock": 0.05,
+			"spring": 120.0,
+			"damping": 13.0,
+			"shake": 0.3,
+			"shake_max": 0.5
+		}
+	},
+	"enemy": {
+		"_note": "Scrapper: weak, slow, telegraphs every shot. Detection grows with the target mech's heat (heat signature).",
+		"integrity": 55.0,
+		"start_radiator": 0.75,
+		"start_heat": 66.0,
+		"max_speed": 78.0,
+		"reverse_speed": 40.0,
+		"accel": 60.0,
+		"brake": 160.0,
+		"coast_drag": 50.0,
+		"turn_rate": 1.0,
+		"turn_rate_full_speed": 0.75,
+		"collision_radius": 66.0,
+		"patrol_throttle": 0.45,
+		"detect_base": 330.0,
+		"detect_per_degree": 4.0,
+		"detect_max": 620.0,
+		"lose_radius": 760.0,
+		"leash_radius": 800.0,
+		"reaction_time": 1.1,
+		"preferred_range": 330.0,
+		"fire_cone_deg": 12.0,
+		"cool_off_temp": 104.0,
+		"disable_radiator": 0.04
+	},
+	"wreck_salvage": {
+		"duration": 3.5,
+		"scrap": 4,
+		"item": "radiator_core",
+		"item_count": 1
+	},
+	"hull_repair": {
+		"scrap_cost": 2,
+		"restore": 35.0,
+		"duration": 3.0,
+		"emergency_below": 25.0,
+		"emergency_to": 25.0,
+		"emergency_duration": 6.0
+	},
+	"encounter": {
+		"_note": "Parked-mech encounter (UNPILOTED → ALERTED → BOARDING → STARTING → ACTIVE → DISABLED).",
+		"pilot_detect_base": 300.0,
+		"pilot_detect_foot": 230.0,
+		"reaction": 0.9,
+		"pilot_speed": 150.0,
+		"climb_time": 0.9,
+		"startup_time": 3.2,
+		"board_offset": [
+			-96,
+			-30
+		],
+		"hatch_offset": [
+			-18,
+			-46
+		],
+		"flee_distance": 700.0
+	},
+	"weather": {
+		"_note": "Sandstorm: clear → building → storm → fading. Effects scale with intensity × zone storm_exposure.",
+		"first_storm_after": 420.0,
+		"clear_range": [
+			300.0,
+			540.0
+		],
+		"build_time": 45.0,
+		"fade_time": 40.0,
+		"hold_range": [
+			90.0,
+			150.0
+		],
+		"peak_range": [
+			0.7,
+			1.0
+		],
+		"cooling_penalty": 0.4,
+		"abrasion_add": 8.0,
+		"suit_penalty": 0.9,
+		"ambient_add": 3.0,
+		"visibility_penalty": 0.45
+	},
+	"turret": {
+		"_note": "Southern Junkers perimeter turret (easy). max_engaged = how many may wind up/fire at once.",
+		"hp": 38.0,
+		"range": 480.0,
+		"turn_rate": 0.85,
+		"telegraph": 1.15,
+		"cooldown": 4.6,
+		"fire_cone_deg": 8.0,
+		"muzzle": 52.0,
+		"hit_radius": 40.0,
+		"max_engaged": 2,
+		"salvage_scrap": 2,
+		"salvage_duration": 2.5,
+		"weapon": {
+			"damage": 3.0,
+			"cooling_damage": 0.03,
+			"structural_cooling_damage": 0.004,
+			"speed": 230.0,
+			"range": 560.0,
+			"spread_deg": 3.0,
+			"radius": 8.0
+		}
+	},
+	"enemy_types": {
+		"_note": "Per-type overrides on top of 'enemy'.",
+		"scrapper": {},
+		"junker": {
+			"integrity": 62.0,
+			"max_speed": 72.0,
+			"detect_base": 310.0,
+			"detect_max": 560.0,
+			"start_radiator": 0.8,
+			"preferred_range": 350.0,
+			"leash_radius": 700.0,
+			"damage_mult": 0.7
+		}
+	},
+	"zone_storm_exposure_note": "see location zone_types storm_exposure"
+}

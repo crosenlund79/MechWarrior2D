@@ -1,0 +1,165 @@
+keys,en,da
+GAME_TITLE,HEAT SIGNATURE,HEAT SIGNATURE
+GAME_SUBTITLE,Former Antarctica. The ice is gone; the heat is not.,Det tidligere Antarktis. Isen er væk; heden er ikke.
+PROVISIONAL_TITLE,working title,arbejdstitel
+MENU_CONTINUE,Continue,Fortsæt
+MENU_NEW_GAME,New game,Nyt spil
+MENU_SETTINGS,Settings,Indstillinger
+MENU_QUIT,Quit,Afslut
+MENU_BACK,Back,Tilbage
+MENU_PICK_SLOT,Choose a save slot,Vælg en gemmeplads
+MENU_LOAD_FAILED,Could not load: %s,Kunne ikke indlæse: %s
+SLOT_EMPTY,Slot %d — empty (new game),Plads %d — tom (nyt spil)
+SLOT_USED,"Slot %d — %d min, radiator %d%% (overwrite)","Plads %d — %d min, køler %d%% (overskriv)"
+SLOT_BROKEN,Slot %d — damaged file (overwrite),Plads %d — beskadiget fil (overskriv)
+SLOT_LOAD,Load,Indlæs
+SLOT_OVERWRITE_NOTE,Choosing a used slot starts over in it.,"Vælger du en brugt plads, starter du forfra i den."
+PAUSE_TITLE,Paused,Pause
+PAUSE_RESUME,Resume,Genoptag
+PAUSE_SAVE,Save,Gem
+PAUSE_SAVED,Saved.,Gemt.
+PAUSE_TO_MENU,Save and quit to menu,Gem og gå til menu
+SET_AUDIO,Audio,Lyd
+SET_DISPLAY,Display,Skærm
+SET_CONTROLS,"Controls (click, then press a key)","Styring (klik, og tryk så en tast)"
+SET_CREATOR,Creator tools,Skaberværktøjer
+SET_WINDOW,Window mode,Vinduestilstand
+SET_UI_SCALE,Interface scale,Brugerflade-skala
+SET_ZOOM,Camera zoom,Kamerazoom
+SET_LANGUAGE,Language,Sprog
+SET_PRESS_KEY,press a key…,tryk en tast…
+SET_RESET_KEYS,Reset keys to default,Nulstil taster
+SET_RELOAD_ASSETS,Reload art & sound,Genindlæs grafik og lyd
+SET_OVERRIDE_PATH,External overrides folder: %s,Mappe til egne filer: %s
+BUS_MASTER,Master,Samlet
+BUS_MUSIC,Music,Musik
+BUS_AMBIENCE,Ambience,Omgivelser
+BUS_SFX,Effects,Effekter
+BUS_UI,Interface,Brugerflade
+WINDOW_WINDOWED,Windowed,Vindue
+WINDOW_FULLSCREEN,Fullscreen,Fuldskærm
+WINDOW_BORDERLESS,Borderless fullscreen,Kantløs fuldskærm
+LANG_EN,English,English
+LANG_DA,Dansk,Dansk
+ACTION_MOVE_UP,Forward / walk up,Frem / gå op
+ACTION_MOVE_DOWN,Reverse / walk down,Bak / gå ned
+ACTION_MOVE_LEFT,Turn left / walk left,Drej venstre / gå venstre
+ACTION_MOVE_RIGHT,Turn right / walk right,Drej højre / gå højre
+ACTION_INTERACT,Interact / exit / enter,Interager / stig ud / ind
+ACTION_SERVICE,Shutters / repair,Skodder / reparer
+ACTION_ZOOM_IN,Zoom in,Zoom ind
+ACTION_ZOOM_OUT,Zoom out,Zoom ud
+HUD_MECH,MECH CORE,MEKANISK KERNE
+HUD_TREND,%s settling at %d °C,%s mod %d °C
+HUD_COOLING,COOLING,KØLING
+HUD_RADIATOR,Radiator %d%% · shutters %s,Køler %d%% · skodder %s
+HUD_SHUTTERS_OPEN,open,åbne
+HUD_SHUTTERS_CLOSED,closed,lukkede
+HUD_ENGINE_RUNNING,Engine running,Motor kører
+HUD_ENGINE_OFF,Engine off (parked),Motor slukket (parkeret)
+HUD_ENGINE_SHUTDOWN,OVERHEAT SHUTDOWN,OVEROPHEDNING — NØDSTOP
+HUD_SUIT_FOOT,SUIT %d%% · ~%d s in this heat,DRAGT %d%% · ~%d s i denne hede
+HUD_SUIT_MECH,SUIT recharging %d%%,DRAGT lader %d%%
+HUD_CARGO,Radiator cores — pack %d · mech %d · scrap %d,Kølerkerner — taske %d · mech %d · skrot %d
+HUD_HULL,HULL %d%%,SKROG %d%%
+ITEM_SCRAP,scrap,skrot
+ACTION_FIRE,Fire (also left mouse),Skyd (også venstre mus)
+ACT_SALVAGE_WRECK,Strip the wreck,Plyndr vraget
+ACT_HULL_REPAIR,Patch hull (2 scrap),Lap skroget (2 skrot)
+ACT_HULL_PATCH,"Emergency hull patch (slow, free)","Nødlapning af skroget (langsom, gratis)"
+ACT_HULL_NEED_SCRAP,Hull repair needs 2 scrap,Skrogreparation kræver 2 skrot
+NOTICE_NEED_SCRAP,You need scrap,Du mangler skrot
+NOTICE_ENTER_SHADE,In shade — less sun on the hull,I skygge — mindre sol på skroget
+NOTICE_LEAVE_SHADE,Back in the sun,Tilbage i solen
+NOTICE_ENEMY_ALERT,Hostile mech has spotted your heat,En fjendtlig mech har set din varme
+NOTICE_ENEMY_LOST,The hostile broke off,Fjenden trak sig
+NOTICE_ENEMY_DISABLED,Hostile mech disabled,Fjendtlig mech sat ud af spillet
+NOTICE_COOLING_HIT,Radiator hit!,Køleren er ramt!
+NOTICE_HULL_CRITICAL,HULL CRITICAL — mech crippled,SKROG KRITISK — mechen er lammet
+NOTICE_WRECK_SALVAGED,Wreck stripped: %d scrap and a radiator core,Vrag plyndret: %d skrot og en kølerkerne
+NOTICE_HULL_PATCHED,Hull patched to %d%%,Skroget lappet til %d%%
+NOTICE_HULL_REPAIRED,Hull repaired — %d%%,Skroget repareret — %d%%
+HINT_CRIPPLED,Mech crippled. Step out and patch the hull.,Mechen er lammet. Stig ud og lap skroget.
+HINT_CRIPPLED_FOOT,Patch the hull at the mech (R). Scrap makes it faster and stronger.,Lap skroget ved mechen (R). Skrot gør det hurtigere og stærkere.
+HINT_COMBAT,"Hostile scrapper! Aim with the mouse, fire with left click. Its radiator is on its back.","Fjendtlig skrotmech! Sigt med musen, skyd med venstre klik. Dens køler sidder bagpå."
+HINT_COMBAT_HOT,You are running hot — back off into shade to cool.,Du kører varmt — træk dig ind i skyggen for at køle.
+HINT_SALVAGE_WRECK,"The scrapper is down. Park, step out and strip the wreck.","Skrotmechen er nede. Parker, stig ud og plyndr vraget."
+HINT_SALVAGE_WRECK_FOOT,Strip the wreck before your suit gives out.,"Plyndr vraget, før dragten svigter."
+HUD_ZONE,%s · air %d °C,%s · luft %d °C
+ZONE_OPEN_SAND,Open sand,Åbent sand
+ZONE_SHADE,Shade,Skygge
+ZONE_DUNES,Dune drift (abrasive),Klitter (slibende sand)
+ZONE_CANYON,Canyon approach (partial shade),Kløftens nedkørsel (delvis skygge)
+ZONE_REFUGE,Canyon refuge,Kløfttilflugten
+HUD_SHELTERED,SHELTERED,I LY
+NOTICE_ENTER_REFUGE,Under the rock — the air is cooler here,Under klippen — luften er køligere her
+NOTICE_LEAVE_REFUGE,Leaving the refuge — full sun ahead,Du forlader tilflugten — fuld sol forude
+NOTICE_PILOT_ALERT,A pilot has seen you — running for their mech!,En pilot har set dig — løber mod sin mech!
+NOTICE_MECH_STARTUP,Hostile mech powering up,Fjendtlig mech starter op
+ZONE_RAVINE,Rocky ravine (partial shade),Klippekløft (delvis skygge)
+ZONE_JUNKER,Southern Junkers territory,Sydskrotternes territorium
+HUD_STORM,SANDSTORM %d%% · felt %d%%,SANDSTORM %d%% · mærkes %d%%
+NOTICE_STORM_COMING,A sandstorm is rolling in — find shelter,En sandstorm er på vej — søg ly
+NOTICE_STORM_FADING,The storm is easing,Stormen aftager
+NOTICE_STORM_OVER,The air clears,Luften klarer op
+NOTICE_TURRET_DESTROYED,Junker turret destroyed,Skrotter-tårn ødelagt
+NOTICE_TURRET_SALVAGED,Turret stripped: %d scrap,Tårn plyndret: %d skrot
+ACT_SALVAGE_TURRET,Strip the turret,Plyndr tårnet
+NOTICE_DEV_NO_ROOM,DEV: no free spot to spawn,DEV: ingen ledig plads
+NOTICE_AREA,— %s —,— %s —
+AREA_REFUGE,Canyon Refuge,Kløfttilflugten
+AREA_COOLING_STATION,Abandoned cooling station,Forladt kølestation
+AREA_RAVINE,The rocky ravine,Klippekløften
+AREA_ROADSIDE,Old highway rest stop,Gammel rasteplads ved motorvejen
+AREA_SCRAP_FIELD,The scrap field,Skrotmarken
+AREA_JUNKER_TERRITORY,Southern Junkers territory,Sydskrotternes territorium
+AREA_JUNKER_BASE,Southern Junkers scrapyard,Sydskrotternes skrotplads
+SALVAGE_COOLING_STATION,Cooling station machinery,Kølestationens maskineri
+SALVAGE_ROADSIDE,Rest-stop scrap,Skrot ved rastepladsen
+SALVAGE_SCRAP_FIELD,Scrap field wreckage,Vraggods på skrotmarken
+ZONE_SALT,Salt pan (reflective),Saltslette (reflekterende)
+ACT_EXIT_MECH,Exit mech,Stig ud
+ACT_ENTER_MECH,Enter mech,Stig ind
+ACT_CLOSE_SHUTTERS,Close radiator shutters,Luk køler-skodder
+ACT_OPEN_SHUTTERS,Open radiator shutters,Åbn køler-skodder
+ACT_SALVAGE,Salvage,Bjærg
+ACT_PICK_UP_PACK,Pick up dropped pack,Saml tabt taske op
+ACT_PACK_FULL,Pack full,Tasken er fuld
+ACT_REPAIR,Repair radiator (uses 1 core),Reparer køler (bruger 1 kerne)
+ACT_REPAIR_NEED_PART,Repair needs a radiator core,Reparation kræver en kølerkerne
+ITEM_RADIATOR_CORE,radiator core,kølerkerne
+LOC_DESERT_BASIN,Basin of the old ice shelf,Bassinet ved den gamle ishylde
+SALVAGE_PUMP_RIG,Wrecked pump rig,Forliset pumperig
+SALVAGE_HAULER,Dead hauler,Død fragter
+HINT_FIND_CORE,Your radiator is worn. Salvage a radiator core — the wrecked pump rig lies east along the track.,Din køler er slidt. Bjærg en kølerkerne — den forliste pumperig ligger mod øst ad sporet.
+HINT_SCAVENGE,Find the salvage and get back before the suit gives out.,"Find bjærgningen og kom tilbage, før dragten svigter."
+HINT_EXIT_TO_REPAIR,"You have a core. Stop, step outside and repair the radiator.","Du har en kerne. Stop, stig ud og reparer køleren."
+HINT_REPAIR,Stand by the mech and repair the radiator.,Stil dig ved mechen og reparer køleren.
+HINT_RETURN,Back to the mech — the suit will not last.,Tilbage til mechen — dragten holder ikke.
+HINT_RETURN_NOW,SUIT FAILING — get back inside now!,DRAGTEN SVIGTER — ind i mechen nu!
+HINT_SHUTDOWN,Overheated. Wait for the core to cool — or step out while it does.,Overophedet. Vent på at kernen køler — eller stig ud imens.
+HINT_SHUTDOWN_FOOT,The mech is cooling down. Use the time.,Mechen køler ned. Brug tiden.
+HINT_RECOVER_PACK,Your pack was dropped where you collapsed. Recover it.,"Din taske blev tabt, hvor du faldt om. Hent den."
+HINT_COLLAPSED,…,…
+HINT_CONTINUE,Cooling holds. Keep the shutters shut in the dunes.,Kølingen holder. Hold skodderne lukket i klitterne.
+NOTICE_HEAT_WARNING,Core temperature high,Høj kernetemperatur
+NOTICE_SHUTDOWN,OVERHEAT — engine shut down,OVEROPHEDNING — motoren er stoppet
+NOTICE_RESTART,Core cooled — engine can restart,Kernen er kølet — motoren kan genstarte
+NOTICE_TOO_FAST_TO_EXIT,Stop the mech before exiting,"Stop mechen, før du stiger ud"
+NOTICE_NO_ROOM_TO_EXIT,No room to open the hatch,Ikke plads til at åbne lugen
+NOTICE_SHUTTERS_OPEN,"Shutters open — full airflow, sand gets in","Skodder åbne — fuld luftstrøm, sandet kommer ind"
+NOTICE_SHUTTERS_CLOSED,"Shutters closed — protected, but cooling restricted","Skodder lukket — beskyttet, men kølingen er begrænset"
+NOTICE_SALVAGED,Salvaged: %s,Bjærget: %s
+NOTICE_PACK_FULL,Your pack is full,Din taske er fuld
+NOTICE_PACK_RECOVERED,Pack recovered,Tasken er fundet
+NOTICE_NEED_PART,You need a radiator core,Du mangler en kølerkerne
+NOTICE_REPAIRED,Radiator repaired — %d%%,Køler repareret — %d%%
+NOTICE_TASK_CANCELLED,Interrupted,Afbrudt
+NOTICE_SUIT_50,Suit protection 50%,Dragtbeskyttelse 50%
+NOTICE_SUIT_25,Suit protection 25% — head back,Dragtbeskyttelse 25% — vend om
+NOTICE_SUIT_10,Suit protection 10%!,Dragtbeskyttelse 10%!
+NOTICE_SUIT_0,SUIT FAILED — heatstroke setting in,DRAGTEN SVIGTEDE — hedeslag på vej
+NOTICE_COLLAPSE,You collapse in the heat…,Du falder om i heden…
+NOTICE_RECOVERED,You came to in the cockpit. Your pack is still out there.,Du vågnede i cockpittet. Din taske ligger stadig derude.
+NOTICE_SAVED,Game saved,Spillet er gemt
+NOTICE_SAVE_RECOVERED,Main save was damaged — restored the previous save,Gemmefilen var beskadiget — den forrige er gendannet
