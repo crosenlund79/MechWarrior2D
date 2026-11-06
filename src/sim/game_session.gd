@@ -51,6 +51,29 @@ var housing_speed := 0.0      # rad/s actually turned last tick (audio)
 var _muzzle_i := 0
 var _fire_cd := 0.0
 var _zone_type := ""
+## Developer cheats (F10). Runtime only — never saved, reset on every start/end.
+const DEV_DEFAULTS := {"dynamic_weather": true, "invulnerable": false, "aggression": true, "time_scale": 1.0}
+var dev := DEV_DEFAULTS.duplicate()
+var turret_brains := {}
+var turret_view := {}    # id -> {windup, engaged} for views
+var storm_here := 0.0    # storm intensity felt by the active actor (0..1)
+var _area := ""
+
+
+## Named discovery areas (location "areas"): the most specific (last) match wins.
+func area_at(p: Vector2) -> String:
+	var found := ""
+	for a in loc.get("areas", []):
+		if Geometry2D.is_point_in_polygon(p, Content.poly(a["polygon"])):
+			found = str(a["id"])
+	return found
+
+
+func area_name(id: String) -> String:
+	for a in loc.get("areas", []):
+		if a["id"] == id:
+			return str(a["name"])
+	return ""
 var _rng := RandomNumberGenerator.new()
 var _in_shade := false
 
@@ -103,6 +126,10 @@ func continue_slot(slot_index: int) -> String:
 
 
 func _begin() -> void:
+	dev = DEV_DEFAULTS.duplicate()
+	time_scale = 1.0
+	turret_brains.clear()
+	turret_view.clear()
 	task = {}
 	collapse_t = 0.0
 	_autosave_t = 0.0
@@ -123,6 +150,7 @@ func _begin() -> void:
 	_refresh_zones()
 	_in_shade = _actor_zone_type() == "shade"
 	_zone_type = _actor_zone_type()
+	_area = area_at(actor_pos())
 	started.emit()
 
 
@@ -131,6 +159,8 @@ func end_session(reason: String = "menu") -> void:
 		return
 	save_now(reason)
 	running = false
+	dev = DEV_DEFAULTS.duplicate()
+	time_scale = 1.0
 	state = {}
 	ended.emit(reason)
 
@@ -138,7 +168,7 @@ func end_session(reason: String = "menu") -> void:
 func save_now(reason: String = "manual") -> bool:
 	if state.is_empty():
 		return false
-	var err := Saves.save_slot(slot, state)
+	var err := Saves.save_slot(slot, savable_state())
 	if err == "":
 		last_save_unix = int(Time.get_unix_time_from_system())
 		save_status = "saved (%s) %s" % [reason, Time.get_time_string_from_system()]
@@ -184,9 +214,31 @@ func parts_available() -> int:
 	return GameState.count(pilot()["pack"], repair_item()) + GameState.count(mech()["storage"], repair_item())
 
 
+## The state as it goes to disk: developer-spawned entities are left out.
+func savable_state() -> Dictionary:
+	var s := state.duplicate(true)
+	var en: Dictionary = s.get("enemies", {})
+	for id in en.keys():
+		if bool(en[id].get("dev", false)):
+			en.erase(id)
+	return s
+
+
+func weather() -> Dictionary:
+	if not state.has("weather"):
+		state["weather"] = Weather.create(tun("weather"))
+	return state["weather"]
+
+
+## Zone at a position with the current storm folded in (same rules for every mech).
+func zone_with_weather(pos: Vector2) -> Dictionary:
+	return Weather.apply(Content.zone_at(loc, pos), weather(), tun("weather"))
+
+
 func _refresh_zones() -> void:
-	mech_zone = Content.zone_at(loc, mech_pos())
-	pilot_zone = Content.zone_at(loc, pilot_pos()) if mode() == "foot" else mech_zone
+	mech_zone = zone_with_weather(mech_pos())
+	pilot_zone = zone_with_weather(pilot_pos()) if mode() == "foot" else mech_zone
+	storm_here = float(pilot_zone.get("storm", 0.0))
 
 
 func engine_on() -> bool:
@@ -209,7 +261,7 @@ func enemy_def(id: String) -> Dictionary:
 	for d in enemy_defs():
 		if d["id"] == id:
 			return d
-	return {}
+	return enemy(id).get("def", {})
 
 
 ## Thermal tuning for enemies: the player's model with the enemy's overrides.
@@ -217,6 +269,15 @@ func enemy_thermal() -> Dictionary:
 	var t: Dictionary = tun("thermal").duplicate()
 	for k in tun("enemy").get("thermal", {}):
 		t[k] = tun("enemy")["thermal"][k]
+	return t
+
+
+## Enemy tuning for one enemy: base `enemy` + its type's overrides.
+func enemy_tun(e: Dictionary) -> Dictionary:
+	var t: Dictionary = tun("enemy").duplicate()
+	var ov: Dictionary = tun("enemy_types").get(str(e.get("type", "scrapper")), {})
+	for k in ov:
+		t[k] = ov[k]
 	return t
 
 
@@ -234,6 +295,7 @@ func _physics_process(delta: float) -> void:
 
 func tick(dt: float) -> void:
 	state["playtime"] = float(state["playtime"]) + dt
+	_tick_weather(dt)
 	_refresh_zones()
 	var m := mech()
 	var max_speed := float(tun("mech").get("max_speed", 150.0))
@@ -260,6 +322,7 @@ func tick(dt: float) -> void:
 		mech_event.emit("band")
 	_tick_player_weapon(dt)
 	_tick_enemies(dt)
+	_tick_turrets(dt)
 	_tick_projectiles(dt)
 	var zt := _actor_zone_type()
 	if zt != _zone_type:
@@ -275,6 +338,11 @@ func tick(dt: float) -> void:
 			notice.emit("NOTICE_LEAVE_SHADE", [])
 		mech_event.emit("zone_" + zt)
 	_in_shade = zt == "shade" or zt == "refuge"
+	var ar := area_at(actor_pos())
+	if ar != _area:
+		_area = ar
+		if ar != "":
+			notice.emit("NOTICE_AREA", [area_name(ar)])
 	_tick_suit(dt)
 	_tick_task(dt)
 	if mode() == "collapsed":
@@ -293,7 +361,8 @@ func _tick_suit(dt: float) -> void:
 	var mx := float(ts.get("max", 100.0))
 	match mode():
 		"foot":
-			p["suit"] = maxf(0.0, float(p["suit"]) - float(ts.get("drain", 1.4)) * float(pilot_zone.get("suit", 1.0)) * dt)
+			if not bool(dev["invulnerable"]):
+				p["suit"] = maxf(0.0, float(p["suit"]) - float(ts.get("drain", 1.4)) * float(pilot_zone.get("suit", 1.0)) * dt)
 			if float(p["suit"]) <= 0.0:
 				p["strain"] = float(p["strain"]) + dt / maxf(float(ts.get("strain_time", 10.0)), 0.1)
 				if float(p["strain"]) >= 1.0:
@@ -330,6 +399,8 @@ func _tick_task(dt: float) -> void:
 				_finish_repair()
 			"wreck":
 				_finish_wreck_salvage(str(done["target"]))
+			"turret":
+				_finish_turret_salvage(str(done["target"]))
 			"hull":
 				_finish_hull_repair(false)
 			"patch":
@@ -525,6 +596,14 @@ func _nearest_pickup(pp: Vector2, r: float) -> Dictionary:
 		if d3 <= best_d + 60.0:
 			best_d = d3 - 60.0
 			best = {"action": "interact", "kind": "wreck", "target": id, "label": "ACT_SALVAGE_WRECK", "enabled": true}
+	for tid in state.get("turrets", {}):
+		var tu: Dictionary = state["turrets"][tid]
+		if not bool(tu["destroyed"]) or bool(tu.get("salvaged", false)):
+			continue
+		var d4 := pp.distance_to(Content.v2(turret_def(tid).get("pos", [0, 0])))
+		if d4 <= best_d + 30.0:
+			best_d = d4 - 30.0
+			best = {"action": "interact", "kind": "turret", "target": tid, "label": "ACT_SALVAGE_TURRET", "enabled": true}
 	if not best.is_empty() and best["kind"] in ["salvage", "wreck"] and not pack_has_room(1):
 		best["enabled"] = false
 		best["label"] = "ACT_PACK_FULL"
@@ -560,6 +639,8 @@ func request(action: String) -> bool:
 				return _start_task("salvage", str(it["target"]), float(tun("salvage").get("duration", 1.6)))
 			"wreck":
 				return _start_task("wreck", str(it["target"]), float(tun("wreck_salvage").get("duration", 3.5)))
+			"turret":
+				return _start_task("turret", str(it["target"]), float(tun("turret").get("salvage_duration", 2.5)))
 			"hull":
 				return _start_task("hull", "mech", float(tun("hull_repair").get("duration", 3.0)))
 			"patch":
@@ -824,22 +905,24 @@ func _tick_player_weapon(dt: float) -> void:
 # ---------------------------------------------------------------- combat: enemies
 
 func _tick_enemies(dt: float) -> void:
-	var te := tun("enemy")
 	var thermal := enemy_thermal()
 	var w: Dictionary = tun("combat")["enemy_weapon"]
-	var target := {"valid": float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"])}
+	var aggro := bool(dev["aggression"])
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather"))
+	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"]), "visibility": vis}
 	var tenc := tun("encounter")
-	var player := {"mech_valid": float(mech()["integrity"]) > 0.0, "mech_pos": mech_pos(), "mech_heat": float(mech()["heat"]),
-		"foot": mode() == "foot", "foot_pos": pilot_pos()}
+	var player := {"mech_valid": aggro and float(mech()["integrity"]) > 0.0, "mech_pos": mech_pos(), "mech_heat": float(mech()["heat"]) * vis,
+		"foot": aggro and mode() == "foot", "foot_pos": pilot_pos()}
 	for id in state.get("enemies", {}):
 		var e: Dictionary = state["enemies"][id]
 		if not brains.has(id):
 			brains[id] = {"wp": 0, "t_state": 0.0, "windup": 0.0, "cooldown": 1.0}
+		var te := enemy_tun(e)
 		if str(e["ai"]) == "wreck":
 			enemy_intents[id] = {"throttle": 0.0, "turn": 0.0, "windup": 0.0}
 			Encounter.tick_flee(e, tenc, dt)
 			continue
-		var zone := Content.zone_at(loc, Content.v2(e["pos"]))
+		var zone := zone_with_weather(Content.v2(e["pos"]))
 		enemy_zones[id] = zone
 		var sf := float(e["speed"]) / float(te["max_speed"])
 		for ev in Thermal.step(e, zone, thermal, dt, sf, str(e["engine"]) == "running"):
@@ -875,7 +958,12 @@ func _tick_enemies(dt: float) -> void:
 			if r["fire"]:
 				var dir := Drive.forward(float(e["heading"]))
 				var origin := Content.v2(e["pos"]) + dir * 82.0
-				projectiles.append(Combat.make_shot(id, origin, dir, w, _rng))
+				var ew := w
+				if te.has("damage_mult"):
+					ew = w.duplicate()
+					ew["damage"] = float(w["damage"]) * float(te["damage_mult"])
+					ew["cooling_damage"] = float(w["cooling_damage"]) * float(te["damage_mult"])
+				projectiles.append(Combat.make_shot(id, origin, dir, ew, _rng))
 				e["heat"] = minf(float(e["heat"]) + float(w["heat_per_shot"]), float(thermal.get("max_temp", 135.0)))
 				combat_event.emit("muzzle", {"owner": id, "pos": origin, "angle": float(e["heading"])})
 		else:
@@ -885,7 +973,7 @@ func _tick_enemies(dt: float) -> void:
 
 
 func _check_enemy_disabled(id: String, e: Dictionary, thermal: Dictionary) -> void:
-	var cooked := float(e["radiator"]) <= float(tun("enemy").get("disable_radiator", 0.04)) and float(e["heat"]) >= float(thermal.get("critical_temp", 115.0))
+	var cooked := float(e["radiator"]) <= float(enemy_tun(e).get("disable_radiator", 0.04)) and float(e["heat"]) >= float(thermal.get("critical_temp", 115.0))
 	if float(e["integrity"]) > 0.0 and not cooked:
 		return
 	e["ai"] = "wreck"
@@ -907,7 +995,7 @@ func enemy_velocity(id: String, dt: float) -> Vector2:
 		return Vector2.ZERO
 	var it: Dictionary = enemy_intents.get(id, {})
 	var ok := str(e["engine"]) == "running" and str(e["ai"]) != "wreck" and not Encounter.is_encounter_state(str(e["ai"]))
-	return Drive.step(e, float(it.get("throttle", 0.0)), float(it.get("turn", 0.0)), ok, tun("enemy"), enemy_thermal(),
+	return Drive.step(e, float(it.get("throttle", 0.0)), float(it.get("turn", 0.0)), ok, enemy_tun(e), enemy_thermal(),
 		enemy_zones.get(id, {}), dt)
 
 
@@ -951,14 +1039,17 @@ func _tick_projectiles(dt: float) -> void:
 						notice.emit("NOTICE_PILOT_ALERT", [])
 						combat_event.emit("pilot_alert", {"id": id, "pos": Content.v2(e["pos"]), "pilot": Content.v2(e["pilot"]["pos"])})
 					_check_enemy_disabled(id, e, enemy_thermal())
-				combat_event.emit("cooling_hit" if kind == "cooling" else "impact", {"pos": sh["pos"], "target": id})
+				combat_event.emit("cooling_hit" if kind == "cooling" else "impact", {"pos": sh["pos"], "target": id, "dir": (sh["vel"] as Vector2).normalized()})
 				break
+			if not hit:
+				hit = _shot_vs_turrets(sh)
 		else:
 			var kind2 := Combat.hit_test(sh, mech_pos(), float(mech()["heading"]), ph)
 			if kind2 != "":
 				hit = true
 				var before := float(mech()["integrity"])
-				Combat.apply_hit(mech(), sh, kind2)
+				if not bool(dev["invulnerable"]):
+					Combat.apply_hit(mech(), sh, kind2)
 				combat_event.emit("cooling_hit" if kind2 == "cooling" else "impact", {"pos": sh["pos"], "target": "player"})
 				combat_event.emit("player_hit", {"kind": kind2})
 				if kind2 == "cooling":
@@ -971,6 +1062,8 @@ func _tick_projectiles(dt: float) -> void:
 			combat_event.emit("impact", {"pos": sh["pos"], "target": "world"})
 		if not hit and float(sh["travelled"]) < float(sh["range"]):
 			keep.append(sh)
+		elif not hit:
+			combat_event.emit("impact", {"pos": sh["pos"], "target": "ground", "owner": str(sh["owner"])})
 	projectiles = keep
 
 
@@ -1009,3 +1102,237 @@ func _finish_hull_repair(emergency: bool) -> void:
 	state["stats"]["repairs"] = int(state["stats"]["repairs"]) + 1
 	mech_event.emit("repaired")
 	save_now("hull_repair")
+
+
+
+# ---------------------------------------------------------------- weather
+
+func _tick_weather(dt: float) -> void:
+	var ev := Weather.step(weather(), tun("weather"), dt, bool(dev["dynamic_weather"]), _rng)
+	match ev:
+		"storm_coming":
+			notice.emit("NOTICE_STORM_COMING", [])
+		"storm_fading":
+			notice.emit("NOTICE_STORM_FADING", [])
+		"storm_over":
+			notice.emit("NOTICE_STORM_OVER", [])
+	if ev != "":
+		mech_event.emit(ev)
+		Log.info("weather", ev, {"intensity": snappedf(float(weather()["intensity"]), 0.01)})
+
+
+# ---------------------------------------------------------------- turrets (Southern Junkers)
+
+func turret_defs() -> Array:
+	return loc.get("turrets", [])
+
+
+func turret_def(id: String) -> Dictionary:
+	for d in turret_defs():
+		if d["id"] == id:
+			return d
+	return {}
+
+
+func _tick_turrets(dt: float) -> void:
+	var tt := tun("turret")
+	var aggro := bool(dev["aggression"])
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather"))
+	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "visibility": vis}
+	# Engagement limiter: only the closest few engaged turrets may wind up / fire.
+	var cands: Array = []
+	for d in turret_defs():
+		var t: Dictionary = state.get("turrets", {}).get(d["id"], {})
+		if t.is_empty() or bool(t["destroyed"]):
+			continue
+		var dist := Content.v2(d["pos"]).distance_to(mech_pos())
+		if dist <= float(tt.get("range", 480.0)) * vis:
+			cands.append([dist, d["id"]])
+	cands.sort()
+	var allowed := {}
+	for i in mini(cands.size(), int(tt.get("max_engaged", 2))):
+		allowed[cands[i][1]] = true
+	for d in turret_defs():
+		var id: String = d["id"]
+		var t: Dictionary = state.get("turrets", {}).get(id, {})
+		if t.is_empty():
+			continue
+		if not turret_brains.has(id):
+			turret_brains[id] = {"windup": 0.0, "cooldown": _rng.randf_range(0.5, 2.5)}
+		var los := true
+		if shot_blocked.is_valid() and target["valid"]:
+			los = not shot_blocked.call(Turret.muzzle(d, t, tt), mech_pos())
+		var r := Turret.step(d, t, turret_brains[id], target, tt, dt, los, allowed.has(id))
+		turret_view[id] = {"windup": r["windup"], "engaged": r["engaged"]}
+		match str(r["event"]):
+			"turret_alert":
+				combat_event.emit("turret_alert", {"id": id, "pos": Content.v2(d["pos"])})
+			"turret_windup":
+				combat_event.emit("turret_windup", {"id": id, "pos": Content.v2(d["pos"])})
+		if r["fire"]:
+			var origin := Turret.muzzle(d, t, tt)
+			var dir := Drive.forward(float(t["angle"]))
+			projectiles.append(Combat.make_shot("turret:" + id, origin, dir, tt["weapon"], _rng))
+			combat_event.emit("muzzle", {"owner": "turret", "id": id, "pos": origin, "angle": float(t["angle"])})
+
+
+func _shot_vs_turrets(sh: Dictionary) -> bool:
+	var tt := tun("turret")
+	for d in turret_defs():
+		var id: String = d["id"]
+		var t: Dictionary = state.get("turrets", {}).get(id, {})
+		if t.is_empty():
+			continue
+		if Combat.seg_dist(sh["prev"], sh["pos"], Content.v2(d["pos"])) > float(tt.get("hit_radius", 40.0)) + float(sh["radius"]):
+			continue
+		if not bool(t["destroyed"]):
+			t["hp"] = maxf(0.0, float(t["hp"]) - float(sh["damage"]))
+			combat_event.emit("impact", {"pos": sh["pos"], "target": "turret:" + id, "dir": (sh["vel"] as Vector2).normalized()})
+			if float(t["hp"]) <= 0.0:
+				t["destroyed"] = true
+				turret_brains.erase(id)
+				notice.emit("NOTICE_TURRET_DESTROYED", [])
+				combat_event.emit("turret_destroyed", {"id": id, "pos": Content.v2(d["pos"])})
+				Log.info("combat", "turret_destroyed", {"id": id})
+				save_now("turret_destroyed")
+		else:
+			combat_event.emit("impact", {"pos": sh["pos"], "target": "world"})
+		return true
+	return false
+
+
+func _finish_turret_salvage(id: String) -> void:
+	var t: Dictionary = state.get("turrets", {}).get(id, {})
+	if t.is_empty() or not bool(t["destroyed"]) or bool(t.get("salvaged", false)):
+		return
+	t["salvaged"] = true
+	var n := int(tun("turret").get("salvage_scrap", 2))
+	GameState.add(pilot()["pack"], "scrap", n)
+	notice.emit("NOTICE_TURRET_SALVAGED", [n])
+	mech_event.emit("pickup")
+	save_now("turret_salvage")
+
+
+# ---------------------------------------------------------------- developer menu actions (F10)
+
+const DEV_SPAWN_TYPES := ["scrapper", "junker"]
+var _dev_n := 0
+
+
+## Finds a free spot for a mech near `around` (ring search; never inside rock,
+## buildings, the player or other mechs).
+func find_spawn_spot(around: Vector2, min_r: float = 420.0, max_r: float = 800.0) -> Vector2:
+	for ring in 6:
+		var r := lerpf(min_r, max_r, ring / 5.0)
+		for k in 16:
+			var a := _rng.randf() * TAU
+			var p := around + Vector2(cos(a), sin(a)) * r
+			if mech_spot_free.is_valid() and not mech_spot_free.call(p):
+				continue
+			var ok := true
+			for id in state.get("enemies", {}):
+				if Content.v2(state["enemies"][id]["pos"]).distance_to(p) < 220.0:
+					ok = false
+			if ok and p.distance_to(mech_pos()) > 300.0:
+				return p
+	return Vector2.INF
+
+
+## Physics query for a mech-sized spot, supplied by the world view.
+var mech_spot_free: Callable = Callable()
+signal dev_spawned(id: String)
+
+
+func dev_spawn(type: String, count: int = 1) -> int:
+	var made := 0
+	for i in count:
+		var p := find_spawn_spot(actor_pos())
+		if p == Vector2.INF:
+			break
+		_dev_n += 1
+		var id := "dev_%s_%d" % [type, _dev_n]
+		var defn := {"id": id, "type": type, "spawn": [p.x, p.y], "heading_deg": rad_to_deg((actor_pos() - p).angle()) + 90.0,
+			"patrol": [[p.x, p.y], [p.x + 200.0, p.y], [p.x + 200.0, p.y + 200.0], [p.x, p.y + 200.0]]}
+		var e := GameState.new_enemy(defn)
+		e["integrity"] = float(enemy_tun(e).get("integrity", e["integrity"]))
+		e["dev"] = true
+		e["def"] = defn
+		state["enemies"][id] = e
+		dev_spawned.emit(id)
+		made += 1
+	Log.info("dev", "spawn", {"type": type, "count": made})
+	return made
+
+
+func dev_clear_spawned() -> void:
+	for id in state.get("enemies", {}).keys():
+		if bool(state["enemies"][id].get("dev", false)):
+			state["enemies"].erase(id)
+			brains.erase(id)
+			enemy_intents.erase(id)
+			dev_spawned.emit(id)
+	projectiles = projectiles.filter(func(sh): return not str(sh["owner"]).begins_with("dev_"))
+
+
+func dev_repair_all() -> void:
+	var m := mech()
+	m["radiator"] = 1.0
+	m["integrity"] = float(tun("mech").get("integrity", 100.0))
+	if str(m["engine"]) == "shutdown":
+		m["engine"] = "running" if mode() == "mech" else "off"
+	m["heat"] = minf(float(m["heat"]), 70.0)
+
+
+func dev_restore_cooling() -> void:
+	var m := mech()
+	m["radiator"] = 1.0
+	m["heat"] = float(mech_zone.get("ambient", 58.0)) + 6.0
+	if str(m["engine"]) == "shutdown":
+		m["engine"] = "running" if mode() == "mech" else "off"
+
+
+## Teleport the mech (and pilot, if aboard) to a named place from the location.
+signal dev_teleported
+func dev_teleport(place: String) -> bool:
+	var tp: Dictionary = loc.get("teleports", {})
+	if not tp.has(place):
+		return false
+	var p := Content.v2(tp[place]["pos"])
+	mech()["pos"] = [p.x, p.y]
+	mech()["heading"] = deg_to_rad(float(tp[place].get("heading_deg", 0.0)))
+	mech()["speed"] = 0.0
+	if mode() != "mech":
+		state["mode"] = "mech"
+		task = {}
+		mode_changed.emit("mech")
+	pilot()["pos"] = [p.x, p.y]
+	housing_angle = float(mech()["heading"])
+	_refresh_zones()
+	dev_teleported.emit()
+	return true
+
+
+func dev_weather(cmd: String, value: float = -1.0) -> void:
+	var w := weather()
+	var tw := tun("weather")
+	match cmd:
+		"start":
+			w.erase("forced_peak")
+			if value > 0.0:
+				w["forced_peak"] = value
+			Weather.start(w, tw, _rng, 8.0)
+			w.erase("forced_peak")
+			notice.emit("NOTICE_STORM_COMING", [])
+		"stop":
+			Weather.stop(w, tw, 8.0)
+		"clear":
+			Weather.clear(w, tw, _rng)
+		"intensity":
+			w["peak"] = clampf(value, 0.05, 1.0)
+			if str(w["state"]) == "storm":
+				w["intensity"] = w["peak"]
+
+
+func dev_reset() -> void:
+	dev = DEV_DEFAULTS.duplicate()
+	time_scale = 1.0

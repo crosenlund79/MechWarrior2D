@@ -27,7 +27,21 @@ var housing: Sprite2D
 var guns: Array[Sprite2D] = []
 var gun_holders: Array[Node2D] = []
 var housing_shadow: Node2D
-var _recoil := [0.0, 0.0]
+## Recoil (visual only): each gun is a damped spring along its barrel axis; the
+## whole housing gets a backward jolt + a rocking twist that settle with inertia.
+## Springs integrate continuously, so rapid fire stacks instead of snapping.
+var _gun_off := [0.0, 0.0]
+var _gun_vel := [0.0, 0.0]
+var _bolt_off := [0.0, 0.0]
+var _bolt_vel := [0.0, 0.0]
+var _h_off := 0.0
+var _h_vel := 0.0
+var _h_rot := 0.0
+var _h_rot_vel := 0.0
+var bolts: Array[Polygon2D] = []
+var flash_lights: Array[PointLight2D] = []
+var flashes: Array[Sprite2D] = []
+var world_ref: Node
 const GUN_MOUNTS := [Vector2(-92, -10), Vector2(92, -10)]
 var leak: CPUParticles2D
 var smoke: CPUParticles2D
@@ -85,6 +99,33 @@ func _ready() -> void:
 		Assets.apply_to_sprite(g, "mech.twin_gun")
 		guns.append(g)
 		gun_holders.append(gh)
+		# breech bolt that slams back on every shot
+		var bolt := Polygon2D.new()
+		bolt.polygon = PackedVector2Array([Vector2(-7, 18), Vector2(7, 18), Vector2(7, 40), Vector2(-7, 40)])
+		bolt.color = Color(0.2, 0.17, 0.14)
+		gh.add_child(bolt)
+		var hl := Line2D.new()
+		hl.points = PackedVector2Array([Vector2(-5, 21), Vector2(-5, 37)])
+		hl.width = 2.0
+		hl.default_color = Color(0.75, 0.68, 0.55, 0.7)
+		bolt.add_child(hl)
+		bolts.append(bolt)
+		# muzzle flash (sprite + light), hidden until a shot
+		var fl := Sprite2D.new()
+		var ft := "res://assets/fx/muzzle_flash.png"
+		fl.texture = load(ft) if ResourceLoader.exists(ft) else FxKit.dot()
+		fl.position = Vector2(0, -112)
+		fl.visible = false
+		fl.z_index = 3
+		var add := CanvasItemMaterial.new()
+		add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		fl.material = add
+		gh.add_child(fl)
+		flashes.append(fl)
+		var lt := LightKit.glow(Color(1.0, 0.72, 0.35), 1.25, 0.0)
+		lt.position = Vector2(0, -110)
+		gh.add_child(lt)
+		flash_lights.append(lt)
 	_build_shadow()
 	leak = FxKit.coolant_leak()
 	leak.position = Vector2(0, 110)
@@ -219,12 +260,18 @@ func _process(delta: float) -> void:
 	radiator.modulate = Color(1, 1, 1).lerp(Color(1.35, 0.8, 0.62), glow_f * 0.6)
 	steam.emitting = heat >= warn or engine == "shutdown"
 	# Turret: rotates toward the aim point around its mount on the deck.
-	# Upper housing: rotates independently toward the aim; guns kick back per barrel.
-	housing_holder.rotation = Session.housing_angle
-	housing_holder.position = hull.get_parent().position.rotated(body.rotation)
+	# Upper housing: rotates independently toward the aim; recoil springs settle.
+	_step_recoil(delta)
+	housing_holder.rotation = Session.housing_angle + _h_rot
+	housing_holder.position = hull.get_parent().position.rotated(body.rotation) + Vector2(0, _h_off).rotated(Session.housing_angle)
 	for i in 2:
-		_recoil[i] = move_toward(_recoil[i], 0.0, delta * 60.0)
-		gun_holders[i].position = GUN_MOUNTS[i] + Vector2(0, _recoil[i])
+		gun_holders[i].position = GUN_MOUNTS[i] + Vector2(0, _gun_off[i])
+		bolts[i].position = Vector2(0, _bolt_off[i])
+		flash_lights[i].energy = move_toward(flash_lights[i].energy, 0.0, delta * 11.0)
+		if flashes[i].visible:
+			flashes[i].modulate.a -= delta * 7.0
+			if flashes[i].modulate.a <= 0.0:
+				flashes[i].visible = false
 	# Damage feedback: coolant leak (cooling < 35 %), smoke (integrity < 45 %), hit flash.
 	leak.emitting = float(m["radiator"]) < 0.35
 	var integ := float(m["integrity"]) / float(Session.tun("mech").get("integrity", 100.0))
@@ -255,6 +302,57 @@ func _on_mech_event(ev: String) -> void:
 			_shake = 0.3
 
 
+func _fire_kick(i: int) -> void:
+	var rc: Dictionary = Session.tun("combat").get("recoil", {})
+	_gun_vel[i] += float(rc.get("gun_kick", 22.0)) * 14.0
+	_bolt_vel[i] += float(rc.get("gun_kick", 22.0)) * 22.0
+	_h_vel += float(rc.get("housing_kick", 7.0)) * 14.0
+	_h_rot_vel += (-1.0 if i == 0 else 1.0) * float(rc.get("housing_rock", 0.05)) * 14.0
+	flashes[i].visible = true
+	flashes[i].modulate.a = 1.0
+	flashes[i].rotation = randf_range(-0.25, 0.25)
+	var sc := randf_range(1.1, 1.45)
+	flashes[i].scale = Vector2(sc, sc * randf_range(0.9, 1.3))
+	flash_lights[i].energy = 1.15
+	# receiver exhaust smoke + sand blown off the ground around the mech
+	var parent := get_parent()
+	var sm := FxKit.puff(Color(0.32, 0.28, 0.24, 0.55), 6)
+	parent.add_child(sm)
+	sm.global_position = gun_holders[i].global_position + Vector2(0, 30).rotated(housing_holder.rotation)
+	sm.direction = Drive.forward(housing_holder.rotation) * -1.0
+	sm.emitting = true
+	sm.finished.connect(sm.queue_free)
+	var dust := FxKit.ground_blast()
+	parent.add_child(dust)
+	dust.global_position = gun_holders[i].global_position + Drive.forward(housing_holder.rotation) * 120.0
+	dust.direction = Drive.forward(housing_holder.rotation)
+	dust.emitting = true
+	dust.finished.connect(dust.queue_free)
+
+
+func _step_recoil(delta: float) -> void:
+	var rc: Dictionary = Session.tun("combat").get("recoil", {})
+	var k := float(rc.get("spring", 160.0))
+	var c := float(rc.get("damping", 15.0))
+	var steps := 3
+	var h := delta / steps
+	for _s in steps:
+		for i in 2:
+			_gun_vel[i] += (-k * _gun_off[i] - c * _gun_vel[i]) * h
+			_gun_off[i] = clampf(_gun_off[i] + _gun_vel[i] * h, -6.0, 30.0)
+			_bolt_vel[i] += (-k * 0.7 * _bolt_off[i] - c * 0.9 * _bolt_vel[i]) * h
+			_bolt_off[i] = clampf(_bolt_off[i] + _bolt_vel[i] * h, -3.0, 22.0)
+		# the housing is heavier: softer spring, slower settle, small overshoot
+		_h_vel += (-k * 0.45 * _h_off - c * 0.55 * _h_vel) * h
+		_h_off = clampf(_h_off + _h_vel * h, -4.0, 14.0)
+		_h_rot_vel += (-k * 0.5 * _h_rot - c * 0.5 * _h_rot_vel) * h
+		_h_rot = clampf(_h_rot + _h_rot_vel * h, -0.12, 0.12)
+
+
+func recoil_state() -> Dictionary:
+	return {"gun": _gun_off.duplicate(), "housing": _h_off, "rock": _h_rot}
+
+
 func on_combat(kind: String, data: Dictionary) -> void:
 	match kind:
 		"player_hit":
@@ -262,4 +360,7 @@ func on_combat(kind: String, data: Dictionary) -> void:
 			_shake = maxf(_shake, 0.35)
 		"muzzle":
 			if str(data.get("owner", "")) == "player":
-				_recoil[int(data.get("barrel", 0)) % 2] = 12.0
+				_fire_kick(int(data.get("barrel", 0)) % 2)
+				if world_ref and world_ref.camera:
+					var rc: Dictionary = Session.tun("combat").get("recoil", {})
+					world_ref.camera.add_shake(float(rc.get("shake", 0.16)), float(rc.get("shake_max", 0.45)))

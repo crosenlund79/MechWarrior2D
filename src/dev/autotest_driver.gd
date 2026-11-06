@@ -136,6 +136,31 @@ func _run(line: String) -> void:
 				await get_tree().physics_frame
 				t5 += get_physics_process_delta_time()
 			Session.fire_held = false
+		"fire_shot":  # fire exactly when the guns are ready, return 2 frames later (for screenshots)
+			var t6 := 0.0
+			while t6 < 2.0:
+				Session.fire_held = true
+				await get_tree().physics_frame
+				t6 += get_physics_process_delta_time()
+				if Session._fire_cd > 0.2:
+					break
+			Session.fire_held = false
+			await get_tree().process_frame
+			await get_tree().process_frame
+		"fire_capture":  # fire_capture <path> [frames_after]: one shot, then a screenshot N frames later
+			var t7 := 0.0
+			while t7 < 2.0:
+				Session.fire_held = true
+				await get_tree().physics_frame
+				t7 += get_physics_process_delta_time()
+				if Session._fire_cd > 0.2:
+					break
+			Session.fire_held = false
+			for k in int(a[1]) if a.size() > 1 else 2:
+				await get_tree().process_frame
+			await RenderingServer.frame_post_draw
+			var img2 := get_viewport().get_texture().get_image()
+			ok = img2 != null and img2.save_png(a[0]) == OK
 		"set_enemy":  # set_enemy <x> <y> <heading_deg> [ai] [id=..]
 			for eid in targets:
 				var e3: Dictionary = Session.state["enemies"][eid]
@@ -155,6 +180,36 @@ func _run(line: String) -> void:
 		"menu_music":
 			Audio.music_play("music.theme", 0.5)
 			await _wait(0.6)
+		"devmenu":  # devmenu on|off
+			if main.game:
+				main.game.devmenu.visible = a[0] == "on"
+				DevMenu.is_open = main.game.devmenu.visible
+			await _wait(0.2)
+		"dev":  # dev <action> [arg]: spawn <type> <n> | clear | weather <start|stop|clear|intensity> [v] | teleport <place> | repair | cooling | toggle <key> | speed <x> | reset
+			match a[0]:
+				"spawn":
+					ok = Session.dev_spawn(a[1], int(a[2]) if a.size() > 2 else 1) > 0
+				"clear":
+					Session.dev_clear_spawned()
+				"weather":
+					Session.dev_weather(a[1], float(a[2]) if a.size() > 2 else -1.0)
+				"teleport":
+					ok = Session.dev_teleport(a[1])
+				"repair":
+					Session.dev_repair_all()
+				"cooling":
+					Session.dev_restore_cooling()
+				"toggle":
+					Session.dev[a[1]] = not bool(Session.dev[a[1]])
+				"speed":
+					Session.dev["time_scale"] = float(a[1])
+					Session.time_scale = float(a[1])
+				"reset":
+					Session.dev_reset()
+			await _wait(0.15)
+		"engine_speed":  # test-only: speeds up physics + sim for long traversals
+			Engine.time_scale = float(a[0])
+			await _wait(0.1)
 		"music_cue":
 			if main.game:
 				main.game.sound.start_cue()
@@ -252,6 +307,14 @@ func _state() -> Dictionary:
 		st["zone"] = Session.mech_zone.get("id", "")
 		st["projectiles"] = Session.projectiles.size()
 		st["housing_angle"] = Session.housing_angle
+		st["dev"] = Session.dev.duplicate()
+		st["storm_here"] = Session.storm_here
+		st["area"] = Session.area_at(Session.actor_pos())
+		st["turret_view"] = Session.turret_view.duplicate(true)
+		if main and main.game:
+			st["recoil"] = main.game.world.mech_view.recoil_state()
+			st["shake"] = main.game.world.camera._trauma
+			st["enemy_views"] = main.game.world.enemy_views.size()
 		if main and main.game:
 			st["cover"] = main.game.world.cover_amount()
 			st["exposure"] = main.game.sound.exposure

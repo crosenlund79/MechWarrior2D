@@ -27,7 +27,7 @@ static func think(e: Dictionary, brain: Dictionary, target: Dictionary, defn: Di
 	var home := _patrol_centre(defn)
 	var tpos: Vector2 = target.get("pos", Vector2.INF)
 	var dist := pos.distance_to(tpos) if target.get("valid", false) else INF
-	var sees: bool = target.get("valid", false) and dist <= detect_radius(float(target.get("heat", 0.0)), te)
+	var sees: bool = target.get("valid", false) and dist <= detect_radius(float(target.get("heat", 0.0)), te) * float(target.get("visibility", 1.0))
 	var lost: bool = not target.get("valid", false) or dist > float(te["lose_radius"]) or pos.distance_to(home) > float(te["leash_radius"])
 	brain["t_state"] = float(brain.get("t_state", 0.0)) + dt
 	brain["cooldown"] = maxf(0.0, float(brain.get("cooldown", 0.0)) - dt)

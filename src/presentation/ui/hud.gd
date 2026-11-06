@@ -23,6 +23,8 @@ var prompt_label: Label
 var task_bar: ProgressBar
 var cargo_label: Label
 var zone_label: Label
+var storm_label: Label
+var dev_badge: Label
 var notices: VBoxContainer
 var pointer: Control
 var danger: ColorRect
@@ -132,6 +134,16 @@ func _build() -> void:
 	cv.add_child(cargo_label)
 	zone_label = UiTheme.label("", 13, UiTheme.DIM)
 	cv.add_child(zone_label)
+	storm_label = UiTheme.label("", 14, UiTheme.WARNING)
+	cv.add_child(storm_label)
+	dev_badge = UiTheme.label("", 12, UiTheme.WARNING)
+	dev_badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	dev_badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	dev_badge.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	dev_badge.position = Vector2(-16, -16)
+	dev_badge.add_theme_constant_override("outline_size", 5)
+	dev_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	add_child(dev_badge)
 	# --- prompts (bottom centre)
 	var pb := VBoxContainer.new()
 	pb.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -236,6 +248,20 @@ func _process(delta: float) -> void:
 	if sheltered:
 		zone_label.text += "  ·  " + tr("HUD_SHELTERED")
 	zone_label.add_theme_color_override("font_color", UiTheme.COOLANT if sheltered else UiTheme.DIM)
+	var w := Session.weather()
+	storm_label.visible = float(w["intensity"]) > 0.03
+	if storm_label.visible:
+		storm_label.text = tr("HUD_STORM") % [int(float(w["intensity"]) * 100.0), int(Session.storm_here * 100.0)]
+	var dv: PackedStringArray = []
+	if bool(Session.dev["invulnerable"]):
+		dv.append("invulnerable")
+	if not bool(Session.dev["aggression"]):
+		dv.append("enemies passive")
+	if not bool(Session.dev["dynamic_weather"]):
+		dv.append("weather static")
+	if absf(Session.time_scale - 1.0) > 0.01:
+		dv.append("speed x%s" % str(Session.time_scale))
+	dev_badge.text = ("DEV: " + ", ".join(dv)) if dv.size() > 0 else ""
 	# Danger edge: suit strain on foot, or a critical mech.
 	var dmg := 0.0
 	if md == "foot" and suit < 25.0:

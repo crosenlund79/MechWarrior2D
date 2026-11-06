@@ -30,7 +30,11 @@ var pilot_sprite: Sprite2D
 var pilot_shadow: Node2D
 var alert_mark: Label
 var cockpit_light: PointLight2D
-var _pose := 1.0     # 0 = parked (lowered, legs tucked), 1 = standing / active
+var _pose := 1.0
+var _hit_off := Vector2.ZERO     # flinch from heavy hits (damped spring, visual only)
+var _hit_vel := Vector2.ZERO
+var _hit_rot := 0.0
+var _hit_rot_vel := 0.0     # 0 = parked (lowered, legs tucked), 1 = standing / active
 var _pilot_t := 0.0
 
 
@@ -56,11 +60,13 @@ func _ready() -> void:
 	body = Node2D.new()
 	add_child(body)
 	body.material = LightKit.rotating_light_material()
+	var etype := str(Session.enemy(id).get("type", "scrapper"))
+	var junk := etype == "junker"
 	leg_l = _part("enemy.leg", Vector2(-62, 0))
 	leg_r = _part("enemy.leg", Vector2(62, 0))
 	leg_r.get_parent().scale.x = -1
-	hull = _part("enemy.hull", Vector2.ZERO)
-	wreck = _part("enemy.wreck", Vector2.ZERO)
+	hull = _part("enemy.junker_hull" if junk else "enemy.hull", Vector2.ZERO)
+	wreck = _part("enemy.junker_wreck" if junk else "enemy.wreck", Vector2.ZERO)
 	for s in [leg_l, leg_r, hull, wreck]:
 		s.use_parent_material = true
 	_build_shadow()
@@ -260,6 +266,12 @@ func _process(delta: float) -> void:
 	leg_r.get_parent().position = Vector2(leg_x, swing)
 	var lift := lerpf(0.92, 1.0, _pose)
 	hull.get_parent().scale = Vector2(lift, lift)
+	_hit_vel += (-180.0 * _hit_off - 16.0 * _hit_vel) * delta
+	_hit_off += _hit_vel * delta
+	_hit_rot_vel += (-200.0 * _hit_rot - 14.0 * _hit_rot_vel) * delta
+	_hit_rot += _hit_rot_vel * delta
+	body.position = _hit_off.limit_length(14.0)
+	body.rotation = float(e["heading"]) + clampf(_hit_rot, -0.12, 0.12)
 	hull.get_parent().position = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * 2.5 * shudder
 	cockpit_light.energy = 0.0 if ai in ["unpiloted", "alerted", "boarding"] or is_wreck else (0.5 + 0.4 * sin(Time.get_ticks_msec() * 0.02) if ai == "starting" else 0.35)
 	_update_pilot(e, delta)
@@ -326,3 +338,6 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		puff.finished.connect(puff.queue_free)
 	if str(data.get("target", "")) == id and (kind == "impact" or kind == "cooling_hit"):
 		_flash = 0.7
+		var d: Vector2 = data.get("dir", Vector2.ZERO)
+		_hit_vel += d * 260.0
+		_hit_rot_vel += randf_range(-1.0, 1.0) * 2.2

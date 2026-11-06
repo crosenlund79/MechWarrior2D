@@ -107,7 +107,31 @@ hardware and water.
 - **Turret** (`mech.gun`) rotates over the hull. The **awning** (`shelter.awning`) is a stitched tarp
   sail on four posts. Its shade zone equals its cast-shadow footprint and it fades when you are under it.
 
-## 10. Known limitations / open questions for the creator
+## 10. Southern Junkers and the expanded desert
+- **Faction identity:** a consistent palette on every piece of equipment.
+  - Colours: oxide orange (188, 96, 42), tar black (44, 38, 33) hazard bands, rust and bare steel.
+  - Insignia: a **bone stencilled cog with a south-pointing chevron**. It appears on hulls, turret
+    housings, the workshop roof, tarps and as worn floor decals.
+  - Construction is visibly welded scrap plate, with ram bars and spikes on the wall tops. It is
+    rougher and more aggressive than the player's yellow/green refuge machinery.
+- **Turret:** an octagonal scrap mount with plate buttresses and a rotating orange housing with an
+  ammo box. A red laser line telegraphs each shot. Destroyed turrets become a collapsed, smoking wreck.
+- **Weapon feel:**
+  - a star-shaped additive muzzle flash with a light burst
+  - receiver smoke and sand blasted off the ground in the firing direction
+  - long hot tracers
+  - sand impacts throw dust plus grit; metal impacts throw a spark shower plus a hot flash
+  - enemy mechs flinch along the direction of the shot
+- **Sandstorm:** the Red Thaw fog technique, pushed further.
+  - Haze increases with distance from the screen centre, so the player and nearby obstacles stay
+    readable.
+  - Fast world-anchored sand sheets, a dense camera-following dust layer, more and longer wind
+    streaks, and a warm-tinted daylight.
+- **New locations:** the same ink pipeline throughout. They are the cooling towers and tanks, a
+  radiator bank, pipe rack and control shed, the rest-stop canopy (overhead fade), kiosk, pumps, cars,
+  billboard, evacuation signs, a cracked asphalt highway, the scrap field, and the ravine rock.
+
+## 11. Known limitations / open questions for the creator
 - All art is **generated placeholder illustration** in the ink pipeline, not hand-drawn. It exists
   to evaluate the style and is fully replaceable (see `guides/ASSET_REPLACEMENT.md`).
 - The menu backdrop (`ui.menu_backdrop`) is a capture of the running game

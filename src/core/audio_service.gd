@@ -30,6 +30,29 @@ func _ensure_buses() -> void:
 			var i := AudioServer.bus_count - 1
 			AudioServer.set_bus_name(i, bus_name)
 			AudioServer.set_bus_send(i, "Master")
+	# Weapons sub-bus (→ SFX): compressor + hard limiter so stacked twin-gun layers
+	# stay heavy without clipping.
+	if AudioServer.get_bus_index("Weapons") == -1:
+		AudioServer.add_bus()
+		var wb := AudioServer.bus_count - 1
+		AudioServer.set_bus_name(wb, "Weapons")
+		AudioServer.set_bus_send(wb, "SFX")
+		var comp := AudioEffectCompressor.new()
+		comp.threshold = -16.0
+		comp.ratio = 4.0
+		comp.attack_us = 2000.0
+		comp.release_ms = 140.0
+		comp.gain = 2.0
+		AudioServer.add_bus_effect(wb, comp)
+		var lim := AudioEffectHardLimiter.new()
+		lim.ceiling_db = -1.5
+		AudioServer.add_bus_effect(wb, lim)
+	# SFX low-pass: a storm closes in around the mech (muffles everything a bit).
+	var sfx := AudioServer.get_bus_index("SFX")
+	if sfx >= 0 and AudioServer.get_bus_effect_count(sfx) == 0:
+		var lp2 := AudioEffectLowPassFilter.new()
+		lp2.cutoff_hz = 20000.0
+		AudioServer.add_bus_effect(sfx, lp2)
 	# Wind sub-bus (→ Ambience) with a low-pass that closes as you get sheltered.
 	if AudioServer.get_bus_index("Wind") == -1:
 		AudioServer.add_bus()
@@ -39,6 +62,19 @@ func _ensure_buses() -> void:
 		var lp := AudioEffectLowPassFilter.new()
 		lp.cutoff_hz = 18000.0
 		AudioServer.add_bus_effect(w, lp)
+
+
+var storm_muffle := 0.0
+
+
+## 0..1 storm felt by the listener: SFX lose top end, distant one-shots fade.
+func set_storm(amount: float) -> void:
+	storm_muffle = clampf(amount, 0.0, 1.0)
+	var sfx := AudioServer.get_bus_index("SFX")
+	if sfx >= 0 and AudioServer.get_bus_effect_count(sfx) > 0:
+		var lp := AudioServer.get_bus_effect(sfx, 0) as AudioEffectLowPassFilter
+		if lp:
+			lp.cutoff_hz = lerpf(20000.0, 4800.0, storm_muffle ** 0.8)
 
 
 ## 0 = fully exposed, 1 = deep shelter: quieter, duller wind.
@@ -229,7 +265,9 @@ func play_at(id: String, pos: Vector2, parent: Node, volume_db: float = 0.0, pit
 	var p := AudioStreamPlayer2D.new()
 	p.stream = stream
 	p.bus = _bus_for(id)
-	p.volume_db = volume_db + float(AssetCatalog.entry(id).get("volume_db", 0.0))
+	var cam := get_viewport().get_camera_2d()
+	var far := clampf(cam.global_position.distance_to(pos) / 900.0, 0.0, 1.0) if cam else 0.0
+	p.volume_db = volume_db + float(AssetCatalog.entry(id).get("volume_db", 0.0)) - storm_muffle * 12.0 * far
 	p.pitch_scale = pitch
 	p.max_distance = max_distance
 	parent.add_child(p)

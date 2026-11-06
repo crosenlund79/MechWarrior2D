@@ -96,6 +96,27 @@ NOTICE_ENTER_REFUGE,Under the rock — the air is cooler here,Under klippen — 
 NOTICE_LEAVE_REFUGE,Leaving the refuge — full sun ahead,Du forlader tilflugten — fuld sol forude
 NOTICE_PILOT_ALERT,A pilot has seen you — running for their mech!,En pilot har set dig — løber mod sin mech!
 NOTICE_MECH_STARTUP,Hostile mech powering up,Fjendtlig mech starter op
+ZONE_RAVINE,Rocky ravine (partial shade),Klippekløft (delvis skygge)
+ZONE_JUNKER,Southern Junkers territory,Sydskrotternes territorium
+HUD_STORM,SANDSTORM %d%% · felt %d%%,SANDSTORM %d%% · mærkes %d%%
+NOTICE_STORM_COMING,A sandstorm is rolling in — find shelter,En sandstorm er på vej — søg ly
+NOTICE_STORM_FADING,The storm is easing,Stormen aftager
+NOTICE_STORM_OVER,The air clears,Luften klarer op
+NOTICE_TURRET_DESTROYED,Junker turret destroyed,Skrotter-tårn ødelagt
+NOTICE_TURRET_SALVAGED,Turret stripped: %d scrap,Tårn plyndret: %d skrot
+ACT_SALVAGE_TURRET,Strip the turret,Plyndr tårnet
+NOTICE_DEV_NO_ROOM,DEV: no free spot to spawn,DEV: ingen ledig plads
+NOTICE_AREA,— %s —,— %s —
+AREA_REFUGE,Canyon Refuge,Kløfttilflugten
+AREA_COOLING_STATION,Abandoned cooling station,Forladt kølestation
+AREA_RAVINE,The rocky ravine,Klippekløften
+AREA_ROADSIDE,Old highway rest stop,Gammel rasteplads ved motorvejen
+AREA_SCRAP_FIELD,The scrap field,Skrotmarken
+AREA_JUNKER_TERRITORY,Southern Junkers territory,Sydskrotternes territorium
+AREA_JUNKER_BASE,Southern Junkers scrapyard,Sydskrotternes skrotplads
+SALVAGE_COOLING_STATION,Cooling station machinery,Kølestationens maskineri
+SALVAGE_ROADSIDE,Rest-stop scrap,Skrot ved rastepladsen
+SALVAGE_SCRAP_FIELD,Scrap field wreckage,Vraggods på skrotmarken
 ZONE_SALT,Salt pan (reflective),Saltslette (reflekterende)
 ACT_EXIT_MECH,Exit mech,Stig ud
 ACT_ENTER_MECH,Enter mech,Stig ind

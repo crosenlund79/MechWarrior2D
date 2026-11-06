@@ -11,6 +11,12 @@ bend, until you pass under the overhang. The cavern base has a parking bay, a wa
 generator and powered lamps. It's cool enough to work on foot. North of the pump-rig area, a
 survivor stands beside a parked scrapper. Get close and they run for it, climb in and power up.
 
+**Southern Junkers:** follow the old highway south-east (or the rocky ravine from the salt pan)
+to the Junkers' fortified scrapyard. You'll face walls with a gate and two breaches, five easy
+turrets (at most two engage at once) and three Junker mechs, one of them a pilot who runs to a parked
+mech. Sandstorms roll in now and then: find shelter, because cooling and your suit suffer outside.
+**F10** opens the developer menu.
+
 **First hostile encounter:** a weak scrapper mech patrols the salt pan in the south-east. Shoot its exposed
 rear radiator to cook it, retreat to the awning's shade when you run hot, then strip its wreck on foot.
 

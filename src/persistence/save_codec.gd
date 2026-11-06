@@ -9,13 +9,14 @@ extends RefCounted
 ## upgrades version N-1 to N. Old saves are migrated step by step on load.
 
 const FORMAT := "heat_signature_save"
-const VERSION := 3
+const VERSION := 4
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
 	0: _migrate_0_to_1,
 	1: _migrate_1_to_2,
 	2: _migrate_2_to_3,
+	3: _migrate_3_to_4,
 }
 
 
@@ -90,6 +91,16 @@ static func _migrate_2_to_3(env: Dictionary) -> Dictionary:
 		if e is Dictionary and not e.has("pilot"):
 			e["pilot"] = {"state": "aboard", "pos": e.get("pos", [0, 0]), "facing": 0.0}
 	env["version"] = 3
+	return env
+
+
+## Version 4 (Southern Junkers): weather state and turret state. Old saves get
+## clear weather; turrets (and the new Junker defenders) appear from the location.
+static func _migrate_3_to_4(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	if not s.has("turrets"):
+		s["turrets"] = {}
+	env["version"] = 4
 	return env
 
 

@@ -4,8 +4,8 @@
 	"bounds": [
 		-2600,
 		0,
-		6200,
-		2600
+		9400,
+		6200
 	],
 	"default_zone": {
 		"ambient": 58.0,
@@ -13,7 +13,8 @@
 		"abrasion": 1.0,
 		"drag": 1.0,
 		"suit": 1.0,
-		"label": "ZONE_OPEN_SAND"
+		"label": "ZONE_OPEN_SAND",
+		"storm_exposure": 1.0
 	},
 	"zone_types": {
 		"shade": {
@@ -22,7 +23,8 @@
 			"abrasion": 0.0,
 			"drag": 1.0,
 			"suit": 0.35,
-			"label": "ZONE_SHADE"
+			"label": "ZONE_SHADE",
+			"storm_exposure": 0.6
 		},
 		"dunes": {
 			"ambient": 60.0,
@@ -30,7 +32,8 @@
 			"abrasion": 22.0,
 			"drag": 0.62,
 			"suit": 1.1,
-			"label": "ZONE_DUNES"
+			"label": "ZONE_DUNES",
+			"storm_exposure": 1.0
 		},
 		"salt": {
 			"ambient": 63.0,
@@ -38,7 +41,8 @@
 			"abrasion": 0.6,
 			"drag": 1.0,
 			"suit": 1.25,
-			"label": "ZONE_SALT"
+			"label": "ZONE_SALT",
+			"storm_exposure": 1.0
 		},
 		"canyon": {
 			"ambient": 50.0,
@@ -47,7 +51,8 @@
 			"drag": 1.0,
 			"suit": 0.6,
 			"cooling": 1.1,
-			"label": "ZONE_CANYON"
+			"label": "ZONE_CANYON",
+			"storm_exposure": 0.45
 		},
 		"refuge": {
 			"ambient": 34.0,
@@ -57,7 +62,27 @@
 			"suit": 0.12,
 			"cooling": 1.3,
 			"sheltered": true,
-			"label": "ZONE_REFUGE"
+			"label": "ZONE_REFUGE",
+			"storm_exposure": 0.08
+		},
+		"ravine": {
+			"ambient": 52.0,
+			"solar": 0.5,
+			"abrasion": 0.5,
+			"drag": 1.0,
+			"suit": 0.65,
+			"cooling": 1.05,
+			"storm_exposure": 0.45,
+			"label": "ZONE_RAVINE"
+		},
+		"junker": {
+			"ambient": 60.0,
+			"solar": 1.05,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"suit": 1.05,
+			"storm_exposure": 0.95,
+			"label": "ZONE_JUNKER"
 		}
 	},
 	"mech_start": {
@@ -359,6 +384,233 @@
 					960
 				]
 			]
+		},
+		{
+			"id": "track_east",
+			"tile": "ground.track",
+			"width": 92,
+			"path": [
+				[
+					2480,
+					1100
+				],
+				[
+					2700,
+					1290
+				],
+				[
+					3100,
+					1420
+				],
+				[
+					3550,
+					1350
+				],
+				[
+					4000,
+					1250
+				],
+				[
+					4500,
+					1300
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "track_shelter_south",
+			"tile": "ground.track",
+			"width": 88,
+			"path": [
+				[
+					760,
+					1470
+				],
+				[
+					830,
+					2000
+				],
+				[
+					770,
+					2600
+				],
+				[
+					660,
+					3100
+				],
+				[
+					620,
+					3300
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "road_highway",
+			"tile": "ground.asphalt",
+			"width": 150,
+			"path": [
+				[
+					-2450,
+					3400
+				],
+				[
+					-1600,
+					3380
+				],
+				[
+					-400,
+					3350
+				],
+				[
+					600,
+					3290
+				],
+				[
+					1500,
+					3260
+				],
+				[
+					2400,
+					3300
+				],
+				[
+					2900,
+					3520
+				],
+				[
+					3300,
+					3800
+				],
+				[
+					3800,
+					4000
+				],
+				[
+					4300,
+					3990
+				],
+				[
+					4700,
+					4060
+				],
+				[
+					5050,
+					4280
+				],
+				[
+					5180,
+					4500
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "track_ravine",
+			"tile": "ground.track",
+			"width": 96,
+			"path": [
+				[
+					2620,
+					2300
+				],
+				[
+					3150,
+					2600
+				],
+				[
+					3420,
+					2880
+				],
+				[
+					3650,
+					3120
+				],
+				[
+					3880,
+					3340
+				],
+				[
+					4020,
+					3580
+				],
+				[
+					4120,
+					3880
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "track_scrapfield",
+			"tile": "ground.track",
+			"width": 84,
+			"path": [
+				[
+					1600,
+					3270
+				],
+				[
+					1750,
+					3600
+				],
+				[
+					1900,
+					3900
+				],
+				[
+					2050,
+					4250
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "junker_yard",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					4350,
+					4380
+				],
+				[
+					5000,
+					4300
+				],
+				[
+					5450,
+					4330
+				],
+				[
+					6000,
+					4450
+				],
+				[
+					6080,
+					5300
+				],
+				[
+					5900,
+					5900
+				],
+				[
+					5200,
+					6000
+				],
+				[
+					4500,
+					5900
+				],
+				[
+					4250,
+					5400
+				],
+				[
+					4260,
+					4800
+				]
+			],
+			"_wave": "south"
 		}
 	],
 	"zones": [
@@ -504,6 +756,145 @@
 					1710
 				]
 			]
+		},
+		{
+			"id": "ravine_passage",
+			"type": "ravine",
+			"polygon": [
+				[
+					3006,
+					2739
+				],
+				[
+					3276,
+					3019
+				],
+				[
+					3509,
+					3261
+				],
+				[
+					3724,
+					3465
+				],
+				[
+					3847,
+					3681
+				],
+				[
+					4193,
+					3479
+				],
+				[
+					4036,
+					3215
+				],
+				[
+					3791,
+					2979
+				],
+				[
+					3564,
+					2741
+				],
+				[
+					3294,
+					2461
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "rr_canopy_shade",
+			"type": "shade",
+			"polygon": [
+				[
+					352,
+					3392
+				],
+				[
+					770,
+					3392
+				],
+				[
+					770,
+					3640
+				],
+				[
+					352,
+					3640
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "jk_tarp_1_shade",
+			"type": "shade",
+			"polygon": [
+				[
+					5290,
+					5570
+				],
+				[
+					5590,
+					5570
+				],
+				[
+					5590,
+					5790
+				],
+				[
+					5290,
+					5790
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "jk_tarp_2_shade",
+			"type": "shade",
+			"polygon": [
+				[
+					4870,
+					5550
+				],
+				[
+					5170,
+					5550
+				],
+				[
+					5170,
+					5770
+				],
+				[
+					4870,
+					5770
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "junker_territory",
+			"type": "junker",
+			"polygon": [
+				[
+					3700,
+					3900
+				],
+				[
+					6900,
+					3700
+				],
+				[
+					6900,
+					6300
+				],
+				[
+					3600,
+					6300
+				]
+			],
+			"_wave": "south"
 		}
 	],
 	"props": [
@@ -799,8 +1190,8 @@
 			"id": "rock_l4",
 			"asset": "prop.rock_large_b",
 			"pos": [
-				3150,
-				1300
+				3220,
+				1680
 			],
 			"rot": 260,
 			"layer": "low",
@@ -867,8 +1258,8 @@
 			"id": "pylon_2",
 			"asset": "prop.pylon",
 			"pos": [
-				2560,
-				1300
+				2760,
+				1480
 			],
 			"rot": 62,
 			"layer": "low",
@@ -1189,6 +1580,1088 @@
 			"collision": {
 				"circle": 40
 			}
+		},
+		{
+			"id": "cs_tower_1",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				4760,
+				880
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_tower_2",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				5320,
+				820
+			],
+			"layer": "low",
+			"rot": 30,
+			"collision": {
+				"circle": 150
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_rack",
+			"asset": "cs.pipe_rack",
+			"pos": [
+				5040,
+				860
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					260,
+					40
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_tank_1",
+			"asset": "cs.tank",
+			"pos": [
+				5560,
+				1240
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_tank_2",
+			"asset": "cs.tank",
+			"pos": [
+				5420,
+				1450
+			],
+			"layer": "low",
+			"rot": 40,
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_tank_3",
+			"asset": "cs.tank",
+			"pos": [
+				4560,
+				1520
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_bank_1",
+			"asset": "cs.radiator_bank",
+			"pos": [
+				5050,
+				1230
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					260,
+					100
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_bank_2",
+			"asset": "cs.radiator_bank",
+			"pos": [
+				5120,
+				1500
+			],
+			"layer": "low",
+			"rot": 14,
+			"collision": {
+				"rect": [
+					260,
+					100
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_shed",
+			"asset": "cs.control_shed",
+			"pos": [
+				4700,
+				1230
+			],
+			"layer": "low",
+			"rot": -6,
+			"collision": {
+				"rect": [
+					200,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_pipe_1",
+			"asset": "prop.pipe",
+			"pos": [
+				5300,
+				1080
+			],
+			"layer": "low",
+			"rot": 70,
+			"collision": {
+				"rect": [
+					200,
+					40
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "cs_scrap_1",
+			"asset": "prop.scrap_pile",
+			"pos": [
+				4900,
+				1660
+			],
+			"layer": "low",
+			"rot": 40,
+			"collision": {
+				"circle": 40
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_lot",
+			"asset": "road.lot",
+			"pos": [
+				620,
+				3520
+			],
+			"layer": "floor",
+			"_wave": "south"
+		},
+		{
+			"id": "rr_kiosk",
+			"asset": "road.kiosk",
+			"pos": [
+				770,
+				3600
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					230,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_pump_1",
+			"asset": "road.pump",
+			"pos": [
+				470,
+				3500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 16
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_pump_2",
+			"asset": "road.pump",
+			"pos": [
+				610,
+				3500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 16
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_canopy",
+			"asset": "road.canopy",
+			"pos": [
+				540,
+				3500
+			],
+			"layer": "overhead",
+			"occlude": true,
+			"_wave": "south"
+		},
+		{
+			"id": "rr_car_1",
+			"asset": "road.car",
+			"pos": [
+				330,
+				3650
+			],
+			"layer": "low",
+			"rot": 22,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_car_2",
+			"asset": "road.car",
+			"pos": [
+				1150,
+				3300
+			],
+			"layer": "low",
+			"rot": 95,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_car_3",
+			"asset": "road.car",
+			"pos": [
+				1420,
+				3230
+			],
+			"layer": "low",
+			"rot": 82,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_billboard",
+			"asset": "road.billboard",
+			"pos": [
+				960,
+				3760
+			],
+			"layer": "low",
+			"rot": -12,
+			"collision": {
+				"rect": [
+					290,
+					40
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_sign_1",
+			"asset": "road.sign",
+			"pos": [
+				230,
+				3190
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_sign_2",
+			"asset": "road.sign",
+			"pos": [
+				2300,
+				3180
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"circle": 12
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_sign_3",
+			"asset": "road.sign",
+			"pos": [
+				4150,
+				3700
+			],
+			"layer": "low",
+			"rot": 200,
+			"collision": {
+				"circle": 12
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rr_pylon",
+			"asset": "prop.pylon",
+			"pos": [
+				1900,
+				3120
+			],
+			"layer": "low",
+			"rot": 8,
+			"collision": {
+				"rect": [
+					180,
+					40
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_hauler",
+			"asset": "wreck.hauler",
+			"pos": [
+				2250,
+				3850
+			],
+			"layer": "low",
+			"rot": -30,
+			"collision": {
+				"rect": [
+					260,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_wreck_1",
+			"asset": "enemy.wreck",
+			"pos": [
+				1650,
+				4100
+			],
+			"layer": "low",
+			"rot": 40,
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_wreck_2",
+			"asset": "enemy.junker_wreck",
+			"pos": [
+				2450,
+				4300
+			],
+			"layer": "low",
+			"rot": 160,
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_engine_1",
+			"asset": "prop.engine_block",
+			"pos": [
+				1500,
+				3800
+			],
+			"layer": "low",
+			"rot": 20,
+			"collision": {
+				"rect": [
+					80,
+					70
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_engine_2",
+			"asset": "prop.engine_block",
+			"pos": [
+				2050,
+				4500
+			],
+			"layer": "low",
+			"rot": 110,
+			"collision": {
+				"rect": [
+					80,
+					70
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_tires_1",
+			"asset": "prop.tire_stack",
+			"pos": [
+				1820,
+				4380
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 32
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_tires_2",
+			"asset": "prop.tire_stack",
+			"pos": [
+				2600,
+				3950
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 32
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_pile_1",
+			"asset": "prop.scrap_pile",
+			"pos": [
+				1400,
+				4250
+			],
+			"layer": "low",
+			"rot": 70,
+			"collision": {
+				"circle": 40
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_pile_2",
+			"asset": "prop.scrap_pile",
+			"pos": [
+				2300,
+				4600
+			],
+			"layer": "low",
+			"rot": 200,
+			"collision": {
+				"circle": 40
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_pile_3",
+			"asset": "prop.scrap_pile",
+			"pos": [
+				2700,
+				4250
+			],
+			"layer": "low",
+			"rot": 10,
+			"collision": {
+				"circle": 40
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_pipe",
+			"asset": "prop.pipe",
+			"pos": [
+				1650,
+				4600
+			],
+			"layer": "low",
+			"rot": -35,
+			"collision": {
+				"rect": [
+					200,
+					40
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "sf_solar",
+			"asset": "prop.solar_wreck",
+			"pos": [
+				2550,
+				3650
+			],
+			"layer": "low",
+			"rot": 25,
+			"collision": {
+				"rect": [
+					140,
+					80
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_workshop",
+			"asset": "junker.workshop",
+			"pos": [
+				5200,
+				5150
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					520,
+					350
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_shed_1",
+			"asset": "junker.shed",
+			"pos": [
+				4600,
+				4690
+			],
+			"layer": "low",
+			"rot": 6,
+			"collision": {
+				"rect": [
+					190,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_shed_2",
+			"asset": "junker.shed_b",
+			"pos": [
+				5480,
+				4600
+			],
+			"layer": "low",
+			"rot": -4,
+			"collision": {
+				"rect": [
+					190,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_shed_3",
+			"asset": "junker.shed_b",
+			"pos": [
+				4790,
+				5560
+			],
+			"layer": "low",
+			"rot": 12,
+			"collision": {
+				"rect": [
+					190,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_shed_4",
+			"asset": "junker.shed",
+			"pos": [
+				5640,
+				5560
+			],
+			"layer": "low",
+			"rot": -10,
+			"collision": {
+				"rect": [
+					190,
+					150
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_stack_1",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				4590,
+				5660
+			],
+			"layer": "low",
+			"rot": 30,
+			"collision": {
+				"rect": [
+					140,
+					110
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_stack_2",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				5470,
+				5720
+			],
+			"layer": "low",
+			"rot": 10,
+			"collision": {
+				"rect": [
+					140,
+					110
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_dead_mech_1",
+			"asset": "enemy.junker_wreck",
+			"pos": [
+				5790,
+				5650
+			],
+			"layer": "low",
+			"rot": 40,
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_dead_mech_2",
+			"asset": "enemy.wreck",
+			"pos": [
+				4180,
+				4620
+			],
+			"layer": "low",
+			"rot": -20,
+			"collision": {
+				"circle": 70
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_cooler",
+			"asset": "junker.cooler",
+			"pos": [
+				5600,
+				5150
+			],
+			"layer": "low",
+			"rot": 90,
+			"collision": {
+				"rect": [
+					150,
+					110
+				]
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "jk_generator",
+			"asset": "junker.generator",
+			"pos": [
+				4560,
+				4920
+			],
+			"layer": "low",
+			"rot": 90,
+			"collision": {
+				"rect": [
+					140,
+					96
+				]
+			},
+			"anim": "junker_machine",
+			"_wave": "south"
+		},
+		{
+			"id": "jk_tarp_1",
+			"asset": "junker.tarp",
+			"pos": [
+				5420,
+				5660
+			],
+			"layer": "overhead",
+			"rot": 4,
+			"occlude": true,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_tarp_2",
+			"asset": "junker.tarp",
+			"pos": [
+				5000,
+				5640
+			],
+			"layer": "overhead",
+			"rot": -6,
+			"occlude": true,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_barrel_1",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				4850,
+				4640
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 18
+			},
+			"anim": "fire_barrel",
+			"_wave": "south"
+		},
+		{
+			"id": "jk_barrel_2",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				5560,
+				5000
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 18
+			},
+			"anim": "fire_barrel",
+			"_wave": "south"
+		},
+		{
+			"id": "jk_barrel_3",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				5220,
+				5600
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 18
+			},
+			"anim": "fire_barrel",
+			"_wave": "south"
+		},
+		{
+			"id": "jk_insignia_gate",
+			"asset": "junker.insignia",
+			"pos": [
+				5180,
+				4300
+			],
+			"layer": "floor",
+			"_wave": "south"
+		},
+		{
+			"id": "jk_insignia_yard",
+			"asset": "junker.insignia",
+			"pos": [
+				5200,
+				4870
+			],
+			"layer": "floor",
+			"rot": 15,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_light_1",
+			"asset": "junker.lamp",
+			"pos": [
+				4990,
+				4530
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_light_2",
+			"asset": "junker.lamp",
+			"pos": [
+				5380,
+				4540
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_light_3",
+			"asset": "junker.lamp",
+			"pos": [
+				4500,
+				5060
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_light_4",
+			"asset": "junker.lamp",
+			"pos": [
+				5560,
+				4990
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_light_5",
+			"asset": "junker.lamp",
+			"pos": [
+				5200,
+				5760
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_clank",
+			"asset": "junker.lamp",
+			"pos": [
+				5000,
+				5320
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.62,
+				0.3
+			],
+			"light_energy": 0.38,
+			"light_scale": 1.8,
+			"anim": "clank",
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_3900_600",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				3900,
+				600
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_4200_2300",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4200,
+				2300
+			],
+			"layer": "low",
+			"rot": 80,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_6200_1900",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				6200,
+				1900
+			],
+			"layer": "low",
+			"rot": 200,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_2900_3000",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2900,
+				3000
+			],
+			"layer": "low",
+			"rot": 40,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_1000_4700",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				1000,
+				4700
+			],
+			"layer": "low",
+			"rot": 300,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_3300_4600",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				3300,
+				4600
+			],
+			"layer": "low",
+			"rot": 120,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_6400_3000",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				6400,
+				3000
+			],
+			"layer": "low",
+			"rot": 30,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_-800_4200",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				-800,
+				4200
+			],
+			"layer": "low",
+			"rot": 160,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_200_5400",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				200,
+				5400
+			],
+			"layer": "low",
+			"rot": 60,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_2600_5500",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2600,
+				5500
+			],
+			"layer": "low",
+			"rot": 250,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
+		},
+		{
+			"id": "rock_s_-1700_5000",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				-1700,
+				5000
+			],
+			"layer": "low",
+			"rot": 15,
+			"collision": {
+				"circle": 50
+			},
+			"_wave": "south"
 		}
 	],
 	"scatter": [
@@ -1225,6 +2698,195 @@
 				"prop.mineral_b",
 				"prop.mineral_a"
 			]
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 41,
+			"count": 150,
+			"area": [
+				-300,
+				2600,
+				7000,
+				3500
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.rock_small_b",
+				"prop.stones",
+				"prop.stones",
+				"prop.rock_small_a"
+			],
+			"_wave": "south"
+		},
+		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
 		}
 	],
 	"enemies": [
@@ -1286,6 +2948,103 @@
 					560
 				]
 			]
+		},
+		{
+			"id": "junker_yard_guard",
+			"type": "junker",
+			"spawn": [
+				4950,
+				4650
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					4950,
+					4700
+				],
+				[
+					5300,
+					4760
+				],
+				[
+					5750,
+					4950
+				],
+				[
+					5750,
+					5450
+				],
+				[
+					5100,
+					5450
+				],
+				[
+					4740,
+					5150
+				],
+				[
+					4820,
+					4760
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "junker_gate_guard",
+			"type": "junker",
+			"spawn": [
+				5000,
+				4100
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					4950,
+					4120
+				],
+				[
+					5420,
+					4120
+				],
+				[
+					5420,
+					3920
+				],
+				[
+					4950,
+					3920
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "junker_parked",
+			"type": "junker",
+			"spawn": [
+				5730,
+				4820
+			],
+			"heading_deg": 210,
+			"parked": true,
+			"pilot_spawn": [
+				5820,
+				4750
+			],
+			"patrol": [
+				[
+					5730,
+					4820
+				],
+				[
+					5650,
+					5000
+				],
+				[
+					5420,
+					4820
+				]
+			],
+			"_wave": "south"
 		}
 	],
 	"scatter_avoid": [
@@ -1324,6 +3083,252 @@
 			180,
 			320,
 			280
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			4250,
+			4250,
+			1900,
+			1800
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
 		]
 	],
 	"salvage": [
@@ -1346,6 +3351,72 @@
 			"item": "radiator_core",
 			"count": 1,
 			"label": "SALVAGE_HAULER"
+		},
+		{
+			"id": "salvage_cooling_core",
+			"pos": [
+				5050,
+				1350
+			],
+			"item": "radiator_core",
+			"count": 1,
+			"label": "SALVAGE_COOLING_STATION",
+			"_wave": "south"
+		},
+		{
+			"id": "salvage_cooling_scrap",
+			"pos": [
+				4840,
+				1540
+			],
+			"item": "scrap",
+			"count": 3,
+			"label": "SALVAGE_COOLING_STATION",
+			"_wave": "south"
+		},
+		{
+			"id": "salvage_roadside",
+			"pos": [
+				900,
+				3560
+			],
+			"item": "scrap",
+			"count": 2,
+			"label": "SALVAGE_ROADSIDE",
+			"_wave": "south"
+		},
+		{
+			"id": "salvage_sf_1",
+			"pos": [
+				1720,
+				3880
+			],
+			"item": "scrap",
+			"count": 3,
+			"label": "SALVAGE_SCRAP_FIELD",
+			"_wave": "south"
+		},
+		{
+			"id": "salvage_sf_2",
+			"pos": [
+				2180,
+				4060
+			],
+			"item": "scrap",
+			"count": 3,
+			"label": "SALVAGE_SCRAP_FIELD",
+			"_wave": "south"
+		},
+		{
+			"id": "salvage_sf_core",
+			"pos": [
+				1960,
+				4260
+			],
+			"item": "radiator_core",
+			"count": 1,
+			"label": "SALVAGE_SCRAP_FIELD",
+			"_wave": "south"
 		}
 	],
 	"terrain": {
@@ -1455,6 +3526,212 @@
 						2800
 					]
 				]
+			},
+			{
+				"id": "ravine_west",
+				"tile": "ground.rock_top",
+				"height": 60,
+				"rough": 34,
+				"seed": 21,
+				"polygon": [
+					[
+						3002,
+						2802
+					],
+					[
+						3272,
+						3022
+					],
+					[
+						3505,
+						3265
+					],
+					[
+						3720,
+						3468
+					],
+					[
+						3843,
+						3683
+					],
+					[
+						3674,
+						3782
+					],
+					[
+						3568,
+						3591
+					],
+					[
+						3367,
+						3403
+					],
+					[
+						3132,
+						3157
+					],
+					[
+						2862,
+						2878
+					]
+				],
+				"_wave": "south"
+			},
+			{
+				"id": "ravine_east",
+				"tile": "ground.rock_top",
+				"height": 60,
+				"rough": 34,
+				"seed": 22,
+				"polygon": [
+					[
+						3358,
+						2458
+					],
+					[
+						3568,
+						2738
+					],
+					[
+						3795,
+						2975
+					],
+					[
+						4040,
+						3212
+					],
+					[
+						4197,
+						3477
+					],
+					[
+						4469,
+						3318
+					],
+					[
+						4285,
+						3014
+					],
+					[
+						4018,
+						2752
+					],
+					[
+						3795,
+						2520
+					],
+					[
+						3524,
+						2239
+					]
+				],
+				"_wave": "south"
+			},
+			{
+				"id": "junker_ridge_east",
+				"tile": "ground.rock_top",
+				"height": 70,
+				"rough": 40,
+				"seed": 31,
+				"polygon": [
+					[
+						6250,
+						3800
+					],
+					[
+						6900,
+						3600
+					],
+					[
+						6900,
+						6400
+					],
+					[
+						6050,
+						6400
+					],
+					[
+						6300,
+						5900
+					],
+					[
+						6400,
+						5350
+					],
+					[
+						6300,
+						4500
+					]
+				],
+				"_wave": "south"
+			},
+			{
+				"id": "junker_ridge_south",
+				"tile": "ground.rock_top",
+				"height": 70,
+				"rough": 40,
+				"seed": 32,
+				"polygon": [
+					[
+						3500,
+						6400
+					],
+					[
+						3900,
+						6100
+					],
+					[
+						4500,
+						6060
+					],
+					[
+						5100,
+						6120
+					],
+					[
+						5700,
+						6040
+					],
+					[
+						6100,
+						6400
+					]
+				],
+				"_wave": "south"
+			},
+			{
+				"id": "junker_ridge_west",
+				"tile": "ground.rock_top",
+				"height": 70,
+				"rough": 36,
+				"seed": 33,
+				"polygon": [
+					[
+						3500,
+						4900
+					],
+					[
+						3850,
+						4780
+					],
+					[
+						4080,
+						5150
+					],
+					[
+						3980,
+						5650
+					],
+					[
+						3700,
+						6000
+					],
+					[
+						3500,
+						6100
+					]
+				],
+				"_wave": "south"
 			}
 		],
 		"covers": [
@@ -1561,6 +3838,104 @@
 						]
 					]
 				]
+			},
+			{
+				"id": "junker_walls",
+				"tile": "junker.wall_strip",
+				"width": 30,
+				"segments": [
+					[
+						[
+							4500,
+							4520
+						],
+						[
+							4960,
+							4440
+						]
+					],
+					[
+						[
+							5410,
+							4440
+						],
+						[
+							5860,
+							4540
+						]
+					],
+					[
+						[
+							5860,
+							4540
+						],
+						[
+							5960,
+							4900
+						]
+					],
+					[
+						[
+							5960,
+							4900
+						],
+						[
+							5940,
+							5260
+						]
+					],
+					[
+						[
+							5910,
+							5560
+						],
+						[
+							5760,
+							5820
+						]
+					],
+					[
+						[
+							5760,
+							5820
+						],
+						[
+							5200,
+							5900
+						]
+					],
+					[
+						[
+							5200,
+							5900
+						],
+						[
+							4660,
+							5820
+						]
+					],
+					[
+						[
+							4660,
+							5820
+						],
+						[
+							4460,
+							5470
+						]
+					],
+					[
+						[
+							4410,
+							5060
+						],
+						[
+							4500,
+							4520
+						]
+					]
+				],
+				"_wave": "south"
 			}
 		],
 		"cables": [
@@ -1633,7 +4008,375 @@
 					-20,
 					10
 				]
+			},
+			{
+				"from": [
+					4560,
+					4970
+				],
+				"to": [
+					4500,
+					5060
+				],
+				"sag": [
+					10,
+					20
+				],
+				"_wave": "south"
+			},
+			{
+				"from": [
+					4570,
+					4860
+				],
+				"to": [
+					4990,
+					4530
+				],
+				"sag": [
+					-40,
+					30
+				],
+				"_wave": "south"
+			},
+			{
+				"from": [
+					4590,
+					4980
+				],
+				"to": [
+					5000,
+					5320
+				],
+				"sag": [
+					30,
+					0
+				],
+				"_wave": "south"
+			},
+			{
+				"from": [
+					4990,
+					4530
+				],
+				"to": [
+					5380,
+					4540
+				],
+				"sag": [
+					0,
+					40
+				],
+				"_wave": "south"
+			},
+			{
+				"from": [
+					5380,
+					4540
+				],
+				"to": [
+					5560,
+					4990
+				],
+				"sag": [
+					40,
+					-10
+				],
+				"_wave": "south"
+			},
+			{
+				"from": [
+					4580,
+					4985
+				],
+				"to": [
+					5200,
+					5760
+				],
+				"sag": [
+					-60,
+					40
+				],
+				"_wave": "south"
 			}
 		]
+	},
+	"turrets": [
+		{
+			"id": "jk_turret_gate_w",
+			"pos": [
+				4870,
+				4380
+			],
+			"facing_deg": -10,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_turret_gate_e",
+			"pos": [
+				5500,
+				4400
+			],
+			"facing_deg": 15,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_turret_west",
+			"pos": [
+				4290,
+				4930
+			],
+			"facing_deg": 260,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_turret_east",
+			"pos": [
+				6020,
+				5080
+			],
+			"facing_deg": 90,
+			"_wave": "south"
+		},
+		{
+			"id": "jk_turret_south",
+			"pos": [
+				5200,
+				5990
+			],
+			"facing_deg": 180,
+			"_wave": "south"
+		}
+	],
+	"areas": [
+		{
+			"id": "area_refuge",
+			"name": "AREA_REFUGE",
+			"polygon": [
+				[
+					-2000,
+					300
+				],
+				[
+					-1100,
+					300
+				],
+				[
+					-1100,
+					1350
+				],
+				[
+					-2000,
+					1350
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_cooling",
+			"name": "AREA_COOLING_STATION",
+			"polygon": [
+				[
+					4300,
+					500
+				],
+				[
+					5900,
+					500
+				],
+				[
+					5900,
+					1800
+				],
+				[
+					4300,
+					1800
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_ravine",
+			"name": "AREA_RAVINE",
+			"polygon": [
+				[
+					3006,
+					2739
+				],
+				[
+					3276,
+					3019
+				],
+				[
+					3509,
+					3261
+				],
+				[
+					3724,
+					3465
+				],
+				[
+					3847,
+					3681
+				],
+				[
+					4193,
+					3479
+				],
+				[
+					4036,
+					3215
+				],
+				[
+					3791,
+					2979
+				],
+				[
+					3564,
+					2741
+				],
+				[
+					3294,
+					2461
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_roadside",
+			"name": "AREA_ROADSIDE",
+			"polygon": [
+				[
+					150,
+					3150
+				],
+				[
+					1100,
+					3150
+				],
+				[
+					1100,
+					3800
+				],
+				[
+					150,
+					3800
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_scrapfield",
+			"name": "AREA_SCRAP_FIELD",
+			"polygon": [
+				[
+					1300,
+					3650
+				],
+				[
+					2800,
+					3650
+				],
+				[
+					2800,
+					4700
+				],
+				[
+					1300,
+					4700
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_junkers",
+			"name": "AREA_JUNKER_TERRITORY",
+			"polygon": [
+				[
+					3700,
+					3900
+				],
+				[
+					6900,
+					3700
+				],
+				[
+					6900,
+					6300
+				],
+				[
+					3600,
+					6300
+				]
+			],
+			"_wave": "south"
+		},
+		{
+			"id": "area_junker_base",
+			"name": "AREA_JUNKER_BASE",
+			"polygon": [
+				[
+					4300,
+					4350
+				],
+				[
+					6000,
+					4350
+				],
+				[
+					6000,
+					5950
+				],
+				[
+					4300,
+					5950
+				]
+			],
+			"_wave": "south"
+		}
+	],
+	"teleports": {
+		"refuge": {
+			"pos": [
+				-1440,
+				930
+			],
+			"heading_deg": 0
+		},
+		"junker_base": {
+			"pos": [
+				5180,
+				3860
+			],
+			"heading_deg": 180
+		},
+		"cooling_station": {
+			"pos": [
+				4400,
+				1260
+			],
+			"heading_deg": 90
+		},
+		"scrap_field": {
+			"pos": [
+				1900,
+				3640
+			],
+			"heading_deg": 180
+		},
+		"roadside": {
+			"pos": [
+				620,
+				3220
+			],
+			"heading_deg": 90
+		},
+		"ravine": {
+			"pos": [
+				3150,
+				2560
+			],
+			"heading_deg": 135
+		}
 	}
 }

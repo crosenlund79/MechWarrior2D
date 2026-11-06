@@ -45,7 +45,11 @@ try:
     r = g.cmd("drive_to 2520 1100 40")
     check(r["ok"], "mech reaches the wreck site")
     # Keep the engine working hard (tight circles) until the damaged radiator gives out.
-    for _ in range(20):
+    for k in range(20):
+        if k >= 6:   # heat impairment slows a hot mech; firing the guns pushes it over the edge
+            m = g.state()["game"]["mech"]["pos"]
+            g.cmd(f"aim {m[0]} {m[1] - 400}")
+            st = g.cmd("fire_for 2")["state"]
         st = g.cmd("drive 1 1 3")["state"]
         if st["game"]["stats"]["overheats"] > 0:
             break

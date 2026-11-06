@@ -46,7 +46,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			Session.debug("give_part")
 		KEY_F9:
 			Session.debug("suit", 100.0)
-		KEY_F10:
+		KEY_F12:
 			Session.debug("suit", 5.0)
 		KEY_F11:
 			Session.debug("timescale", 1.0 if Session.time_scale > 1.0 else 4.0)
@@ -75,6 +75,6 @@ func _process(_delta: float) -> void:
 		"pos mech=(%.0f,%.0f) pilot=(%.0f,%.0f)  task=%s" % [m["pos"][0], m["pos"][1], p["pos"][0], p["pos"][1], Session.task.get("type", "-")],
 		"save: %s%s" % [Session.save_status, "  (recovered from backup)" if Session.recovered_from_backup else ""],
 		"assets: overrides=%d fallbacks=%d  stats=%s" % [Assets.override_count(), Assets.fallback_count(), Session.state["stats"]],
-		"F4 reload art  F6 +15°C  F7 damage radiator  F8 give core  F9 refill suit  F10 suit→5  F11 time x4",
+		"F4 reload art  F6 +15°C  F7 damage radiator  F8 give core  F9 refill suit  F12 suit→5  F11 time x4",
 	]
 	_label.text = "\n".join(lines)

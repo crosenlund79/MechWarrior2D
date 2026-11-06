@@ -24,6 +24,8 @@ Never modify another project. Never alter `backup/*` branches.
 - `python3 tools/regression.py` (real game process: loop, restart persistence, overrides, settings)
 - `python3 tools/regression_encounter.py` (enemy AI, combat, wreck salvage, shade, restart persistence)
 - `python3 tools/regression_refuge.py` (housing/twin guns, canyon + overhang, workshop, music, parked-mech encounter)
+- `python3 tools/regression_junkers.py` (recoil, sandstorm, F10 dev menu, exploration, Junker base, turrets, defenders)
+- Map layout changes: edit `tools/build_world_south.py` (south/east content) and run it — it validates roads vs rock/props.
 - `python3 tools/check_script_guides.py` — update EN + DA script guides for new/removed scripts
 
 ## Architecture rules
@@ -34,6 +36,8 @@ Never modify another project. Never alter `backup/*` branches.
   Settings never go in saves.
 - Art/audio: `assets/templates/<dir>/template_<name>` overridden by `assets/overrides/<dir>/<name>`,
   `<exe>/overrides/...` or `user://overrides/...`. Art never drives collision or gameplay.
+- Developer cheats (F10) live in `Session.dev` only; dev-spawned mechs carry `"dev": true` and are stripped
+  from saves. Never persist cheat state.
 - Multiplayer is NOT approved. Any future multiplayer must be host-authoritative.
 - No speculative systems. Scope limits: see `docs/DESIGN_REGISTER.md` (DEFERRED).
 

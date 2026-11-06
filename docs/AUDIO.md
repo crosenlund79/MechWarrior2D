@@ -28,6 +28,18 @@ The creator's uploads live in `assets/audio inbox/`. They are kept **untouched**
 | `sfx.climb` | `assets/audio inbox/Body drop/Body Drop 2.wav` | shot | Enemy pilot climbs onto the hull |
 | `sfx.pilot_shout` | `assets/audio inbox/Hero Voice - Male/Enemy Spotted.wav` | shot | Enemy pilot reacts to the player |
 | `ui.click` | `assets/audio inbox/UI sounds/Simple Click Sound 1.wav` | shot | Menu buttons |
+| `sfx.gun_cycle` | `assets/audio inbox/Gun sounds/Mag Out.wav` | shot | Twin guns: bolt / mechanical cycling layer |
+| `sfx.gun_ring` | `assets/audio inbox/Bullet impact/Metal Heavy 2.wav` | shot | Twin guns: metallic resonance of the housing (pitched far down) |
+| `sfx.gun_report` | `assets/audio inbox/Impact/Impact Classic 2.wav` | shot | Twin guns: low distant report (every other shot) |
+| `amb.storm` | `assets/audio inbox/Ambiance/Ambiance_Storm_02.wav` | loop | Sandstorm bed (fades in with storm intensity) |
+| `sfx.gust` | `assets/audio inbox/Impact/Sweep 1.wav` | shot | Storm gust (pitched down) |
+| `sfx.gust_b` | `assets/audio inbox/Impact/Sweep 3.wav` | shot | Storm gust variant |
+| `sfx.sand_hit` | `assets/audio inbox/Bullet impact/Grass 1.wav` | shot | Sand ticking against the hull in a storm |
+| `sfx.turret_fire` | `assets/audio inbox/Gun sounds/Assault Rifle Shot 11.wav` | shot | Junker turret shot (pitched down) |
+| `sfx.turret_destroyed` | `assets/audio inbox/Explosives/C4 Explosion 2.wav` | shot | Junker turret destroyed |
+| `amb.fire_barrel` | `assets/audio inbox/General effects/Campfire Fire Loop 3.wav` | loop | Junker burn barrels (positional) |
+| `sfx.clank` | `assets/audio inbox/Bullet impact/Metal Heavy 3.wav` | shot | Junker workshop clanks (random, positional, pitched down) |
+| `amb.junker_machine` | `assets/audio inbox/General effects/Lava Bubbling 4.wav` | loop | Junker generator / machinery churn (positional) |
 
 All other inbox files are unused for now. They include voices, most UI sounds, fire and lava,
 glass and wood impacts, and the second storm ambience.
@@ -60,3 +72,28 @@ glass and wood impacts, and the second storm ambience.
   - metal impacts, armour-break on hull hits, coolant hiss on radiator hits
 - **Enemy encounter (positional):** pilot shout, climb + cockpit clack, a rising startup hum plus
   power-up, then actuator clunks.
+
+## Heavy twin guns
+Each round plays four layers on the **Weapons** bus:
+1. **Blast:** Machine Gun Shot 5 or 3, pitched to about 0.74.
+2. **Housing ring:** Metal Heavy 2 at about 0.45.
+3. **Bolt cycling:** Mag Out at about 0.8, 85 ms later.
+4. **Low distant report:** Impact Classic 2 at about 0.66, on every other shot.
+
+The Weapons bus has a compressor (−16 dB, 4:1) and a hard limiter at −1.5 dB, so alternating barrels
+stay heavy without clipping. Positional enemy and turret sounds keep using `AudioStreamPlayer2D`.
+
+## Sandstorm
+- **Layers:**
+  - the storm bed (Ambiance_Storm_02) fades in with the storm intensity you feel
+  - the existing wind gets louder
+  - gusts (Sweep 1 and 3, pitched down) and sand ticks (Grass 1) play at a rate set by intensity
+- **Muffling:** the SFX bus low-pass closes from 20 kHz to about 4.8 kHz, so the mech sounds enclosed.
+  Distant positional one-shots lose up to 12 dB.
+- **Shelter:** the refuge has a storm exposure of 0.08, so inside it the storm is almost silent.
+
+## Southern Junkers ambience (positional)
+- Burn barrels: crackling fire (Campfire Fire Loop 3).
+- Generator rig: heavy churn (Lava Bubbling 4).
+- Random workshop clanks: Metal Heavy 3, pitched down.
+- Turret shots: Assault Rifle Shot 11, pitched down. Turret destruction: C4 Explosion 2.

@@ -19,6 +19,8 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/sim/combat.gd` | Projectiles as data, cooling vs structure hit areas, damage. |
 | `src/sim/enemy_ai.gd` | Scrapper AI: patrol, detect (heat-based), engage with telegraph, disengage. |
 | `src/sim/encounter.gd` | Parked-mech encounter: pilot reaction, boarding, startup, flee, load resolution. |
+| `src/sim/weather.gd` | CLEAR/SANDSTORM weather: gradual build-up, zone storm exposure, cooling/suit/visibility effects. |
+| `src/sim/turret.gd` | Junker perimeter turret: rate-limited aim, line of sight, telegraphed slow fire. |
 | `src/persistence/save_codec.gd` | Save envelope, validation, migrations. |
 | `src/persistence/save_service.gd` | Autoload `Saves`: slot files, backup recovery, summaries. |
 | `src/presentation/app/main.gd` | Root: switches menu ↔ game, starts the autotest driver. |
@@ -36,6 +38,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/world/enemy_view.gd` | Enemy mech: movement, telegraph line, damage FX, wreck state. |
 | `src/presentation/world/projectiles_view.gd` | Draws projectiles; impact, cooling-hit and muzzle effects. |
 | `src/presentation/world/terrain_view.gd` | Rock masses, fading overhead covers, built walls and power cables. |
+| `src/presentation/world/turret_view.gd` | Turret visuals: rotating housing, laser telegraph, recoil, damage, wreck. |
 | `src/presentation/world/light_kit.gd` | Shared glow texture, rotating-light and shadow shaders. |
 | `src/presentation/world/fx_kit.gd` | Particle presets (steam, dust). |
 | `src/presentation/world/atmosphere.gd` | Phase B atmosphere: day light, colour grade, dust haze, heat shimmer, dust particles. |
@@ -45,6 +48,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/ui/hud.gd` | HUD: mech, suit, objective, prompts, cargo, notices, danger edge. |
 | `src/presentation/ui/objective_pointer.gd` | Edge chevron / ring toward the current objective. |
 | `src/presentation/ui/reticle.gd` | Mouse reticle while piloting. |
+| `src/presentation/ui/dev_menu.gd` | F10 developer/cheat menu (runtime only, never saved). |
 | `src/presentation/ui/main_menu.gd` | Continue / new game with slot picker / settings / quit. |
 | `src/presentation/ui/settings_menu.gd` | Audio, display, UI scale, zoom, language, key remapping, asset reload. |
 | `src/presentation/ui/pause_menu.gd` | Resume / save / settings / quit. |
@@ -58,6 +62,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/regression_refuge.py` | Runtime regression: housing/twin guns, canyon, overhang, workshop, refuge heat, music, parked-mech encounter. |
 | `tools/shots_refuge.py` | Refuge screenshots + boarding sequence sheet/GIF. |
 | `tools/import_audio.py` | Imports selected creator audio from the inbox into templates. |
+| `tools/regression_junkers.py` | Runtime regression: recoil, sandstorm, dev menu, exploration, Junker base, turrets, defenders. |
+| `tools/shots_junkers.py` | Screenshots + recoil GIF for the Southern Junkers iteration. |
+| `tools/build_world_south.py` | Writes and validates the expanded map / Junker base in the location file. |
 | `tools/shots.py` | Captures screenshots of the running game. |
 | `tools/shots_b.py` | Phase B screenshots; `--backdrop` captures the menu backdrop template. |
 | `tools/art/inkkit.py` | Ink pipeline (Red Thaw kit + desertize, top-down finish, seamless tiles). |

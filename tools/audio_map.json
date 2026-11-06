@@ -1,20 +1,160 @@
 {
 	"_doc": "Creator audio (assets/audio inbox, kept untouched) → implemented templates. mode: copy (as is), loop (crossfaded loop → ogg), shot (mono, trimmed → wav). Run python3 tools/import_audio.py.",
-	"music.theme":      {"src": "Theme/Where the Ice Once Lay.mp3", "mode": "copy", "use": "Main menu; repeats with a crossfade"},
-	"music.theme_alt":  {"src": "Theme/Where the Ice Once Lay - Alternate.mp3", "mode": "copy", "use": "Occasional cue during calm desert exploration"},
-	"amb.wind":         {"src": "Ambiance/Ambiance_Storm_01.wav", "mode": "loop", "use": "Open-desert wind / blowing sand (filtered and quieter in the canyon and refuge)"},
-	"amb.distant":      {"src": "Ambiance/Sci Fi Ambiences - Other World.wav", "mode": "loop", "max_seconds": 80, "use": "Very quiet distant mechanical ambience, open desert only"},
-	"sfx.gun_fire":     {"src": "Gun sounds/Machine Gun Shot 5.wav", "mode": "shot", "max_seconds": 1.2, "use": "Player twin guns (left barrel)"},
-	"sfx.gun_fire_b":   {"src": "Gun sounds/Machine Gun Shot 3.wav", "mode": "shot", "max_seconds": 1.2, "use": "Player twin guns (right barrel)"},
-	"sfx.enemy_fire":   {"src": "Gun sounds/Assault Rifle Shot 13.wav", "mode": "shot", "max_seconds": 1.6, "use": "Scrapper cannon (played pitched down)"},
-	"sfx.impact_metal": {"src": "Bullet impact/Metal Heavy 1.wav", "mode": "shot", "use": "Shots hitting a mech"},
-	"sfx.impact":       {"src": "Bullet impact/Dirt 2.wav", "mode": "shot", "use": "Shots hitting rock / ground props"},
-	"sfx.cooling_hit":  {"src": "General effects/Fire Extinguisher Loop 4.wav", "mode": "shot", "max_seconds": 0.9, "use": "Radiator hit — coolant spray hiss"},
-	"sfx.armor_break":  {"src": "Gun sounds/Armor Break 1.wav", "mode": "shot", "use": "Player hull damaged"},
-	"sfx.wreck":        {"src": "Explosives/C4 Explosion.wav", "mode": "shot", "max_seconds": 3.5, "use": "Enemy mech disabled"},
-	"sfx.power_up":     {"src": "UI sounds/Power up 8.wav", "mode": "shot", "use": "Enemy mech power-up layer"},
-	"sfx.hatch_close":  {"src": "Gun sounds/Mag In.wav", "mode": "shot", "use": "Enemy cockpit closes after boarding"},
-	"sfx.climb":        {"src": "Body drop/Body Drop 2.wav", "mode": "shot", "use": "Enemy pilot climbs onto the hull"},
-	"sfx.pilot_shout":  {"src": "Hero Voice - Male/Enemy Spotted.wav", "mode": "shot", "use": "Enemy pilot reacts to the player"},
-	"ui.click":         {"src": "UI sounds/Simple Click Sound 1.wav", "mode": "shot", "use": "Menu buttons"}
+	"music.theme": {
+		"src": "Theme/Where the Ice Once Lay.mp3",
+		"mode": "copy",
+		"use": "Main menu; repeats with a crossfade"
+	},
+	"music.theme_alt": {
+		"src": "Theme/Where the Ice Once Lay - Alternate.mp3",
+		"mode": "copy",
+		"use": "Occasional cue during calm desert exploration"
+	},
+	"amb.wind": {
+		"src": "Ambiance/Ambiance_Storm_01.wav",
+		"mode": "loop",
+		"use": "Open-desert wind / blowing sand (filtered and quieter in the canyon and refuge)"
+	},
+	"amb.distant": {
+		"src": "Ambiance/Sci Fi Ambiences - Other World.wav",
+		"mode": "loop",
+		"max_seconds": 80,
+		"use": "Very quiet distant mechanical ambience, open desert only"
+	},
+	"sfx.gun_fire": {
+		"src": "Gun sounds/Machine Gun Shot 5.wav",
+		"mode": "shot",
+		"max_seconds": 1.2,
+		"use": "Player twin guns (left barrel)"
+	},
+	"sfx.gun_fire_b": {
+		"src": "Gun sounds/Machine Gun Shot 3.wav",
+		"mode": "shot",
+		"max_seconds": 1.2,
+		"use": "Player twin guns (right barrel)"
+	},
+	"sfx.enemy_fire": {
+		"src": "Gun sounds/Assault Rifle Shot 13.wav",
+		"mode": "shot",
+		"max_seconds": 1.6,
+		"use": "Scrapper cannon (played pitched down)"
+	},
+	"sfx.impact_metal": {
+		"src": "Bullet impact/Metal Heavy 1.wav",
+		"mode": "shot",
+		"use": "Shots hitting a mech"
+	},
+	"sfx.impact": {
+		"src": "Bullet impact/Dirt 2.wav",
+		"mode": "shot",
+		"use": "Shots hitting rock / ground props"
+	},
+	"sfx.cooling_hit": {
+		"src": "General effects/Fire Extinguisher Loop 4.wav",
+		"mode": "shot",
+		"max_seconds": 0.9,
+		"use": "Radiator hit — coolant spray hiss"
+	},
+	"sfx.armor_break": {
+		"src": "Gun sounds/Armor Break 1.wav",
+		"mode": "shot",
+		"use": "Player hull damaged"
+	},
+	"sfx.wreck": {
+		"src": "Explosives/C4 Explosion.wav",
+		"mode": "shot",
+		"max_seconds": 3.5,
+		"use": "Enemy mech disabled"
+	},
+	"sfx.power_up": {
+		"src": "UI sounds/Power up 8.wav",
+		"mode": "shot",
+		"use": "Enemy mech power-up layer"
+	},
+	"sfx.hatch_close": {
+		"src": "Gun sounds/Mag In.wav",
+		"mode": "shot",
+		"use": "Enemy cockpit closes after boarding"
+	},
+	"sfx.climb": {
+		"src": "Body drop/Body Drop 2.wav",
+		"mode": "shot",
+		"use": "Enemy pilot climbs onto the hull"
+	},
+	"sfx.pilot_shout": {
+		"src": "Hero Voice - Male/Enemy Spotted.wav",
+		"mode": "shot",
+		"use": "Enemy pilot reacts to the player"
+	},
+	"ui.click": {
+		"src": "UI sounds/Simple Click Sound 1.wav",
+		"mode": "shot",
+		"use": "Menu buttons"
+	},
+	"sfx.gun_cycle": {
+		"src": "Gun sounds/Mag Out.wav",
+		"mode": "shot",
+		"use": "Twin guns: bolt / mechanical cycling layer"
+	},
+	"sfx.gun_ring": {
+		"src": "Bullet impact/Metal Heavy 2.wav",
+		"mode": "shot",
+		"use": "Twin guns: metallic resonance of the housing (pitched far down)"
+	},
+	"sfx.gun_report": {
+		"src": "Impact/Impact Classic 2.wav",
+		"mode": "shot",
+		"max_seconds": 1.8,
+		"use": "Twin guns: low distant report (every other shot)"
+	},
+	"amb.storm": {
+		"src": "Ambiance/Ambiance_Storm_02.wav",
+		"mode": "loop",
+		"use": "Sandstorm bed (fades in with storm intensity)"
+	},
+	"sfx.gust": {
+		"src": "Impact/Sweep 1.wav",
+		"mode": "shot",
+		"max_seconds": 3.0,
+		"use": "Storm gust (pitched down)"
+	},
+	"sfx.gust_b": {
+		"src": "Impact/Sweep 3.wav",
+		"mode": "shot",
+		"max_seconds": 3.0,
+		"use": "Storm gust variant"
+	},
+	"sfx.sand_hit": {
+		"src": "Bullet impact/Grass 1.wav",
+		"mode": "shot",
+		"use": "Sand ticking against the hull in a storm"
+	},
+	"sfx.turret_fire": {
+		"src": "Gun sounds/Assault Rifle Shot 11.wav",
+		"mode": "shot",
+		"max_seconds": 1.4,
+		"use": "Junker turret shot (pitched down)"
+	},
+	"sfx.turret_destroyed": {
+		"src": "Explosives/C4 Explosion 2.wav",
+		"mode": "shot",
+		"max_seconds": 3.2,
+		"use": "Junker turret destroyed"
+	},
+	"amb.fire_barrel": {
+		"src": "General effects/Campfire Fire Loop 3.wav",
+		"mode": "loop",
+		"max_seconds": 30,
+		"use": "Junker burn barrels (positional)"
+	},
+	"sfx.clank": {
+		"src": "Bullet impact/Metal Heavy 3.wav",
+		"mode": "shot",
+		"use": "Junker workshop clanks (random, positional, pitched down)"
+	},
+	"amb.junker_machine": {
+		"src": "General effects/Lava Bubbling 4.wav",
+		"mode": "loop",
+		"use": "Junker generator / machinery churn (positional)"
+	}
 }

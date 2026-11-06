@@ -21,6 +21,7 @@ const ACTIONS := {
 	"dev_overlay": [KEY_F3],
 	"pause": [KEY_ESCAPE],
 	"fire": [KEY_SPACE],
+	"dev_menu": [KEY_F10],
 }
 const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "interact", "service", "fire", "zoom_in", "zoom_out"]
 

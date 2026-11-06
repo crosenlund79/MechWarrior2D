@@ -17,6 +17,7 @@ var _door_open := Vector2.ZERO
 var _door_f := 0.0
 var lamp: PointLight2D
 var _hum: AudioStreamPlayer2D
+var _clank := 3.0
 
 
 func setup(d: Dictionary) -> void:
@@ -67,8 +68,23 @@ func setup(d: Dictionary) -> void:
 		g.position = Vector2(-77, 26)
 		add_child(g)
 		_hum = Audio.positional_loop(self, "sfx.generator_hum", -2.0, 1500.0, 1.6)
+	if anim == "junker_machine":
+		var sm2 := FxKit.damage_smoke()
+		sm2.emitting = true
+		sm2.amount = 14
+		add_child(sm2)
+		_hum = Audio.positional_loop(self, "amb.junker_machine", -4.0, 1300.0, 1.5)
+	if anim == "fire_barrel":
+		var fire := FxKit.fire()
+		add_child(fire)
+		var fl := LightKit.glow(Color(1.0, 0.55, 0.2), 1.1, 0.5)
+		add_child(fl)
+		lamp = fl
+		_hum = Audio.positional_loop(self, "amb.fire_barrel", -10.0, 600.0, 2.0)
 	if bool(d.get("light", false)):
-		lamp = LightKit.glow(Color(1.0, 0.8, 0.5), 2.6, 0.85)
+		var lc: Array = d.get("light_color", [1.0, 0.8, 0.5])
+		lamp = LightKit.glow(Color(lc[0], lc[1], lc[2]), float(d.get("light_scale", 2.6)), float(d.get("light_energy", 0.85)))
+		lamp.set_meta("base", float(d.get("light_energy", 0.85)))
 		add_child(lamp)
 		_hum = Audio.positional_loop(self, "sfx.electric_hum", -14.0, 260.0, 2.0)
 	Assets.reloaded.connect(_on_reload)
@@ -134,7 +150,18 @@ func animate(delta: float) -> void:
 			_door_f = move_toward(_door_f, 1.0 if near else 0.0, delta * 2.5)
 			sprite.get_parent().position = _door_open * smoothstep(0.0, 1.0, _door_f)
 	if lamp:
-		lamp.energy = 0.8 + 0.06 * sin(_t * 9.0) + (0.12 * sin(_t * 31.0) if fmod(_t, 7.3) < 0.25 else 0.0)
+		if anim == "fire_barrel":
+			lamp.energy = 0.45 + 0.15 * sin(_t * 13.0) * sin(_t * 7.3)
+		else:
+			var base := float(lamp.get_meta("base", 0.85))
+			lamp.energy = base * (0.95 + 0.07 * sin(_t * 9.0)) + (0.12 * base * sin(_t * 31.0) if fmod(_t, 7.3) < 0.25 else 0.0)
+	if anim == "clank":
+		_clank -= delta
+		if _clank <= 0.0:
+			_clank = randf_range(2.5, 7.0)
+			Audio.play_at("sfx.clank", global_position, get_parent(), -10.0, randf_range(0.55, 0.85), 900.0)
+	if anim == "junker_machine":
+		sprite.get_parent().position = Vector2(sin(_t * 43.0), cos(_t * 29.0)) * 1.2
 
 
 ## Overhead structures fade while an actor is underneath.

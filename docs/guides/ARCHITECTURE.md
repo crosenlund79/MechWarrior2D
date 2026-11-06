@@ -72,9 +72,27 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
   ACTIVE states. Loading in alerted, boarding or starting resolves to an active "return" state with
   the pilot aboard, and a wreck never respawns its pilot.
 
+## Southern Junkers iteration
+- **Weather** (`src/sim/weather.gd`): `state.weather = {state, intensity, t, peak, hold, next, ramp}` is
+  saved. `Session.zone_with_weather(pos)` folds the storm into any zone, using intensity × the zone's
+  `storm_exposure`. Every mech's thermal step, the suit and detection all use it, so the same rules
+  apply everywhere.
+- **Turrets** (`src/sim/turret.gd`): definitions live in location `turrets`; `state.turrets[id] = {hp, angle,
+  destroyed, salvaged}` is saved. `Session._tick_turrets` gives only the `max_engaged` nearest turrets
+  permission to wind up or fire. Line of sight uses the world raycast.
+- **Enemy types:** `enemy_types.<type>` overrides the base `enemy` tuning (`Session.enemy_tun`).
+- **Dev cheats:** `Session.dev` (runtime only) plus `dev_*` actions; `savable_state()` strips dev
+  entities. Spawns use `Session.find_spawn_spot`, which runs a ring search with a 120 px physics query.
+- **Recoil:** in `MechView` it is purely visual. Gun, bolt, housing kick and rock are each a damped
+  spring in housing-local space, so it works at any turret angle and the chassis is never displaced.
+  The camera shake is trauma-based in `CameraRig.add_shake`.
+- **Audio:** Weapons bus (compressor + hard limiter) → SFX bus (storm low-pass) → Master.
+  `Audio.set_storm` muffles SFX and distant one-shots.
+- **Save v4:** adds weather and turrets.
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
-Format version **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
+Format version **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
 Write: temp → read back → validate → previous file to `.bak` → replace. Load: main → validate/migrate →
 else `.bak` (reported as "recovered"). Migrations: `SaveCodec.MIGRATIONS[from_version]`. Stable IDs:
 salvage nodes and props are named in location data; drops get `drop_<n>`. Autosave: new game, enter

@@ -35,6 +35,15 @@ review · **DEFERRED** = explicitly out of scope for now.
 | HS-34 | Workshop (walkable, sliding door), generator + cables + 5 powered lamps | EXPLORING | no interior gameplay |
 | HS-35 | Theme "Where the Ice Once Lay" on the menu; occasional exploration cue; silence by default | APPROVED | creator-provided |
 | HS-36 | Parked-mech encounter: UNPILOTED → ALERTED → BOARDING → STARTING → ACTIVE → DISABLED | EXPLORING | loads resolve forward |
+| HS-37 | Heavy-weapon feel: spring-damped gun + housing recoil (visual only), big muzzle flash, smoke, ground blast, camera shake, layered shot audio | EXPLORING | damage unchanged in spirit |
+| HS-38 | Weather: CLEAR / SANDSTORM; gradual build-up; cooling −40 %, suit ×1.9, visibility −45 % at full storm; shelters cut exposure | EXPLORING | dev-controllable |
+| HS-39 | F10 developer menu (weather, spawns, aggression, repair, invulnerability, speed, teleports, reset) — never saved | APPROVED | |
+| HS-40 | Expanded desert: cooling station, scrap field, rocky ravine, highway rest stop, Junker territory | EXPLORING | handcrafted, one location file |
+| HS-41 | Southern Junkers faction identity: oxide orange + tar black, bone stencilled cog-and-south-chevron insignia, welded scrap | EXPLORING | no reputation/dialogue |
+| HS-42 | Junker main base: walls with gate + two breaches, workshop, sheds, stacks, wrecks, cooler, generator, tarps, burn barrels, lamps | EXPLORING | no interiors / trading |
+| HS-43 | 5 perimeter turrets (easy), max 2 engage at once, LOS, telegraph, destructible + salvageable, persistent | EXPLORING | |
+| HS-44 | 3 Junker defenders (yard patrol, gate guard, parked mech with pilot boarding); type stats + 0.7 damage | EXPLORING | no endless spawns |
+| HS-45 | Named area discovery notices | EXPLORING | |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |
 | HS-17 | Western-style towns, trade economy, factions, NPCs | DEFERRED | |

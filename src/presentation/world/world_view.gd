@@ -20,6 +20,7 @@ var mech_view: MechView
 var pilot_view: PilotView
 var camera: CameraRig
 var enemy_views := {}
+var turret_views := {}
 var projectiles_view: ProjectilesView
 var terrain: TerrainView
 var rock: Node2D
@@ -62,18 +63,24 @@ func _ready() -> void:
 	pilot_view.name = "Pilot"
 	pilot_view.z_index = Z["pilot"]
 	add_child(pilot_view)
-	for d in loc.get("enemies", []):
-		var ev := EnemyView.new()
-		ev.setup(str(d["id"]))
-		ev.z_index = Z["mech"]
-		add_child(ev)
-		enemy_views[str(d["id"])] = ev
+	for id in Session.state.get("enemies", {}):
+		_add_enemy_view(str(id))
+	for td in loc.get("turrets", []):
+		var tv := TurretView.new()
+		tv.setup(td)
+		tv.z_index = Z["mech"] - 1
+		add_child(tv)
+		turret_views[str(td["id"])] = tv
 	projectiles_view = ProjectilesView.new()
 	add_child(projectiles_view)
 	camera = CameraRig.new()
 	add_child(camera)
 	camera.make_current()
 	Session.spot_is_free = _spot_is_free
+	Session.mech_spot_free = _mech_spot_free
+	Session.dev_spawned.connect(_on_dev_spawned)
+	Session.dev_teleported.connect(_on_teleported)
+	mech_view.world_ref = self
 	Session.shot_blocked = _shot_blocked
 	Session.mode_changed.connect(_on_mode_changed)
 	_sync_markers()
@@ -101,6 +108,42 @@ func _build_bounds(loc: Dictionary) -> void:
 		cs.shape = s
 		body.add_child(cs)
 	add_child(body)
+
+
+func _add_enemy_view(id: String) -> void:
+	var ev := EnemyView.new()
+	ev.setup(id)
+	ev.z_index = Z["mech"]
+	add_child(ev)
+	enemy_views[id] = ev
+
+
+func _on_dev_spawned(id: String) -> void:
+	if Session.state.get("enemies", {}).has(id) and not enemy_views.has(id):
+		_add_enemy_view(id)
+	elif not Session.state.get("enemies", {}).has(id) and enemy_views.has(id):
+		enemy_views[id].queue_free()
+		enemy_views.erase(id)
+
+
+func _on_teleported() -> void:
+	mech_view.sync_from_state()
+	pilot_view.sync_from_state()
+	camera.snap()
+
+
+## A spot big enough for a mech (radius 120): no rock, walls, props or mechs.
+func _mech_spot_free(p: Vector2) -> bool:
+	var b: Array = Session.loc.get("bounds", [0, 0, 3600, 2600])
+	if not Rect2(b[0] + 150, b[1] + 150, b[2] - 300, b[3] - 300).has_point(p):
+		return false
+	var q := PhysicsShapeQueryParameters2D.new()
+	var c := CircleShape2D.new()
+	c.radius = 120.0
+	q.shape = c
+	q.transform = Transform2D(0.0, p)
+	q.collision_mask = 1 | 4
+	return get_world_2d().direct_space_state.intersect_shape(q, 1).is_empty()
 
 
 func _spot_is_free(p: Vector2) -> bool:

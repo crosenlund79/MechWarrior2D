@@ -315,7 +315,7 @@ ENEMY_RED = (142, 62, 42)
 OXIDE = (118, 70, 50)
 
 
-def draw_scrapper(c, cx, cy, wrecked=False, seed=0):
+def draw_scrapper(c, cx, cy, wrecked=False, seed=0, junker=False):
     """Top-down hostile scrapper centred at (cx, cy), facing up (source px)."""
     r = random.Random(seed)
     j = (lambda v: v + r.uniform(-6, 6)) if wrecked else (lambda v: v)
@@ -334,16 +334,22 @@ def draw_scrapper(c, cx, cy, wrecked=False, seed=0):
     end = barrel[2]
     c.fill_ellipse((end[0] - 14, end[1] - 6, end[0] + 4, end[1] + 10), HOLE, tex=0.1)
     # armour: mismatched welded plates (oxide red, bare steel, rust) with raider stripes
-    plates = [([(cx - 70, cy - 70), (cx - 10, cy - 84), (cx - 6, cy + 20), (cx - 76, cy + 30)], ENEMY_RED),
-              ([(cx + 2, cy - 66), (cx + 66, cy - 60), (cx + 74, cy + 34), (cx + 6, cy + 24)], OXIDE),
-              ([(cx - 40, cy + 22), (cx + 44, cy + 26), (cx + 40, cy + 70), (cx - 44, cy + 68)], STEEL)]
+    pc = (JK_ORANGE, JK_BLACK, STEEL) if junker else (ENEMY_RED, OXIDE, STEEL)
+    plates = [([(cx - 70, cy - 70), (cx - 10, cy - 84), (cx - 6, cy + 20), (cx - 76, cy + 30)], pc[0]),
+              ([(cx + 2, cy - 66), (cx + 66, cy - 60), (cx + 74, cy + 34), (cx + 6, cy + 24)], pc[1]),
+              ([(cx - 40, cy + 22), (cx + 44, cy + 26), (cx + 40, cy + 70), (cx - 44, cy + 68)], pc[2])]
     for poly, col in plates:
         poly = [(j(x), j(y)) for x, y in poly]
         plate(c, poly, col, line=2.4, grime=0.6, hatch_alpha=80)
         bolts_along(c, poly, 20, 6)
     for k in range(3):
         y = cy - 50 + k * 22
-        c.ink([(cx - 64, y), (cx - 22, y - 10)], 5.0, wobble=0.8, alpha=200, color=HOLE)
+        c.ink([(cx - 64, y), (cx - 22, y - 10)], 5.0, wobble=0.8, alpha=200, color=(BONE if junker else HOLE))
+    if junker:
+        insignia(c, cx + 38, cy - 18, 24, BONE, 220)
+        for k in range(4):   # welded ram bars across the front
+            x = cx - 54 + k * 34
+            c.ink([(x, cy - 124), (x + 10, cy - 146)], 4.0, wobble=0.4, color=STEEL_D)
     # cockpit: small boxy cab offset left with a viewing slit
     cab = [(cx - 54, cy - 116), (cx - 14, cy - 118), (cx - 12, cy - 74), (cx - 56, cy - 72)]
     plate(c, [(j(x), j(y)) for x, y in cab], STEEL_L, line=2.4, grime=0.4)
@@ -375,6 +381,26 @@ def draw_scrapper(c, cx, cy, wrecked=False, seed=0):
         c.ink([(cx + sx * 30, cy + 40), (cx + sx * 50, cy + 80), (cx + sx * 50, ry - 30)], 5.0, wobble=0.5, color=(48, 92, 88), alpha=255)
         c.ink([(cx + sx * 30, cy + 40), (cx + sx * 50, cy + 80), (cx + sx * 50, ry - 30)], 2.6, wobble=0.4, color=COOLANT, alpha=255)
     c.ink_poly(rad, 2.8)
+
+
+JK_ORANGE = (188, 96, 42)
+JK_BLACK = (44, 38, 33)
+JK_RUST = (120, 60, 34)
+
+
+def insignia(c, cx, cy, r, col, alpha=230):
+    """Southern Junkers mark: a stencilled cog with a south-pointing chevron."""
+    teeth = 10
+    pts = []
+    for k in range(teeth * 2):
+        a = k / (teeth * 2) * math.tau
+        rr = r if k % 2 == 0 else r * 0.8
+        pts.append((cx + math.cos(a) * rr, cy + math.sin(a) * rr))
+    layer_poly = pts
+    c.fill(layer_poly, col, tex=0.15, cell=4)
+    c.fill_ellipse((cx - r * 0.55, cy - r * 0.55, cx + r * 0.55, cy + r * 0.55), JK_BLACK, tex=0.2)
+    c.fill([(cx - r * 0.4, cy - r * 0.2), (cx, cy + r * 0.38), (cx + r * 0.4, cy - r * 0.2), (cx + r * 0.22, cy - r * 0.3), (cx, cy), (cx - r * 0.22, cy - r * 0.3)], col, tex=0.15)
+    c.ink_poly(layer_poly, 1.2, alpha=150)
 
 
 def gen_enemy():
@@ -609,6 +635,439 @@ def gen_rock_tiles():
             c.ink([(k + ox, 4), (k + ox + 10, 28)], 1.0, wobble=0.3, alpha=120)
     c.ink([(0, 3), (W, 3)], 2.6, wobble=0.8)
     c.img.resize((W, H), Image.LANCZOS).save(out("terrain.cliff_rim"))
+
+
+def gen_junker():
+    # Junker scrapper variant + wreck
+    c = canvas_for("enemy.junker_hull", 1101)
+    draw_scrapper(c, 150, 166, junker=True, seed=11)
+    c.desertize(dust=0.5, abrasion=0.55, bleach=0.3, seams=0.75, heat=[(156, 60, 40, 0.5)])
+    c.save(out("enemy.junker_hull"))
+    c = canvas_for("enemy.junker_wreck", 1102)
+    c.soft_shadow((40, 50, 350, 350), 120, 14)
+    for sx, ang in ((-1, -0.7), (1, 0.6)):
+        lx, ly = 190 + sx * 96, 210
+        leg = [(lx - 18, ly - 60), (lx + 18, ly - 60), (lx + 22, ly + 60), (lx - 22, ly + 60)]
+        rot = [(lx + (x - lx) * math.cos(ang) - (y - ly) * math.sin(ang), ly + (x - lx) * math.sin(ang) + (y - ly) * math.cos(ang)) for x, y in leg]
+        plate(c, rot, JK_RUST, line=2.2, grime=0.6)
+    draw_scrapper(c, 190, 196, wrecked=True, seed=14, junker=True)
+    for k in range(5):
+        b = blob(190 + random.Random(k + 3).uniform(-70, 70), 196 + random.Random(k + 19).uniform(-90, 90), 32, 22, 14, 0.4, k)
+        c.fill(b, (34, 28, 24), tex=0.6, cell=6)
+    c.desertize(dust=0.8, abrasion=0.5, bleach=0.4, seams=0.7, heat=[(190, 300, 60, 0.3)])
+    c.save(out("enemy.junker_wreck"))
+    # turret: reinforced scrap mount + rotating gun housing + wreck
+    c = canvas_for("junker.turret_base", 1103)
+    W = 208; cx = W / 2
+    c.soft_shadow((14, 18, 196, 198), 120, 8)
+    octo = [(cx + math.cos(a) * 92, cx + math.sin(a) * 92) for a in np.linspace(0, math.tau, 8, endpoint=False) + math.pi / 8]
+    plate(c, octo, JK_BLACK, line=3.0, grime=0.6, hatch_alpha=90)
+    for a in np.linspace(0, math.tau, 8, endpoint=False) + math.pi / 8:   # sandbag/plate buttresses
+        x, y = cx + math.cos(a) * 80, cx + math.sin(a) * 80
+        pl = blob(x, y, 20, 14, 10, 0.2, int(a * 10), rot=a)
+        plate(c, pl, JK_ORANGE if int(a * 3) % 2 else STEEL, line=1.8, grime=0.5, hatch_alpha=60)
+    c.fill_ellipse((cx - 56, cx - 56, cx + 56, cx + 56), STEEL_D, tex=0.3)
+    c.ink_ellipse((cx - 56, cx - 56, cx + 56, cx + 56), 2.6)
+    c.rivets([(cx + math.cos(a) * 50, cx + math.sin(a) * 50) for a in np.linspace(0, math.tau, 12, endpoint=False)], 1.8)
+    c.desertize(dust=0.6, abrasion=0.5, bleach=0.3, seams=0.7)
+    c.save(out("junker.turret_base"))
+    c = canvas_for("junker.turret_gun", 1104)
+    W, H = 144, 256; cx, my = W / 2, 159
+    hous = rrect(cx - 50, my - 44, cx + 50, my + 70, 14, 0.8, 4)
+    plate(c, hous, JK_ORANGE, line=3.0, grime=0.6, hatch_alpha=95)
+    for k in range(3):
+        c.fill([(cx - 46, my - 6 + k * 22), (cx + 46, my - 6 + k * 22), (cx + 46, my + 6 + k * 22), (cx - 46, my + 6 + k * 22)], JK_BLACK, tex=0.3)
+    insignia(c, cx, my + 46, 15, BONE, 210)
+    barrel = [(cx - 12, my - 40), (cx + 12, my - 40), (cx + 10, 18), (cx - 10, 18)]
+    plate(c, barrel, STEEL, line=2.6, grime=0.4, hatch_alpha=80)
+    for y in range(36, int(my - 46), 16):
+        c.ink([(cx - 16, y), (cx + 16, y)], 2.6, wobble=0.3)
+    plate(c, [(cx - 18, 4), (cx + 18, 4), (cx + 18, 22), (cx - 18, 22)], CHAR, line=2.0, grime=0.2, hatch=False)
+    ammo = [(cx + 34, my - 30), (cx + 64, my - 26), (cx + 62, my + 24), (cx + 34, my + 20)]
+    plate(c, ammo, PAINT_G, line=2.0, grime=0.4)
+    c.ink([(cx + 40, my - 20), (cx + 56, my + 14)], 1.4, wobble=0.3)
+    c.desertize(dust=0.45, abrasion=0.55, bleach=0.3, seams=0.7, heat=[(cx, 36, 30, 0.6)])
+    c.save(out("junker.turret_gun"))
+    c = canvas_for("junker.turret_wreck", 1105)
+    W = 224; cx = W / 2
+    c.soft_shadow((14, 18, 210, 214), 130, 10)
+    octo = [(cx + math.cos(a) * 96, cx + math.sin(a) * 96) for a in np.linspace(0, math.tau, 8, endpoint=False) + math.pi / 8]
+    plate(c, octo, JK_BLACK, line=3.0, grime=0.7)
+    for k in range(6):
+        b = blob(cx + random.Random(k).uniform(-60, 60), cx + random.Random(k + 5).uniform(-60, 60), 26, 18, 12, 0.4, k, rot=k)
+        plate(c, b, random.Random(k).choice([JK_ORANGE, STEEL, JK_RUST]), line=1.8, grime=0.5, hatch_alpha=70)
+    c.ink([(cx, cx), (cx + 70, cx - 80)], 9.0, wobble=1.0, color=STEEL_D)   # toppled barrel
+    for k in range(4):
+        b = blob(cx + random.Random(k + 9).uniform(-50, 50), cx + random.Random(k + 13).uniform(-50, 50), 30, 20, 12, 0.4, k)
+        c.fill(b, (30, 26, 22), tex=0.6, cell=6)
+    c.desertize(dust=0.7, abrasion=0.4, bleach=0.3, seams=0.6, heat=[(cx, cx, 70, 0.5)])
+    c.save(out("junker.turret_wreck"))
+    # buildings
+    def roof(id_, seed, cols, mark=False, chimney=True):
+        c = canvas_for(id_, seed)
+        W, H = ALL[id_]["source"]
+        r = random.Random(seed)
+        c.soft_shadow((6, 8, W - 4, H - 2), 110, 8)
+        x = 12; k = 0
+        while x < W - 30:
+            x1 = min(W - 12, x + r.uniform(W * 0.12, W * 0.2))
+            poly = [(x, 14 + r.uniform(-4, 4)), (x1, 14 + r.uniform(-4, 4)), (x1, H - 14 + r.uniform(-4, 4)), (x, H - 14 + r.uniform(-4, 4))]
+            mm = c.corrugate(poly, cols[k % len(cols)], spacing=11, vertical=False, alpha=110)
+            c.shade(mm, 1, .6, 5.0, 60, reach=0.4)
+            c.ink_poly(poly, 2.6)
+            x = x1 - r.uniform(6, 14); k += 1
+        for y in (H * 0.3, H * 0.7):
+            c.rivets([(xx, y + r.uniform(-2, 2)) for xx in range(28, int(W) - 20, 36)], 2.2)
+        for j in range(4):   # welded patch plates
+            px, py = r.uniform(40, W - 120), r.uniform(40, H - 110)
+            pl = [(px, py), (px + r.uniform(60, 110), py + r.uniform(-6, 6)), (px + r.uniform(60, 110), py + r.uniform(50, 80)), (px, py + r.uniform(50, 80))]
+            plate(c, pl, r.choice([STEEL, JK_RUST, STEEL_L]), line=1.8, grime=0.5, hatch_alpha=50)
+        if mark:
+            insignia(c, W * 0.5, H * 0.5, min(W, H) * 0.2, BONE, 200)
+        if chimney:
+            c.fill_ellipse((W * 0.8, H * 0.18, W * 0.8 + 46, H * 0.18 + 46), STEEL_D, tex=0.2)
+            c.fill_ellipse((W * 0.8 + 11, H * 0.18 + 11, W * 0.8 + 35, H * 0.18 + 35), HOLE, tex=0.1)
+            c.ink_ellipse((W * 0.8, H * 0.18, W * 0.8 + 46, H * 0.18 + 46), 2.2)
+        for k2 in range(3):   # hazard stripes along one eave
+            x0 = 30 + k2 * 70
+            c.fill([(x0, H - 28), (x0 + 34, H - 28), (x0 + 50, H - 14), (x0 + 16, H - 14)], JK_BLACK, tex=0.3)
+        c.desertize(dust=0.6, abrasion=0.4, bleach=0.4, seams=0.7)
+        c.save(out(id_))
+    roof("junker.workshop", 1110, [JK_ORANGE, JK_RUST, (140, 120, 98), JK_ORANGE, STEEL], mark=True)
+    roof("junker.shed", 1111, [JK_RUST, (140, 120, 98)], chimney=False)
+    roof("junker.shed_b", 1112, [JK_ORANGE, STEEL], chimney=True)
+    # scrap stack
+    c = canvas_for("junker.scrap_stack", 1113)
+    W, H = 320, 260
+    r = random.Random(13)
+    c.soft_shadow((10, 14, W - 6, H - 4), 120, 10)
+    for k in range(16):
+        x, y = r.uniform(50, W - 50), r.uniform(40, H - 40)
+        w, h = r.uniform(40, 110), r.uniform(20, 60)
+        a = r.uniform(0, math.pi)
+        pts = [(x + math.cos(a) * dx - math.sin(a) * dy, y + math.sin(a) * dx + math.cos(a) * dy) for dx, dy in ((-w / 2, -h / 2), (w / 2, -h / 2), (w / 2, h / 2), (-w / 2, h / 2))]
+        plate(c, pts, r.choice([RUST, STEEL, JK_ORANGE, JK_RUST, STEEL_D, PAINT_G]), line=1.8, grime=0.4, hatch_alpha=60)
+    for k in range(3):
+        gx, gy = r.uniform(80, W - 80), r.uniform(70, H - 70)
+        c.fill_ellipse((gx - 26, gy - 26, gx + 26, gy + 26), STEEL_L, tex=0.2)
+        c.ink_ellipse((gx - 26, gy - 26, gx + 26, gy + 26), 2.0)
+        c.fill_ellipse((gx - 8, gy - 8, gx + 8, gy + 8), HOLE, tex=0.1)
+    c.desertize(dust=0.6, abrasion=0.4, bleach=0.4, seams=0.7)
+    c.save(out("junker.scrap_stack"))
+    # cooler: radiator banks with big fans (their own machinery)
+    c = canvas_for("junker.cooler", 1114)
+    W, H = 340, 260
+    plate(c, rrect(8, 8, W - 8, H - 8, 10, 0.8, 1), JK_BLACK, line=3.0, grime=0.6)
+    for fx_, fy in ((92, 92), (248, 92), (92, 186), (248, 186)):
+        c.fill_ellipse((fx_ - 58, fy - 40, fx_ + 58, fy + 40), (60, 58, 52), tex=0.2)
+        for k in range(6):
+            a = k / 6 * math.tau
+            c.fill([(fx_, fy), (fx_ + math.cos(a) * 52, fy + math.sin(a) * 36), (fx_ + math.cos(a + .5) * 46, fy + math.sin(a + .5) * 32)], STEEL_L, tex=0.1)
+        c.ink_ellipse((fx_ - 58, fy - 40, fx_ + 58, fy + 40), 2.2)
+    c.ink([(20, 140), (W - 20, 140)], 6.0, wobble=0.8, color=(48, 92, 88))
+    c.ink([(20, 140), (W - 20, 140)], 3.0, wobble=0.6, color=COOLANT)
+    c.desertize(dust=0.5, abrasion=0.4, bleach=0.3, seams=0.7, heat=[(170, 130, 120, 0.3)])
+    c.save(out("junker.cooler"))
+    # generator rig
+    c = canvas_for("junker.generator", 1115)
+    W, H = 320, 220
+    c.soft_shadow((10, 14, W - 6, H - 6), 120, 8)
+    plate(c, [(10, 20), (W - 10, 14), (W - 8, H - 18), (12, H - 12)], JK_BLACK, line=3.0, grime=0.7)
+    eng = rrect(28, 36, 200, 180, 10, 0.8, 3)
+    plate(c, eng, JK_ORANGE, line=2.8, grime=0.8, hatch_alpha=90)
+    c.slots(44, 56, 184, 110, 9, vertical=True, width=2.0)
+    for k in range(2):
+        ex, ey = 236 + k * 40, 60
+        c.fill_ellipse((ex - 16, ey - 16, ex + 16, ey + 16), RUST, tex=0.3)
+        c.fill_ellipse((ex - 8, ey - 8, ex + 8, ey + 8), HOLE, tex=0.1)
+        c.ink_ellipse((ex - 16, ey - 16, ex + 16, ey + 16), 2.0)
+    plate(c, [(222, 110), (300, 110), (300, 190), (222, 190)], STEEL, line=2.0, grime=0.4)
+    insignia(c, 114, 148, 22, BONE, 200)
+    c.desertize(dust=0.5, abrasion=0.3, bleach=0.3, seams=0.8, heat=[(256, 60, 50, 0.7)])
+    c.save(out("junker.generator"))
+    # shade tarp (patched, faction colours)
+    c = canvas_for("junker.tarp", 1116)
+    W, H = 640, 480
+    sail = [(30, 30), (W / 2, 56), (W - 30, 30), (W - 56, H / 2), (W - 30, H - 30), (W / 2, H - 56), (30, H - 30), (56, H / 2)]
+    m = c.fill(sail, (170, 110, 66), tex=0.4, cell=22)
+    for k in range(4):
+        x0 = 40 + k * (W - 80) / 4
+        pnl = [(x0, 30), (x0 + (W - 80) / 4, 30), (x0 + (W - 80) / 4, H - 30), (x0, H - 30)]
+        pm = Image.fromarray(np.minimum(np.asarray(m), np.asarray(c.mask(pnl))))
+        c.fill(None, [JK_ORANGE, (150, 120, 90), JK_RUST, (176, 150, 110)][k], tex=0.35, cell=20, m=pm)
+    c.shade(m, 1, .6, 6.0, 55, reach=0.45)
+    insignia(c, W / 2, H / 2, 70, JK_BLACK, 200)
+    c.desertize(dust=0.6, abrasion=0.2, bleach=0.6, seams=0.4)
+    c.ink_poly(sail, 2.6)
+    c.save(out("junker.tarp"))
+    # burn barrel, insignia decal, lamp
+    c = canvas_for("junker.burn_barrel", 1117)
+    c.fill_ellipse((6, 6, 82, 82), RUST, tex=0.4)
+    c.fill_ellipse((16, 16, 72, 72), (30, 22, 16), tex=0.3)
+    for k in range(5):
+        x, y = random.Random(k).uniform(26, 62), random.Random(k + 3).uniform(26, 62)
+        c.fill_ellipse((x - 6, y - 6, x + 6, y + 6), (230, 120, 40), tex=0.1)
+    c.ink_ellipse((6, 6, 82, 82), 2.4)
+    c.save(out("junker.burn_barrel"))
+    c = canvas_for("junker.insignia", 1118)
+    insignia(c, 180, 180, 150, (210, 196, 170), 200)
+    for k in range(5):   # spray-paint drips / sand eating the paint
+        x = random.Random(k).uniform(100, 260)
+        c.ink([(x, 250), (x + 2, 300)], 4.0, wobble=0.6, alpha=120, color=(210, 196, 170))
+    arr = np.asarray(c.img, np.float32)
+    n = value_noise(c.img.size[0], c.img.size[1], 18 * SS, 77, 3)
+    arr[..., 3] *= np.clip(0.4 + n * 0.8, 0, 1) * 0.8
+    c.img = Image.fromarray(arr.astype(np.uint8), "RGBA")
+    c.save(out("junker.insignia"), finish=False)
+    c = canvas_for("junker.lamp", 1119)
+    c.fill_ellipse((6, 6, 54, 54), JK_BLACK, tex=0.3)
+    c.fill_ellipse((16, 16, 44, 44), (255, 190, 110), tex=0.1)
+    c.ink_ellipse((6, 6, 54, 54), 2.2)
+    c.save(out("junker.lamp"))
+    # wall strip: welded plates, rust, spikes on top
+    c = Canvas(256, 60, 1120)
+    r = random.Random(20)
+    x = 0
+    while x < 256:
+        w = r.uniform(40, 70)
+        plate(c, [(x, 8), (x + w, 6 + r.uniform(-2, 2)), (x + w, 52), (x, 54)], r.choice([JK_RUST, STEEL, JK_ORANGE, STEEL_D]), line=1.8, grime=0.6, hatch_alpha=60)
+        x += w - 2
+    for k in range(0, 256, 32):
+        c.ink([(k + 8, 8), (k + 14, 0)], 2.4, wobble=0.3, color=STEEL_D)
+    c.img.resize((256, 60), Image.LANCZOS).save(out("junker.wall_strip"))
+
+
+def gen_cooling_station():
+    c = canvas_for("cs.cooling_tower", 1201)
+    W = 660; cx = W / 2
+    c.soft_shadow((40, 50, 640, 650), 120, 18)
+    c.fill_ellipse((20, 20, 640, 640), (156, 146, 128), tex=0.35, cell=30, light=(-1, -1, 0.5))
+    c.shade(c.ellipse_mask((20, 20, 640, 640)), 1, .6, 6, 70, cross=True, reach=0.45)
+    for rr in (290, 250):
+        c.ink_ellipse((cx - rr, cx - rr, cx + rr, cx + rr), 1.6, alpha=150)
+    c.fill_ellipse((cx - 220, cx - 220, cx + 220, cx + 220), (40, 34, 30), tex=0.4)   # open throat
+    c.fill_ellipse((cx - 150, cx - 160, cx + 170, cx + 150), (70, 62, 54), tex=0.5)
+    for k in range(8):   # broken fan blades / debris in the throat
+        a = k / 8 * math.tau
+        c.ink([(cx, cx), (cx + math.cos(a) * 180, cx + math.sin(a) * 180)], 8.0, wobble=1.2, color=STEEL_D)
+    c.fill_ellipse((cx - 30, cx - 30, cx + 30, cx + 30), RUST, tex=0.2)
+    hole = blob(cx + 200, cx - 150, 70, 46, 16, 0.4, 3)   # collapsed rim section
+    c.fill(hole, (52, 46, 40), tex=0.4)
+    c.ink_poly(hole, 2.0)
+    c.ink_ellipse((20, 20, 640, 640), 3.4)
+    c.ink_ellipse((cx - 220, cx - 220, cx + 220, cx + 220), 2.6)
+    c.desertize(dust=0.7, abrasion=0.5, bleach=0.5, seams=0.6)
+    c.save(out("cs.cooling_tower"))
+    c = canvas_for("cs.tank", 1202)
+    c.soft_shadow((14, 18, 290, 296), 120, 10)
+    c.fill_ellipse((14, 14, 286, 286), (128, 132, 124), tex=0.35, cell=22, light=(-1, -1, 0.55))
+    c.shade(c.ellipse_mask((14, 14, 286, 286)), 1, .6, 5, 80, reach=0.45)
+    for rr in (110, 80):
+        c.ink_ellipse((150 - rr, 150 - rr, 150 + rr, 150 + rr), 1.2, alpha=150)
+    c.fill_ellipse((126, 126, 174, 174), STEEL_D, tex=0.2)
+    c.ink_ellipse((126, 126, 174, 174), 2.0)
+    c.ink([(60, 110), (240, 110)], 12.0, wobble=0.8, alpha=140, color=COOLANT)   # faded coolant band
+    c.ink_ellipse((14, 14, 286, 286), 3.0)
+    c.desertize(dust=0.6, abrasion=0.5, bleach=0.6, seams=0.5)
+    c.save(out("cs.tank"))
+    c = canvas_for("cs.radiator_bank", 1203)
+    W, H = 560, 240
+    c.soft_shadow((10, 14, W - 6, H - 4), 110, 8)
+    plate(c, rrect(8, 8, W - 8, H - 8, 10, 0.8, 2), STEEL_D, line=3.0, grime=0.5)
+    c.fill([(26, 26), (W - 26, 26), (W - 26, H - 26), (26, H - 26)], (64, 62, 56), tex=0.3)
+    for i in range(80):
+        x = 28 + i * (W - 56) / 79
+        c.ink([(x, 28), (x + random.Random(i).uniform(-6, 6) * (i % 7 == 0), H - 28)], 1.1, wobble=0.2, alpha=210)
+    for k in range(4):
+        b = blob(random.Random(k).uniform(80, W - 80), random.Random(k + 4).uniform(60, H - 60), 40, 22, 14, 0.4, k)
+        c.fill(b, SAND_M, tex=0.4)
+    c.desertize(dust=0.6, abrasion=0.5, bleach=0.4, seams=0.6)
+    c.save(out("cs.radiator_bank"))
+    c = canvas_for("cs.pipe_rack", 1204)
+    W, H = 600, 140
+    for y, col in ((40, RUST), (70, STEEL), (100, (48, 92, 88))):
+        c.ink([(10, y), (W - 10, y + 4)], 18.0, wobble=0.6, color=col)
+        c.ink([(10, y - 7), (W - 10, y - 3)], 2.0, wobble=0.4, alpha=120, color=(230, 210, 180))
+        c.ink([(10, y + 9), (W - 10, y + 13)], 1.6, wobble=0.4)
+    for x in range(30, W, 120):
+        plate(c, [(x, 14), (x + 16, 14), (x + 16, 128), (x, 128)], STEEL_D, line=1.8, grime=0.4, hatch=False)
+    c.desertize(dust=0.5, abrasion=0.5, bleach=0.4, seams=0.5)
+    c.save(out("cs.pipe_rack"))
+    c = canvas_for("cs.control_shed", 1205)
+    W, H = 440, 340
+    c.soft_shadow((6, 8, W - 4, H - 2), 110, 8)
+    plate(c, rrect(10, 10, W - 10, H - 10, 8, 1.0, 5), (150, 146, 132), line=3.0, grime=0.6, hatch_alpha=80)
+    for k in range(3):
+        c.fill([(40 + k * 130, 40), (140 + k * 130, 40), (140 + k * 130, 90), (40 + k * 130, 90)], (60, 70, 76), tex=0.3)   # skylights
+        c.ink_poly([(40 + k * 130, 40), (140 + k * 130, 40), (140 + k * 130, 90), (40 + k * 130, 90)], 1.6)
+    c.ink([(30, 200), (W - 30, 180)], 3.0, wobble=2.0)   # crack across the roof
+    c.ink([(60, 260), (380, 250)], 10.0, wobble=1.0, alpha=110, color=COOLANT)
+    c.desertize(dust=0.7, abrasion=0.4, bleach=0.6, seams=0.6)
+    c.save(out("cs.control_shed"))
+
+
+def gen_roadside():
+    c = canvas_for("road.lot", 1301)
+    W, H = 960, 680
+    m = c.fill(rrect(20, 20, W - 20, H - 20, 30, 3.0, 2), (82, 78, 72), tex=0.3, cell=30)
+    r = random.Random(4)
+    for k in range(5):
+        x = 120 + k * 160
+        c.ink([(x, 80), (x + 10, 300)], 6.0, wobble=1.0, alpha=120, color=(220, 210, 180))
+    for k in range(18):
+        x, y = r.uniform(60, W - 60), r.uniform(60, H - 60)
+        pts = [(x, y)]
+        for j in range(4):
+            x += r.uniform(-40, 40); y += r.uniform(-40, 40); pts.append((x, y))
+        c.ink(pts, 1.4, wobble=1.0, alpha=150)
+    yy, xx = np.mgrid[0:H * SS, 0:W * SS]
+    n = value_noise(W * SS, H * SS, 40 * SS, 9, 4)
+    drift = np.clip((n - 0.45) * 2.2 + (xx / (W * SS)) * 0.4 - 0.2, 0, 1)
+    arr = np.asarray(c.img, np.float32)
+    arr[..., :3] = arr[..., :3] * (1 - drift[..., None] * 0.8) + np.array(SAND_M) * drift[..., None] * 0.8
+    c.img = Image.fromarray(arr.astype(np.uint8), "RGBA")
+    c.img.putalpha(c.img.split()[3].filter(ImageFilter.GaussianBlur(5 * SS)))
+    c.save(out("road.lot"), finish=False)
+    c = canvas_for("road.kiosk", 1302)
+    W, H = 500, 340
+    c.soft_shadow((6, 8, W - 4, H - 2), 110, 8)
+    plate(c, rrect(10, 10, W - 10, H - 10, 6, 1.0, 1), (176, 168, 150), line=3.0, grime=0.6, hatch_alpha=70)
+    plate(c, [(10, 10), (W - 10, 10), (W - 10, 70), (10, 70)], (150, 60, 44), line=2.4, grime=0.5)   # faded brand fascia
+    for k in range(4):
+        c.ink([(60 + k * 100, 30), (100 + k * 100, 50)], 6.0, wobble=0.6, alpha=160, color=BONE)
+    c.fill([(320, 140), (440, 140), (440, 260), (320, 260)], HOLE, tex=0.2)   # caved-in roof section
+    c.ink_poly([(320, 140), (440, 140), (440, 260), (320, 260)], 2.2)
+    c.desertize(dust=0.8, abrasion=0.5, bleach=0.7, seams=0.6)
+    c.save(out("road.kiosk"))
+    c = canvas_for("road.pump", 1303)
+    plate(c, rrect(8, 8, 64, 96, 6, 0.4, 1), (180, 70, 50), line=2.2, grime=0.5)
+    c.fill([(18, 20), (54, 20), (54, 44), (18, 44)], (50, 60, 64), tex=0.2)
+    c.ink([(60, 60), (70, 90), (60, 100)], 2.4, wobble=0.6)
+    c.desertize(dust=0.6, abrasion=0.4, bleach=0.7, seams=0.4)
+    c.save(out("road.pump"))
+    c = canvas_for("road.canopy", 1304)
+    W, H = 880, 600
+    roofp = [(14, 14), (W - 14, 14), (W - 14, H - 14), (14, H - 14)]
+    m = plate(c, roofp, (190, 184, 168), line=3.0, grime=0.6, hatch_alpha=60)
+    for x in range(14, W, 90):
+        c.ink([(x, 20), (x + 4, H - 20)], 1.2, wobble=0.8, alpha=130)
+    for k in range(4):
+        c.ink([(60 + k * 200, 50), (140 + k * 200, 50)], 14.0, wobble=0.8, alpha=150, color=(150, 60, 44))
+    for k in range(6):   # missing / solar panels
+        x0, y0 = 80 + (k % 3) * 260, 160 + (k // 3) * 200
+        cell = [(x0, y0), (x0 + 200, y0), (x0 + 200, y0 + 140), (x0, y0 + 140)]
+        if k in (1, 4):
+            continue
+        c.fill(cell, (52, 62, 78), tex=0.3, light=(-1, -1, 0.5))
+        c.ink_poly(cell, 1.4)
+        c.ink([(x0 + 20, y0 + 20), (x0 + 120, y0 + 100)], 1.0, wobble=1.2, alpha=180, color=(200, 210, 220))
+    c.desertize(dust=0.8, abrasion=0.4, bleach=0.6, seams=0.5)
+    hm = Image.new("L", c.img.size, 255)
+    for k in (1, 4):
+        x0, y0 = 80 + (k % 3) * 260, 160 + (k // 3) * 200
+        ImageDraw.Draw(hm).rectangle([x0 * SS, y0 * SS, (x0 + 200) * SS, (y0 + 140) * SS], fill=0)
+    c.img.putalpha(Image.fromarray(np.minimum(np.asarray(c.img.split()[3]), np.asarray(hm))))
+    c.save(out("road.canopy"))
+    c = canvas_for("road.car", 1305)
+    W, H = 360, 192
+    c.soft_shadow((10, 14, W - 6, H - 4), 120, 8)
+    body = rrect(20, 24, W - 20, H - 24, 40, 1.0, 3)
+    plate(c, body, (90, 110, 120), line=3.0, grime=0.7, hatch_alpha=80)
+    c.fill([(110, 40), (230, 40), (240, H - 40), (100, H - 40)], (46, 54, 58), tex=0.3)   # cabin glass
+    c.ink_poly([(110, 40), (230, 40), (240, H - 40), (100, H - 40)], 2.0)
+    for (x, y) in ((70, 20), (290, 20), (70, H - 20), (290, H - 20)):
+        c.fill_ellipse((x - 26, y - 12, x + 26, y + 12), HOLE, tex=0.1)
+    c.fill(blob(300, 140, 80, 40, 14, 0.3, 2), SAND_L, tex=0.3)
+    c.desertize(dust=0.8, abrasion=0.6, bleach=0.8, seams=0.6)
+    c.save(out("road.car"))
+    c = canvas_for("road.billboard", 1306)
+    W, H = 600, 128
+    plate(c, [(10, 20), (W - 10, 14), (W - 12, H - 16), (12, H - 10)], (196, 186, 164), line=3.0, grime=0.6)
+    for k in range(5):
+        c.ink([(60 + k * 110, 50), (110 + k * 110, 50)], 16.0, wobble=1.0, alpha=140, color=[(70, 120, 150), (190, 80, 50)][k % 2])
+    c.ink([(40, 90), (W - 120, 96)], 6.0, wobble=1.0, alpha=120, color=(60, 60, 60))
+    c.desertize(dust=0.8, abrasion=0.6, bleach=0.8, seams=0.5)
+    c.save(out("road.billboard"))
+    c = canvas_for("road.sign", 1307)
+    c.fill_ellipse((10, 10, 78, 78), (60, 110, 80), tex=0.3)
+    c.fill([(22, 44), (54, 44), (54, 32), (70, 48), (54, 64), (54, 52), (22, 52)], BONE, tex=0.1)   # evacuation arrow
+    c.ink_ellipse((10, 10, 78, 78), 2.4)
+    c.desertize(dust=0.5, abrasion=0.5, bleach=0.7, seams=0.3)
+    c.save(out("road.sign"))
+    # debris props
+    c = canvas_for("prop.engine_block", 1308)
+    plate(c, rrect(16, 20, 164, 140, 12, 1.0, 2), STEEL_D, line=2.8, grime=0.7, hatch_alpha=90)
+    for k in range(3):
+        c.fill_ellipse((34 + k * 44, 50, 64 + k * 44, 80), HOLE, tex=0.1)
+        c.ink_ellipse((34 + k * 44, 50, 64 + k * 44, 80), 1.8)
+    c.ink([(30, 110), (150, 110)], 6.0, wobble=0.6, color=RUST)
+    c.desertize(dust=0.6, abrasion=0.4, bleach=0.3, seams=0.7)
+    c.save(out("prop.engine_block"))
+    c = canvas_for("prop.tire_stack", 1309)
+    for k, (x, y) in enumerate(((60, 62), (84, 80), (72, 96))):
+        c.fill_ellipse((x - 46, y - 46, x + 46, y + 46), CHAR, tex=0.3)
+        c.fill_ellipse((x - 20, y - 20, x + 20, y + 20), SAND_D, tex=0.2)
+        c.ink_ellipse((x - 46, y - 46, x + 46, y + 46), 2.4)
+    c.desertize(dust=0.6, abrasion=0.3, bleach=0.4, seams=0.4)
+    c.save(out("prop.tire_stack"))
+
+
+def gen_south_tiles():
+    S = 512
+    t = Tile(S, 61)   # junker yard: oil-stained packed dirt
+    t.base((120, 90, 62), (148, 112, 76), (172, 136, 96), cell=110, octaves=5)
+    SSz = S * SS
+    stain = np.clip((value_noise(SSz, SSz, 50 * SS, 62, 3, wrap=True) - 0.58) * 3, 0, 1) * 0.55
+    arr = np.asarray(t.c.img, np.float32)
+    arr[..., :3] = arr[..., :3] * (1 - stain[..., None]) + np.array((44, 36, 30)) * stain[..., None]
+    t.c.img = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA")
+    rr = random.Random(61); bits = [(rr.uniform(0, S), rr.uniform(0, S), rr.uniform(4, 10), rr.uniform(0, 3)) for _ in range(60)]
+    def draw(ox, oy):
+        for x, y, L, a in bits:
+            x += ox; y += oy
+            if -30 < x < S + 30 and -30 < y < S + 30:
+                t.c.ink([(x, y), (x + math.cos(a) * L, y + math.sin(a) * L)], 1.6, wobble=0.2, alpha=170, color=(70, 62, 56))
+    t.wrap_draw(draw)
+    t.save(out("ground.junker_dirt"))
+    W, H = 256, 128   # asphalt strip
+    c = Canvas(W, H, 63)
+    n = value_noise(W * SS, H * SS, 30 * SS, 63, 4, wrap=True)
+    from inkkit import ramp3
+    rgb = ramp3(n, (62, 60, 56), (84, 80, 74), (104, 98, 88))
+    yy = np.mgrid[0:H * SS, 0:W * SS][0] / (H * SS)
+    xx = np.mgrid[0:H * SS, 0:W * SS][1] / (W * SS)
+    dash = ((xx * 4) % 1.0 < 0.5) & (np.abs(yy - 0.5) < 0.025)
+    rgb = np.where(dash[..., None], np.array((200, 186, 140)) * 0.85, rgb)
+    sand = np.clip((value_noise(W * SS, H * SS, 18 * SS, 64, 3, wrap=True) - 0.55) * 2.5 + np.abs(yy - 0.5) * 1.2 - 0.25, 0, 1)
+    rgb = rgb * (1 - sand[..., None] * 0.85) + np.array(SAND_M) * sand[..., None] * 0.85
+    alpha = np.clip(np.minimum(yy, 1 - yy) / 0.14, 0, 1)
+    c.img = Image.fromarray(np.dstack([np.clip(rgb, 0, 255), alpha * 245]).astype(np.uint8), "RGBA")
+    rr2 = random.Random(5)
+    for k in range(10):
+        x = rr2.uniform(0, W); y = rr2.uniform(20, H - 20)
+        for ox in (-W, 0, W):
+            c.ink([(x + ox, y), (x + ox + 14, y + rr2.uniform(-10, 10)), (x + ox + 30, y + rr2.uniform(-10, 10))], 1.0, wobble=0.6, alpha=150)
+    c.img.resize((W, H), Image.LANCZOS).save(out("ground.asphalt"))
+
+
+def gen_fx_muzzle():
+    fx = os.path.join(ROOT, "assets/fx")
+    S = 96
+    img = Image.new("RGBA", (S * 2, S * 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx = S
+    r = random.Random(3)
+    for k in range(9):   # star flash, longer along the barrel (−y)
+        a = -math.pi / 2 + r.uniform(-0.55, 0.55) if k < 5 else r.uniform(0, math.tau)
+        L = r.uniform(60, 90) if k < 5 else r.uniform(24, 40)
+        tip = (cx + math.cos(a) * L * 2, cx + math.sin(a) * L * 2)
+        n = (math.cos(a + math.pi / 2) * 14, math.sin(a + math.pi / 2) * 14)
+        d.polygon([(cx + n[0], cx + n[1]), tip, (cx - n[0], cx - n[1])], fill=(255, 200, 110, 210))
+    img = img.filter(ImageFilter.GaussianBlur(3))
+    d2 = ImageDraw.Draw(img)
+    d2.ellipse((cx - 34, cx - 34, cx + 34, cx + 34), fill=(255, 244, 210, 255))
+    img = img.filter(ImageFilter.GaussianBlur(2)).resize((S, S), Image.LANCZOS)
+    img.save(os.path.join(fx, "muzzle_flash.png"))
 
 
 def gen_scrap_item():
@@ -1273,7 +1732,7 @@ def gen_fx():
     Image.fromarray(np.dstack([np.full((24, 24, 3), 255), np.clip(1 - d2, 0, 1) * 255]).astype(np.uint8), "RGBA").save(os.path.join(fx, "dust_mote.png"))
 
 
-GENS = [gen_mech_housing, gen_twin_gun, gen_enemy_pilot, gen_refuge, gen_rock_tiles, gen_enemy, gen_scrap_item, gen_awning, gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
+GENS = [gen_junker, gen_cooling_station, gen_roadside, gen_south_tiles, gen_fx_muzzle, gen_mech_housing, gen_twin_gun, gen_enemy_pilot, gen_refuge, gen_rock_tiles, gen_enemy, gen_scrap_item, gen_awning, gen_flag, gen_items, gen_shelter_floor, gen_shelter_roof, gen_shelter_bits, gen_pump_rig, gen_hauler, gen_debris, gen_tiles, gen_fx, gen_mech_hull, gen_mech_leg, gen_mech_radiator, gen_mech_radiator_damage, gen_mech_shutters, gen_pilot, gen_rocks, gen_minerals]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

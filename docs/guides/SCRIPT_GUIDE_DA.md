@@ -19,6 +19,8 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/sim/combat.gd` | Projektiler som data, træfzoner for køler vs. skrog, skade. |
 | `src/sim/enemy_ai.gd` | Skrotmech-AI: patrulje, opdagelse (varmebaseret), angreb med varsel, tilbagetrækning. |
 | `src/sim/encounter.gd` | Parkeret-mech-møde: pilotens reaktion, ombordstigning, opstart, flugt, indlæsning. |
+| `src/sim/weather.gd` | KLART/SANDSTORM-vejr: gradvis opbygning, zoners stormudsættelse, effekt på køling/dragt/sigtbarhed. |
+| `src/sim/turret.gd` | Skrotternes perimetertårn: begrænset drejning, sigtelinje, varslet langsom ild. |
 | `src/persistence/save_codec.gd` | Gemmefilens kuvert, validering, migreringer. |
 | `src/persistence/save_service.gd` | Autoload `Saves`: gemmepladser, gendannelse fra backup, resuméer. |
 | `src/presentation/app/main.gd` | Rod: skifter mellem menu og spil, starter testdriveren. |
@@ -36,6 +38,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/world/enemy_view.gd` | Fjendtlig mech: bevægelse, sigtelinje, skadeeffekter, vragtilstand. |
 | `src/presentation/world/projectiles_view.gd` | Tegner projektiler; nedslag, kølertræf og mundingsglimt. |
 | `src/presentation/world/terrain_view.gd` | Klippemasser, overdækninger der toner ud, byggede vægge og strømkabler. |
+| `src/presentation/world/turret_view.gd` | Tårnvisning: roterende hus, lasersigte, rekyl, skade, vrag. |
 | `src/presentation/world/light_kit.gd` | Delt glødtekstur, roterende lys- og skyggeshadere. |
 | `src/presentation/world/fx_kit.gd` | Partikelforudindstillinger (damp, støv). |
 | `src/presentation/world/atmosphere.gd` | Fase B-atmosfære: dagslys, farvekorrektion, støvdis, varmeflimmer, støvpartikler. |
@@ -45,6 +48,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/ui/hud.gd` | HUD: mech, dragt, mål, handlinger, last, beskeder, farekant. |
 | `src/presentation/ui/objective_pointer.gd` | Pil ved skærmkanten / ring mod det aktuelle mål. |
 | `src/presentation/ui/reticle.gd` | Musesigte, mens man styrer mechen. |
+| `src/presentation/ui/dev_menu.gd` | F10 udvikler-/snydemenu (kun under kørsel, gemmes aldrig). |
 | `src/presentation/ui/main_menu.gd` | Fortsæt / nyt spil med pladsvalg / indstillinger / afslut. |
 | `src/presentation/ui/settings_menu.gd` | Lyd, skærm, UI-skala, zoom, sprog, tastomlægning, genindlæsning af grafik. |
 | `src/presentation/ui/pause_menu.gd` | Genoptag / gem / indstillinger / afslut. |
@@ -58,6 +62,9 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/regression_refuge.py` | Kørselsregression: tårn/tvillingkanoner, kløft, overhæng, værksted, tilflugtsvarme, musik, parkeret-mech-møde. |
 | `tools/shots_refuge.py` | Skærmbilleder af tilflugten + ombordstignings-sekvens. |
 | `tools/import_audio.py` | Importerer udvalgt lyd fra indbakken til skabeloner. |
+| `tools/regression_junkers.py` | Kørselsregression: rekyl, sandstorm, udviklermenu, udforskning, skrotterbase, tårne, forsvarere. |
+| `tools/shots_junkers.py` | Skærmbilleder + rekyl-GIF for Sydskrotter-iterationen. |
+| `tools/build_world_south.py` | Skriver og validerer det udvidede kort / skrotterbasen i lokationsfilen. |
 | `tools/shots.py` | Tager skærmbilleder af det kørende spil. |
 | `tools/shots_b.py` | Fase B-skærmbilleder; `--backdrop` optager menu-baggrunden. |
 | `tools/art/inkkit.py` | Blækpipeline (Red Thaw-sæt + desertize, top-down finish, sømløse fliser). |

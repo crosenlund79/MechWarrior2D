@@ -112,6 +112,16 @@
 				58
 			],
 			"cooling_radius": 32.0
+		},
+		"recoil": {
+			"_note": "Visual only (no displacement of the mech).",
+			"gun_kick": 22.0,
+			"housing_kick": 7.0,
+			"housing_rock": 0.05,
+			"spring": 120.0,
+			"damping": 13.0,
+			"shake": 0.3,
+			"shake_max": 0.5
 		}
 	},
 	"enemy": {
@@ -170,5 +180,66 @@
 			-46
 		],
 		"flee_distance": 700.0
-	}
+	},
+	"weather": {
+		"_note": "Sandstorm: clear → building → storm → fading. Effects scale with intensity × zone storm_exposure.",
+		"first_storm_after": 420.0,
+		"clear_range": [
+			300.0,
+			540.0
+		],
+		"build_time": 45.0,
+		"fade_time": 40.0,
+		"hold_range": [
+			90.0,
+			150.0
+		],
+		"peak_range": [
+			0.7,
+			1.0
+		],
+		"cooling_penalty": 0.4,
+		"abrasion_add": 8.0,
+		"suit_penalty": 0.9,
+		"ambient_add": 3.0,
+		"visibility_penalty": 0.45
+	},
+	"turret": {
+		"_note": "Southern Junkers perimeter turret (easy). max_engaged = how many may wind up/fire at once.",
+		"hp": 38.0,
+		"range": 480.0,
+		"turn_rate": 0.85,
+		"telegraph": 1.15,
+		"cooldown": 4.6,
+		"fire_cone_deg": 8.0,
+		"muzzle": 52.0,
+		"hit_radius": 40.0,
+		"max_engaged": 2,
+		"salvage_scrap": 2,
+		"salvage_duration": 2.5,
+		"weapon": {
+			"damage": 3.0,
+			"cooling_damage": 0.03,
+			"structural_cooling_damage": 0.004,
+			"speed": 230.0,
+			"range": 560.0,
+			"spread_deg": 3.0,
+			"radius": 8.0
+		}
+	},
+	"enemy_types": {
+		"_note": "Per-type overrides on top of 'enemy'.",
+		"scrapper": {},
+		"junker": {
+			"integrity": 62.0,
+			"max_speed": 72.0,
+			"detect_base": 310.0,
+			"detect_max": 560.0,
+			"start_radiator": 0.8,
+			"preferred_range": 350.0,
+			"leash_radius": 700.0,
+			"damage_mult": 0.7
+		}
+	},
+	"zone_storm_exposure_note": "see location zone_types storm_exposure"
 }

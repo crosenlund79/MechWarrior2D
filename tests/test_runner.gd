@@ -656,7 +656,10 @@ func test_refuge_terrain_and_thermal() -> void:
 	var masses := Content.terrain(loc, "masses")
 	check(masses.size() >= 1 and masses[0]["shape"].size() > loc["terrain"]["masses"][0]["polygon"].size(), "rock mass outline is roughened (organic)")
 	check(Content.terrain(loc, "masses")[0]["shape"] == masses[0]["shape"], "roughening is deterministic (visual = collision)")
-	var road := Content.poly(loc["patches"][loc["patches"].size() - 1]["path"])
+	var road := PackedVector2Array()
+	for pt in loc["patches"]:
+		if pt["id"] == "track_refuge":
+			road = Content.poly(pt["path"])
 	for p in road:
 		check(not Geometry2D.is_point_in_polygon(p, masses[0]["shape"]), "refuge road stays out of the rock at %s" % str(p))
 	var refuge := Content.zone_at(loc, Vector2(-1500, 800))
@@ -684,7 +687,199 @@ func test_migration_v2_to_v3_adds_pilots() -> void:
 		env["state"]["enemies"][id].erase("pilot")
 	env["state"]["enemies"].erase(_enc_id())
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 3, "v2 → v3")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION, "v2 → current")
 	var st := GameState.sanitize(up["state"], loc)
 	check(st["enemies"]["enemy_scrapper_01"]["pilot"]["state"] == "aboard", "existing enemy gets an aboard pilot")
 	check(st["enemies"][_enc_id()]["ai"] == "unpiloted", "new parked encounter appears in old saves")
+
+
+
+# ---------------------------------------------------------------- Southern Junkers iteration
+
+func test_weather_cycle_is_gradual() -> void:
+	var tw: Dictionary = Content.tuning["weather"]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var w := Weather.create(tw)
+	w["next"] = 1.0
+	var evs := []
+	var prev := 0.0
+	var max_jump := 0.0
+	for i in 4000:
+		var e := Weather.step(w, tw, 0.1, true, rng)
+		if e != "":
+			evs.append(e)
+		max_jump = maxf(max_jump, absf(float(w["intensity"]) - prev))
+		prev = float(w["intensity"])
+		if e == "storm_over":
+			break
+	check(evs == ["storm_coming", "storm_peak", "storm_fading", "storm_over"], "clear → building → storm → fading → clear (%s)" % str(evs))
+	check(max_jump < 0.01, "intensity changes gradually (max step %.4f)" % max_jump)
+	var w2 := Weather.create(tw)
+	w2["next"] = 0.5
+	for i in 200:
+		Weather.step(w2, tw, 0.1, false, rng)
+	check(w2["state"] == "clear", "dynamic weather off → stays clear")
+
+
+func test_storm_effects_and_shelter() -> void:
+	var loc := Content.location()
+	var tw: Dictionary = Content.tuning["weather"]
+	var th: Dictionary = Content.tuning["thermal"]
+	var w := {"state": "storm", "intensity": 1.0}
+	var open := Content.zone_at(loc, Vector2(300, 2100))
+	var refuge := Content.zone_at(loc, Vector2(-1500, 800))
+	var so := Weather.apply(open, w, tw)
+	var sr := Weather.apply(refuge, w, tw)
+	var m := {"heat": 100.0, "radiator": 0.8, "shutters_open": true, "engine": "running"}
+	check(Thermal.cooling_rate(m, so, th) < Thermal.cooling_rate(m, open, th) * 0.75, "storm impairs cooling outside")
+	check(Thermal.equilibrium(m, true, 1.0, so, th) > Thermal.equilibrium(m, true, 1.0, open, th) + 8.0, "overheating becomes a bigger concern")
+	check(float(so["suit"]) > float(open["suit"]) * 1.5, "suit exposure is more dangerous outside")
+	check(float(sr["suit"]) < float(open["suit"]) * 0.3 and Weather.felt(w, refuge) < 0.15, "the refuge shelters from the storm")
+	check(Weather.visibility(w, open, tw) < 0.7, "storm reduces visibility (detection)")
+	var te: Dictionary = Content.tuning["enemy"]
+	var e := GameState.new_enemy(loc["enemies"][0])
+	e["ai"] = "patrol"
+	var brain := {"wp": 0, "t_state": 0.0}
+	var near := {"valid": true, "pos": Content.v2(e["pos"]) + Vector2(0, -300), "heat": 70.0, "visibility": 0.55}
+	EnemyAI.think(e, brain, near, loc["enemies"][0], te, th, Content.tuning["combat"]["enemy_weapon"], 0.1)
+	check(e["ai"] == "patrol", "a mech hidden by the storm at 300 px is not detected")
+
+
+func test_turret_detect_aim_fire_limit_destroy() -> void:
+	var s := _fresh_session()
+	var loc: Dictionary = Session.loc
+	check(loc["turrets"].size() >= 4, "several perimeter turrets")
+	var d: Dictionary = loc["turrets"][0]
+	var t: Dictionary = s["turrets"][d["id"]]
+	var tt: Dictionary = Content.tuning["turret"]
+	var brain := {"windup": 0.0, "cooldown": 0.0}
+	var far := {"valid": true, "pos": Content.v2(d["pos"]) + Vector2(0, -900), "visibility": 1.0}
+	var r := Turret.step(d, t, brain, far, tt, 0.1, true, true)
+	check(not r["engaged"], "out of range → idle")
+	var tgt := {"valid": true, "pos": Content.v2(d["pos"]) + Vector2(300, -250), "visibility": 1.0}
+	var a0 := float(t["angle"])
+	Turret.step(d, t, brain, tgt, tt, 0.1, true, true)
+	check(absf(float(t["angle"]) - a0) <= float(tt["turn_rate"]) * 0.1 + 0.001, "turret rotation is rate-limited")
+	var fired := false
+	var wind := false
+	for i in 120:
+		var rr := Turret.step(d, t, brain, tgt, tt, 0.1, true, true)
+		wind = wind or float(rr["windup"]) > 0.0
+		if rr["fire"]:
+			fired = true
+			break
+	check(wind and fired, "turret telegraphs, then fires")
+	var brain2 := {"windup": 0.0, "cooldown": 0.0}
+	var blocked := false
+	for i in 80:
+		blocked = blocked or Turret.step(d, t, brain2, tgt, tt, 0.1, false, true)["fire"]
+	check(not blocked, "no line of sight → no fire")
+	# engagement limiter: put the player among all turrets
+	var cx := 0.0
+	var cy := 0.0
+	for td in loc["turrets"]:
+		cx += Content.v2(td["pos"]).x
+		cy += Content.v2(td["pos"]).y
+	s["mech"]["pos"] = [cx / loc["turrets"].size(), cy / loc["turrets"].size()]
+	var max_wind := 0
+	for i in 200:
+		Session.tick(0.05)
+		var n := 0
+		for id in Session.turret_view:
+			if float(Session.turret_view[id]["windup"]) > 0.0:
+				n += 1
+		max_wind = maxi(max_wind, n)
+	check(max_wind <= int(tt["max_engaged"]), "at most %d turrets wind up at once (saw %d)" % [int(tt["max_engaged"]), max_wind])
+	# destroy + persistence
+	var sh := {"owner": "player", "pos": Content.v2(d["pos"]), "prev": Content.v2(d["pos"]) + Vector2(-80, 0), "vel": Vector2(500, 0),
+		"travelled": 0.0, "range": 600.0, "damage": 100.0, "cooling_damage": 0.0, "structural_cooling_damage": 0.0, "radius": 5.0}
+	Session.projectiles = [sh]
+	sh["pos"] = sh["prev"]
+	Session.tick(0.2)
+	check(bool(s["turrets"][d["id"]]["destroyed"]), "turret destroyed by fire")
+	var clean := GameState.sanitize(Saves.load_slot(3)["state"], loc)
+	check(bool(clean["turrets"][d["id"]]["destroyed"]), "destroyed turret persists")
+	Session.running = false
+	Saves.delete_slot(3)
+
+
+func test_junker_type_and_defenders() -> void:
+	var loc := Content.location()
+	var junkers := 0
+	var parked := 0
+	for e in loc["enemies"]:
+		if e.get("type", "") == "junker":
+			junkers += 1
+			if e.get("parked", false):
+				parked += 1
+	check(junkers >= 2 and junkers <= 4, "a few Junker defenders (%d)" % junkers)
+	check(parked == 1, "one parked Junker mech reuses the boarding encounter")
+	var s := _fresh_session()
+	var j: Dictionary = s["enemies"]["junker_yard_guard"]
+	approx(float(j["integrity"]), float(Content.tuning["enemy_types"]["junker"]["integrity"]), 0.01, "Junker uses its type stats")
+	check(float(j["integrity"]) < 80.0, "modest health")
+	Session.running = false
+
+
+func test_dev_cheats_never_saved() -> void:
+	var s := _fresh_session(2)
+	Session.mech_spot_free = Callable()
+	Session.dev["invulnerable"] = true
+	Session.dev["aggression"] = false
+	var made := Session.dev_spawn("junker", 2)
+	check(made == 2, "spawned 2 dev Junkers")
+	var any_dev := false
+	for id in s["enemies"]:
+		any_dev = any_dev or bool(s["enemies"][id].get("dev", false))
+	check(any_dev, "spawned enemies are flagged as dev")
+	for id in s["enemies"]:
+		if bool(s["enemies"][id].get("dev", false)):
+			check(Content.v2(s["enemies"][id]["pos"]).distance_to(Session.mech_pos()) > 300.0, "spawn not on top of the player")
+	check(Session.save_now("test"), "save")
+	var raw = SafeFile.read_json(Saves.slot_path(2))
+	var leaked := false
+	for id in raw["state"]["enemies"]:
+		leaked = leaked or bool(raw["state"]["enemies"][id].get("dev", false))
+	check(not leaked, "dev-spawned mechs are not written to the save")
+	check(not FileAccess.get_file_as_string(Saves.slot_path(2)).contains("invulnerable"), "cheat toggles are not in the save")
+	s["mech"]["integrity"] = 50.0
+	var sh := {"owner": "x", "pos": Session.mech_pos(), "prev": Session.mech_pos() + Vector2(-200, 0), "vel": Vector2(500, 0),
+		"travelled": 0.0, "range": 600.0, "damage": 20.0, "cooling_damage": 0.2, "structural_cooling_damage": 0.0, "radius": 5.0}
+	Session.projectiles = [sh]
+	Session.tick(0.05)
+	approx(float(s["mech"]["integrity"]), 50.0, 0.001, "invulnerable blocks damage")
+	Session.dev_clear_spawned()
+	var left := 0
+	for id in s["enemies"]:
+		if bool(s["enemies"][id].get("dev", false)):
+			left += 1
+	check(left == 0, "clear spawned removes dev mechs only")
+	Session.start_new(2)
+	check(not bool(Session.dev["invulnerable"]) and bool(Session.dev["aggression"]), "cheats reset when a game starts")
+	Session.running = false
+	Saves.delete_slot(2)
+
+
+func test_teleports_and_areas() -> void:
+	var loc := Content.location()
+	for k in ["refuge", "junker_base", "cooling_station", "scrap_field"]:
+		check(loc["teleports"].has(k), "teleport target %s" % k)
+	var s := _fresh_session()
+	check(Session.dev_teleport("junker_base"), "teleport to the Junker base")
+	check(Session.area_at(Session.mech_pos()) == "area_junkers", "arrives in Junker territory")
+	check(Session.dev_teleport("refuge") and Session.mech_zone["type"] == "refuge", "teleport home to the refuge")
+	Session.running = false
+
+
+func test_migration_v3_to_v4() -> void:
+	var loc := Content.location()
+	var env := SaveCodec.encode(GameState.create(loc, 1))
+	env["version"] = 3
+	env["state"].erase("turrets")
+	env["state"].erase("weather")
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 4, "v3 → v4")
+	var st := GameState.sanitize(up["state"], loc)
+	check(st["turrets"].size() == loc["turrets"].size() and st["weather"]["state"] == "clear", "turrets + clear weather added to old saves")
+	check(st["enemies"].has("junker_yard_guard"), "new defenders appear in old saves")

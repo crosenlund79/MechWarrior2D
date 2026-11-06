@@ -10,6 +10,13 @@ const ZOOM_MAX := 2.0
 const FOOT_FACTOR := 1.3
 
 var _look := Vector2.ZERO
+var _trauma := 0.0
+var _shake_t := 0.0
+
+
+## Short, decaying screen shake (trauma² drives the offset).
+func add_shake(amount: float, cap: float = 0.45) -> void:
+	_trauma = minf(cap, _trauma + amount)
 var _zoom := 1.0
 
 
@@ -55,3 +62,8 @@ func _process(delta: float) -> void:
 	global_position = global_position.lerp(target + _look, 1.0 - exp(-6.0 * delta))
 	_zoom = lerpf(_zoom, _target_zoom(), 1.0 - exp(-5.0 * delta))
 	zoom = Vector2(_zoom, _zoom)
+	_trauma = maxf(0.0, _trauma - delta * 1.2)
+	_shake_t += delta * 38.0
+	var s := _trauma * _trauma * 26.0
+	offset = Vector2(sin(_shake_t * 1.13) + sin(_shake_t * 2.7) * 0.5, cos(_shake_t * 0.97) + sin(_shake_t * 2.1) * 0.5) * s
+	rotation = 0.0

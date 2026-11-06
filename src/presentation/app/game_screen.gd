@@ -8,6 +8,7 @@ var main: Node
 var world: WorldView
 var hud: Hud
 var dev: DevOverlay
+var devmenu: DevMenu
 var pause_layer: CanvasLayer
 var input: PlayerInput
 var sound: SoundDirector
@@ -33,6 +34,11 @@ func _ready() -> void:
 	dev = DevOverlay.new()
 	dev.world = world
 	dl.add_child(dev)
+	var ml := CanvasLayer.new()
+	ml.layer = 13
+	add_child(ml)
+	devmenu = DevMenu.new()
+	ml.add_child(devmenu)
 	pause_layer = CanvasLayer.new()
 	pause_layer.layer = 14
 	pause_layer.process_mode = Node.PROCESS_MODE_ALWAYS

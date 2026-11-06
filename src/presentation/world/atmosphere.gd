@@ -45,6 +45,8 @@ uniform vec3 vignette_tone = vec3(0.56, 0.43, 0.31);
 uniform vec2 screen_size = vec2(1280.0, 720.0);
 uniform vec2 world_origin = vec2(0.0);
 uniform float world_scale = 1.0;
+uniform float storm = 0.0;
+uniform vec3 storm_color = vec3(0.80, 0.64, 0.44);
 void fragment() {
 	vec2 uv = SCREEN_UV;
 	vec2 wp = (uv * screen_size - world_origin) / world_scale;
@@ -53,6 +55,17 @@ void fragment() {
 	uv += vec2(s.x, s.y * 0.35) * shimmer * 2.0 / screen_size;
 	vec3 c = texture(screen_tex, uv).rgb;
 	float l = dot(c, vec3(0.299, 0.587, 0.114));
+	if (storm > 0.0) {
+		// SANDSTORM: visibility falls off with distance from the player (screen
+		// centre stays readable), plus fast world-anchored sand sheets along the wind.
+		vec2 sd = (SCREEN_UV - 0.5) * vec2(screen_size.x / screen_size.y, 1.0);
+		float rr = length(sd);
+		float sheet = texture(fog, (wp * vec2(0.35, 1.6)) / 520.0 + vec2(TIME * 0.55, TIME * 0.12)).a;
+		float sheet2 = texture(fog, (wp * vec2(0.5, 2.2)) / 300.0 + vec2(TIME * 0.9, TIME * 0.2)).a;
+		float vis = storm * (0.16 + 0.70 * smoothstep(0.10, 0.80, rr)) + storm * (sheet * 0.22 + sheet2 * 0.12);
+		c = mix(c, storm_color * (0.72 + 0.28 * l), clamp(vis, 0.0, 0.86));
+		l = dot(c, vec3(0.299, 0.587, 0.114));
+	}
 	c = mix(vec3(l), c, saturation);
 	c = clamp((c - 0.5) * contrast + 0.5, 0.0, 1.0);
 	c *= mix(shadow_tone, highlight_tone, smoothstep(0.12, 0.8, l));
@@ -79,6 +92,9 @@ var streaks: WindStreaks
 var enabled := true
 var _blend := 0.0   # 0 = sun, 1 = shade
 var _cave := 0.0    # 0 = open sky, 1 = under rock cover
+var _storm := 0.0
+var storm_dust: CPUParticles2D
+const STORM_LIGHT := Color(0.94, 0.78, 0.6)
 
 
 func _ready() -> void:
@@ -107,6 +123,7 @@ func _ready() -> void:
 	grade_rect.material = mat
 	gl.add_child(grade_rect)
 	_build_dust()
+	_build_storm_dust()
 	_apply(1.0)
 
 
@@ -167,6 +184,31 @@ func _build_dust() -> void:
 		world.add_child(s)
 
 
+## Dense blowing sand that follows the camera (only emits during storms).
+func _build_storm_dust() -> void:
+	var mote := _fx("dust_mote.png")
+	storm_dust = CPUParticles2D.new()
+	storm_dust.name = "StormDust"
+	storm_dust.texture = mote if mote else FxKit.dot()
+	storm_dust.amount = 320
+	storm_dust.lifetime = 2.6
+	storm_dust.preprocess = 2.6
+	storm_dust.local_coords = false
+	storm_dust.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	storm_dust.emission_rect_extents = Vector2(1100, 750)
+	storm_dust.direction = Vector2(1, 0.22)
+	storm_dust.spread = 8.0
+	storm_dust.gravity = Vector2(40, 8)
+	storm_dust.initial_velocity_min = 260.0
+	storm_dust.initial_velocity_max = 520.0
+	storm_dust.scale_amount_min = 0.4
+	storm_dust.scale_amount_max = 1.4
+	storm_dust.color = Color(0.88, 0.74, 0.54, 0.55)
+	storm_dust.z_index = 26
+	storm_dust.emitting = false
+	world.add_child(storm_dust)
+
+
 func set_enabled(on: bool) -> void:
 	enabled = on
 	grade_rect.visible = on
@@ -181,7 +223,15 @@ func _process(delta: float) -> void:
 	var zt := str((Session.pilot_zone if Session.mode() == "foot" else Session.mech_zone).get("type", ""))
 	var cave_t := maxf(cover, 0.35 if zt == "canyon" else 0.0)
 	_cave = move_toward(_cave, cave_t, delta * 0.8)
-	light.color = DAY_LIGHT.lerp(CAVE_LIGHT, smoothstep(0.0, 1.0, _cave))
+	_storm = move_toward(_storm, Session.storm_here, delta * 0.35)
+	light.color = DAY_LIGHT.lerp(STORM_LIGHT, _storm * 0.85).lerp(CAVE_LIGHT, smoothstep(0.0, 1.0, _cave))
+	mat.set_shader_parameter("storm", _storm)
+	streaks.storm = _storm
+	storm_dust.emitting = _storm > 0.04
+	storm_dust.modulate.a = clampf(_storm * 1.4, 0.0, 1.0)
+	var cam := get_viewport().get_camera_2d()
+	if cam:
+		storm_dust.global_position = cam.global_position + Vector2(-500, -200)
 	_apply(delta)
 	var vp := get_viewport()
 	mat.set_shader_parameter("screen_size", vp.get_visible_rect().size)

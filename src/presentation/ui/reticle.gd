@@ -5,7 +5,7 @@ extends Control
 
 
 func _process(_delta: float) -> void:
-	var want := Session.running and Session.mode() == "mech"
+	var want := Session.running and Session.mode() == "mech" and not DevMenu.is_open
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if want and not get_tree().paused else Input.MOUSE_MODE_VISIBLE
 	queue_redraw()
 

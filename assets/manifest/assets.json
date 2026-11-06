@@ -788,6 +788,477 @@
 				0.5
 			],
 			"height": 12
+		},
+		"enemy.junker_hull": {
+			"path": "mechs/junker/hull",
+			"display": [
+				150,
+				170
+			],
+			"source": [
+				300,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "Southern Junkers scrapper variant (orange/black, insignia)"
+		},
+		"enemy.junker_wreck": {
+			"path": "mechs/junker/wreck",
+			"display": [
+				190,
+				190
+			],
+			"source": [
+				380,
+				380
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"junker.turret_base": {
+			"path": "junker/turret_base",
+			"display": [
+				104,
+				104
+			],
+			"source": [
+				208,
+				208
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"junker.turret_gun": {
+			"path": "junker/turret_gun",
+			"display": [
+				72,
+				128
+			],
+			"source": [
+				144,
+				256
+			],
+			"pivot": [
+				0.5,
+				0.62
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "rotating turret housing; pivot = slewing ring"
+		},
+		"junker.turret_wreck": {
+			"path": "junker/turret_wreck",
+			"display": [
+				112,
+				112
+			],
+			"source": [
+				224,
+				224
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 10
+		},
+		"junker.workshop": {
+			"path": "junker/workshop",
+			"display": [
+				580,
+				410
+			],
+			"source": [
+				1160,
+				820
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40,
+			"note": "main building (top view of the roof)"
+		},
+		"junker.shed": {
+			"path": "junker/shed",
+			"display": [
+				210,
+				170
+			],
+			"source": [
+				420,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"junker.shed_b": {
+			"path": "junker/shed_b",
+			"display": [
+				210,
+				170
+			],
+			"source": [
+				420,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"junker.scrap_stack": {
+			"path": "junker/scrap_stack",
+			"display": [
+				160,
+				130
+			],
+			"source": [
+				320,
+				260
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"junker.cooler": {
+			"path": "junker/cooler",
+			"display": [
+				170,
+				130
+			],
+			"source": [
+				340,
+				260
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 22
+		},
+		"junker.generator": {
+			"path": "junker/generator",
+			"display": [
+				160,
+				110
+			],
+			"source": [
+				320,
+				220
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"junker.tarp": {
+			"path": "junker/tarp",
+			"display": [
+				320,
+				240
+			],
+			"source": [
+				640,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40,
+			"note": "overhead shade; fades when underneath"
+		},
+		"junker.burn_barrel": {
+			"path": "junker/burn_barrel",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 10
+		},
+		"junker.insignia": {
+			"path": "junker/insignia",
+			"display": [
+				180,
+				180
+			],
+			"source": [
+				360,
+				360
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted faction mark (floor decal)"
+		},
+		"junker.lamp": {
+			"path": "junker/lamp",
+			"display": [
+				30,
+				30
+			],
+			"source": [
+				60,
+				60
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 40
+		},
+		"cs.cooling_tower": {
+			"path": "cooling_station/cooling_tower",
+			"display": [
+				330,
+				330
+			],
+			"source": [
+				660,
+				660
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 70
+		},
+		"cs.tank": {
+			"path": "cooling_station/tank",
+			"display": [
+				150,
+				150
+			],
+			"source": [
+				300,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 34
+		},
+		"cs.radiator_bank": {
+			"path": "cooling_station/radiator_bank",
+			"display": [
+				280,
+				120
+			],
+			"source": [
+				560,
+				240
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 20
+		},
+		"cs.pipe_rack": {
+			"path": "cooling_station/pipe_rack",
+			"display": [
+				300,
+				70
+			],
+			"source": [
+				600,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 26
+		},
+		"cs.control_shed": {
+			"path": "cooling_station/control_shed",
+			"display": [
+				220,
+				170
+			],
+			"source": [
+				440,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"road.lot": {
+			"path": "roadside/lot",
+			"display": [
+				480,
+				340
+			],
+			"source": [
+				960,
+				680
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"road.kiosk": {
+			"path": "roadside/kiosk",
+			"display": [
+				250,
+				170
+			],
+			"source": [
+				500,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"road.pump": {
+			"path": "roadside/pump",
+			"display": [
+				36,
+				52
+			],
+			"source": [
+				72,
+				104
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
+		},
+		"road.canopy": {
+			"path": "roadside/canopy",
+			"display": [
+				440,
+				300
+			],
+			"source": [
+				880,
+				600
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 46,
+			"note": "overhead; fades when underneath"
+		},
+		"road.car": {
+			"path": "roadside/car",
+			"display": [
+				180,
+				96
+			],
+			"source": [
+				360,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 18
+		},
+		"road.billboard": {
+			"path": "roadside/billboard",
+			"display": [
+				300,
+				64
+			],
+			"source": [
+				600,
+				128
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"road.sign": {
+			"path": "roadside/sign",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 30
+		},
+		"prop.engine_block": {
+			"path": "props/debris/engine_block",
+			"display": [
+				90,
+				80
+			],
+			"source": [
+				180,
+				160
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 12
+		},
+		"prop.tire_stack": {
+			"path": "props/debris/tire_stack",
+			"display": [
+				70,
+				70
+			],
+			"source": [
+				140,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"height": 14
 		}
 	},
 	"tiles": {
@@ -918,6 +1389,53 @@
 				0
 			],
 			"note": "strip tiled along built walls"
+		},
+		"junker.wall_strip": {
+			"path": "junker/wall_strip",
+			"display": [
+				128,
+				30
+			],
+			"source": [
+				256,
+				60
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "strip tiled along Junker walls"
+		},
+		"ground.junker_dirt": {
+			"path": "ground/junker_dirt",
+			"display": [
+				512,
+				512
+			],
+			"source": [
+				512,
+				512
+			],
+			"pivot": [
+				0,
+				0
+			]
+		},
+		"ground.asphalt": {
+			"path": "ground/asphalt",
+			"display": [
+				256,
+				128
+			],
+			"source": [
+				256,
+				128
+			],
+			"pivot": [
+				0,
+				0
+			],
+			"note": "cracked, sand-drifted highway strip"
 		}
 	},
 	"sounds": {
@@ -1005,7 +1523,7 @@
 		},
 		"sfx.gun_fire": {
 			"path": "audio/sfx/gun_fire",
-			"bus": "SFX",
+			"bus": "Weapons",
 			"loop": false
 		},
 		"sfx.enemy_charge": {
@@ -1080,7 +1598,7 @@
 		},
 		"sfx.gun_fire_b": {
 			"path": "audio/sfx/gun_fire_b",
-			"bus": "SFX",
+			"bus": "Weapons",
 			"loop": false
 		},
 		"sfx.impact_metal": {
@@ -1109,6 +1627,66 @@
 			"bus": "Music",
 			"loop": false,
 			"volume_db": -7
+		},
+		"sfx.gun_cycle": {
+			"path": "audio/sfx/gun_cycle",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.gun_ring": {
+			"path": "audio/sfx/gun_ring",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"sfx.gun_report": {
+			"path": "audio/sfx/gun_report",
+			"bus": "Weapons",
+			"loop": false
+		},
+		"amb.storm": {
+			"path": "audio/ambience/storm",
+			"bus": "Wind",
+			"loop": true
+		},
+		"sfx.gust": {
+			"path": "audio/sfx/gust",
+			"bus": "Ambience",
+			"loop": false
+		},
+		"sfx.gust_b": {
+			"path": "audio/sfx/gust_b",
+			"bus": "Ambience",
+			"loop": false
+		},
+		"sfx.sand_hit": {
+			"path": "audio/sfx/sand_hit",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.turret_fire": {
+			"path": "audio/sfx/turret_fire",
+			"bus": "SFX",
+			"loop": false
+		},
+		"sfx.turret_destroyed": {
+			"path": "audio/sfx/turret_destroyed",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.fire_barrel": {
+			"path": "audio/ambience/fire_barrel",
+			"bus": "Ambience",
+			"loop": true
+		},
+		"sfx.clank": {
+			"path": "audio/sfx/clank",
+			"bus": "SFX",
+			"loop": false
+		},
+		"amb.junker_machine": {
+			"path": "audio/ambience/junker_machine",
+			"bus": "Ambience",
+			"loop": true
 		}
 	}
 }

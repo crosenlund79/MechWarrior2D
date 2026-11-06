@@ -39,8 +39,17 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 		},
 		"world": {"taken": {}, "drops": [], "next_drop": 1},
 		"enemies": create_enemies(loc),
+		"turrets": create_turrets(loc),
+		"weather": Weather.create(Content.tuning.get("weather", {})),
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0},
 	}
+
+
+static func create_turrets(loc: Dictionary) -> Dictionary:
+	var out := {}
+	for d in loc.get("turrets", []):
+		out[str(d["id"])] = Turret.create(d, Content.tuning.get("turret", {}))
+	return out
 
 
 ## Enemy mechs from the location definition, keyed by their stable IDs.
@@ -51,13 +60,18 @@ static func create_enemies(loc: Dictionary) -> Dictionary:
 	return out
 
 
+static func _etype(d: Dictionary, key: String) -> float:
+	var ov: Dictionary = Content.tuning.get("enemy_types", {}).get(str(d.get("type", "scrapper")), {})
+	return float(ov.get(key, Content.t("enemy", key, 0.0)))
+
+
 static func new_enemy(d: Dictionary) -> Dictionary:
 	var p := Content.v2(d.get("spawn", [0, 0]))
 	var parked := bool(d.get("parked", false))
 	var pp := Content.v2(d.get("pilot_spawn", d.get("spawn", [0, 0])))
 	return {"type": str(d.get("type", "scrapper")), "pos": [p.x, p.y], "heading": deg_to_rad(float(d.get("heading_deg", 0.0))),
-		"speed": 0.0, "heat": Content.t("enemy", "start_heat", 66.0) - (8.0 if parked else 0.0), "radiator": Content.t("enemy", "start_radiator", 0.75),
-		"shutters_open": true, "engine": "off" if parked else "running", "integrity": Content.t("enemy", "integrity", 55.0),
+		"speed": 0.0, "heat": Content.t("enemy", "start_heat", 66.0) - (8.0 if parked else 0.0), "radiator": _etype(d, "start_radiator"),
+		"shutters_open": true, "engine": "off" if parked else "running", "integrity": _etype(d, "integrity"),
 		"ai": "unpiloted" if parked else "patrol", "salvaged": false,
 		"pilot": {"state": "outside" if parked else "aboard", "pos": [pp.x, pp.y], "facing": 0.0}}
 
@@ -122,6 +136,29 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 		e["integrity"] = maxf(0.0, float(e["integrity"]))
 		en[id] = e
 	s["enemies"] = en
+	# Turrets: keep destroyed/salvaged state for known IDs, create missing ones.
+	var tu := {}
+	var had: Dictionary = s.get("turrets", {}) if s.get("turrets") is Dictionary else {}
+	for td in loc.get("turrets", []):
+		var tid := str(td["id"])
+		var ft := Turret.create(td, Content.tuning.get("turret", {}))
+		var t: Dictionary = had.get(tid, ft) if had.get(tid) is Dictionary else ft
+		for k in ft:
+			if not t.has(k):
+				t[k] = ft[k]
+		t["destroyed"] = bool(t["destroyed"])
+		t["salvaged"] = bool(t["salvaged"])
+		if bool(t["destroyed"]):
+			t["hp"] = 0.0
+		tu[tid] = t
+	s["turrets"] = tu
+	var wd := Weather.create(Content.tuning.get("weather", {}))
+	if not (s.get("weather") is Dictionary) or not (str(s["weather"].get("state", "")) in Weather.STATES):
+		s["weather"] = wd
+	for k in wd:
+		if not s["weather"].has(k):
+			s["weather"][k] = wd[k]
+	s["weather"]["intensity"] = clampf(float(s["weather"]["intensity"]), 0.0, 1.0)
 	var b: Array = loc.get("bounds", [0, 0, 3600, 2600])
 	for arr in [m["pos"], pl["pos"]]:
 		arr[0] = clampf(float(arr[0]), float(b[0]) + 40.0, float(b[0]) + float(b[2]) - 40.0)

@@ -34,12 +34,25 @@
 6. Back at your mech: R repairs the radiator with the core, and R again patches the hull with 2 scrap.
    If your hull hits 0, the mech is crippled. Step out and R gives a slow, free emergency patch to 25 %.
 
+## Developer menu (F10)
+F10 opens it during play, without pausing. It has controls for:
+- **Weather:** dynamic weather on/off, clear now, start or stop a storm, storm intensity.
+- **Enemies:** spawn scrappers or Junkers near you, clear spawned enemies, aggression on/off.
+- **Player and mech:** repair all, refill suit, restore cooling, invulnerability, simulation speed.
+- **Teleport:** to the refuge, the Junker base, the cooling station or the scrap field.
+- **Reset:** restore default settings.
+
+None of it is saved, and it resets on new game, continue and return to menu. A "DEV:" badge in the
+lower-right corner shows active cheats.
+
 ## Automated checks (any OS with Godot 4.7.2 on PATH as `godot`)
 ```bash
 godot --headless --path . --import
 godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests
 python3 tools/regression.py
 python3 tools/regression_encounter.py
+python3 tools/regression_refuge.py
+python3 tools/regression_junkers.py
 python3 tools/check_script_guides.py
 ```
 - `run_tests.tscn`: unit and regression suite covering content, manifest, zones, thermal maths,
