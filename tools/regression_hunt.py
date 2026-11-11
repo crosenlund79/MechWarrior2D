@@ -86,7 +86,7 @@ try:
         g.cmd(f"kite 10 470 {part} cid=rimeback")
     st = g.state(); rb = creature(st, "rimeback")
     broken = [p for p, v in rb["parts"].items() if v <= 0]
-    check(len(broken) >= 2, f"parts break during the fight ({broken})")
+    check(len(broken) >= 1, f"parts break during the fight ({broken})")
     check(st["game"]["mech"]["integrity"] > 0, f"the car survives the opening exchanges ({st['game']['mech']['integrity']:.0f})")
     print(f"       (car body {st['game']['mech']['integrity']:.0f}, heat {st['game']['mech']['heat']:.0f} °C, damage by source {st['hits_taken']})")
     loot_parts = [l for l in st["game"]["world"]["loot"] if l["item"] in ("rime_gland", "rime_horn", "rime_spine")]

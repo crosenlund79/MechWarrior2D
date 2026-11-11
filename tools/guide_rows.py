@@ -83,4 +83,6 @@ ROWS = [
  ("src/presentation/ui/tracker_widget.gd", "Tracking compass: species, freshness, blood, arrow along the trail.", "Sporkompas: art, friskhed, blod, pil langs sporet."),
  ("tools/art/gen_thawborn.py", "Ink-pipeline templates for cars, rival cars, creatures, tracks and hunt materials; registers manifest entries.", "Tusch-pipeline-skabeloner til biler, rivaler, dyr, spor og jagtmaterialer; registrerer manifestposter."),
  ("tools/regression_hunt.py", "Runtime regression of the full Thawborn loop: refuge → drive → track → hunt → harvest → loot → garage → save/reload; rival car, skirrs, grindback, sandstorm.", "Kørselsregression af hele Thawborn-løkken: tilflugt → kørsel → sporing → jagt → slagtning → bytte → garage → gem/indlæs; rivalbil, skirrer, sliberyg, sandstorm."),
+ ("tools/build_windows.py", "Windows build: Godot export, portable zip and NSIS installer (export/).", "Windows-build: Godot-eksport, bærbar zip og NSIS-installationsprogram (export/)."),
+ ("tools/shots_thawborn.py", "Screenshots of the Thawborn conversion and the menu backdrop capture.", "Skærmbilleder af Thawborn-konverteringen og optagelse af menubaggrunden."),
 ]

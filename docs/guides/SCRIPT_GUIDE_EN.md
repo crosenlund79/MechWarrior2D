@@ -87,3 +87,5 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/ui/tracker_widget.gd` | Tracking compass: species, freshness, blood, arrow along the trail. |
 | `tools/art/gen_thawborn.py` | Ink-pipeline templates for cars, rival cars, creatures, tracks and hunt materials; registers manifest entries. |
 | `tools/regression_hunt.py` | Runtime regression of the full Thawborn loop: refuge → drive → track → hunt → harvest → loot → garage → save/reload; rival car, skirrs, grindback, sandstorm. |
+| `tools/build_windows.py` | Windows build: Godot export, portable zip and NSIS installer (export/). |
+| `tools/shots_thawborn.py` | Screenshots of the Thawborn conversion and the menu backdrop capture. |

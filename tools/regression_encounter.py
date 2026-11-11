@@ -68,8 +68,13 @@ try:
     st = g.state()
     check(en(st)["ai"] in ("return", "patrol"), f"enemy disengages when the player escapes ({en(st)['ai']})")
     check("NOTICE_ENEMY_LOST" in st["notices"], "disengage is announced")
-    g.cmd("debug timescale 6"); g.cmd("wait 6"); g.cmd("debug timescale 1")
-    check(en(g.state())["ai"] == "patrol", "enemy returns to patrol")
+    g.cmd("debug timescale 6")
+    for _ in range(6):   # a car has to drive back (and may circle the spot): up to ~70 s game time
+        g.cmd("wait 2")
+        if en(g.state())["ai"] == "patrol":
+            break
+    g.cmd("debug timescale 1")
+    check(en(g.state())["ai"] == "patrol", f"enemy returns to patrol ({en(g.state())['ai']}, {[round(v) for v in en(g.state())['pos']]})")
 
     print("5. player aiming + shooting: structure and cooling")
     st = g.state()

@@ -47,14 +47,15 @@ try:
     r = g.cmd("drive_to 2520 1100 40")
     check(r["ok"], "car reaches the wreck site")
     check(r["state"]["game"]["mech"]["heat"] < 98, f"ordinary driving stays below the warning ({r['state']['game']['mech']['heat']:.0f} °C)")
-    g.cmd("debug damage 0.3")   # a damaged radiator is what makes the mech overheat
+    rad = r["state"]["game"]["mech"]["radiator"]
+    g.cmd(f"debug damage {rad - 0.15:.4f}")   # a badly damaged radiator (15 %) is what makes the engine overheat
     # Keep the engine working hard (tight circles + firing) until the damaged radiator gives out.
     for k in range(20):
         if k >= 1:   # firing the guns is the main heat load
             m = g.state()["game"]["mech"]["pos"]
             g.cmd(f"aim {m[0]} {m[1] - 400}")
             st = g.cmd("fire_for 4")["state"]
-        st = g.cmd("drive 1 1 3")["state"]
+        st = g.cmd("drive 0.45 1 3")["state"]   # slow circles: a fast car would crash into the rig
         if st["game"]["stats"]["overheats"] > 0:
             break
     check(st["game"]["stats"]["overheats"] > 0 and st["game"]["mech"]["engine"] == "shutdown",
@@ -62,7 +63,7 @@ try:
     st = g.cmd("drive 1 0 2")["state"]
     check(abs(st["game"]["mech"]["speed"]) < 3, "shut-down car cannot drive")
     print("2. stop, exit, scavenge")
-    g.cmd("stop")
+    g.cmd("stop"); g.cmd("set_mech 2520 1100 90")   # park where the classic loop expects it (circles drift)
     r = g.cmd("interact")
     check(r["ok"] and r["state"]["game"]["mode"] == "foot", "get out of the parked car")
     check(r["state"]["game"]["mech"]["engine"] in ("off", "shutdown"), "parked engine is off")

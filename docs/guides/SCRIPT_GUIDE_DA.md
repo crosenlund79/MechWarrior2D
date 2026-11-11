@@ -87,3 +87,5 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/ui/tracker_widget.gd` | Sporkompas: art, friskhed, blod, pil langs sporet. |
 | `tools/art/gen_thawborn.py` | Tusch-pipeline-skabeloner til biler, rivaler, dyr, spor og jagtmaterialer; registrerer manifestposter. |
 | `tools/regression_hunt.py` | Kørselsregression af hele Thawborn-løkken: tilflugt → kørsel → sporing → jagt → slagtning → bytte → garage → gem/indlæs; rivalbil, skirrer, sliberyg, sandstorm. |
+| `tools/build_windows.py` | Windows-build: Godot-eksport, bærbar zip og NSIS-installationsprogram (export/). |
+| `tools/shots_thawborn.py` | Skærmbilleder af Thawborn-konverteringen og optagelse af menubaggrunden. |
