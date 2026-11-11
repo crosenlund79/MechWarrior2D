@@ -1,16 +1,16 @@
 ; Engine configuration file.
-; Heat Signature (provisional working title) — Godot 4.7.2, GDScript, Compatibility renderer.
+; Thawborn (formerly Heat Signature) — Godot 4.7.2, GDScript, Compatibility renderer.
 
 config_version=5
 
 [application]
 
-config/name="Heat Signature"
-config/description="Top-down post-apocalyptic mech survival prototype."
-config/version="0.1.0"
+config/name="Thawborn"
+config/description="Top-down vehicular hunting/survival in the scorched, thawed Antarctic wasteland."
+config/version="0.2.0"
 run/main_scene="res://scenes/main.tscn"
 config/use_custom_user_dir=true
-config/custom_user_dir_name="HeatSignature"
+config/custom_user_dir_name="Thawborn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

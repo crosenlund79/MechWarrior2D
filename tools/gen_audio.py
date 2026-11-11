@@ -152,3 +152,37 @@ for k, at in enumerate((0.9, 1.8, 2.6)):
     startup[i:] += np.sin(2 * np.pi * 70 * seg) * np.exp(-seg * 14) * 0.5   # actuator clunks
 save("audio/sfx/mech_startup", startup * 0.8)
 print("refuge audio written")
+
+
+# ---- Thawborn: car and creatures (no suitable creator clips: generated effects, never music)
+ct3 = t(4.0)
+rpm = 38.0
+car = (0.32 * np.sin(2 * np.pi * rpm * ct3) + 0.22 * np.sin(2 * np.pi * rpm * 2 * ct3 + 0.5) + 0.12 * np.sin(2 * np.pi * rpm * 3 * ct3 + 1.1)
+       + 0.10 * np.sign(np.sin(2 * np.pi * rpm * 0.5 * ct3)))
+car *= 0.85 + 0.15 * np.sign(np.sin(2 * np.pi * rpm * 0.25 * ct3))   # uneven firing (big rough V8-ish)
+car += 0.16 * lowpass(noise(4.0), 0.06) + 0.05 * (noise(4.0) - lowpass(noise(4.0), 0.3))
+save("audio/sfx/car_engine", loopify(car * 0.55, 0.3))
+sk = t(3.0)
+squeal = (noise(3.0) - lowpass(noise(3.0), 0.35)) * 0.25 + np.sin(2 * np.pi * (1350 + 60 * np.sin(2 * np.pi * 5 * sk)) * sk) * 0.06
+squeal += lowpass(noise(3.0), 0.04) * 0.6   # sand roar under the tyres
+save("audio/sfx/tyre_skid", loopify(squeal * 0.6, 0.3))
+hs2 = t(0.7)
+save("audio/sfx/skirr_hiss", (noise(0.7) - lowpass(noise(0.7), 0.5)) * 0.5 * env(len(hs2), 0.03, 0.25) * (1 + 0.5 * np.sin(2 * np.pi * 31 * hs2)))
+bt = t(0.35)
+save("audio/sfx/skirr_bite", (lowpass(noise(0.35), 0.4) * np.exp(-bt * 25) * 0.8 + np.sin(2 * np.pi * 240 * bt) * np.exp(-bt * 30) * 0.4))
+rm = t(3.0)
+rumble = lowpass(noise(3.0), 0.01) * 4.0 * (0.7 + 0.3 * np.sin(2 * np.pi * 7 * rm)) + np.sin(2 * np.pi * 28 * rm) * 0.25
+save("audio/sfx/tremor", loopify(rumble * 0.5, 0.4))
+rr = t(2.2)
+f = 70 + 60 * np.sin(np.pi * rr / 2.2)
+ph = 2 * np.pi * np.cumsum(f) / SR
+roar = (np.sin(ph) * 0.45 + np.sign(np.sin(ph * 1.5)) * 0.12 + np.sin(ph * 2.02) * 0.2) * env(len(rr), 0.25, 0.8)
+roar += lowpass(noise(2.2), 0.15) * 0.5 * env(len(rr), 0.2, 0.9)
+save("audio/sfx/rime_roar", roar * 0.8)
+ft2 = t(0.6)
+save("audio/sfx/rime_step", np.sin(2 * np.pi * (48 - 20 * ft2) * ft2) * np.exp(-ft2 * 8) * 0.8 + lowpass(noise(0.6), 0.05) * np.exp(-ft2 * 10) * 0.7)
+sp2 = t(0.8)
+save("audio/sfx/creature_spit", ((noise(0.8) - lowpass(noise(0.8), 0.2)) * 0.4 + np.sin(2 * np.pi * (300 - 200 * sp2) * sp2) * 0.2) * env(len(sp2), 0.02, 0.5))
+gh = t(1.2)
+save("audio/sfx/creature_growl", (np.sin(2 * np.pi * (90 + 10 * np.sin(2 * np.pi * 13 * gh)) * gh) * 0.35 + lowpass(noise(1.2), 0.1) * 0.4) * env(len(gh), 0.1, 0.4))
+print("thawborn audio written")

@@ -1,18 +1,22 @@
 class_name EnemyView
 extends CharacterBody2D
-## Hostile scrapper mech. Reads Session.state.enemies[id]; movement through
-## Session.enemy_velocity (same drive rules as the player). Visual states:
-## active (legs stride, red telegraph line + muzzle glow during wind-up, steam
-## when hot, smoke/leak when damaged) and wreck (collapsed sprite, slow smoke,
-## occasional sparks, salvage glint until salvaged).
+## Hostile RIVAL CAR (scrapper / Southern Junker). Reads Session.state.enemies[id];
+## movement through Session.enemy_velocity (same car dynamics as the player).
+## Visual states: active (wheels, roof gun swinging to its target, red telegraph
+## line + muzzle glow during wind-up, steam when hot, smoke/leak when damaged),
+## parked (driver outside; runs to the door, gets in, engine coughs to life) and
+## wreck (burnt-out sprite, slow smoke, sparks, salvage glint until stripped).
 
 const SHADOW_OFFSET := Vector2(12, 15)
 
 var id := ""
 var body: Node2D
 var hull: Sprite2D
-var leg_l: Sprite2D
+var leg_l: Sprite2D      # front wheels (legacy names)
 var leg_r: Sprite2D
+var wheels: Array[Sprite2D] = []
+var gun: Sprite2D
+var gun_holder: Node2D
 var wreck: Sprite2D
 var shadow: Node2D
 var telegraph: Line2D
@@ -36,6 +40,7 @@ var _hit_vel := Vector2.ZERO
 var _hit_rot := 0.0
 var _hit_rot_vel := 0.0     # 0 = parked (lowered, legs tucked), 1 = standing / active
 var _pilot_t := 0.0
+var _cs: CollisionShape2D
 
 
 func setup(enemy_id: String) -> void:
@@ -45,13 +50,14 @@ func setup(enemy_id: String) -> void:
 
 func _ready() -> void:
 	collision_layer = 4
-	collision_mask = 1 | 4
+	collision_mask = 1 | 4 | 8
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
-	var cs := CollisionShape2D.new()
-	var c := CircleShape2D.new()
-	c.radius = float(Session.tun("enemy").get("collision_radius", 66.0))
-	cs.shape = c
-	add_child(cs)
+	_cs = CollisionShape2D.new()
+	var c := CapsuleShape2D.new()
+	c.radius = float(Session.tun("enemy").get("collision_radius", 44.0))
+	c.height = float(Session.tun("enemy").get("collision_length", 200.0))
+	_cs.shape = c
+	add_child(_cs)
 	shadow = Node2D.new()
 	shadow.top_level = true
 	shadow.z_index = -2
@@ -62,13 +68,24 @@ func _ready() -> void:
 	body.material = LightKit.rotating_light_material()
 	var etype := str(Session.enemy(id).get("type", "scrapper"))
 	var junk := etype == "junker"
-	leg_l = _part("enemy.leg", Vector2(-62, 0))
-	leg_r = _part("enemy.leg", Vector2(62, 0))
-	leg_r.get_parent().scale.x = -1
-	hull = _part("enemy.junker_hull" if junk else "enemy.hull", Vector2.ZERO)
-	wreck = _part("enemy.junker_wreck" if junk else "enemy.wreck", Vector2.ZERO)
-	for s in [leg_l, leg_r, hull, wreck]:
+	for wp in [Vector2(-52, -68), Vector2(52, -68), Vector2(-54, 72), Vector2(54, 72)]:
+		wheels.append(_part("car.wheel", wp))
+	leg_l = wheels[0]
+	leg_r = wheels[1]
+	hull = _part("rival.junker_body" if junk else "rival.body", Vector2.ZERO)
+	wreck = _part("rival.junker_wreck" if junk else "rival.wreck", Vector2.ZERO)
+	for s in [hull, wreck] + wheels:
 		s.use_parent_material = true
+	gun_holder = Node2D.new()
+	gun_holder.top_level = true
+	gun_holder.z_index = z_index + 1
+	add_child(gun_holder)
+	gun_holder.material = LightKit.rotating_light_material()
+	gun = Sprite2D.new()
+	gun.set_meta("asset", "rival.gun")
+	gun.use_parent_material = true
+	gun_holder.add_child(gun)
+	Assets.apply_to_sprite(gun, "rival.gun")
 	_build_shadow()
 	telegraph = Line2D.new()
 	telegraph.width = 3.0
@@ -77,21 +94,21 @@ func _ready() -> void:
 	telegraph.z_index = 22
 	add_child(telegraph)
 	muzzle_glow = LightKit.glow(Color(1.0, 0.45, 0.15), 0.6, 0.0)
-	muzzle_glow.position = Vector2(0, -84)
-	body.add_child(muzzle_glow)
+	muzzle_glow.position = Vector2(0, -54)
+	gun_holder.add_child(muzzle_glow)
 	steam = FxKit.steam()
-	steam.position = Vector2(0, 60)
+	steam.position = Vector2(0, -80)
 	steam.emission_rect_extents = Vector2(30, 8)
 	body.add_child(steam)
 	leak = FxKit.coolant_leak()
-	leak.position = Vector2(0, 70)
+	leak.position = Vector2(0, -96)
 	body.add_child(leak)
 	smoke = FxKit.damage_smoke()
 	add_child(smoke)
 	glint = LightKit.glow(Color(1.0, 0.85, 0.5), 0.9, 0.0)
 	add_child(glint)
 	cockpit_light = LightKit.glow(Color(1.0, 0.55, 0.2), 0.35, 0.0)
-	cockpit_light.position = Vector2(-18, -46)
+	cockpit_light.position = Vector2(-26, -10)
 	body.add_child(cockpit_light)
 	_build_pilot()
 	Session.combat_event.connect(_on_combat)
@@ -191,7 +208,7 @@ func _build_shadow() -> void:
 		ch.queue_free()
 	var holder := Node2D.new()
 	shadow.add_child(holder)
-	for src in [leg_l, leg_r, hull, wreck]:
+	for src in wheels + [hull, wreck]:
 		var s := Sprite2D.new()
 		s.texture = src.texture
 		s.centered = false
@@ -207,7 +224,7 @@ func _build_shadow() -> void:
 
 
 func _rebuild_art() -> void:
-	for s in [leg_l, leg_r, hull, wreck]:
+	for s in wheels + [hull, wreck, gun]:
 		Assets.apply_to_sprite(s, str(s.get_meta("asset")))
 	_build_shadow()
 
@@ -218,6 +235,8 @@ func sync_from_state() -> void:
 		return
 	global_position = Content.v2(e["pos"])
 	body.rotation = float(e["heading"])
+	if _cs:
+		_cs.rotation = body.rotation
 
 
 func _physics_process(delta: float) -> void:
@@ -227,6 +246,7 @@ func _physics_process(delta: float) -> void:
 	if e.is_empty() or str(e["ai"]) == "wreck":
 		return
 	velocity = Session.enemy_velocity(id, delta)
+	_cs.rotation = float(e["heading"])
 	move_and_slide()
 	Session.commit_enemy(id, global_position, get_real_velocity())
 
@@ -240,14 +260,15 @@ func _process(delta: float) -> void:
 	var is_wreck := str(e["ai"]) == "wreck"
 	body.rotation = float(e["heading"])
 	hull.get_parent().visible = not is_wreck
-	leg_l.get_parent().visible = not is_wreck
-	leg_r.get_parent().visible = not is_wreck
+	for wh in wheels:
+		wh.get_parent().visible = not is_wreck
 	wreck.get_parent().visible = is_wreck
-	var frac := clampf(absf(float(e["speed"])) / float(Session.tun("enemy").get("max_speed", 78.0)), 0.0, 1.0)
-	_stride += delta * (2.0 + 6.0 * frac) * (1.0 if absf(float(e["speed"])) > 1.0 else 0.0)
-	var swing := sin(_stride) * 16.0 * minf(1.0, frac * 3.0)
-	# Parked: hull lowered onto tucked legs. Startup: actuators push the hull up
-	# while it shudders; legs swing out to their stance. Active: standing.
+	gun_holder.visible = not is_wreck
+	var it: Dictionary = Session.enemy_intents.get(id, {})
+	for i in 2:
+		wheels[i].get_parent().rotation = lerpf(wheels[i].get_parent().rotation, float(it.get("turn", 0.0)) * 0.45, 1.0 - exp(-8.0 * delta))
+	# Parked: engine cold, body settled. Startup: the engine coughs and the body
+	# shakes. Active: running.
 	var ai := str(e["ai"])
 	var target_pose := 1.0
 	var shudder := 0.0
@@ -261,10 +282,7 @@ func _process(delta: float) -> void:
 	if is_wreck:
 		target_pose = 1.0
 	_pose = move_toward(_pose, target_pose, delta * 1.2)
-	var leg_x := lerpf(44.0, 62.0, _pose)
-	leg_l.get_parent().position = Vector2(-leg_x, -swing)
-	leg_r.get_parent().position = Vector2(leg_x, swing)
-	var lift := lerpf(0.92, 1.0, _pose)
+	var lift := lerpf(0.97, 1.0, _pose)
 	hull.get_parent().scale = Vector2(lift, lift)
 	_hit_vel += (-180.0 * _hit_off - 16.0 * _hit_vel) * delta
 	_hit_off += _hit_vel * delta
@@ -279,13 +297,16 @@ func _process(delta: float) -> void:
 	var heat := float(e["heat"])
 	steam.emitting = not is_wreck and (heat >= float(tt.get("warn_temp", 98.0)) or str(e["engine"]) == "shutdown")
 	leak.emitting = not is_wreck and float(e["radiator"]) < 0.35
-	var integ := float(e["integrity"]) / float(Session.tun("enemy").get("integrity", 55.0))
+	var integ := float(e["integrity"]) / float(Session.enemy_tun(e).get("integrity", 55.0))
 	smoke.emitting = is_wreck or integ < 0.5
 	smoke.global_position = global_position + Vector2(10, -10)
 	# Telegraph: red aim line + growing muzzle glow while the weapon winds up.
-	var w := float(Session.enemy_intents.get(id, {}).get("windup", 0.0))
-	var fwd := Drive.forward(float(e["heading"]))
-	var muzzle := global_position + fwd * 82.0
+	var w := float(it.get("windup", 0.0))
+	var gang := float(it.get("gun", e["heading"]))
+	gun_holder.global_position = global_position + body.position + Vector2(18, -6).rotated(body.rotation)
+	gun_holder.rotation = gang
+	var fwd := Drive.forward(gang)
+	var muzzle := gun_holder.global_position + fwd * 54.0
 	if w > 0.0 and not is_wreck:
 		var pulse := 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.03)
 		telegraph.points = PackedVector2Array([muzzle, muzzle + fwd * float(Session.tun("combat")["enemy_weapon"]["range"]) * 0.9])
@@ -327,6 +348,7 @@ func _process(delta: float) -> void:
 			var src: Sprite2D = h.get_meta("src")
 			h.visible = src.get_parent().visible
 			h.position = src.get_parent().position
+			h.rotation = src.get_parent().rotation
 
 
 func _on_combat(kind: String, data: Dictionary) -> void:

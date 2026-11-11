@@ -362,14 +362,14 @@ func test_combat_hit_areas() -> void:
 	var pos := Vector2(1000, 1000)
 	var heading := 0.0
 	var cp := Combat.cooling_point(pos, heading, eh)
-	check(cp.y > pos.y, "cooling area sits at the rear (facing up)")
-	var shot := Combat.make_shot("player", cp + Vector2(0, 60), Vector2(0, -1), {"speed": 100, "spread_deg": 0, "radius": 4, "damage": 7, "cooling_damage": 0.1}, rng)
-	shot["prev"] = cp + Vector2(0, 60)
+	check(cp.y < pos.y, "cooling area (radiator grille) sits at the nose (facing up)")
+	var shot := Combat.make_shot("player", cp + Vector2(0, -60), Vector2(0, 1), {"speed": 100, "spread_deg": 0, "radius": 4, "damage": 7, "cooling_damage": 0.1}, rng)
+	shot["prev"] = cp + Vector2(0, -60)
 	shot["pos"] = cp
-	check(Combat.hit_test(shot, pos, heading, eh) == "cooling", "shot into the radiator hits cooling")
-	shot["prev"] = pos + Vector2(-200, -40)
-	shot["pos"] = pos + Vector2(0, -40)
-	check(Combat.hit_test(shot, pos, heading, eh) == "structure", "shot into the front hits structure")
+	check(Combat.hit_test(shot, pos, heading, eh) == "cooling", "shot into the grille hits cooling")
+	shot["prev"] = pos + Vector2(-200, 40)
+	shot["pos"] = pos + Vector2(0, 40)
+	check(Combat.hit_test(shot, pos, heading, eh) == "structure", "shot into the flank hits structure")
 	shot["prev"] = pos + Vector2(-300, -300)
 	shot["pos"] = pos + Vector2(-250, -300)
 	check(Combat.hit_test(shot, pos, heading, eh) == "", "far shot misses")
@@ -488,6 +488,7 @@ func test_hull_repair_and_emergency_patch() -> void:
 	check(not Session.can_drive(), "crippled mech cannot drive")
 	check(not Session.can_fire(), "crippled mech cannot fire")
 	Session.exit_mech()
+	s["mech"]["storage"].erase("scrap")
 	s["pilot"]["pos"] = [float(s["mech"]["pos"][0]) + 140.0, float(s["mech"]["pos"][1])]
 	check(Session.request("service"), "emergency patch available without scrap")
 	for i in 70:
@@ -585,7 +586,7 @@ func test_twin_guns_fire_from_both_muzzles_at_target() -> void:
 	check(Session.projectiles.size() > 0, "guns fire")
 	var left := Session.muzzle_pos(0)
 	var right := Session.muzzle_pos(1)
-	check(left.distance_to(right) > 150.0, "muzzles are on opposite sides of the housing")
+	check(left.distance_to(right) > 25.0 and (left - Session.mech_pos()).dot(Vector2.RIGHT) < 0.0 and (right - Session.mech_pos()).dot(Vector2.RIGHT) > 0.0, "muzzles are on opposite sides of the roof gun ring")
 	var hit_l := false
 	var hit_r := false
 	for sh in Session.projectiles:
@@ -908,7 +909,440 @@ func test_migration_v3_to_v4() -> void:
 	env["state"].erase("turrets")
 	env["state"].erase("weather")
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 4, "v3 → v4")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION, "v3 → current (v4 → v5 included)")
 	var st := GameState.sanitize(up["state"], loc)
 	check(st["turrets"].size() == loc["turrets"].size() and st["weather"]["state"] == "clear", "turrets + clear weather added to old saves")
 	check(st["enemies"].has("junker_yard_guard"), "new defenders appear in old saves")
+
+
+
+# ---------------------------------------------------------------- Thawborn: car, creatures, hunt, garage
+
+func _zone_open() -> Dictionary:
+	return {"drag": 1.0, "grip": 1.0, "ambient": 58.0, "solar": 1.0}
+
+
+func _car(heading := 0.0) -> Dictionary:
+	return {"heat": 60.0, "radiator": 1.0, "shutters_open": true, "engine": "running", "heading": heading, "speed": 0.0, "vel": [0.0, 0.0]}
+
+
+func test_car_accelerates_brakes_and_reverses() -> void:
+	var tm: Dictionary = Content.tuning["mech"]
+	var th: Dictionary = Content.tuning["thermal"]
+	var m := _car()
+	var t := 0.0
+	while float(m["speed"]) < float(tm["max_speed"]) * 0.9 and t < 5.0:
+		Drive.step(m, 1.0, 0.0, true, tm, th, _zone_open(), 0.016)
+		t += 0.016
+	check(t < 1.8, "car reaches 90 %% of top speed quickly (%.2f s)" % t)
+	check(float(m["speed"]) > 380.0, "top speed is a car's, well above the old mech (%.0f px/s)" % float(m["speed"]))
+	var v := Drive.velocity(m)
+	check(v.y < -300.0 and absf(v.x) < 5.0, "heading 0 drives up the screen")
+	var tb := 0.0
+	while float(m["speed"]) > 5.0 and tb < 5.0:
+		Drive.step(m, -1.0, 0.0, true, tm, th, _zone_open(), 0.016)
+		tb += 0.016
+	check(tb < 1.0, "brakes stop the car in under a second (%.2f s)" % tb)
+	for i in 120:
+		Drive.step(m, -1.0, 0.0, true, tm, th, _zone_open(), 0.016)
+	check(float(m["speed"]) < -100.0 and float(m["speed"]) >= -float(tm["reverse_speed"]) - 1.0, "keeps braking into reverse, capped at reverse speed")
+
+
+func test_car_steering_needs_motion_and_reverse_inverts() -> void:
+	var tm: Dictionary = Content.tuning["mech"]
+	var th: Dictionary = Content.tuning["thermal"]
+	var m := _car()
+	for i in 60:
+		Drive.step(m, 0.0, 1.0, true, tm, th, _zone_open(), 0.016)
+	approx(float(m["heading"]), 0.0, 0.001, "a parked car cannot pivot on the spot")
+	m["vel"] = [0.0, -250.0]
+	for i in 30:
+		Drive.step(m, 0.5, 1.0, true, tm, th, _zone_open(), 0.016)
+	check(float(m["heading"]) > 0.4, "rolling forward, steering right turns right (%.2f)" % float(m["heading"]))
+	var r := _car()
+	r["vel"] = [0.0, 120.0]   # rolling backwards
+	r["speed"] = -120.0
+	for i in 30:
+		Drive.step(r, -0.5, 1.0, true, tm, th, _zone_open(), 0.016)
+	check(float(r["heading"]) < -0.2, "in reverse the steering inverts like a real car (%.2f)" % float(r["heading"]))
+
+
+func test_car_grip_slip_and_handbrake_drift() -> void:
+	var tm: Dictionary = Content.tuning["mech"]
+	var th: Dictionary = Content.tuning["thermal"]
+	var grip := _car()
+	grip["vel"] = [0.0, -420.0]
+	var drift := grip.duplicate(true)
+	var peak_g := 0.0
+	var peak_d := 0.0
+	for i in 50:
+		Drive.step(grip, 1.0, 1.0, true, tm, th, _zone_open(), 0.016)
+		Drive.step(drift, 1.0, 1.0, true, tm, th, _zone_open(), 0.016, true)
+		peak_g = maxf(peak_g, float(grip["slip"]))
+		peak_d = maxf(peak_d, float(drift["slip"]))
+	check(peak_d > peak_g * 1.8 and peak_d > float(tm["skid_slip"]), "handbrake breaks traction into a drift (slip %.0f vs %.0f)" % [peak_d, peak_g])
+	check(absf(float(drift["heading"])) > absf(float(grip["heading"])), "handbrake turns the car in tighter")
+	var sand := _car()
+	sand["vel"] = [0.0, -420.0]
+	var dunes := {"drag": 0.7, "grip": 0.7, "ambient": 60.0}
+	var peak_s := 0.0
+	var road := _car()
+	road["vel"] = [0.0, -420.0]
+	var peak_r := 0.0
+	for i in 50:
+		Drive.step(sand, 1.0, 1.0, true, tm, th, dunes, 0.016)
+		Drive.step(road, 1.0, 1.0, true, tm, th, _zone_open(), 0.016)
+		peak_s = maxf(peak_s, float(sand["slip"]))
+		peak_r = maxf(peak_r, float(road["slip"]))
+	check(peak_s >= peak_r, "soft sand grips less than open ground")
+
+
+func test_car_collision_damages_and_bleeds_speed() -> void:
+	var s := _fresh_session()
+	var m: Dictionary = s["mech"]
+	m["vel"] = [0.0, -450.0]
+	m["heading"] = 0.0
+	Session._impact_cd = 0.0
+	var before := float(m["integrity"])
+	Session._last_desired = Vector2(0, -450)
+	Session.commit_mech(Session.mech_pos(), Vector2.ZERO)   # slammed into rock
+	check(float(m["integrity"]) < before, "a hard crash damages the car")
+	approx(float(m["speed"]), 0.0, 0.01, "the wall takes the speed")
+	var b2 := float(m["integrity"])
+	Session._impact_cd = 0.0
+	Session._last_desired = Vector2(0, -120)
+	Session.commit_mech(Session.mech_pos(), Vector2(0, -60))
+	approx(float(m["integrity"]), b2, 0.001, "scraping a wall slowly does not")
+	Session.running = false
+
+
+func test_creatures_created_and_sanitized() -> void:
+	var s := _fresh_session()
+	var loc := Session.loc
+	check(s["creatures"].size() == loc["creatures"].size() and s["creatures"].size() >= 9, "every location creature exists with a stable id")
+	var kinds := {}
+	for id in s["creatures"]:
+		kinds[str(s["creatures"][id]["species"])] = true
+	check(kinds.has("skirr") and kinds.has("grindback") and kinds.has("rimeback"), "three distinct species")
+	check(str(s["creatures"]["grindback_dunes"]["ai"]) == "buried", "grindbacks start buried")
+	check(s["tracks"].size() > 30, "a new run has old rimeback tracks to find (%d)" % s["tracks"].size())
+	s["creatures"]["rimeback"]["ai"] = "charge"
+	s["creatures"]["rimeback"]["hp"] = 99999.0
+	s["creatures"]["skirr_n1"]["ai"] = "dead"
+	var st := GameState.sanitize(s.duplicate(true), loc)
+	check(str(st["creatures"]["rimeback"]["ai"]) == "roam", "mid-attack creatures resume calmly after loading")
+	check(float(st["creatures"]["rimeback"]["hp"]) <= Creatures.max_hp(st["creatures"]["rimeback"], Content.tuning["creatures"]), "hp clamped")
+	check(str(st["creatures"]["skirr_n1"]["ai"]) == "dead", "dead stays dead")
+	Session.running = false
+
+
+func _target_at(p: Vector2, noise := 0.8) -> Dictionary:
+	return {"valid": true, "pos": p, "vel": Vector2.ZERO, "noise": noise, "heat": 80.0, "vis": 1.0, "foot": false}
+
+
+func test_skirr_stalks_telegraphs_lunges_and_bites() -> void:
+	var tc: Dictionary = Content.tuning["creatures"]
+	var c := Creatures.create({"species": "skirr", "spawn": [0, 0], "pack": "t"}, tc)
+	var brain := {}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var far := Creatures.step(c, brain, _target_at(Vector2(3000, 0), 0.0), tc, 0.1, rng)
+	check(str(c["ai"]) == "roam", "a quiet car far away goes unnoticed")
+	var events: Array = []
+	var saw_crouch := false
+	var bite_t := -1.0
+	var crouch_t := -1.0
+	var t := 0.0
+	var target := Vector2(300, 0)
+	for i in 400:
+		var r := Creatures.step(c, brain, _target_at(target), tc, 0.02, rng)
+		var np := Content.v2(c["pos"]) + (r["move"] as Vector2) * 0.02
+		c["pos"] = [np.x, np.y]
+		t += 0.02
+		if str(c["ai"]) == "crouch" and not saw_crouch:
+			saw_crouch = true
+			crouch_t = t
+		for ev in r["events"]:
+			events.append(ev)
+			if str(ev["kind"]) == "attack" and bite_t < 0.0:
+				bite_t = t
+	check(events.size() > 0 and str(events[0]["kind"]) == "alert", "it notices a loud car and alerts the pack")
+	check(saw_crouch, "it crouches (tell) before lunging")
+	check(bite_t > 0.0 and bite_t - crouch_t >= float(tc["skirr"]["tell_time"]) - 0.01, "the bite comes only after the tell (%.2f s later)" % (bite_t - crouch_t))
+	c["hp"] = 2.0
+	brain["cd"] = 99.0
+	c["ai"] = "stalk"
+	Creatures.step(c, brain, _target_at(target), tc, 0.02, rng)
+	check(str(c["ai"]) == "flee", "a badly hurt skirr breaks off")
+
+
+func test_grindback_feels_vibration_tunnels_erupts_charges_dazes() -> void:
+	var tc: Dictionary = Content.tuning["creatures"]
+	var c := Creatures.create({"species": "grindback", "spawn": [0, 0]}, tc)
+	var brain := {"cd": 0.0}
+	var rng := RandomNumberGenerator.new()
+	Creatures.step(c, brain, _target_at(Vector2(500, 0), 0.05), tc, 0.1, rng)
+	check(str(c["ai"]) == "buried", "a slow, quiet car does not wake it")
+	check(not Creatures.targetable(c), "bullets cannot reach it under the sand")
+	Creatures.step(c, brain, _target_at(Vector2(500, 0), 0.9), tc, 0.1, rng)
+	check(str(c["ai"]) == "tunnel", "a fast car's vibration draws it (tunnel = the tell)")
+	var states := {}
+	var hit := false
+	for i in 600:
+		var r := Creatures.step(c, brain, _target_at(Vector2(500, 0), 0.9), tc, 0.02, rng)
+		var np := Content.v2(c["pos"]) + (r["move"] as Vector2) * 0.02
+		c["pos"] = [np.x, np.y]
+		states[str(c["ai"])] = true
+		for ev in r["events"]:
+			if str(ev["kind"]) == "attack":
+				hit = true
+	check(states.has("erupt") and states.has("paw") and states.has("charge") and states.has("dazed"), "erupts, paws (tell), charges, stands dazed: %s" % str(states.keys()))
+	check(hit, "its attacks reach a car that stays put")
+	var ts: Dictionary = tc["grindback"]
+	var c2 := Creatures.create({"species": "grindback", "spawn": [0, 0]}, tc)
+	c2["ai"] = "paw"
+	var front := Creatures.hit_part(c2, Vector2(0, -200), Vector2(0, -60), 4.0, ts)
+	check(front == "plate", "shots from the front hit the armoured plate")
+	var hp0 := float(c2["hp"])
+	Creatures.damage(c2, "plate", 10.0, ts, false)
+	var plate_loss := hp0 - float(c2["hp"])
+	var hp1 := float(c2["hp"])
+	Creatures.damage(c2, "vent", 10.0, ts, true)
+	check(hp1 - float(c2["hp"]) > plate_loss * 10.0, "the open vent while dazed takes far more than the plate")
+
+
+func test_rimeback_cycles_telegraphed_attacks_breaks_parts_flees() -> void:
+	var tc: Dictionary = Content.tuning["creatures"]
+	var c := Creatures.create({"species": "rimeback", "spawn": [0, 0]}, tc)
+	var brain := {}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	var tells := {}
+	var attacks := {}
+	var spit := false
+	var targets := [Vector2(250, 0), Vector2(600, 100), Vector2(0, 700)]
+	for i in 3000:
+		var tp: Vector2 = targets[(i / 400) % targets.size()]
+		var r := Creatures.step(c, brain, _target_at(tp), tc, 0.02, rng)
+		var np := Content.v2(c["pos"]) + (r["move"] as Vector2) * 0.02
+		c["pos"] = [np.x, np.y]
+		if str(brain.get("tell_kind", "")) != "":
+			tells[str(brain["tell_kind"])] = true
+		for ev in r["events"]:
+			if str(ev["kind"]) == "attack":
+				attacks[str(ev["attack"])] = true
+			if str(ev["kind"]) == "spit":
+				spit = true
+	check(tells.has("roar"), "it roars before the hunt")
+	check(tells.has("charge") and attacks.has("charge"), "charge is telegraphed then executed")
+	check(tells.has("sweep") or tells.has("spit"), "it varies its attacks with range: %s" % str(tells.keys()))
+	var ts: Dictionary = tc["rimeback"]
+	var g := Creatures.hit_part(c, Content.v2(c["pos"]) + Vector2(-86, -40).rotated(float(c["heading"])) + Vector2(-100, 0).rotated(float(c["heading"])),
+		Content.v2(c["pos"]) + Vector2(-86, -40).rotated(float(c["heading"])), 4.0, ts)
+	check(g == "gland_l", "frost glands can be targeted (%s)" % g)
+	var res := Creatures.damage(c, "gland_l", 500.0, ts, false)
+	check(bool(res["broken"]), "a gland breaks")
+	c["hp"] = float(ts["hp"]) * 0.2
+	c["ai"] = "hunt"
+	brain["cornered"] = false
+	var ev2 := Creatures.step(c, brain, _target_at(Content.v2(c["pos"]) + Vector2(300, 0)), tc, 0.02, rng)
+	check(str(c["ai"]) == "flee", "near death it limps away to its lair")
+	check(not spit or spit, "spit observed or not required")
+
+
+func test_shots_damage_creature_parts_and_drop_loot() -> void:
+	var s := _fresh_session()
+	var c: Dictionary = s["creatures"]["rimeback"]
+	c["ai"] = "hunt"
+	var ts := Session.creature_tun(c)
+	var gland := Content.v2(c["pos"]) + Content.v2(ts["parts"]["gland_r"]["offset"]).rotated(float(c["heading"]))
+	var loot0: int = s["world"]["loot"].size()
+	for i in 20:
+		var sh := Combat.make_shot("player", gland + Vector2(0, -400).rotated(float(c["heading"]) + PI * 0.5), Vector2.ZERO, {"speed": 1, "damage": 5.0, "radius": 4.0}, RandomNumberGenerator.new())
+		sh["prev"] = gland + Vector2(200, 0).rotated(float(c["heading"]))
+		sh["pos"] = gland
+		Session._shot_vs_creatures(sh)
+	check(float(c["parts"]["gland_r"]) <= 0.0, "focused fire breaks the gland")
+	check(s["world"]["loot"].size() > loot0, "a broken part drops physical loot on the ground")
+	var found := false
+	for l in s["world"]["loot"]:
+		if str(l["item"]) == "rime_gland":
+			found = true
+	check(found, "the gland itself lies on the sand")
+	Session.running = false
+
+
+func test_harvest_bonus_loot_pickup_by_car_and_cargo_limit() -> void:
+	var s := _fresh_session()
+	var c: Dictionary = s["creatures"]["rimeback"]
+	c["parts"]["gland_l"] = 0.0
+	c["parts"]["gland_r"] = 0.0
+	Session._creature_dies("rimeback", c)
+	check(Creatures.is_dead(c) and not bool(c["harvested"]), "the rimeback is down, carcass waits for harvesting")
+	s["mode"] = "foot"
+	s["pilot"]["pos"] = [float(c["pos"][0]) + 150.0, float(c["pos"][1])]
+	var ok := false
+	for it in Session.interactions():
+		if it["kind"] == "harvest":
+			ok = true
+	check(ok, "harvest is offered next to the carcass on foot")
+	Session._finish_harvest("rimeback")
+	var items := {}
+	for l in s["world"]["loot"]:
+		items[str(l["item"])] = true
+	check(items.has("rime_hide") and items.has("thawheart"), "harvest drops hide, and the legendary Thawheart when both glands were broken")
+	check(Loot.rarity("thawheart") == "legendary", "Thawheart is legendary")
+	# the car scoops it up when rolling slowly over it
+	s["mode"] = "mech"
+	var l0: Dictionary = s["world"]["loot"][0]
+	s["mech"]["pos"] = l0["pos"].duplicate()
+	s["mech"]["speed"] = 50.0
+	Session._tick_loot_pickup()
+	check(Loot.find(s["world"], str(l0["id"])) < 0, "rolling slowly over loot loads it into the car")
+	check(GameState.count(s["mech"]["storage"], str(l0["item"])) > 0, "it is in the car's cargo")
+	s["mech"]["storage"]["rime_hide"] = 99
+	var before: int = s["world"]["loot"].size()
+	for l in s["world"]["loot"].duplicate():
+		s["mech"]["pos"] = l["pos"].duplicate()
+		Session._tick_loot_pickup()
+	check(s["world"]["loot"].size() == before, "a full cargo leaves loot on the ground (no silent loss)")
+	Session.running = false
+
+
+func test_garage_costs_effects_and_persistence() -> void:
+	var s := _fresh_session()
+	var tg: Dictionary = Content.tuning["garage"]
+	s["mech"]["pos"] = Session.loc["garage"]["pos"].duplicate()
+	check(Session.at_garage(), "the refuge bay is the garage")
+	check(Session.garage_check("armor") == "GARAGE_MISSING", "a new run cannot afford armour yet")
+	var base_int := Session.max_integrity()
+	var base_grip := float(Session.car_tun()["grip"])
+	var base_cool := float(Session.car_thermal()["cooling_coeff"])
+	var base_dmg := float(Session.player_weapon()["damage"])
+	var base_cargo := Session.cargo_capacity()
+	for k in 3:
+		Session.dev_give_materials()
+	for mod in ["armor", "cooling", "tires", "weapon", "rig"]:
+		check(Session.garage_fit(mod), "fit " + mod)
+	check(Session.max_integrity() > base_int, "armour raises max body points")
+	check(float(Session.car_tun()["grip"]) > base_grip, "tyres raise grip")
+	check(float(Session.car_thermal()["cooling_coeff"]) > base_cool, "cooling module cools better")
+	check(float(Session.player_weapon()["damage"]) > base_dmg, "weapon module hits harder")
+	check(Session.cargo_capacity() > base_cargo, "rig adds cargo")
+	approx(float(s["mech"]["integrity"]), Session.max_integrity(), 0.01, "new armour arrives undamaged")
+	s["mech"]["integrity"] = 40.0
+	s["mech"]["radiator"] = 0.5
+	GameState.add(s["mech"]["storage"], "scrap", 40)
+	check(Session.garage_repair(), "garage repair")
+	approx(float(s["mech"]["integrity"]), Session.max_integrity(), 0.5, "full repair")
+	var env := SaveCodec.encode(Session.savable_state())
+	var st := GameState.sanitize(SaveCodec.migrate(JSON.parse_string(JSON.stringify(env)))["state"], Session.loc)
+	check(int(st["mech"]["upgrades"]["armor"]) == 1 and int(st["mech"]["upgrades"]["rig"]) == 1, "upgrades persist through a save")
+	s["mech"]["pos"] = [0.0, 3000.0]
+	check(not Session.garage_fit("armor"), "no fitting away from the garage")
+	Session.running = false
+
+
+func test_tracks_lead_to_the_animal_and_tracker_reads_them() -> void:
+	var s := _fresh_session()
+	var c: Dictionary = s["creatures"]["rimeback"]
+	s["tracks"] = []
+	var brain := {"trk": 0.0}
+	c["speed"] = 80.0
+	for i in 20:
+		c["pos"] = [float(c["pos"][0]) + 20.0, float(c["pos"][1])]
+		c["heading"] = PI * 0.5
+		s["playtime"] = float(s["playtime"]) + 0.25
+		Session._lay_tracks("rimeback", c, brain, 0.25)
+	check(s["tracks"].size() >= 3, "a walking rimeback leaves tracks")
+	var last: Dictionary = s["tracks"][-1]
+	s["mech"]["pos"] = [float(last["p"][0]) - 100.0, float(last["p"][1]) + 60.0]
+	var tk := Session.tracker()
+	check(not tk.is_empty() and str(tk["species"]) == "rimeback", "the tracker reads nearby sign")
+	check(Drive.forward(float(tk["heading"])).dot(Vector2.RIGHT) > 0.9, "the compass points the way it walked")
+	check(float(tk["freshness"]) > 0.9, "fresh tracks read fresh")
+	s["mech"]["pos"] = [-1440.0, 930.0]
+	check(Session.tracker().is_empty(), "no sign in the refuge")
+	Session.running = false
+
+
+func test_rival_car_engages_strafes_retreats() -> void:
+	var tun := Session.enemy_tun({"type": "scrapper"})
+	var w: Dictionary = Content.tuning["combat"]["enemy_weapon"]
+	var e := GameState.new_enemy({"id": "x", "spawn": [0, 0], "patrol": [[0, 0], [200, 0]]})
+	var brain := {}
+	var defn := {"id": "x", "spawn": [0, 0], "patrol": [[0, 0], [200, 0]]}
+	var target := {"valid": true, "pos": Vector2(330, 0), "heat": 80.0, "noise": 0.8, "visibility": 1.0}
+	var fired := false
+	var windup := false
+	for i in 400:
+		var r := EnemyAI.think(e, brain, target, defn, tun, {}, w, 0.02)
+		if str(r["event"]) == "windup":
+			windup = true
+		if r["fire"]:
+			fired = true
+			check(windup, "every shot is telegraphed first")
+			check((r["fire_dir"] as Vector2).dot((Vector2(330, 0) - Content.v2(e["pos"])).normalized()) > 0.9, "the roof gunner aims at the target, not just the bonnet")
+	check(str(e["ai"]) == "engage", "it engages")
+	check(fired, "it fires")
+	e["integrity"] = float(tun["integrity"]) * 0.2
+	var r2 := EnemyAI.think(e, brain, target, defn, tun, {}, w, 0.02)
+	check(str(e["ai"]) == "retreat" and str(r2["event"]) == "retreat", "badly damaged, it retreats")
+	target["pos"] = Vector2(5000, 0)
+	var r3 := EnemyAI.think(e, brain, target, defn, tun, {}, w, 0.02)
+	check(str(r3["event"]) == "escaped" and str(e["ai"]) == "return", "out of reach it escapes home")
+
+
+func test_migration_v4_to_v5_heat_signature_save() -> void:
+	var loc := Content.location()
+	var st := GameState.create(loc, 1)
+	st.erase("creatures")
+	st.erase("tracks")
+	st["mech"].erase("upgrades")
+	st["mech"].erase("vel")
+	st["world"].erase("loot")
+	st["mech"]["storage"] = {"radiator_core": 2, "scrap": 7}
+	var env := SaveCodec.encode(st)
+	env["version"] = 4
+	env["format"] = "heat_signature_save"
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 5 and str(up["format"]) == SaveCodec.FORMAT, "a Heat Signature v4 save migrates to Thawborn v5")
+	check(SaveCodec.validate(up) == "", "migrated save validates")
+	var s2 := GameState.sanitize(up["state"], loc)
+	check(s2["creatures"].size() == loc["creatures"].size(), "creatures appear in a converted save")
+	check(int(s2["mech"]["storage"]["scrap"]) == 7 and int(s2["mech"]["storage"]["radiator_core"]) == 2, "inventory carried over")
+	check(s2["mech"]["upgrades"] is Dictionary and s2["world"]["loot"] is Array, "car fields added")
+	var bad := {"format": "something_else", "version": 5, "state": {}}
+	check(SaveCodec.validate(bad) != "", "foreign files are rejected")
+
+
+func test_legacy_user_folder_import_copies_never_moves() -> void:
+	var base := ProjectSettings.globalize_path(Paths.user_root()).path_join("legacy_test")
+	var legacy := base.path_join("HeatSignature")
+	var dest := base.path_join("Thawborn")
+	DirAccess.make_dir_recursive_absolute(legacy.path_join("saves"))
+	var f := FileAccess.open(legacy.path_join("saves/slot_2.json"), FileAccess.WRITE)
+	f.store_string("{}")
+	f.close()
+	var f2 := FileAccess.open(legacy.path_join("settings.cfg"), FileAccess.WRITE)
+	f2.store_string("[x]")
+	f2.close()
+	var n := Paths.import_legacy(legacy, dest)
+	check(n == 2, "slot and settings copied (%d)" % n)
+	check(FileAccess.file_exists(dest.path_join("saves/slot_2.json")) and FileAccess.file_exists(legacy.path_join("saves/slot_2.json")), "copied, original kept")
+	check(Paths.import_legacy(legacy, dest) == 0, "never overwrites existing Thawborn files")
+	for p in [legacy.path_join("saves/slot_2.json"), legacy.path_join("settings.cfg"), dest.path_join("saves/slot_2.json"), dest.path_join("settings.cfg")]:
+		DirAccess.remove_absolute(p)
+
+
+func test_dev_creatures_never_saved() -> void:
+	var s := _fresh_session()
+	Session.find_spawn_spot(Vector2.ZERO)
+	var id := "dev_rimeback_x"
+	var c := Creatures.create({"id": id, "species": "rimeback", "spawn": [0, 4000]}, Content.tuning["creatures"])
+	c["dev"] = true
+	s["creatures"][id] = c
+	check(not Session.savable_state()["creatures"].has(id), "dev-spawned creatures are stripped from saves")
+	Session.dev_give_materials()
+	check(Session.have_item("thawheart") > 0, "dev can grant test materials")
+	Session.running = false

@@ -10,7 +10,9 @@ signal mode_changed(mode: String)
 signal mech_event(event: String)
 signal saved(ok: bool, message: String)
 ## Combat/presentation events: kind ∈ muzzle, impact, cooling_hit, enemy_windup,
-## enemy_alert, enemy_disabled, player_hit. data carries pos/ids.
+## enemy_alert, enemy_disabled, player_hit, collision, creature_alert,
+## creature_tell, creature_attack, creature_hit, creature_dead, part_broken,
+## loot_spawned, loot_picked, garage. data carries pos/ids.
 signal combat_event(kind: String, data: Dictionary)
 
 var running := false
@@ -21,6 +23,7 @@ var loc: Dictionary = {}
 ## Input intents, written by views (or the autotest driver) every frame.
 var drive_throttle := 0.0
 var drive_turn := 0.0
+var drive_handbrake := false
 var walk_dir := Vector2.ZERO
 var aim_point := Vector2.INF     # world point the player's turret aims at
 var fire_held := false
@@ -58,6 +61,14 @@ var turret_brains := {}
 var turret_view := {}    # id -> {windup, engaged} for views
 var storm_here := 0.0    # storm intensity felt by the active actor (0..1)
 var _area := ""
+## Hunting runtime (not saved): creature brains and desired moves, noise memory.
+var creature_brains := {}
+var creature_moves := {}
+var world_moves_creatures := false   # true while a WorldView moves creature bodies
+var _fire_recent := 0.0
+var _impact_cd := 0.0
+var _last_desired := Vector2.ZERO
+var _track_prune_t := 0.0
 
 
 ## Named discovery areas (location "areas"): the most specific (last) match wins.
@@ -140,6 +151,11 @@ func _begin() -> void:
 	projectiles.clear()
 	brains.clear()
 	enemy_intents.clear()
+	creature_brains.clear()
+	creature_moves.clear()
+	drive_handbrake = false
+	_fire_recent = 0.0
+	_impact_cd = 0.0
 	aim_point = Vector2.INF
 	fire_held = false
 	_fire_cd = 0.0
@@ -221,6 +237,10 @@ func savable_state() -> Dictionary:
 	for id in en.keys():
 		if bool(en[id].get("dev", false)):
 			en.erase(id)
+	var cr: Dictionary = s.get("creatures", {})
+	for id in cr.keys():
+		if bool(cr[id].get("dev", false)):
+			cr.erase(id)
 	return s
 
 
@@ -281,6 +301,60 @@ func enemy_tun(e: Dictionary) -> Dictionary:
 	return t
 
 
+## The player's car tuning with fitted garage modules applied.
+func car_tun() -> Dictionary:
+	return Garage.car_tuning(tun("mech"), tun("garage"), upgrades())
+
+
+func car_thermal() -> Dictionary:
+	return Garage.thermal_tuning(tun("thermal"), tun("garage"), upgrades())
+
+
+func player_weapon() -> Dictionary:
+	return Garage.weapon_tuning(tun("combat")["player_weapon"], tun("garage"), upgrades())
+
+
+func upgrades() -> Dictionary:
+	if state.is_empty():
+		return {}
+	if not (mech().get("upgrades") is Dictionary):
+		mech()["upgrades"] = {}
+	return mech()["upgrades"]
+
+
+func max_integrity() -> float:
+	return float(car_tun().get("integrity", 100.0))
+
+
+func cargo_capacity() -> int:
+	return Garage.cargo_capacity(int(tun("mech").get("cargo_bulk", 14)), tun("garage"), upgrades())
+
+
+func cargo_bulk() -> int:
+	var b := 0
+	for k in mech()["storage"]:
+		b += int(mech()["storage"][k]) * Loot.bulk(str(k))
+	return b
+
+
+func have_item(item: String) -> int:
+	return GameState.count(pilot()["pack"], item) + GameState.count(mech()["storage"], item)
+
+
+## Engine noise the world can hear (0..~1.2): speed, a running engine, recent
+## gunfire. Sandstorms muffle it. On foot the pilot is nearly silent.
+func noise() -> float:
+	var n := 0.0
+	if mode() == "mech":
+		n = clampf(absf(float(mech()["speed"])) / maxf(float(car_tun().get("max_speed", 460.0)), 1.0), 0.0, 1.0) * 0.75
+		if engine_on():
+			n += 0.15
+		n += _fire_recent * 0.5
+	elif mode() == "foot":
+		n = 0.08 if walk_dir.length() > 0.1 else 0.02
+	return n * (1.0 - 0.4 * storm_here)
+
+
 func _actor_zone_type() -> String:
 	return str((pilot_zone if mode() == "foot" else mech_zone).get("type", ""))
 
@@ -298,10 +372,12 @@ func tick(dt: float) -> void:
 	_tick_weather(dt)
 	_refresh_zones()
 	var m := mech()
-	var max_speed := float(tun("mech").get("max_speed", 150.0))
+	var max_speed := float(car_tun().get("max_speed", 460.0))
 	var speed_frac := float(m["speed"]) / max_speed
 	var was_band := Thermal.band(float(m["heat"]), tun("thermal"))
-	for ev in Thermal.step(m, mech_zone, tun("thermal"), dt, speed_frac, engine_on()):
+	_fire_recent = maxf(0.0, _fire_recent - dt * 0.5)
+	_impact_cd = maxf(0.0, _impact_cd - dt)
+	for ev in Thermal.step(m, mech_zone, car_thermal(), dt, speed_frac, engine_on()):
 		match ev:
 			"warn":
 				notice.emit("NOTICE_HEAT_WARNING", [])
@@ -323,7 +399,9 @@ func tick(dt: float) -> void:
 	_tick_player_weapon(dt)
 	_tick_enemies(dt)
 	_tick_turrets(dt)
+	_tick_creatures(dt)
 	_tick_projectiles(dt)
+	_tick_loot_pickup()
 	var zt := _actor_zone_type()
 	if zt != _zone_type:
 		var was := _zone_type
@@ -401,6 +479,8 @@ func _tick_task(dt: float) -> void:
 				_finish_wreck_salvage(str(done["target"]))
 			"turret":
 				_finish_turret_salvage(str(done["target"]))
+			"harvest":
+				_finish_harvest(str(done["target"]))
 			"hull":
 				_finish_hull_repair(false)
 			"patch":
@@ -411,21 +491,28 @@ func _tick_task(dt: float) -> void:
 
 ## Called by the mech view each physics frame. Returns the desired velocity.
 func mech_velocity(dt: float) -> Vector2:
-	return Drive.step(mech(), drive_throttle, drive_turn, can_drive(), tun("mech"), tun("thermal"), mech_zone, dt)
+	_last_desired = Drive.step(mech(), drive_throttle, drive_turn, can_drive(), car_tun(), car_thermal(), mech_zone, dt, drive_handbrake and can_drive())
+	return _last_desired
 
 
-## Called by the mech view after move_and_slide with the real result.
+## Called by the car view after move_and_slide with the real result. Walls and
+## rocks take the velocity they absorbed; a hard hit damages the car.
 func commit_mech(pos: Vector2, real_velocity: Vector2) -> void:
 	var m := mech()
 	var old := Content.v2(m["pos"])
 	m["pos"] = [pos.x, pos.y]
 	state["stats"]["distance"] = float(state["stats"]["distance"]) + old.distance_to(pos)
-	var h := float(m["heading"])
-	var fwd := Vector2(sin(h), -cos(h))
-	# Collisions bleed speed: keep only what actually moved along the heading.
-	var along := real_velocity.dot(fwd)
-	if absf(along) < absf(float(m["speed"])):
-		m["speed"] = along
+	var lost := (_last_desired - real_velocity).length()
+	m["vel"] = [real_velocity.x, real_velocity.y]
+	m["speed"] = real_velocity.dot(Drive.forward(float(m["heading"])))
+	var tm := tun("mech")
+	if lost > float(tm.get("impact_threshold", 170.0)) and _impact_cd <= 0.0:
+		_impact_cd = 0.35
+		var dmg := minf((lost - float(tm.get("impact_threshold", 170.0))) * float(tm.get("impact_damage", 0.045)), float(tm.get("impact_max", 14.0)))
+		if not bool(dev["invulnerable"]):
+			m["integrity"] = maxf(0.0, float(m["integrity"]) - dmg)
+		combat_event.emit("collision", {"pos": pos, "strength": clampf(lost / 600.0, 0.0, 1.0), "damage": dmg})
+	_last_desired = real_velocity
 	if mode() != "foot":
 		pilot()["pos"] = [pos.x, pos.y]
 
@@ -453,7 +540,7 @@ func exit_mech() -> bool:
 		return false
 	var h := float(m["heading"])
 	var spot := Vector2.INF
-	for off in [Vector2(0, 150), Vector2(-140, 20), Vector2(140, 20), Vector2(0, -150), Vector2(-120, 120), Vector2(120, 120)]:
+	for off in [Vector2(-95, 0), Vector2(95, 0), Vector2(-95, 70), Vector2(95, 70), Vector2(0, 165), Vector2(0, -170)]:
 		var p: Vector2 = mech_pos() + off.rotated(h)
 		if not spot_is_free.is_valid() or spot_is_free.call(p):
 			spot = p
@@ -464,6 +551,7 @@ func exit_mech() -> bool:
 	if engine_on():
 		m["engine"] = "off"
 	m["speed"] = 0.0
+	m["vel"] = [0.0, 0.0]
 	pilot()["pos"] = [spot.x, spot.y]
 	state["mode"] = "foot"
 	_suit_warned = float(pilot()["suit"])
@@ -548,6 +636,9 @@ func interactions() -> Array:
 				"enabled": absf(float(mech()["speed"])) <= float(tun("mech").get("exit_max_speed", 15.0))})
 			out.append({"action": "service", "kind": "shutters", "target": "mech",
 				"label": "ACT_CLOSE_SHUTTERS" if mech()["shutters_open"] else "ACT_OPEN_SHUTTERS", "enabled": true})
+			if at_garage():
+				out.append({"action": "garage", "kind": "garage", "target": "mech", "label": "ACT_GARAGE",
+					"enabled": absf(float(mech()["speed"])) <= 40.0})
 		"foot":
 			var pp := pilot_pos()
 			var r := float(tun("pilot").get("interact_radius", 85.0))
@@ -561,7 +652,7 @@ func interactions() -> Array:
 				out.append({"action": "service", "kind": "repair", "target": "mech",
 					"label": "ACT_REPAIR" if parts_available() > 0 else "ACT_REPAIR_NEED_PART",
 					"enabled": parts_available() > 0})
-			if near_mech and float(mech()["integrity"]) < float(tun("mech").get("integrity", 100.0)) - 0.5:
+			if near_mech and float(mech()["integrity"]) < max_integrity() - 0.5:
 				var th := tun("hull_repair")
 				if scrap_available() >= int(th.get("scrap_cost", 2)):
 					out.append({"action": "service", "kind": "hull", "target": "mech", "label": "ACT_HULL_REPAIR", "enabled": true})
@@ -596,6 +687,21 @@ func _nearest_pickup(pp: Vector2, r: float) -> Dictionary:
 		if d3 <= best_d + 60.0:
 			best_d = d3 - 60.0
 			best = {"action": "interact", "kind": "wreck", "target": id, "label": "ACT_SALVAGE_WRECK", "enabled": true}
+	var hr := float(tun("creatures").get("harvest_reach", 70.0))
+	for cid in state.get("creatures", {}):
+		var c: Dictionary = state["creatures"][cid]
+		if not Creatures.is_dead(c) or bool(c.get("harvested", false)) or not bool(tun("creatures").get(str(c["species"]), {}).get("harvest", false)):
+			continue
+		var reach := float(tun("creatures").get(str(c["species"]), {}).get("collision", 60.0)) + hr
+		var dc := pp.distance_to(Content.v2(c["pos"]))
+		if dc <= best_d + reach:
+			best_d = dc - reach
+			best = {"action": "interact", "kind": "harvest", "target": cid, "label": "ACT_HARVEST", "enabled": true}
+	for l in state["world"].get("loot", []):
+		var dl := pp.distance_to(Content.v2(l["pos"]))
+		if dl <= best_d:
+			best_d = dl
+			best = {"action": "interact", "kind": "loot", "target": str(l["id"]), "label": "ACT_PICK_UP", "enabled": true, "item": str(l["item"])}
 	for tid in state.get("turrets", {}):
 		var tu: Dictionary = state["turrets"][tid]
 		if not bool(tu["destroyed"]) or bool(tu.get("salvaged", false)):
@@ -604,6 +710,9 @@ func _nearest_pickup(pp: Vector2, r: float) -> Dictionary:
 		if d4 <= best_d + 30.0:
 			best_d = d4 - 30.0
 			best = {"action": "interact", "kind": "turret", "target": tid, "label": "ACT_SALVAGE_TURRET", "enabled": true}
+	if not best.is_empty() and best["kind"] == "loot" and not pack_has_room(Loot.bulk(str(best["item"]))):
+		best["enabled"] = false
+		best["label"] = "ACT_PACK_FULL"
 	if not best.is_empty() and best["kind"] in ["salvage", "wreck"] and not pack_has_room(1):
 		best["enabled"] = false
 		best["label"] = "ACT_PACK_FULL"
@@ -622,7 +731,7 @@ func request(action: String) -> bool:
 				notice.emit("NOTICE_TOO_FAST_TO_EXIT", [])
 			elif it["kind"] == "repair":
 				notice.emit("NOTICE_NEED_PART", [])
-			elif it["kind"] == "salvage" or it["kind"] == "wreck":
+			elif it["kind"] in ["salvage", "wreck", "loot"]:
 				notice.emit("NOTICE_PACK_FULL", [])
 			elif it["kind"] == "hull":
 				notice.emit("NOTICE_NEED_SCRAP", [])
@@ -645,6 +754,13 @@ func request(action: String) -> bool:
 				return _start_task("hull", "mech", float(tun("hull_repair").get("duration", 3.0)))
 			"patch":
 				return _start_task("patch", "mech", float(tun("hull_repair").get("emergency_duration", 6.0)))
+			"harvest":
+				return _start_task("harvest", str(it["target"]), float(tun("creatures").get("harvest_duration", 4.0)))
+			"loot":
+				return pick_up_loot(str(it["target"]), false)
+			"garage":
+				mech_event.emit("garage")
+				return true
 			"drop":
 				return _pick_up_drop(str(it["target"]))
 			"repair":
@@ -731,6 +847,16 @@ func hint() -> String:
 	for id in state.get("enemies", {}):
 		if str(state["enemies"][id]["ai"]) in ["alert", "engage"]:
 			return "HINT_COMBAT_HOT" if float(m["heat"]) >= float(tun("thermal").get("warn_temp", 98.0)) - 6.0 else "HINT_COMBAT"
+	var hunt_id := hunting()
+	if hunt_id != "":
+		var hc := creature(hunt_id)
+		return "HINT_HUNT_" + str(hc["species"]).to_upper() + ("_FOOT" if md == "foot" else "")
+	for cid in state.get("creatures", {}):
+		var dc: Dictionary = state["creatures"][cid]
+		if Creatures.is_dead(dc) and not bool(dc.get("harvested", false)) and Content.v2(dc["pos"]).distance_to(actor_pos()) < 1400.0:
+			return "HINT_HARVEST_FOOT" if md == "foot" else "HINT_HARVEST"
+	if not state["world"].get("loot", []).is_empty() and _nearest_loot(actor_pos()).distance_to(actor_pos()) < 900.0:
+		return "HINT_LOOT_FOOT" if md == "foot" else "HINT_LOOT"
 	var has_part := parts_available() > 0
 	var open_wreck := false
 	for id in state.get("enemies", {}):
@@ -752,13 +878,50 @@ func hint() -> String:
 			return "HINT_SALVAGE_WRECK" if md == "mech" else "HINT_SALVAGE_WRECK_FOOT"
 	if md == "foot":
 		return "HINT_RETURN"
-	return "HINT_CONTINUE"
+	if at_garage():
+		return "HINT_GARAGE"
+	if _carrying_materials():
+		return "HINT_RETURN_TO_GARAGE"
+	var tk := tracker()
+	if not tk.is_empty():
+		return "HINT_TRACKS_BLOOD" if bool(tk["blood"]) else "HINT_TRACKS"
+	return "HINT_HUNT"
+
+
+func _nearest_loot(from: Vector2) -> Vector2:
+	var best := Vector2.INF
+	for l in state["world"].get("loot", []):
+		var p := Content.v2(l["pos"])
+		if best == Vector2.INF or from.distance_to(p) < from.distance_to(best):
+			best = p
+	return best
+
+
+func _carrying_materials() -> bool:
+	for inv in [mech()["storage"], pilot()["pack"]]:
+		for k in inv:
+			if str(k) != "scrap" and str(k) != "radiator_core":
+				return true
+	return false
 
 
 func nearest_objective() -> Vector2:
 	if not running:
 		return Vector2.INF
 	var from := actor_pos()
+	# hunting loop: carcass → loot → garage → hunting grounds
+	for cid in state.get("creatures", {}):
+		var dc: Dictionary = state["creatures"][cid]
+		if Creatures.is_dead(dc) and not bool(dc.get("harvested", false)) and Content.v2(dc["pos"]).distance_to(from) < 1400.0:
+			return Content.v2(dc["pos"])
+	var lp := _nearest_loot(from)
+	if lp != Vector2.INF and lp.distance_to(from) < 900.0:
+		return lp
+	if hunting() == "" and mode() == "mech" and float(mech()["radiator"]) >= 0.6:
+		if _carrying_materials() and not at_garage():
+			return Content.v2(loc.get("garage", {}).get("pos", [0, 0]))
+		if not _carrying_materials() and tracker().is_empty():
+			return Content.v2(loc.get("hunt_hint", [-300, 4300]))
 	if parts_available() > 0 and float(mech()["radiator"]) < 0.6:
 		return mech_pos() if mode() == "foot" else Vector2.INF
 	var best := Vector2.INF
@@ -801,7 +964,7 @@ func debug(action: String, value: float = 0.0) -> void:
 		"timescale":
 			time_scale = clampf(value, 0.1, 20.0)
 		"integrity":
-			mech()["integrity"] = clampf(value, 0.0, float(tun("mech").get("integrity", 100.0)))
+			mech()["integrity"] = clampf(value, 0.0, max_integrity())
 		"give_scrap":
 			GameState.add(pilot()["pack"] if mode() == "foot" else mech()["storage"], "scrap", int(maxf(1.0, value)))
 		"enemy_heat":
@@ -813,6 +976,8 @@ func debug(action: String, value: float = 0.0) -> void:
 		"enemy_integrity":
 			for id in state["enemies"]:
 				state["enemies"][id]["integrity"] = clampf(value, 0.0, 999.0)
+		"give_materials":
+			dev_give_materials()
 	Log.info("debug", action, {"value": value})
 
 
@@ -859,7 +1024,18 @@ func in_combat() -> bool:
 	for id in state.get("enemies", {}):
 		if str(state["enemies"][id]["ai"]) in ["alert", "engage", "alerted", "boarding", "starting"]:
 			return true
-	return false
+	return hunting() != ""
+
+
+## Id of a creature currently fighting the player (or "").
+func hunting() -> String:
+	for id in state.get("creatures", {}):
+		var a := str(state["creatures"][id]["ai"])
+		if not (a in ["roam", "buried", "dead", "flee", "stalk"]):
+			return id
+		if a == "stalk" and Content.v2(state["creatures"][id]["pos"]).distance_to(actor_pos()) < 700.0:
+			return id
+	return ""
 
 
 func can_fire() -> bool:
@@ -868,7 +1044,7 @@ func can_fire() -> bool:
 
 func _tick_player_weapon(dt: float) -> void:
 	_fire_cd = maxf(0.0, _fire_cd - dt)
-	var w: Dictionary = tun("combat")["player_weapon"]
+	var w: Dictionary = player_weapon()
 	var before := housing_angle
 	var want := housing_angle
 	if aim_point != Vector2.INF and mode() == "mech" and float(mech()["integrity"]) > 0.0:
@@ -898,6 +1074,7 @@ func _tick_player_weapon(dt: float) -> void:
 		if to2.length() >= float(w.get("min_aim_distance", 50.0)) and to2.normalized().dot(fwd) > 0.2:
 			dir = to2.normalized()
 	projectiles.append(Combat.make_shot("player", origin, dir, w, _rng))
+	_fire_recent = minf(1.0, _fire_recent + 0.25)
 	mech()["heat"] = minf(float(mech()["heat"]) + float(w["heat_per_shot"]), Content.t("thermal", "max_temp", 135.0))
 	combat_event.emit("muzzle", {"owner": "player", "pos": origin, "angle": atan2(dir.x, -dir.y), "barrel": i})
 
@@ -909,7 +1086,8 @@ func _tick_enemies(dt: float) -> void:
 	var w: Dictionary = tun("combat")["enemy_weapon"]
 	var aggro := bool(dev["aggression"])
 	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather"))
-	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"]), "visibility": vis}
+	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"]), "visibility": vis,
+		"noise": noise() if mode() == "mech" else 0.0}
 	var tenc := tun("encounter")
 	var player := {"mech_valid": aggro and float(mech()["integrity"]) > 0.0, "mech_pos": mech_pos(), "mech_heat": float(mech()["heat"]) * vis,
 		"foot": aggro and mode() == "foot", "foot_pos": pilot_pos()}
@@ -955,9 +1133,15 @@ func _tick_enemies(dt: float) -> void:
 					combat_event.emit("enemy_windup", {"id": id, "pos": Content.v2(e["pos"])})
 				"disengage":
 					notice.emit("NOTICE_ENEMY_LOST", [])
+				"retreat":
+					notice.emit("NOTICE_ENEMY_RETREAT", [])
+					combat_event.emit("enemy_retreat", {"id": id, "pos": Content.v2(e["pos"])})
+				"escaped":
+					notice.emit("NOTICE_ENEMY_ESCAPED", [])
+			intent["gun"] = float(brains[id].get("gun", e["heading"]))
 			if r["fire"]:
-				var dir := Drive.forward(float(e["heading"]))
-				var origin := Content.v2(e["pos"]) + dir * 82.0
+				var dir: Vector2 = r.get("fire_dir", Drive.forward(float(e["heading"])))
+				var origin := Content.v2(e["pos"]) + dir * 64.0
 				var ew := w
 				if te.has("damage_mult"):
 					ew = w.duplicate()
@@ -965,7 +1149,7 @@ func _tick_enemies(dt: float) -> void:
 					ew["cooling_damage"] = float(w["cooling_damage"]) * float(te["damage_mult"])
 				projectiles.append(Combat.make_shot(id, origin, dir, ew, _rng))
 				e["heat"] = minf(float(e["heat"]) + float(w["heat_per_shot"]), float(thermal.get("max_temp", 135.0)))
-				combat_event.emit("muzzle", {"owner": id, "pos": origin, "angle": float(e["heading"])})
+				combat_event.emit("muzzle", {"owner": id, "pos": origin, "angle": atan2(dir.x, -dir.y)})
 		else:
 			brains[id]["windup"] = 0.0
 		enemy_intents[id] = intent
@@ -980,6 +1164,7 @@ func _check_enemy_disabled(id: String, e: Dictionary, thermal: Dictionary) -> vo
 	Encounter.flee(e)
 	e["engine"] = "off"
 	e["speed"] = 0.0
+	e["vel"] = [0.0, 0.0]
 	e["salvaged"] = false
 	brains[id]["windup"] = 0.0
 	notice.emit("NOTICE_ENEMY_DISABLED", [])
@@ -1004,9 +1189,8 @@ func commit_enemy(id: String, pos: Vector2, real_velocity: Vector2) -> void:
 	if e.is_empty():
 		return
 	e["pos"] = [pos.x, pos.y]
-	var along := real_velocity.dot(Drive.forward(float(e["heading"])))
-	if absf(along) < absf(float(e["speed"])):
-		e["speed"] = along
+	e["vel"] = [real_velocity.x, real_velocity.y]
+	e["speed"] = real_velocity.dot(Drive.forward(float(e["heading"])))
 
 
 # ---------------------------------------------------------------- combat: projectiles
@@ -1041,6 +1225,8 @@ func _tick_projectiles(dt: float) -> void:
 					_check_enemy_disabled(id, e, enemy_thermal())
 				combat_event.emit("cooling_hit" if kind == "cooling" else "impact", {"pos": sh["pos"], "target": id, "dir": (sh["vel"] as Vector2).normalized()})
 				break
+			if not hit:
+				hit = _shot_vs_creatures(sh)
 			if not hit:
 				hit = _shot_vs_turrets(sh)
 		else:
@@ -1089,7 +1275,7 @@ func _finish_wreck_salvage(id: String) -> void:
 func _finish_hull_repair(emergency: bool) -> void:
 	var th := tun("hull_repair")
 	var m := mech()
-	var mx := float(tun("mech").get("integrity", 100.0))
+	var mx := max_integrity()
 	if emergency:
 		m["integrity"] = maxf(float(m["integrity"]), float(th.get("emergency_to", 25.0)))
 		notice.emit("NOTICE_HULL_PATCHED", [int(m["integrity"])])
@@ -1271,13 +1457,19 @@ func dev_clear_spawned() -> void:
 			brains.erase(id)
 			enemy_intents.erase(id)
 			dev_spawned.emit(id)
-	projectiles = projectiles.filter(func(sh): return not str(sh["owner"]).begins_with("dev_"))
+	for id in state.get("creatures", {}).keys():
+		if bool(state["creatures"][id].get("dev", false)):
+			state["creatures"].erase(id)
+			creature_brains.erase(id)
+			creature_moves.erase(id)
+			dev_spawned.emit(id)
+	projectiles = projectiles.filter(func(sh): return not str(sh["owner"]).begins_with("dev_") and not str(sh["owner"]).begins_with("creature:dev_"))
 
 
 func dev_repair_all() -> void:
 	var m := mech()
 	m["radiator"] = 1.0
-	m["integrity"] = float(tun("mech").get("integrity", 100.0))
+	m["integrity"] = max_integrity()
 	if str(m["engine"]) == "shutdown":
 		m["engine"] = "running" if mode() == "mech" else "off"
 	m["heat"] = minf(float(m["heat"]), 70.0)
@@ -1301,6 +1493,9 @@ func dev_teleport(place: String) -> bool:
 	mech()["pos"] = [p.x, p.y]
 	mech()["heading"] = deg_to_rad(float(tp[place].get("heading_deg", 0.0)))
 	mech()["speed"] = 0.0
+	mech()["vel"] = [0.0, 0.0]
+	_last_desired = Vector2.ZERO
+	_impact_cd = 0.5
 	if mode() != "mech":
 		state["mode"] = "mech"
 		task = {}
@@ -1336,3 +1531,453 @@ func dev_weather(cmd: String, value: float = -1.0) -> void:
 func dev_reset() -> void:
 	dev = DEV_DEFAULTS.duplicate()
 	time_scale = 1.0
+
+
+# ---------------------------------------------------------------- hunting: creatures
+
+func creature(id: String) -> Dictionary:
+	return state.get("creatures", {}).get(id, {})
+
+
+func creature_tun(c: Dictionary) -> Dictionary:
+	return tun("creatures").get(str(c.get("species", "skirr")), {})
+
+
+func creature_def(id: String) -> Dictionary:
+	for d in loc.get("creatures", []):
+		if d["id"] == id:
+			return d
+	return creature(id).get("def", {})
+
+
+## What creatures sense of the player this tick (car or pilot on foot).
+func _creature_target() -> Dictionary:
+	var aggro := bool(dev["aggression"])
+	var foot := mode() == "foot"
+	var p := pilot_pos() if foot else mech_pos()
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, p), tun("weather"))
+	var v := Vector2.ZERO if foot else Drive.velocity(mech())
+	return {"valid": aggro and mode() != "collapsed" and (foot or float(mech()["integrity"]) > 0.0), "pos": p, "vel": v,
+		"noise": noise(), "heat": 60.0 if foot else float(mech()["heat"]), "vis": vis, "foot": foot}
+
+
+func _tick_creatures(dt: float) -> void:
+	var tc := tun("creatures")
+	var target := _creature_target()
+	var playtime := float(state["playtime"])
+	for id in state.get("creatures", {}):
+		var c: Dictionary = state["creatures"][id]
+		if not creature_brains.has(id):
+			creature_brains[id] = {"t": 0.0, "cd": 1.0, "trk": 0.0}
+		var brain: Dictionary = creature_brains[id]
+		if Creatures.is_dead(c):
+			creature_moves[id] = Vector2.ZERO
+			_maybe_respawn(id, c, playtime)
+			continue
+		var res := Creatures.step(c, brain, target, tc, dt, _rng)
+		creature_moves[id] = res["move"]
+		if not world_moves_creatures:
+			var np := Content.v2(c["pos"]) + (res["move"] as Vector2) * dt
+			c["pos"] = [np.x, np.y]
+		for ev in res["events"]:
+			_creature_event(id, c, brain, ev)
+		_lay_tracks(id, c, brain, dt)
+	_track_prune_t += dt
+	if _track_prune_t > 3.0:
+		_track_prune_t = 0.0
+		var life := float(tc.get("track_life", 420.0))
+		state["tracks"] = state["tracks"].filter(func(t): return playtime - float(t["t"]) < life)
+
+
+func _creature_event(id: String, c: Dictionary, brain: Dictionary, ev: Dictionary) -> void:
+	var pos := Content.v2(c["pos"])
+	match str(ev["kind"]):
+		"alert":
+			combat_event.emit("creature_alert", {"id": id, "species": c["species"], "pos": pos})
+			if str(c["species"]) == "rimeback":
+				notice.emit("NOTICE_RIMEBACK_ALERT", [])
+			elif str(c["species"]) == "grindback":
+				notice.emit("NOTICE_TREMOR", [])
+			else:
+				notice.emit("NOTICE_SKIRR_ALERT", [])
+			# pack hunters call the rest of the pack
+			if str(c["pack"]) != "":
+				for oid in state["creatures"]:
+					var o: Dictionary = state["creatures"][oid]
+					if oid != id and str(o["pack"]) == str(c["pack"]) and str(o["ai"]) == "roam" and Content.v2(o["pos"]).distance_to(pos) < 900.0:
+						o["ai"] = "stalk"
+						creature_brains.get(oid, {})["t"] = 0.0
+		"tell":
+			combat_event.emit("creature_tell", {"id": id, "species": c["species"], "tell": ev.get("tell", ""), "pos": pos})
+		"attack":
+			_resolve_creature_attack(id, c, ev)
+		"spit":
+			var g: Dictionary = creature_tun(c).get("glob", {})
+			for d in ev["dirs"]:
+				projectiles.append(Combat.make_shot("creature:" + id, ev["from"], d, g, _rng))
+			combat_event.emit("creature_spit", {"id": id, "pos": ev["from"]})
+		"enrage":
+			notice.emit("NOTICE_RIMEBACK_ENRAGED", [])
+			combat_event.emit("creature_tell", {"id": id, "species": c["species"], "tell": "enrage", "pos": pos})
+		"flee":
+			if str(c["species"]) == "rimeback":
+				notice.emit("NOTICE_RIMEBACK_FLEES", [])
+			combat_event.emit("creature_flee", {"id": id, "pos": pos})
+		"cornered":
+			notice.emit("NOTICE_RIMEBACK_CORNERED", [])
+		"surface", "burrow":
+			combat_event.emit("creature_" + str(ev["kind"]), {"id": id, "pos": pos})
+
+
+## Applies a creature attack (radius around ev.pos) to the car or the pilot.
+func _resolve_creature_attack(id: String, c: Dictionary, ev: Dictionary) -> void:
+	var at: Vector2 = ev["pos"]
+	var foot := mode() == "foot"
+	var victim := pilot_pos() if foot else mech_pos()
+	var reach := float(ev["radius"]) + (20.0 if foot else 60.0)
+	combat_event.emit("creature_attack", {"id": id, "attack": ev.get("attack", ""), "pos": at, "radius": float(ev["radius"])})
+	if at.distance_to(victim) > reach or bool(dev["invulnerable"]):
+		return
+	var dmg := float(ev["damage"])
+	if foot:
+		pilot()["suit"] = maxf(0.0, float(pilot()["suit"]) - dmg * 2.5)
+		notice.emit("NOTICE_PILOT_HIT", [])
+		combat_event.emit("player_hit", {"kind": "creature", "attack": ev.get("attack", "")})
+		return
+	var m := mech()
+	var before := float(m["integrity"])
+	m["integrity"] = maxf(0.0, before - dmg)
+	# head-on hits smash the radiator grille at the nose
+	var to_attacker := (Content.v2(c["pos"]) - victim).normalized()
+	var front := to_attacker.dot(Drive.forward(float(m["heading"]))) > 0.5
+	m["radiator"] = maxf(0.0, float(m["radiator"]) - float(ev.get("cooling", 0.0)) * (2.0 if front else 0.5))
+	var push_dir: Vector2 = ev.get("dir", (victim - Content.v2(c["pos"])).normalized())
+	var v := Drive.velocity(m) + push_dir.normalized() * float(ev.get("push", 0.0))
+	m["vel"] = [v.x, v.y]
+	combat_event.emit("player_hit", {"kind": "cooling" if front else "creature", "attack": ev.get("attack", ""), "dir": push_dir})
+	if front and float(ev.get("cooling", 0.0)) > 0.0:
+		notice.emit("NOTICE_GRILLE_HIT", [])
+	if before > 0.0 and float(m["integrity"]) <= 0.0:
+		notice.emit("NOTICE_HULL_CRITICAL", [])
+		save_now("crippled")
+
+
+func _lay_tracks(_id: String, c: Dictionary, brain: Dictionary, dt: float) -> void:
+	var ts := creature_tun(c)
+	var sp := str(c["species"])
+	if sp == "grindback" and not (str(c["ai"]) in ["buried", "tunnel"]):
+		return
+	brain["trk"] = float(brain.get("trk", 0.0)) + absf(float(c["speed"])) * dt
+	if float(brain["trk"]) < float(ts.get("track_every", 120.0)):
+		return
+	brain["trk"] = 0.0
+	var tr: Array = state["tracks"]
+	tr.append({"s": sp, "p": [float(c["pos"][0]), float(c["pos"][1])], "h": float(c["heading"]), "t": float(state["playtime"]),
+		"b": bool(brain.get("bleeding", false)) or Creatures.max_hp(c, tun("creatures")) * 0.4 > float(c["hp"])})
+	var cap := int(tun("creatures").get("track_cap", 520))
+	if tr.size() > cap:
+		tr.remove_at(0)
+
+
+## The freshest readable track near the active actor, or {}:
+## {species, pos, heading, freshness 0..1, blood, dist}.
+func tracker() -> Dictionary:
+	if not running:
+		return {}
+	var at := actor_pos()
+	var rng := Garage.tracker_range(float(tun("mech").get("tracker_range", 380.0)), tun("garage"), upgrades())
+	if mode() == "foot":
+		rng *= 0.6
+	var life := float(tun("creatures").get("track_life", 420.0))
+	var now := float(state["playtime"])
+	var best := {}
+	var best_score := -INF
+	for t in state.get("tracks", []):
+		var p := Content.v2(t["p"])
+		var d := p.distance_to(at)
+		if d > rng:
+			continue
+		var fresh := clampf(1.0 - (now - float(t["t"])) / life, 0.0, 1.0)
+		var score := fresh - d / rng * 0.35
+		if score > best_score:
+			best_score = score
+			best = {"species": str(t["s"]), "pos": p, "heading": float(t["h"]), "freshness": fresh, "blood": bool(t.get("b", false)), "dist": d}
+	return best
+
+
+## Player projectile vs creatures. Returns true if it hit one.
+func _shot_vs_creatures(sh: Dictionary) -> bool:
+	for id in state.get("creatures", {}):
+		var c: Dictionary = state["creatures"][id]
+		if not Creatures.targetable(c):
+			continue
+		var ts := creature_tun(c)
+		var part := Creatures.hit_part(c, sh["prev"], sh["pos"], float(sh["radius"]), ts)
+		if part == "":
+			continue
+		var brain: Dictionary = creature_brains.get(id, {})
+		var dazed := str(c["ai"]) == "dazed"
+		var r := Creatures.damage(c, part, float(sh["damage"]), ts, dazed)
+		var mult := float(ts.get("parts", {}).get(part, {}).get("mult", 1.0))
+		combat_event.emit("creature_hit", {"id": id, "part": part, "pos": sh["pos"], "dir": (sh["vel"] as Vector2).normalized(),
+			"armoured": mult < 0.4 and not dazed})
+		if str(c["ai"]) == "roam":
+			if str(c["species"]) == "rimeback":
+				brain["provoked"] = true
+			elif str(c["species"]) == "skirr":
+				c["ai"] = "stalk"
+				brain["t"] = 0.0
+		if bool(r["broken"]):
+			_break_part(id, c, part)
+		if float(c["hp"]) <= 0.0:
+			_creature_dies(id, c)
+		return true
+	return false
+
+
+func _break_part(id: String, c: Dictionary, part: String) -> void:
+	var pd: Dictionary = creature_tun(c).get("parts", {}).get(part, {})
+	var at := Content.v2(c["pos"]) + Content.v2(pd.get("offset", [0, 0])).rotated(float(c["heading"]))
+	var drops: Dictionary = pd.get("drop", {})
+	var made := Loot.spawn(state["world"], at, drops, _rng, 60.0)
+	notice.emit("NOTICE_PART_BROKEN", ["PART_" + part.to_upper()])
+	combat_event.emit("part_broken", {"id": id, "part": part, "pos": at})
+	for l in made:
+		combat_event.emit("loot_spawned", {"id": l["id"], "item": l["item"], "pos": Content.v2(l["pos"])})
+	Log.info("hunt", "part_broken", {"id": id, "part": part})
+
+
+func _creature_dies(id: String, c: Dictionary) -> void:
+	var ts := creature_tun(c)
+	c["ai"] = "dead"
+	c["speed"] = 0.0
+	c["dead_at"] = float(state["playtime"])
+	c["harvested"] = false
+	creature_moves[id] = Vector2.ZERO
+	state["stats"]["kills"] = int(state["stats"].get("kills", 0)) + 1
+	combat_event.emit("creature_dead", {"id": id, "species": c["species"], "pos": Content.v2(c["pos"])})
+	notice.emit("NOTICE_%s_DOWN" % str(c["species"]).to_upper(), [])
+	if not bool(ts.get("harvest", false)):
+		# small game drops its materials straight away
+		c["harvested"] = true
+		for l in Loot.spawn(state["world"], Content.v2(c["pos"]), Loot.roll(ts.get("loot", {}), _rng), _rng, 50.0):
+			combat_event.emit("loot_spawned", {"id": l["id"], "item": l["item"], "pos": Content.v2(l["pos"])})
+	# the rest of a pack loses its nerve when half of it is down
+	if str(c["pack"]) != "":
+		var alive := 0
+		var total := 0
+		for oid in state["creatures"]:
+			var o: Dictionary = state["creatures"][oid]
+			if str(o["pack"]) == str(c["pack"]):
+				total += 1
+				if not Creatures.is_dead(o):
+					alive += 1
+		if alive * 2 <= total:
+			for oid in state["creatures"]:
+				if str(state["creatures"][oid]["pack"]) == str(c["pack"]) and creature_brains.has(oid):
+					creature_brains[oid]["morale_broken"] = true
+	Log.info("hunt", "creature_down", {"id": id, "species": c["species"]})
+	save_now("creature_down")
+
+
+func _finish_harvest(id: String) -> void:
+	var c := creature(id)
+	if c.is_empty() or not Creatures.is_dead(c) or bool(c.get("harvested", false)):
+		return
+	var ts := creature_tun(c)
+	c["harvested"] = true
+	var drops := Loot.roll(ts.get("loot", {}), _rng)
+	var bonus: Dictionary = ts.get("bonus", {})
+	if not bonus.is_empty():
+		var ok := true
+		for p in bonus.get("requires_broken", []):
+			if float(c["parts"].get(p, 1.0)) > 0.0:
+				ok = false
+		if ok:
+			drops[str(bonus["item"])] = int(drops.get(str(bonus["item"]), 0)) + 1
+	var made := Loot.spawn(state["world"], Content.v2(c["pos"]), drops, _rng, float(ts.get("collision", 60.0)) + 50.0)
+	state["stats"]["harvests"] = int(state["stats"].get("harvests", 0)) + 1
+	for l in made:
+		combat_event.emit("loot_spawned", {"id": l["id"], "item": l["item"], "pos": Content.v2(l["pos"])})
+	notice.emit("NOTICE_HARVESTED", [made.size()])
+	mech_event.emit("pickup")
+	Log.info("hunt", "harvested", {"id": id, "drops": drops})
+	save_now("harvest")
+
+
+func _maybe_respawn(id: String, c: Dictionary, playtime: float) -> void:
+	var ts := creature_tun(c)
+	var wait := float(ts.get("respawn_time", 600.0))
+	if float(c["dead_at"]) < 0.0 or playtime - float(c["dead_at"]) < wait:
+		return
+	var d := creature_def(id)
+	if d.is_empty() or Content.v2(d["spawn"]).distance_to(actor_pos()) < 2600.0 or bool(c.get("dev", false)):
+		return
+	state["creatures"][id] = Creatures.create(d, tun("creatures"))
+	creature_brains.erase(id)
+	Log.info("hunt", "respawn", {"id": id})
+
+
+## Called by creature views (when the world moves them) with the physics result.
+func commit_creature(id: String, pos: Vector2, real_velocity: Vector2) -> void:
+	var c := creature(id)
+	if c.is_empty():
+		return
+	c["pos"] = [pos.x, pos.y]
+	var want: Vector2 = creature_moves.get(id, Vector2.ZERO)
+	if want.length() > 200.0 and real_velocity.length() < want.length() * 0.35:
+		creature_brains.get(id, {})["blocked"] = true   # a charge ran into rock
+
+
+# ---------------------------------------------------------------- loot
+
+## The car scoops loot it rolls slowly over; legendary finds announce themselves.
+func _tick_loot_pickup() -> void:
+	if mode() != "mech":
+		return
+	var tm := tun("mech")
+	if absf(float(mech()["speed"])) > float(tm.get("loot_pickup_speed", 280.0)):
+		return
+	var r := float(tm.get("loot_pickup_radius", 110.0))
+	var at := mech_pos()
+	for l in state["world"].get("loot", []).duplicate():
+		if Content.v2(l["pos"]).distance_to(at) <= r:
+			pick_up_loot(str(l["id"]), true)
+
+
+## Moves one ground loot item into the car (by_car) or the pilot's pack.
+func pick_up_loot(id: String, by_car: bool) -> bool:
+	var i := Loot.find(state["world"], id)
+	if i < 0:
+		return false
+	var l: Dictionary = state["world"]["loot"][i]
+	var item := str(l["item"])
+	var n := int(l["n"])
+	if by_car:
+		if cargo_bulk() + Loot.bulk(item) * n > cargo_capacity():
+			if not _cargo_warned:
+				_cargo_warned = true
+				notice.emit("NOTICE_CARGO_FULL", [])
+			return false
+		GameState.add(mech()["storage"], item, n)
+	else:
+		if not pack_has_room(Loot.bulk(item) * n):
+			notice.emit("NOTICE_PACK_FULL", [])
+			return false
+		GameState.add(pilot()["pack"], item, n)
+	_cargo_warned = false
+	state["world"]["loot"].remove_at(i)
+	state["stats"]["salvaged"] = int(state["stats"]["salvaged"]) + 1
+	var rar := Loot.rarity(item)
+	notice.emit("NOTICE_LEGENDARY" if rar == "legendary" else "NOTICE_LOOT", [Content.items.get(item, {}).get("name", item), n])
+	combat_event.emit("loot_picked", {"id": id, "item": item, "rarity": rar, "pos": Content.v2(l["pos"])})
+	mech_event.emit("pickup")
+	Log.info("loot", "picked", {"item": item, "n": n, "by_car": by_car})
+	return true
+
+var _cargo_warned := false
+
+
+# ---------------------------------------------------------------- garage
+
+func at_garage() -> bool:
+	if not running or mode() != "mech":
+		return false
+	var g: Dictionary = loc.get("garage", {})
+	if g.is_empty():
+		return false
+	return mech_pos().distance_to(Content.v2(g["pos"])) <= float(g.get("radius", 300.0))
+
+
+## Cost check for the next level of a module. Returns "" if it can be fitted,
+## otherwise a reason key.
+func garage_check(module: String) -> String:
+	var nxt := Garage.next_level(tun("garage"), upgrades(), module)
+	if nxt.is_empty():
+		return "GARAGE_MAXED"
+	if not Garage.can_afford(nxt.get("cost", {}), have_item):
+		return "GARAGE_MISSING"
+	return ""
+
+
+func garage_fit(module: String) -> bool:
+	if not at_garage() or garage_check(module) != "":
+		return false
+	var nxt := Garage.next_level(tun("garage"), upgrades(), module)
+	for item in nxt.get("cost", {}):
+		_consume(str(item), int(nxt["cost"][item]))
+	var before_max := max_integrity()
+	upgrades()[module] = Garage.level(upgrades(), module) + 1
+	# new armour plates arrive undamaged
+	mech()["integrity"] = minf(max_integrity(), float(mech()["integrity"]) + maxf(0.0, max_integrity() - before_max))
+	state["stats"]["upgrades"] = int(state["stats"].get("upgrades", 0)) + 1
+	notice.emit("NOTICE_FITTED", ["MOD_" + module.to_upper(), Garage.level(upgrades(), module)])
+	combat_event.emit("garage", {"module": module})
+	mech_event.emit("repaired")
+	Log.info("garage", "fitted", {"module": module, "level": upgrades()[module]})
+	save_now("garage")
+	return true
+
+
+## Scrap needed to fully repair the body and radiator at the garage.
+func garage_repair_cost() -> int:
+	var per := float(tun("garage").get("repair_scrap_per", 25.0))
+	var missing := (max_integrity() - float(mech()["integrity"])) + (1.0 - float(mech()["radiator"])) * 60.0
+	return int(ceil(maxf(0.0, missing) / per))
+
+
+func garage_repair() -> bool:
+	if not at_garage():
+		return false
+	var cost := garage_repair_cost()
+	if cost <= 0:
+		return false
+	var pay := mini(cost, have_item("scrap"))
+	if pay <= 0:
+		notice.emit("NOTICE_NEED_SCRAP", [])
+		return false
+	_consume("scrap", pay)
+	var frac := float(pay) / float(cost)
+	var m := mech()
+	m["integrity"] = minf(max_integrity(), float(m["integrity"]) + (max_integrity() - float(m["integrity"])) * frac)
+	m["radiator"] = minf(1.0, float(m["radiator"]) + (1.0 - float(m["radiator"])) * frac)
+	if str(m["engine"]) == "shutdown":
+		m["engine"] = "running"
+	state["stats"]["repairs"] = int(state["stats"]["repairs"]) + 1
+	notice.emit("NOTICE_GARAGE_REPAIRED", [int(round(float(m["integrity"]))), int(round(float(m["radiator"]) * 100.0))])
+	mech_event.emit("repaired")
+	save_now("garage_repair")
+	return true
+
+
+# ---------------------------------------------------------------- developer: creatures and materials
+
+const DEV_CREATURES := ["skirr", "grindback", "rimeback"]
+
+
+func dev_spawn_creature(species: String, count: int = 1) -> int:
+	var made := 0
+	for i in count:
+		var p := find_spawn_spot(actor_pos(), 520.0, 900.0)
+		if p == Vector2.INF:
+			break
+		_dev_n += 1
+		var id := "dev_%s_%d" % [species, _dev_n]
+		var defn := {"id": id, "species": species, "spawn": [p.x, p.y], "pack": "dev_pack" if species == "skirr" else ""}
+		var c := Creatures.create(defn, tun("creatures"))
+		c["dev"] = true
+		c["def"] = defn
+		if species == "rimeback":
+			c["ai"] = "roam"
+		state["creatures"][id] = c
+		dev_spawned.emit(id)
+		made += 1
+	Log.info("dev", "spawn_creature", {"species": species, "count": made})
+	return made
+
+
+func dev_give_materials() -> void:
+	var inv: Dictionary = mech()["storage"] if mode() == "mech" else pilot()["pack"]
+	for item in ["scrap", "skirr_hide", "skirr_fang", "grind_plate", "rime_hide", "rime_spine", "rime_horn", "rime_gland", "thawheart", "radiator_core"]:
+		GameState.add(inv, item, 6 if item == "scrap" else 2)
+	notice.emit("NOTICE_DEV_MATERIALS", [])

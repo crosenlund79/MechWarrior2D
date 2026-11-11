@@ -5,6 +5,8 @@ extends Node
 ## missing, corrupt or fails validation. Settings are NOT stored here.
 
 const SLOT_COUNT := 3
+## Legacy Heat Signature saves are imported by Paths.import_legacy() (run by
+## Settings at startup, before anything reads the user folder).
 
 
 func slot_path(slot: int) -> String:

@@ -216,6 +216,32 @@ d["areas"] = [tag(x) for x in [
 d["teleports"] = {"refuge": {"pos": [-1440, 930], "heading_deg": 0}, "junker_base": {"pos": [5180, 3860], "heading_deg": 180},
                   "cooling_station": {"pos": [4400, 1260], "heading_deg": 90}, "scrap_field": {"pos": [1900, 3640], "heading_deg": 180},
                   "roadside": {"pos": [620, 3220], "heading_deg": 90}, "ravine": {"pos": [3150, 2560], "heading_deg": 135}}
+# ---- Thawborn: car start in the refuge garage, tyre grip per zone, creature territories, hunt areas
+d["mech_start"] = {"pos": [-1440, 930], "heading_deg": 180, "_note": "the player's car starts parked in the canyon refuge garage bay"}
+d["garage"] = {"pos": [-1440, 930], "radius": 300.0, "_note": "refuge garage bay (car must be stopped here)"}
+GRIP = {"shade": 1.0, "dunes": 0.7, "salt": 1.0, "canyon": 1.0, "refuge": 1.05, "ravine": 1.0, "junker": 0.95}
+for k, v in d["zone_types"].items():
+    v["grip"] = GRIP.get(k, 1.0)
+d["default_zone"]["grip"] = 0.92
+d["creatures"] = [
+    {"id": "skirr_n1", "species": "skirr", "pack": "north", "spawn": [3250, 560]},
+    {"id": "skirr_n2", "species": "skirr", "pack": "north", "spawn": [3350, 640]},
+    {"id": "skirr_n3", "species": "skirr", "pack": "north", "spawn": [3200, 700]},
+    {"id": "skirr_n4", "species": "skirr", "pack": "north", "spawn": [3400, 520]},
+    {"id": "skirr_f1", "species": "skirr", "pack": "flats", "spawn": [300, 4650]},
+    {"id": "skirr_f2", "species": "skirr", "pack": "flats", "spawn": [380, 4580]},
+    {"id": "skirr_f3", "species": "skirr", "pack": "flats", "spawn": [240, 4560]},
+    {"id": "grindback_dunes", "species": "grindback", "spawn": [1640, 1950]},
+    {"id": "grindback_flats", "species": "grindback", "spawn": [-1100, 3900]},
+    {"id": "rimeback", "species": "rimeback", "spawn": [-200, 5000], "heading_deg": 90}]
+d["rimeback_route"] = [[-200, 5000], [600, 5420], [1100, 4950], [820, 4300], [-300, 4120], [-1100, 4500], [-1500, 5150], [-900, 5700]]
+d["rimeback_lair"] = [-2000, 5650]
+d["areas"] += [tag(x) for x in [
+    {"id": "area_thaw_flats", "name": "AREA_THAW_FLATS", "polygon": [[-2500, 3850], [1250, 3850], [1250, 6150], [-2500, 6150]]},
+    {"id": "area_dune_sea", "name": "AREA_DUNE_SEA", "polygon": [[1360, 1300], [1900, 1300], [1900, 2600], [1360, 2600]]},
+    {"id": "area_skirr_den", "name": "AREA_SKIRR_DEN", "polygon": [[2700, 150], [3900, 150], [3900, 1000], [2700, 1000]]}]]
+d["teleports"].update({"thaw_flats": {"pos": [-300, 4300], "heading_deg": 180}, "dune_sea": {"pos": [1150, 1900], "heading_deg": 90},
+                       "skirr_den": {"pos": [2700, 800], "heading_deg": 90}})
 # Scatter: wider, sparser (avoid the new locations)
 d["scatter"] = [s for s in d["scatter"] if s.get("seed") != 41]
 d["scatter"].append(tag({"seed": 41, "count": 150, "area": [-300, 2600, 7000, 3500], "spacing": 90,
@@ -281,6 +307,16 @@ for t in d["turrets"]:
 for k, v in d["teleports"].items():
     if near_mass(v["pos"], 130):
         errs.append(f"teleport {k} in rock")
+# creatures and the rimeback route must be clear of rock and big props
+for c in d["creatures"]:
+    if near_mass(c["spawn"], 120):
+        errs.append(f"creature {c['id']} in rock")
+for wp in d["rimeback_route"] + [d["rimeback_lair"]]:
+    if near_mass(wp, 170):
+        errs.append(f"rimeback route {wp} in rock")
+    for pr in d["props"]:
+        if "collision" in pr and math.hypot(pr["pos"][0] - wp[0], pr["pos"][1] - wp[1]) < 190:
+            errs.append(f"rimeback route {wp} blocked by {pr['id']}")
 # props with collision must not cover roads
 for pr in d["props"]:
     if "collision" not in pr:

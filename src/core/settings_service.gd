@@ -21,9 +21,12 @@ const ACTIONS := {
 	"dev_overlay": [KEY_F3],
 	"pause": [KEY_ESCAPE],
 	"fire": [KEY_SPACE],
+	"handbrake": [KEY_SHIFT],
+	"garage": [KEY_G],
+	"help": [KEY_H],
 	"dev_menu": [KEY_F10],
 }
-const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "interact", "service", "fire", "zoom_in", "zoom_out"]
+const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "handbrake", "interact", "service", "garage", "fire", "help", "zoom_in", "zoom_out"]
 
 var values := {
 	"volume_Master": 0.8, "volume_Music": 0.55, "volume_Ambience": 0.8, "volume_SFX": 0.85, "volume_UI": 0.7,
@@ -35,6 +38,9 @@ var _path := ""
 
 
 func _ready() -> void:
+	var imported := Paths.import_legacy()
+	if imported > 0:
+		print("Thawborn: imported %d file(s) from the Heat Signature user folder" % imported)
 	_path = Paths.settings_file()
 	_setup_actions()
 	load_settings()

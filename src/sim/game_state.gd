@@ -28,7 +28,10 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"shutters_open": true,
 			"engine": "running",
 			"integrity": Content.t("mech", "integrity", 100.0),
-			"storage": {},
+			"storage": {"scrap": 3},
+			"vel": [0.0, 0.0],
+			"slip": 0.0,
+			"upgrades": {},
 		},
 		"pilot": {
 			"pos": [p.x, p.y],
@@ -37,12 +40,54 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"strain": 0.0,
 			"pack": {},
 		},
-		"world": {"taken": {}, "drops": [], "next_drop": 1},
+		"world": {"taken": {}, "drops": [], "next_drop": 1, "loot": [], "next_loot": 1},
 		"enemies": create_enemies(loc),
+		"creatures": create_creatures(loc),
+		"tracks": seed_tracks(loc),
 		"turrets": create_turrets(loc),
 		"weather": Weather.create(Content.tuning.get("weather", {})),
-		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0},
+		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0, "kills": 0, "harvests": 0, "upgrades": 0},
 	}
+
+
+## Creatures from the location, keyed by stable IDs.
+static func create_creatures(loc: Dictionary) -> Dictionary:
+	var out := {}
+	var tc: Dictionary = Content.tuning.get("creatures", {})
+	for d in loc.get("creatures", []):
+		out[str(d["id"])] = Creatures.create(d, tc)
+	return out
+
+
+## Old rimeback tracks along its grazing route (so a new run has sign to find):
+## walked backwards from the spawn, older the further back.
+static func seed_tracks(loc: Dictionary) -> Array:
+	var route: Array = loc.get("rimeback_route", [])
+	var out: Array = []
+	if route.size() < 2:
+		return out
+	var tr: Dictionary = Content.tuning.get("creatures", {}).get("rimeback", {})
+	var every := float(tr.get("track_every", 90.0))
+	var speed := maxf(float(tr.get("roam_speed", 80.0)), 1.0)
+	var life := float(Content.tuning.get("creatures", {}).get("track_life", 420.0))
+	var age := 2.0
+	var i := 0
+	var n := route.size()
+	while age < life * 0.85 and i < n:
+		var a := Content.v2(route[(n - i) % n])
+		var b := Content.v2(route[(n - i - 1) % n])
+		var seg := a.distance_to(b)
+		var k := 0.0
+		while k < seg:
+			var p := a.lerp(b, k / seg)
+			var h := atan2((a - b).x, -(a - b).y)   # the animal walked b → a
+			out.append({"s": "rimeback", "p": [p.x, p.y], "h": h, "t": -age, "b": false})
+			k += every
+			age += every / speed
+		age += float(tr.get("graze_time", 4.0))
+		i += 1
+	out.reverse()
+	return out
 
 
 static func create_turrets(loc: Dictionary) -> Dictionary:
@@ -112,7 +157,7 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 			dr["items"] = clean_inventory(dr.get("items", {}))
 			drops.append(dr)
 	s["world"]["drops"] = drops
-	m["integrity"] = clampf(float(m["integrity"]), 0.0, Content.t("mech", "integrity", 100.0))
+	m["integrity"] = clampf(float(m["integrity"]), 0.0, Content.t("mech", "integrity", 100.0) + 200.0)
 	# Enemies: keep known IDs, add missing ones, drop ones no longer in the location.
 	var en := {}
 	var have: Dictionary = s.get("enemies", {}) if s.get("enemies") is Dictionary else {}
@@ -123,11 +168,11 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 		for k in fresh:
 			if not e.has(k):
 				e[k] = fresh[k]
-		if not (str(e["ai"]) in ["patrol", "alert", "engage", "return", "wreck"] or Encounter.is_encounter_state(str(e["ai"]))):
+		if not (str(e["ai"]) in ["patrol", "alert", "engage", "retreat", "return", "wreck"] or Encounter.is_encounter_state(str(e["ai"]))):
 			e["ai"] = "patrol"
 		if not (e["pilot"] is Dictionary) or not e["pilot"].has("state"):
 			e["pilot"] = fresh["pilot"]
-		if str(e["ai"]) in ["alert", "engage"]:
+		if str(e["ai"]) in ["alert", "engage", "retreat"]:
 			e["ai"] = "return"   # resume calmly after loading
 		Encounter.resolve_on_load(e)
 		e["speed"] = 0.0
@@ -152,6 +197,47 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 			t["hp"] = 0.0
 		tu[tid] = t
 	s["turrets"] = tu
+	# Creatures: keep known IDs (alive/dead/harvested), add missing ones, resume calmly.
+	var cr := {}
+	var hadc: Dictionary = s.get("creatures", {}) if s.get("creatures") is Dictionary else {}
+	var tc: Dictionary = Content.tuning.get("creatures", {})
+	for cd in loc.get("creatures", []):
+		var cid := str(cd["id"])
+		var fc := Creatures.create(cd, tc)
+		var c: Dictionary = hadc.get(cid, fc) if hadc.get(cid) is Dictionary else fc
+		for k in fc:
+			if not c.has(k) or typeof(c[k]) != typeof(fc[k]):
+				if c.has(k) and (typeof(c[k]) in [TYPE_INT, TYPE_FLOAT]) and (typeof(fc[k]) in [TYPE_INT, TYPE_FLOAT]):
+					continue
+				c[k] = fc[k]
+		c["species"] = fc["species"]
+		if str(c["ai"]) != "dead":
+			c["ai"] = fc["ai"]   # calm state after loading (rimeback roams, grindback buried)
+		c["speed"] = 0.0
+		c["hp"] = clampf(float(c["hp"]), 0.0, Creatures.max_hp(fc, tc))
+		cr[cid] = c
+	s["creatures"] = cr
+	var tracks: Array = []
+	for t in (s.get("tracks", []) if s.get("tracks") is Array else []):
+		if t is Dictionary and t.has("p") and t.has("t") and t["p"] is Array:
+			tracks.append(t)
+	s["tracks"] = tracks
+	var loot: Array = []
+	for l in (s["world"].get("loot", []) if s["world"].get("loot") is Array else []):
+		if l is Dictionary and l.has("id") and l.has("pos") and Content.is_item(str(l.get("item", ""))):
+			l["n"] = maxi(1, int(l.get("n", 1)))
+			loot.append(l)
+	s["world"]["loot"] = loot
+	if not s["world"].has("next_loot"):
+		s["world"]["next_loot"] = 1
+	var up := {}
+	if m.get("upgrades") is Dictionary:
+		for k in m["upgrades"]:
+			if str(k) in Garage.MODULES:
+				up[str(k)] = clampi(int(m["upgrades"][k]), 0, Garage.max_level(Content.tuning.get("garage", {}), str(k)))
+	m["upgrades"] = up
+	m["vel"] = [0.0, 0.0]
+	m["slip"] = 0.0
 	var wd := Weather.create(Content.tuning.get("weather", {}))
 	if not (s.get("weather") is Dictionary) or not (str(s["weather"].get("state", "")) in Weather.STATES):
 		s["weather"] = wd

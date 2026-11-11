@@ -1,24 +1,38 @@
 {
-	"_note": "All gameplay balance lives here. Temperatures in °C, rates per second, distances in px (≈42 px per metre).",
+	"_note": "All gameplay balance lives here. Temperatures in °C, rates per second, distances in px (≈42 px per metre). Section 'mech' = the player's CAR (legacy internal name).",
 	"mech": {
-		"max_speed": 245.0,
-		"reverse_speed": 115.0,
-		"accel": 290.0,
-		"brake": 520.0,
-		"coast_drag": 180.0,
-		"turn_rate": 2.6,
-		"turn_rate_full_speed": 1.75,
-		"exit_max_speed": 15.0,
-		"collision_radius": 104.0,
-		"enter_radius": 160.0,
+		"max_speed": 460.0,
+		"reverse_speed": 170.0,
+		"accel": 340.0,
+		"brake": 780.0,
+		"coast_drag": 110.0,
+		"turn_rate": 2.9,
+		"turn_rate_full_speed": 1.55,
+		"exit_max_speed": 25.0,
+		"collision_radius": 50.0,
+		"enter_radius": 150.0,
 		"service_radius": 175.0,
-		"impair_max": 0.5,
+		"impair_max": 0.45,
 		"integrity": 100.0,
-		"housing_turn_rate": 5.5,
-		"_feel_note": "weight comes from visuals: hull squat/dip on acceleration (feel_squat), turn lean (feel_lean), footfall camera thump (feel_step_shake)",
-		"feel_squat": 0.035,
-		"feel_lean": 0.06,
-		"feel_step_shake": 0.07
+		"housing_turn_rate": 7.0,
+		"_feel_note": "weight comes from visuals and audio: body squat/dive on accel/brake (feel_squat), body roll in turns (feel_lean), skid marks + tyre squeal when slip > skid_slip",
+		"feel_squat": 0.02,
+		"feel_lean": 0.05,
+		"_note": "The player's car (internal legacy key 'mech'). Top-down car dynamics: see src/sim/drive.gd.",
+		"steer_full_speed": 75.0,
+		"grip": 1250.0,
+		"handbrake_grip": 0.22,
+		"handbrake_turn": 1.5,
+		"handbrake_decel": 240.0,
+		"collision_length": 228.0,
+		"impact_threshold": 170.0,
+		"impact_damage": 0.045,
+		"impact_max": 14.0,
+		"cargo_bulk": 14,
+		"tracker_range": 380.0,
+		"loot_pickup_radius": 110.0,
+		"loot_pickup_speed": 280.0,
+		"skid_slip": 120.0
 	},
 	"thermal": {
 		"start_heat": 64.0,
@@ -37,8 +51,8 @@
 		"overheat_damage": 0.004,
 		"abrasion_wear": 0.00025,
 		"cabin_safe_temp": 105.0,
-		"start_radiator": 0.55,
-		"_balance_note": "Run python3 tools/heat_balance.py after changing these: ordinary travel should never warn; combat, heat, storms and damage should stack."
+		"start_radiator": 0.7,
+		"_balance_note": "Car engine/cooling. Run python3 tools/heat_balance.py after changing these: ordinary travel should never warn; combat, heat, storms and damage should stack."
 	},
 	"suit": {
 		"max": 100.0,
@@ -71,20 +85,20 @@
 			"damage": 5.0,
 			"cooling_damage": 0.07,
 			"structural_cooling_damage": 0.01,
-			"speed": 560.0,
-			"range": 640.0,
+			"speed": 620.0,
+			"range": 680.0,
 			"cooldown": 0.3,
 			"heat_per_shot": 0.85,
 			"spread_deg": 1.5,
 			"radius": 5.0,
 			"muzzles": [
 				[
-					-92,
-					-109
+					-17,
+					-74
 				],
 				[
-					92,
-					-109
+					17,
+					-74
 				]
 			],
 			"fire_cone_deg": 25.0,
@@ -94,32 +108,33 @@
 			"damage": 6.0,
 			"cooling_damage": 0.05,
 			"structural_cooling_damage": 0.005,
-			"speed": 250.0,
-			"range": 560.0,
-			"cooldown": 3.4,
-			"telegraph": 1.2,
+			"speed": 330.0,
+			"range": 600.0,
+			"cooldown": 2.6,
+			"telegraph": 1.0,
 			"heat_per_shot": 3.5,
 			"spread_deg": 5.0,
 			"radius": 9.0
 		},
 		"player_hit": {
-			"body_radius": 104.0,
+			"body_radius": 72.0,
 			"cooling_offset": [
 				0,
-				92
+				-92
 			],
-			"cooling_radius": 42.0
+			"cooling_radius": 36.0,
+			"_note": "front-engined: the radiator grille is at the nose"
 		},
 		"enemy_hit": {
-			"body_radius": 66.0,
+			"body_radius": 64.0,
 			"cooling_offset": [
 				0,
-				58
+				-80
 			],
-			"cooling_radius": 32.0
+			"cooling_radius": 30.0
 		},
 		"recoil": {
-			"_note": "Visual only (no displacement of the mech).",
+			"_note": "Visual only (no displacement of the car).",
 			"gun_kick": 22.0,
 			"housing_kick": 7.0,
 			"housing_rock": 0.05,
@@ -130,35 +145,45 @@
 		}
 	},
 	"enemy": {
-		"_note": "Scrapper: weak, slow, telegraphs every shot. Detection grows with the target mech's heat (heat signature).",
+		"_note": "Rival cars (scrappers): weaker and slower than the player's car, roof gunner telegraphs every shot. Detection grows with the target's heat and engine noise.",
 		"integrity": 55.0,
 		"start_radiator": 0.75,
 		"start_heat": 66.0,
-		"max_speed": 78.0,
-		"reverse_speed": 40.0,
-		"accel": 60.0,
-		"brake": 160.0,
-		"coast_drag": 50.0,
-		"turn_rate": 1.0,
-		"turn_rate_full_speed": 0.75,
-		"collision_radius": 66.0,
+		"max_speed": 360.0,
+		"reverse_speed": 140.0,
+		"accel": 240.0,
+		"brake": 620.0,
+		"coast_drag": 100.0,
+		"turn_rate": 2.4,
+		"turn_rate_full_speed": 1.35,
+		"collision_radius": 44.0,
 		"patrol_throttle": 0.45,
-		"detect_base": 330.0,
+		"detect_base": 360.0,
 		"detect_per_degree": 4.0,
-		"detect_max": 620.0,
-		"lose_radius": 760.0,
-		"leash_radius": 800.0,
-		"reaction_time": 1.1,
-		"preferred_range": 330.0,
-		"fire_cone_deg": 12.0,
+		"detect_max": 760.0,
+		"lose_radius": 1150.0,
+		"leash_radius": 1400.0,
+		"reaction_time": 1.0,
+		"preferred_range": 320.0,
+		"fire_cone_deg": 10.0,
 		"cool_off_temp": 104.0,
-		"disable_radiator": 0.04
+		"disable_radiator": 0.04,
+		"steer_full_speed": 70.0,
+		"grip": 1100.0,
+		"collision_length": 200.0,
+		"detect_per_noise": 220.0,
+		"orbit_throttle": 0.75,
+		"gun_turn_rate": 2.2,
+		"retreat_frac": 0.3,
+		"escape_distance": 1300.0,
+		"field_repair": 0.6
 	},
 	"wreck_salvage": {
 		"duration": 3.5,
 		"scrap": 4,
 		"item": "radiator_core",
-		"item_count": 1
+		"item_count": 1,
+		"_note": "Stripping a disabled rival car on foot."
 	},
 	"hull_repair": {
 		"scrap_cost": 2,
@@ -166,23 +191,24 @@
 		"duration": 3.0,
 		"emergency_below": 25.0,
 		"emergency_to": 25.0,
-		"emergency_duration": 6.0
+		"emergency_duration": 6.0,
+		"_note": "Field repair of the car body on foot (scrap)."
 	},
 	"encounter": {
-		"_note": "Parked-mech encounter (UNPILOTED → ALERTED → BOARDING → STARTING → ACTIVE → DISABLED).",
+		"_note": "Parked-car encounter (UNPILOTED → ALERTED → BOARDING → STARTING → ACTIVE → DISABLED): the driver runs to the car, gets in and starts it.",
 		"pilot_detect_base": 300.0,
 		"pilot_detect_foot": 230.0,
 		"reaction": 0.9,
-		"pilot_speed": 150.0,
-		"climb_time": 0.9,
-		"startup_time": 3.2,
+		"pilot_speed": 170.0,
+		"climb_time": 0.7,
+		"startup_time": 2.4,
 		"board_offset": [
-			-96,
-			-30
+			-72,
+			-6
 		],
 		"hatch_offset": [
-			-18,
-			-46
+			-26,
+			-6
 		],
 		"flee_distance": 700.0
 	},
@@ -237,14 +263,410 @@
 		"scrapper": {},
 		"junker": {
 			"integrity": 62.0,
-			"max_speed": 72.0,
-			"detect_base": 310.0,
-			"detect_max": 560.0,
+			"max_speed": 340.0,
+			"detect_base": 340.0,
+			"detect_max": 700.0,
 			"start_radiator": 0.8,
 			"preferred_range": 350.0,
-			"leash_radius": 700.0,
+			"leash_radius": 1000.0,
 			"damage_mult": 0.7
 		}
 	},
-	"zone_storm_exposure_note": "see location zone_types storm_exposure"
+	"zone_storm_exposure_note": "see location zone_types storm_exposure",
+	"creatures": {
+		"_note": "Prototype species (behaviour in src/sim/creatures.gd). parts: offset is local (heading up), mult scales body damage, hp>0 = breakable (drop = physical loot), always = never removed.",
+		"track_life": 420.0,
+		"track_cap": 520,
+		"skirr": {
+			"hp": 14.0,
+			"collision": 26.0,
+			"parts": {
+				"body": {
+					"offset": [
+						0,
+						0
+					],
+					"radius": 30,
+					"mult": 1.0
+				}
+			},
+			"sight": 240.0,
+			"hearing": 520.0,
+			"heat_sense": 4.0,
+			"roam_radius": 420.0,
+			"roam_speed": 90.0,
+			"run_speed": 340.0,
+			"turn_rate": 6.0,
+			"accel": 1400.0,
+			"circle_radius": 260.0,
+			"lunge_range": 380.0,
+			"tell_time": 0.55,
+			"lunge_speed": 720.0,
+			"lunge_time": 0.42,
+			"bite_radius": 90.0,
+			"bite_damage": 4.0,
+			"bite_cooling": 0.025,
+			"recover_time": 0.9,
+			"cooldown_min": 2.2,
+			"cooldown_max": 3.6,
+			"flee_hp": 0.4,
+			"give_up": 1100.0,
+			"leash": 1700.0,
+			"heal": 0.5,
+			"track_every": 150.0,
+			"loot": {
+				"skirr_hide": [
+					1,
+					1,
+					1.0
+				],
+				"skirr_fang": [
+					1,
+					1,
+					0.35
+				]
+			},
+			"harvest": false
+		},
+		"grindback": {
+			"hp": 110.0,
+			"collision": 64.0,
+			"parts": {
+				"plate": {
+					"offset": [
+						0,
+						-48
+					],
+					"radius": 52,
+					"mult": 0.15,
+					"hp": 50.0,
+					"drop": {
+						"grind_plate": 1
+					}
+				},
+				"vent": {
+					"offset": [
+						0,
+						58
+					],
+					"radius": 28,
+					"mult": 1.8,
+					"dazed_mult": 3.0,
+					"always": true
+				},
+				"body": {
+					"offset": [
+						0,
+						0
+					],
+					"radius": 70,
+					"mult": 0.6,
+					"dazed_mult": 1.2
+				}
+			},
+			"buried_speed": 40.0,
+			"roam_radius": 380.0,
+			"vibration_base": 140.0,
+			"vibration_range": 620.0,
+			"lead_time": 0.8,
+			"tunnel_speed": 420.0,
+			"tell_time": 1.4,
+			"erupt_radius": 135.0,
+			"erupt_damage": 14.0,
+			"paw_time": 0.95,
+			"charge_speed": 470.0,
+			"charge_time": 1.4,
+			"ram_radius": 115.0,
+			"ram_damage": 11.0,
+			"daze_time": 2.4,
+			"max_charges": 3,
+			"flee_hp": 0.35,
+			"give_up": 1000.0,
+			"rest_after_burrow": 9.0,
+			"heal": 0.8,
+			"turn_rate": 2.4,
+			"accel": 900.0,
+			"leash": 1400.0,
+			"track_every": 70.0,
+			"loot": {
+				"grind_plate": [
+					2,
+					3,
+					1.0
+				],
+				"radiator_core": [
+					1,
+					1,
+					0.25
+				]
+			},
+			"harvest": true
+		},
+		"rimeback": {
+			"hp": 320.0,
+			"collision": 105.0,
+			"parts": {
+				"head": {
+					"offset": [
+						0,
+						-190
+					],
+					"radius": 62,
+					"mult": 0.5,
+					"hp": 70.0,
+					"drop": {
+						"rime_horn": 1
+					}
+				},
+				"gland_l": {
+					"offset": [
+						-86,
+						-40
+					],
+					"radius": 36,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"gland_r": {
+					"offset": [
+						86,
+						-40
+					],
+					"radius": 36,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"tail": {
+					"offset": [
+						0,
+						232
+					],
+					"radius": 48,
+					"mult": 0.9,
+					"hp": 55.0,
+					"drop": {
+						"rime_spine": 1
+					}
+				},
+				"body": {
+					"offset": [
+						0,
+						20
+					],
+					"radius": 125,
+					"mult": 1.0
+				}
+			},
+			"sight": 380.0,
+			"hearing": 700.0,
+			"heat_sense": 6.0,
+			"roam_speed": 80.0,
+			"graze_time": 4.0,
+			"hunt_speed": 170.0,
+			"preferred_range": 430.0,
+			"roar_time": 1.6,
+			"charge_tell": 1.3,
+			"charge_speed": 560.0,
+			"charge_time": 1.25,
+			"ram_radius": 190.0,
+			"charge_damage": 20.0,
+			"broken_horn_mult": 0.55,
+			"sweep_tell": 0.9,
+			"sweep_range": 300.0,
+			"sweep_damage": 11.0,
+			"spit_tell": 1.0,
+			"spit_min": 380.0,
+			"spit_max": 820.0,
+			"glob": {
+				"speed": 330.0,
+				"damage": 5.0,
+				"cooling_damage": 0.06,
+				"structural_cooling_damage": 0.01,
+				"radius": 20.0,
+				"range": 900.0,
+				"spread_deg": 2.0
+			},
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 3.0,
+			"enrage_hp": 0.55,
+			"enrage_cooldown": 0.65,
+			"flee_hp": 0.3,
+			"flee_speed": 230.0,
+			"give_up": 1700.0,
+			"turn_rate": 1.6,
+			"accel": 500.0,
+			"heal": 0.6,
+			"respawn_time": 900.0,
+			"track_every": 90.0,
+			"loot": {
+				"rime_hide": [
+					2,
+					3,
+					1.0
+				],
+				"rime_spine": [
+					0,
+					1,
+					0.5
+				]
+			},
+			"harvest": true,
+			"bonus": {
+				"requires_broken": [
+					"gland_l",
+					"gland_r"
+				],
+				"item": "thawheart"
+			}
+		},
+		"harvest_duration": 4.0
+	},
+	"garage": {
+		"_note": "Refuge garage modules. Each level: cost {item: n} + effect values (multipliers end in _mult). Location of the garage bay: location 'garage'.",
+		"repair_scrap_per": 25.0,
+		"modules": {
+			"armor": {
+				"levels": [
+					{
+						"cost": {
+							"scrap": 4,
+							"skirr_hide": 2
+						},
+						"integrity": 25.0
+					},
+					{
+						"cost": {
+							"scrap": 6,
+							"grind_plate": 2
+						},
+						"integrity": 50.0
+					},
+					{
+						"cost": {
+							"rime_hide": 2,
+							"grind_plate": 3
+						},
+						"integrity": 80.0
+					}
+				]
+			},
+			"cooling": {
+				"levels": [
+					{
+						"cost": {
+							"radiator_core": 1,
+							"scrap": 3
+						},
+						"cooling_mult": 1.15
+					},
+					{
+						"cost": {
+							"rime_gland": 1,
+							"scrap": 4
+						},
+						"cooling_mult": 1.32
+					},
+					{
+						"cost": {
+							"thawheart": 1,
+							"rime_gland": 1
+						},
+						"cooling_mult": 1.6
+					}
+				]
+			},
+			"tires": {
+				"levels": [
+					{
+						"cost": {
+							"scrap": 3,
+							"skirr_hide": 3
+						},
+						"grip_mult": 1.15,
+						"accel_mult": 1.08
+					},
+					{
+						"cost": {
+							"skirr_fang": 2,
+							"scrap": 4
+						},
+						"grip_mult": 1.28,
+						"accel_mult": 1.16,
+						"speed_mult": 1.04
+					},
+					{
+						"cost": {
+							"rime_spine": 2,
+							"grind_plate": 1
+						},
+						"grip_mult": 1.42,
+						"accel_mult": 1.25,
+						"speed_mult": 1.08
+					}
+				]
+			},
+			"weapon": {
+				"levels": [
+					{
+						"cost": {
+							"scrap": 5
+						},
+						"damage_mult": 1.2,
+						"cooldown_mult": 0.93
+					},
+					{
+						"cost": {
+							"skirr_fang": 2,
+							"scrap": 4
+						},
+						"damage_mult": 1.45,
+						"cooldown_mult": 0.86
+					},
+					{
+						"cost": {
+							"rime_horn": 1,
+							"scrap": 6
+						},
+						"damage_mult": 1.8,
+						"cooldown_mult": 0.8
+					}
+				]
+			},
+			"rig": {
+				"levels": [
+					{
+						"cost": {
+							"scrap": 3,
+							"skirr_hide": 1
+						},
+						"cargo": 8.0,
+						"tracker_mult": 1.4
+					},
+					{
+						"cost": {
+							"rime_hide": 2,
+							"scrap": 2
+						},
+						"cargo": 16.0,
+						"tracker_mult": 1.8
+					},
+					{
+						"cost": {
+							"grind_plate": 2,
+							"rime_spine": 1
+						},
+						"cargo": 26.0,
+						"tracker_mult": 2.3
+					}
+				]
+			}
+		}
+	}
 }

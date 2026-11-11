@@ -57,8 +57,11 @@ func _run(line: String) -> void:
 	var cmd := parts[0] if parts.size() > 0 else ""
 	var targets := _target_ids(parts)
 	var a := PackedStringArray()
+	var cid := ""
 	for t in parts.slice(1):
-		if not t.begins_with("id="):
+		if t.begins_with("cid="):
+			cid = t.substr(4)
+		elif not t.begins_with("id="):
 			a.append(t)
 	var ok := true
 	var err := ""
@@ -82,14 +85,30 @@ func _run(line: String) -> void:
 			var target := Vector2(float(a[0]), float(a[1]))
 			var limit := float(a[2]) if a.size() > 2 else 30.0
 			var t := 0.0
+			var stuck := 0.0
+			var backing := 0.0
 			while t < limit and Session.running and Session.mech_pos().distance_to(target) > 60.0:
 				var to := target - Session.mech_pos()
 				var want := atan2(to.x, -to.y)
 				var diff := wrapf(want - float(Session.mech()["heading"]), -PI, PI)
-				Session.drive_turn = clampf(diff * 2.0, -1.0, 1.0)
-				Session.drive_throttle = 1.0 if absf(diff) < 0.6 else 0.25
-				if Session.mech_pos().distance_to(target) < 220.0:
-					Session.drive_throttle = minf(Session.drive_throttle, 0.4)
+				var spd := float(Session.mech()["speed"])
+				if backing > 0.0:
+					# un-stick: reverse with opposite lock
+					backing -= get_physics_process_delta_time()
+					Session.drive_throttle = -1.0
+					Session.drive_turn = -signf(diff)
+				else:
+					# a car: steer while rolling; slow down for tight turns and the stop
+					var dist := to.length()
+					var desired := clampf(dist * 1.3, 110.0, 520.0)
+					if absf(diff) > 1.0:
+						desired = minf(desired, 150.0)
+					Session.drive_turn = clampf(diff * 2.2, -1.0, 1.0)
+					Session.drive_throttle = clampf((desired - spd) / 110.0, -1.0, 1.0)
+					stuck = stuck + get_physics_process_delta_time() if absf(spd) < 25.0 else 0.0
+					if stuck > 1.2:
+						stuck = 0.0
+						backing = 0.9
 				await get_tree().physics_frame
 				t += get_physics_process_delta_time()
 			Session.drive_throttle = 0.0
@@ -116,6 +135,56 @@ func _run(line: String) -> void:
 			ok = Session.pilot_pos().distance_to(target2) <= 12.0
 			if not ok:
 				err = "did not reach target"
+		"handbrake":  # handbrake <0|1>
+			Session.drive_handbrake = a.size() > 0 and a[0] == "1"
+		"spawn_creature":  # spawn_creature <species> [n]
+			var n := Session.dev_spawn_creature(a[0], int(a[1]) if a.size() > 1 else 1)
+			ok = n > 0
+		"set_creature":  # set_creature <x> <y> [ai] cid=..
+			var c: Dictionary = Session.creature(cid)
+			if c.is_empty():
+				ok = false
+				err = "no creature " + cid
+			else:
+				c["pos"] = [float(a[0]), float(a[1])]
+				if a.size() > 2:
+					c["ai"] = a[2]
+					Session.creature_brains.get(cid, {})["t"] = 0.0
+				c["speed"] = 0.0
+				if main and main.game and main.game.world.creature_views.has(cid):
+					main.game.world.creature_views[cid].global_position = Content.v2(c["pos"])
+		"creature_hp":  # creature_hp <hp> cid=..
+			Session.creature(cid)["hp"] = float(a[0])
+		"break_part":  # break_part <part> cid=..
+			var c2: Dictionary = Session.creature(cid)
+			c2["parts"][a[0]] = 0.0
+		"aim_creature":  # aim_creature [part] cid=..
+			var c3: Dictionary = Session.creature(cid)
+			var part := a[0] if a.size() > 0 else "body"
+			var off := Content.v2(Session.creature_tun(c3).get("parts", {}).get(part, {}).get("offset", [0, 0]))
+			Session.aim_point = Content.v2(c3["pos"]) + off.rotated(float(c3["heading"]))
+		"fire_at_creature":  # fire_at_creature <seconds> [part] cid=..: hold fire, tracking the part
+			var t7 := 0.0
+			var part2 := a[1] if a.size() > 1 else "body"
+			while t7 < float(a[0]) and not Creatures.is_dead(Session.creature(cid)):
+				var c4: Dictionary = Session.creature(cid)
+				var off2 := Content.v2(Session.creature_tun(c4).get("parts", {}).get(part2, {}).get("offset", [0, 0]))
+				Session.aim_point = Content.v2(c4["pos"]) + off2.rotated(float(c4["heading"]))
+				Session.fire_held = true
+				await get_tree().physics_frame
+				t7 += get_physics_process_delta_time()
+			Session.fire_held = false
+		"garage":  # garage fit <module> | garage repair
+			if a.size() > 1 and a[0] == "fit":
+				ok = Session.garage_fit(a[1])
+			elif a.size() > 0 and a[0] == "repair":
+				ok = Session.garage_repair()
+			else:
+				ok = Session.at_garage()
+			if not ok:
+				err = "garage action refused"
+		"give_materials":
+			Session.dev_give_materials()
 		"aim":  # aim <x> <y> (world)
 			Session.aim_point = Vector2(float(a[0]), float(a[1]))
 		"aim_enemy":  # aim at an enemy, optional local offset: aim_enemy [ox oy] [id=..]
@@ -311,10 +380,25 @@ func _state() -> Dictionary:
 		st["storm_here"] = Session.storm_here
 		st["area"] = Session.area_at(Session.actor_pos())
 		st["turret_view"] = Session.turret_view.duplicate(true)
+		st["tracker"] = Session.tracker()
+		st["hunting"] = Session.hunting()
+		st["cargo"] = [Session.cargo_bulk(), Session.cargo_capacity()]
+		st["max_integrity"] = Session.max_integrity()
+		st["at_garage"] = Session.at_garage()
+		st["noise"] = Session.noise()
+		st["car"] = {"max_speed": Session.car_tun()["max_speed"], "grip": Session.car_tun()["grip"], "accel": Session.car_tun()["accel"],
+			"cooling_coeff": Session.car_thermal()["cooling_coeff"], "damage": Session.player_weapon()["damage"], "cooldown": Session.player_weapon()["cooldown"]}
+		var briefs := {}
+		for k in Session.creature_brains:
+			var b: Dictionary = Session.creature_brains[k]
+			briefs[k] = {"tell": str(b.get("tell_kind", "")), "t": float(b.get("t", 0.0))}
+		st["creature_brains"] = briefs
 		if main and main.game:
 			st["recoil"] = main.game.world.mech_view.recoil_state()
 			st["shake"] = main.game.world.camera._trauma
 			st["enemy_views"] = main.game.world.enemy_views.size()
+			st["creature_views"] = main.game.world.creature_views.size()
+			st["garage_open"] = main.game.hud.garage != null
 		if main and main.game:
 			st["cover"] = main.game.world.cover_amount()
 			st["exposure"] = main.game.sound.exposure

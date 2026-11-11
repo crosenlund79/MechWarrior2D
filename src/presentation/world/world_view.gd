@@ -6,7 +6,7 @@ extends Node2D
 ##
 ## Top-down layering (z_index):
 ##   -10 ground tiles · -5 floor decals · -3 prop cast shadows · 0 low props
-##   5 mech · 6 pilot · 8 roof cast shadow · 20 overhead (roofs, fade when under)
+##   4 creatures · 5 cars · 6 pilot · 8 roof cast shadow · 20 overhead (roofs, fade when under)
 ##   25 airborne particles. Grade on CanvasLayer 5, UI on CanvasLayer 10.
 
 const Z := {"ground": -10, "floor": -5, "low": 0, "mech": 5, "pilot": 6, "overhead": 20, "air": 25}
@@ -16,7 +16,9 @@ var floor_layer: Node2D
 var low: Node2D
 var overhead: Node2D
 var markers: Node2D
-var mech_view: MechView
+var mech_view: CarView     # the player's car (legacy name kept for tools)
+var creature_views := {}
+var marks: HuntMarks
 var pilot_view: PilotView
 var camera: CameraRig
 var enemy_views := {}
@@ -55,8 +57,14 @@ func _ready() -> void:
 		pv.setup(d)
 		props.append(pv)
 	Scatter.build(low, loc)
-	mech_view = MechView.new()
-	mech_view.name = "Mech"
+	marks = HuntMarks.new()
+	add_child(marks)
+	marks.setup(floor_layer, markers)
+	for cid in Session.state.get("creatures", {}):
+		_add_creature_view(str(cid))
+	Session.world_moves_creatures = true
+	mech_view = CarView.new()
+	mech_view.name = "Car"
 	mech_view.z_index = Z["mech"]
 	add_child(mech_view)
 	pilot_view = PilotView.new()
@@ -118,7 +126,30 @@ func _add_enemy_view(id: String) -> void:
 	enemy_views[id] = ev
 
 
+func _add_creature_view(id: String) -> void:
+	var cv := CreatureView.new()
+	cv.setup(id)
+	cv.z_index = Z["mech"] - 1
+	add_child(cv)
+	creature_views[id] = cv
+
+
+func add_skid(at: Vector2, rot: float, strength: float) -> void:
+	marks.add_skid(at, rot, strength)
+
+
+func _exit_tree() -> void:
+	Session.world_moves_creatures = false
+
+
 func _on_dev_spawned(id: String) -> void:
+	if Session.state.get("creatures", {}).has(id) and not creature_views.has(id):
+		_add_creature_view(id)
+		return
+	if not Session.state.get("creatures", {}).has(id) and creature_views.has(id):
+		creature_views[id].queue_free()
+		creature_views.erase(id)
+		return
 	if Session.state.get("enemies", {}).has(id) and not enemy_views.has(id):
 		_add_enemy_view(id)
 	elif not Session.state.get("enemies", {}).has(id) and enemy_views.has(id):
@@ -128,6 +159,9 @@ func _on_dev_spawned(id: String) -> void:
 
 func _on_teleported() -> void:
 	mech_view.sync_from_state()
+	for cid in Session.state.get("creatures", {}):
+		if not creature_views.has(cid):
+			_add_creature_view(str(cid))
 	pilot_view.sync_from_state()
 	camera.snap()
 
@@ -142,7 +176,7 @@ func _mech_spot_free(p: Vector2) -> bool:
 	c.radius = 120.0
 	q.shape = c
 	q.transform = Transform2D(0.0, p)
-	q.collision_mask = 1 | 4
+	q.collision_mask = 1 | 4 | 8
 	return get_world_2d().direct_space_state.intersect_shape(q, 1).is_empty()
 
 

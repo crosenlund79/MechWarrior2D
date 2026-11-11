@@ -2,7 +2,7 @@ class_name DevMenu
 extends UiRoot
 ## Developer / cheat menu (F10). Works during gameplay without pausing.
 ## Everything here is runtime-only: Session.dev is reset on every start/end and is
-## never written to saves; developer-spawned mechs are flagged "dev" and are
+## never written to saves; developer-spawned cars and creatures are flagged "dev" and are
 ## stripped from saves. No console framework — just buttons with live states.
 
 static var is_open := false
@@ -58,12 +58,16 @@ func _build() -> void:
 	_intensity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(_intensity)
 	_list.add_child(h)
-	_head("Enemies")
+	_head("Rival cars")
 	_row([["Spawn scrapper", func() -> void: _spawn("scrapper", 1)], ["Spawn 3", func() -> void: _spawn("scrapper", 3)]])
 	_row([["Spawn Junker", func() -> void: _spawn("junker", 1)], ["Clear spawned", func() -> void: Session.dev_clear_spawned()]])
 	_toggle("aggro", "Enemy aggression", func() -> void: Session.dev["aggression"] = not Session.dev["aggression"])
-	_head("Player / mech")
+	_head("Creatures")
+	_row([["Skirr pack (3)", func() -> void: _spawn_c("skirr", 3)], ["Grindback", func() -> void: _spawn_c("grindback", 1)],
+		["Rimeback", func() -> void: _spawn_c("rimeback", 1)]])
+	_head("Player / car")
 	_row([["Repair all", func() -> void: Session.dev_repair_all()], ["Refill suit", func() -> void: Session.debug("suit", 100.0)]])
+	_row([["Give test materials", func() -> void: Session.dev_give_materials()]])
 	_row([["Restore cooling", func() -> void: Session.dev_restore_cooling()]])
 	_toggle("invuln", "Invulnerable", func() -> void: Session.dev["invulnerable"] = not Session.dev["invulnerable"])
 	_head("Simulation speed")
@@ -77,10 +81,18 @@ func _build() -> void:
 	_head("Teleport")
 	_row([["Canyon refuge", func() -> void: Session.dev_teleport("refuge")], ["Junker base", func() -> void: Session.dev_teleport("junker_base")]])
 	_row([["Cooling station", func() -> void: Session.dev_teleport("cooling_station")], ["Scrap field", func() -> void: Session.dev_teleport("scrap_field")]])
+	_row([["Thaw Flats (rimeback)", func() -> void: Session.dev_teleport("thaw_flats")], ["Dune sea", func() -> void: Session.dev_teleport("dune_sea")],
+		["Skirr den", func() -> void: Session.dev_teleport("skirr_den")]])
 	_head("")
 	_row([["Restore default settings", func() -> void:
 		Session.dev_reset()
 		_intensity.value = 0.85]])
+
+
+func _spawn_c(species: String, n: int) -> void:
+	var made := Session.dev_spawn_creature(species, n)
+	if made < n:
+		Session.notice.emit("NOTICE_DEV_NO_ROOM", [])
 
 
 func _spawn(type: String, n: int) -> void:

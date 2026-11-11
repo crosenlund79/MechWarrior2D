@@ -1,9 +1,10 @@
 class_name Hud
 extends UiRoot
 ## In-game HUD. Reads Session.state every frame; never writes it.
-## Mech panel (temperature, cooling, shutters, engine), suit panel, objective,
-## interaction prompts with task progress, cargo, notices, objective pointer,
-## heat-danger edge and collapse fade.
+## Car panel (speed, engine temperature, body, grille/cooling, engine), suit
+## panel, objective, interaction prompts with task progress, cargo, hunt panel
+## (quarry condition + broken parts), tracking compass, notices, objective
+## pointer, heat-danger edge, collapse fade, field guide (H) and garage (G).
 
 var hull_bar: ProgressBar
 var hull_label: Label
@@ -30,7 +31,17 @@ var pointer: Control
 var danger: ColorRect
 var fade: ColorRect
 var world: WorldView
+var speed_label: Label
+var hunt_panel: PanelContainer
+var hunt_name: Label
+var hunt_state: Label
+var hunt_parts: Label
+var tracker: TrackerWidget
+var help: HelpOverlay
+var garage: GarageMenu
 var _heat_fill := {}
+var _hunt_seen := ""
+var _hunt_t := 0.0
 var _last_band := ""
 
 const DANGER_SHADER := """
@@ -49,6 +60,34 @@ func _ready() -> void:
 	super._ready()
 	_build()
 	Session.notice.connect(_on_notice)
+	Session.mech_event.connect(_on_mech_event)
+	if Settings.values.get("show_tutorial", true) and float(Session.state.get("playtime", 0.0)) < 5.0:
+		toggle_help()
+		get_tree().create_timer(22.0).timeout.connect(func() -> void:
+			if is_instance_valid(help) and help.visible:
+				toggle_help())
+
+
+func toggle_help() -> void:
+	if help == null:
+		help = HelpOverlay.new()
+		help.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+		help.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		help.grow_vertical = Control.GROW_DIRECTION_BOTH
+		help.position = Vector2(-24, 0)
+		add_child(help)
+		help.visible = false
+	help.visible = not help.visible
+
+
+func _on_mech_event(ev: String) -> void:
+	if ev == "garage" and garage == null:
+		get_tree().paused = true
+		garage = GarageMenu.new()
+		get_parent().add_child(garage)
+		garage.closed.connect(func() -> void:
+			garage = null
+			get_tree().paused = false)
 
 
 func _build() -> void:
@@ -70,7 +109,13 @@ func _build() -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 4)
 	mp.add_child(v)
-	v.add_child(UiTheme.label(tr("HUD_MECH"), 13, UiTheme.STRAW))
+	var trow := HBoxContainer.new()
+	v.add_child(trow)
+	var tl := UiTheme.label(tr("HUD_MECH"), 13, UiTheme.STRAW)
+	tl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	trow.add_child(tl)
+	speed_label = UiTheme.label("", 15, UiTheme.PAPER)
+	trow.add_child(speed_label)
 	var hrow := HBoxContainer.new()
 	v.add_child(hrow)
 	heat_label = UiTheme.label("", 22)
@@ -136,6 +181,37 @@ func _build() -> void:
 	cv.add_child(zone_label)
 	storm_label = UiTheme.label("", 14, UiTheme.WARNING)
 	cv.add_child(storm_label)
+	# --- hunt panel (right, below cargo): quarry condition, no health bar
+	hunt_panel = PanelContainer.new()
+	hunt_panel.add_theme_stylebox_override("panel", UiTheme.panel(0.82))
+	hunt_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	hunt_panel.position = Vector2(-16, 150)
+	hunt_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	hunt_panel.custom_minimum_size = Vector2(250, 0)
+	add_child(hunt_panel)
+	var hv := VBoxContainer.new()
+	hv.add_theme_constant_override("separation", 2)
+	hunt_panel.add_child(hv)
+	hunt_name = UiTheme.label("", 17, UiTheme.STRAW)
+	hv.add_child(hunt_name)
+	hunt_state = UiTheme.label("", 14, UiTheme.PAPER)
+	hv.add_child(hunt_state)
+	hunt_parts = UiTheme.label("", 12, UiTheme.DIM)
+	hunt_parts.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hunt_parts.custom_minimum_size = Vector2(240, 0)
+	hv.add_child(hunt_parts)
+	hunt_panel.visible = false
+	Session.combat_event.connect(func(kind: String, data: Dictionary) -> void:
+		if kind in ["creature_hit", "creature_alert", "creature_tell", "part_broken", "creature_dead"]:
+			_hunt_seen = str(data.get("id", ""))
+			_hunt_t = 12.0)
+	# --- tracking compass (bottom-left)
+	tracker = TrackerWidget.new()
+	tracker.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	tracker.position = Vector2(16, -124)
+	tracker.custom_minimum_size = Vector2(440, 110)
+	tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(tracker)
 	dev_badge = UiTheme.label("", 12, UiTheme.WARNING)
 	dev_badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	dev_badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -204,11 +280,13 @@ func _process(delta: float) -> void:
 		_last_band = band
 	heat_label.text = "%d °C" % int(round(heat))
 	heat_label.add_theme_color_override("font_color", col if band != "normal" else UiTheme.PAPER)
-	var speed_frac := absf(float(m["speed"])) / float(Session.tun("mech").get("max_speed", 150.0))
-	var eq := Thermal.equilibrium(m, Session.engine_on(), speed_frac, Session.mech_zone, tt)
+	var speed_frac := absf(float(m["speed"])) / float(Session.car_tun().get("max_speed", 460.0))
+	var eq := Thermal.equilibrium(m, Session.engine_on(), speed_frac, Session.mech_zone, Session.car_thermal())
+	speed_label.text = tr("HUD_SPEED") % int(round(absf(float(m["speed"])) / 42.0 * 3.6))
+	speed_label.add_theme_color_override("font_color", UiTheme.WARNING if float(m.get("slip", 0.0)) > float(Session.tun("mech").get("skid_slip", 120.0)) else UiTheme.PAPER)
 	var arrow := "▲" if eq > heat + 1.5 else ("▼" if eq < heat - 1.5 else "■")
 	trend_label.text = tr("HUD_TREND") % [arrow, int(round(eq))]
-	var integ := float(m["integrity"]) / float(Session.tun("mech").get("integrity", 100.0))
+	var integ := float(m["integrity"]) / maxf(Session.max_integrity(), 1.0)
 	hull_bar.value = integ
 	hull_label.text = tr("HUD_HULL") % int(round(integ * 100.0))
 	hull_label.add_theme_color_override("font_color", UiTheme.DANGER if integ < 0.25 else UiTheme.DIM)
@@ -242,7 +320,14 @@ func _process(delta: float) -> void:
 	task_bar.max_value = 1.0
 	task_bar.value = maxf(tp, 0.0)
 	var item := Session.repair_item()
-	cargo_label.text = tr("HUD_CARGO") % [GameState.count(p["pack"], item), GameState.count(m["storage"], item), Session.scrap_available()]
+	var mats := 0
+	for inv in [m["storage"], p["pack"]]:
+		for k in inv:
+			if str(k) != "scrap" and str(k) != item:
+				mats += int(inv[k])
+	cargo_label.text = tr("HUD_CARGO") % [Session.cargo_bulk(), Session.cargo_capacity(), Session.scrap_available(),
+		GameState.count(p["pack"], item) + GameState.count(m["storage"], item), mats]
+	_update_hunt(delta)
 	zone_label.text = tr("HUD_ZONE") % [tr(str(Session.pilot_zone.get("label", "ZONE_OPEN_SAND"))), int(Session.pilot_zone.get("ambient", 58))]
 	var sheltered := bool(Session.pilot_zone.get("sheltered", false))
 	if sheltered:
@@ -277,6 +362,45 @@ func _process(delta: float) -> void:
 		fade_target = clampf(Session.collapse_t / float(Session.tun("suit").get("collapse_fade", 2.5)) * 1.3, 0.0, 0.96)
 	fade.color.a = move_toward(fade.color.a, fade_target, delta * (2.0 if fade_target > fade.color.a else 0.8))
 	(pointer as ObjectivePointer).world = world
+
+
+func _update_hunt(delta: float) -> void:
+	_hunt_t = maxf(0.0, _hunt_t - delta)
+	var hid := Session.hunting()
+	if hid == "" and _hunt_t > 0.0:
+		hid = _hunt_seen
+	var c := Session.creature(hid) if hid != "" else {}
+	hunt_panel.visible = not c.is_empty()
+	if c.is_empty():
+		return
+	var ts := Session.creature_tun(c)
+	hunt_name.text = tr("SPECIES_" + str(c["species"]).to_upper())
+	var frac := float(c["hp"]) / maxf(float(ts.get("hp", 1.0)), 1.0)
+	var ai := str(c["ai"])
+	var cond := "COND_CALM"
+	if ai == "dead":
+		cond = "COND_DOWN" if not bool(c.get("harvested", false)) else "COND_HARVESTED"
+	elif ai == "flee":
+		cond = "COND_FLEEING"
+	elif ai in ["buried", "tunnel"]:
+		cond = "COND_BURIED"
+	elif ai == "dazed":
+		cond = "COND_DAZED"
+	elif frac < 0.3:
+		cond = "COND_LIMPING"
+	elif frac < float(ts.get("enrage_hp", 0.55)) and str(c["species"]) == "rimeback":
+		cond = "COND_ENRAGED"
+	elif frac < 0.75:
+		cond = "COND_WOUNDED"
+	elif ai != "roam":
+		cond = "COND_HUNTING"
+	hunt_state.text = tr(cond)
+	hunt_state.add_theme_color_override("font_color", UiTheme.DANGER if cond in ["COND_ENRAGED", "COND_HUNTING"] else (UiTheme.COOLANT if cond == "COND_DAZED" else UiTheme.PAPER))
+	var broken: PackedStringArray = []
+	for k in ts.get("parts", {}):
+		if float(ts["parts"][k].get("hp", 0.0)) > 0.0 and float(c["parts"].get(k, 0.0)) <= 0.0:
+			broken.append(tr("PART_" + str(k).to_upper()))
+	hunt_parts.text = (tr("HUNT_BROKEN") % ", ".join(broken)) if broken.size() > 0 else tr("HUNT_HINT_" + str(c["species"]).to_upper())
 
 
 func _on_notice(key: String, args: Array) -> void:

@@ -1,4 +1,4 @@
-"""Drive real Heat Signature game processes through the --autotest command channel.
+"""Drive real Thawborn game processes through the --autotest command channel.
 
 Each Instance is a separate Godot process with its own user folder
 (--instance=<name>). Commands are appended to autotest_inbox.txt; results are
@@ -8,7 +8,7 @@ import json, os, shutil, subprocess, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GODOT = os.environ.get("GODOT", "godot")
-USER_DIR = os.environ.get("HS_USER_DIR", os.path.expanduser("~/.local/share/HeatSignature"))
+USER_DIR = os.environ.get("HS_USER_DIR", os.path.expanduser("~/.local/share/Thawborn"))
 LOG_DIR = os.path.join(ROOT, "tests", "_out")
 
 

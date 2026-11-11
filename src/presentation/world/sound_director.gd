@@ -59,6 +59,10 @@ func target_exposure() -> float:
 	return minf(e, 1.0 - cover * 0.88)
 
 
+var _rev := 0.0
+var _rime_t := 0.0
+
+
 func _process(delta: float) -> void:
 	if not Session.running or get_tree().paused:
 		return
@@ -83,12 +87,22 @@ func _process(delta: float) -> void:
 	_music(delta)
 	var m := Session.mech()
 	var tt := Session.tun("thermal")
-	var frac := absf(float(m["speed"])) / float(Session.tun("mech").get("max_speed", 150.0))
+	var frac := absf(float(m["speed"])) / float(Session.car_tun().get("max_speed", 460.0))
 	if Session.engine_on():
-		Audio.loop("engine", "sfx.mech_engine")
-		Audio.set_loop_params("engine", -10.0 + frac * 6.0, 0.8 + frac * 0.35)
+		# revs follow speed and throttle (a car, not a walker): idle burble → howl
+		var thr := absf(Session.drive_throttle) if Session.mode() == "mech" else 0.0
+		_rev = lerpf(_rev, clampf(frac * 0.8 + thr * 0.35, 0.0, 1.2), 1.0 - exp(-4.0 * delta))
+		Audio.loop("engine", "sfx.car_engine")
+		Audio.set_loop_params("engine", -11.0 + _rev * 7.0, 0.62 + _rev * 0.85)
 	else:
 		Audio.stop_loop("engine")
+	var slip := float(m.get("slip", 0.0))
+	if Session.mode() == "mech" and slip > float(Session.tun("mech").get("skid_slip", 120.0)) * 0.8:
+		Audio.loop("skid", "sfx.tyre_skid")
+		Audio.set_loop_params("skid", lerpf(-22.0, -6.0, clampf(slip / 420.0, 0.0, 1.0)), 0.85 + frac * 0.3)
+	else:
+		Audio.stop_loop("skid")
+	_creature_ambience(delta)
 	var hs := clampf(Session.housing_speed / 4.0, 0.0, 1.0)
 	if hs > 0.04 and Session.mode() == "mech":
 		Audio.loop("servo", "sfx.servo")
@@ -107,18 +121,38 @@ func _process(delta: float) -> void:
 	if (band == "warning" or band == "critical") and _beep_t <= 0.0:
 		Audio.play("sfx.warning", 0.0 if band == "critical" else -4.0)
 		_beep_t = 0.7 if band == "critical" else 1.6
-	if frac > 0.1 and Session.engine_on():
-		_step_t -= delta * (0.9 + frac * 1.6)
-		if _step_t <= 0.0:
-			_step_t = 1.0
-			Audio.play("sfx.mech_step", -6.0 + frac * 4.0, randf_range(0.82, 0.95))
-			if world and world.camera and frac > 0.45:
-				world.camera.add_shake(float(Session.tun("mech").get("feel_step_shake", 0.07)) * frac, 0.25)
 	if Session.mode() == "foot" and Session.walk_dir.length() > 0.1:
 		_foot_t -= delta
 		if _foot_t <= 0.0:
 			_foot_t = 0.36
 			Audio.play("sfx.footstep", -8.0, randf_range(0.9, 1.1))
+
+
+## Creatures you can hear before you see: rimeback footfalls (positional
+## thuds that shake the camera when close) and the grindback's tremor rumble.
+func _creature_ambience(delta: float) -> void:
+	var at := Session.actor_pos()
+	var tremor := 0.0
+	_rime_t -= delta
+	for id in Session.state.get("creatures", {}):
+		var c: Dictionary = Session.state["creatures"][id]
+		var p := Content.v2(c["pos"])
+		var d := p.distance_to(at)
+		match str(c["species"]):
+			"grindback":
+				if str(c["ai"]) == "tunnel" and d < 1100.0:
+					tremor = maxf(tremor, 1.0 - d / 1100.0)
+			"rimeback":
+				if str(c["ai"]) != "dead" and absf(float(c["speed"])) > 20.0 and d < 1500.0 and _rime_t <= 0.0:
+					_rime_t = clampf(90.0 / maxf(absf(float(c["speed"])), 1.0), 0.18, 0.9)
+					Audio.play_at("sfx.rime_step", p, world, -4.0, randf_range(0.8, 0.95))
+					if world and world.camera and d < 700.0:
+						world.camera.add_shake(0.08 * (1.0 - d / 700.0), 0.2)
+	if tremor > 0.0:
+		Audio.loop("tremor", "sfx.tremor")
+		Audio.set_loop_params("tremor", lerpf(-30.0, -2.0, tremor), 0.8)
+	else:
+		Audio.stop_loop("tremor")
 
 
 ## Music policy: silence is the default during play.
@@ -226,6 +260,51 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		"turret_destroyed":
 			Audio.play_at("sfx.turret_destroyed", pos, world, 0.0)
 			Audio.play_at("sfx.steam", pos, world, -6.0, 0.8)
+		"collision":
+			Audio.play_at("sfx.crash", pos, world, lerpf(-12.0, 0.0, float(data.get("strength", 0.3))), randf_range(0.8, 1.0), 120)
+		"creature_alert", "creature_tell":
+			var sp := str(data.get("species", ""))
+			var tell := str(data.get("tell", ""))
+			if sp == "rimeback":
+				if kind == "creature_alert" or tell == "enrage" or tell == "charge":
+					Audio.play_at("sfx.rime_roar", pos, world, 2.0, randf_range(0.85, 1.0), 600)
+				else:
+					Audio.play_at("sfx.creature_growl", pos, world, -2.0, 0.7)
+			elif sp == "skirr":
+				Audio.play_at("sfx.skirr_hiss", pos, world, -4.0, randf_range(1.0, 1.25), 120)
+			elif sp == "grindback":
+				Audio.play_at("sfx.creature_growl", pos, world, -2.0, 0.55)
+		"creature_attack":
+			match str(data.get("attack", "")):
+				"bite":
+					Audio.play_at("sfx.skirr_bite", pos, world, -2.0, randf_range(0.9, 1.1))
+				"erupt":
+					Audio.play_at("sfx.crash", pos, world, 0.0, 0.55)
+				_:
+					Audio.play_at("sfx.crash", pos, world, -2.0, 0.7)
+		"creature_hit":
+			if bool(data.get("armoured", false)):
+				Audio.play_at("sfx.impact_metal", pos, world, -6.0, randf_range(1.1, 1.3), 40)
+			else:
+				Audio.play_at("sfx.flesh_hit", pos, world, -6.0, randf_range(1.2, 1.5), 40)
+		"part_broken":
+			Audio.play_at("sfx.part_break", pos, world, 0.0, 0.8)
+		"creature_dead":
+			Audio.play_at("sfx.creature_down", pos, world, 0.0, 0.6 if str(data.get("species", "")) != "skirr" else 1.1)
+			if str(data.get("species", "")) == "rimeback":
+				Audio.play_at("sfx.rime_roar", pos, world, -2.0, 0.6)
+		"creature_spit":
+			Audio.play_at("sfx.creature_spit", pos, world, -2.0)
+		"creature_surface":
+			Audio.play_at("sfx.crash", pos, world, 2.0, 0.5)
+		"loot_picked":
+			if str(data.get("rarity", "")) == "legendary":
+				Audio.play("sfx.legendary", 0.0)
+				Audio.play("sfx.power_up", -4.0, 0.9)
+			else:
+				Audio.play("sfx.loot", -6.0, {"common": 1.0, "uncommon": 1.08, "rare": 1.16}.get(str(data.get("rarity", "")), 1.0) as float, 60)
+		"garage":
+			Audio.play("sfx.garage_fit", -2.0)
 
 
 ## One heavy twin-gun round = four layers on the Weapons bus (compressed and

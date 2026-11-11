@@ -63,7 +63,7 @@ func _process(_delta: float) -> void:
 	var tt := Session.tun("thermal")
 	var sf := absf(float(m["speed"])) / float(Session.tun("mech").get("max_speed", 150.0))
 	var lines := [
-		"HEAT SIGNATURE dev  fps %d  scene=%s  slot=%d  x%.1f" % [Engine.get_frames_per_second(), Session.state["location"], Session.slot, Session.time_scale],
+		"THAWBORN dev  fps %d  scene=%s  slot=%d  x%.1f" % [Engine.get_frames_per_second(), Session.state["location"], Session.slot, Session.time_scale],
 		"mode=%s  engine=%s  speed=%.0f px/s  heading=%.0f°" % [Session.mode(), m["engine"], m["speed"], rad_to_deg(float(m["heading"]))],
 		"heat=%.1f°C  eq=%.1f°C  in=%.2f  out=%.2f /s" % [m["heat"], Thermal.equilibrium(m, Session.engine_on(), sf, Session.mech_zone, tt),
 			Thermal.heat_in(Session.engine_on(), sf, Session.mech_zone, tt), Thermal.cooling_rate(m, Session.mech_zone, tt)],

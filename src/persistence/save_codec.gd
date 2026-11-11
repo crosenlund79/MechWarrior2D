@@ -8,8 +8,10 @@ extends RefCounted
 ## To change the format: bump VERSION and add a function to MIGRATIONS that
 ## upgrades version N-1 to N. Old saves are migrated step by step on load.
 
-const FORMAT := "heat_signature_save"
-const VERSION := 4
+const FORMAT := "thawborn_save"
+## Saves written by Heat Signature (the project before the Thawborn conversion).
+const LEGACY_FORMATS := ["heat_signature_save"]
+const VERSION := 5
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
@@ -17,6 +19,7 @@ static var MIGRATIONS := {
 	1: _migrate_1_to_2,
 	2: _migrate_2_to_3,
 	3: _migrate_3_to_4,
+	4: _migrate_4_to_5,
 }
 
 
@@ -43,6 +46,8 @@ static func summarize(state: Dictionary) -> Dictionary:
 
 ## Brings an envelope up to VERSION. Returns the upgraded envelope or a String error.
 static func migrate(env: Dictionary) -> Variant:
+	if str(env.get("format", "")) in LEGACY_FORMATS:
+		env["format"] = FORMAT
 	var v := int(env.get("version", -1))
 	if v > VERSION:
 		return "save is from a newer game version (%d > %d)" % [v, VERSION]
@@ -104,11 +109,37 @@ static func _migrate_3_to_4(env: Dictionary) -> Dictionary:
 	return env
 
 
+## Version 5 (Thawborn conversion): the walker mech became a car. The vehicle
+## record keeps its legacy key "mech" (so everything else in an old save stays
+## valid) and gains car dynamics (vel, slip), fitted garage modules (upgrades),
+## creatures, tracks and physical ground loot. A Heat Signature run continues as
+## a Thawborn run: same refuge, same inventory, same world progress. Enemy mechs
+## become rival cars with the same IDs; mid-fight states resume calmly.
+static func _migrate_4_to_5(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	var m = s.get("mech")
+	if m is Dictionary:
+		m["vel"] = [0.0, 0.0]
+		m["slip"] = 0.0
+		if not (m.get("upgrades") is Dictionary):
+			m["upgrades"] = {}
+	if not s.has("creatures"):
+		s["creatures"] = {}
+	if not s.has("tracks"):
+		s["tracks"] = []
+	if s.get("world") is Dictionary and not s["world"].has("loot"):
+		s["world"]["loot"] = []
+		s["world"]["next_loot"] = 1
+	s["converted_from"] = "heat_signature"
+	env["version"] = 5
+	return env
+
+
 ## Structural validation of a CURRENT-version envelope. Returns "" when valid.
 ## Ranges are clamped later (GameState.sanitize); this rejects corruption.
 static func validate(env: Dictionary) -> String:
 	if str(env.get("format", "")) != FORMAT:
-		return "not a Heat Signature save"
+		return "not a Thawborn save"
 	if int(env.get("version", -1)) != VERSION:
 		return "unexpected version %s" % str(env.get("version"))
 	var s = env.get("state")

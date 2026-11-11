@@ -1259,6 +1259,549 @@
 				0.5
 			],
 			"height": 14
+		},
+		"car.body": {
+			"path": "vehicles/player/body",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "the player's car (nose up). Wheels are separate (car.wheel) so the front pair can steer; the roof gun ring sits at the centre"
+		},
+		"car.wheel": {
+			"path": "vehicles/player/wheel",
+			"display": [
+				28,
+				48
+			],
+			"source": [
+				56,
+				96
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "one tyre seen from above; the game places four and steers the front pair"
+		},
+		"car.gun_ring": {
+			"path": "vehicles/player/gun_ring",
+			"display": [
+				76,
+				76
+			],
+			"source": [
+				152,
+				152
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "rotating roof mount; turns toward the mouse"
+		},
+		"car.twin_gun": {
+			"path": "vehicles/player/twin_gun",
+			"display": [
+				24,
+				70
+			],
+			"source": [
+				48,
+				140
+			],
+			"pivot": [
+				0.5,
+				0.7
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "one of the two roof guns (left; the right is mirrored). Pivot = bracket"
+		},
+		"rival.body": {
+			"path": "vehicles/scrapper/body",
+			"display": [
+				118,
+				214
+			],
+			"source": [
+				236,
+				428
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "hostile scrapper car: oxide red, welded plates, exposed front radiator"
+		},
+		"rival.junker_body": {
+			"path": "vehicles/junker/body",
+			"display": [
+				124,
+				220
+			],
+			"source": [
+				248,
+				440
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "Southern Junker car: oxide orange, tar hazard bands, bone cog insignia, ram bar"
+		},
+		"rival.wreck": {
+			"path": "vehicles/scrapper/wreck",
+			"display": [
+				130,
+				226
+			],
+			"source": [
+				260,
+				452
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "burnt-out scrapper car"
+		},
+		"rival.junker_wreck": {
+			"path": "vehicles/junker/wreck",
+			"display": [
+				134,
+				230
+			],
+			"source": [
+				268,
+				460
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "burnt-out Junker car"
+		},
+		"rival.gun": {
+			"path": "vehicles/rival/gun",
+			"display": [
+				34,
+				78
+			],
+			"source": [
+				68,
+				156
+			],
+			"pivot": [
+				0.5,
+				0.68
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "crude roof gun on a pivot, swings toward its target"
+		},
+		"creature.skirr": {
+			"path": "creatures/skirr/body",
+			"display": [
+				62,
+				92
+			],
+			"source": [
+				124,
+				184
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "small pack hunter (head up)"
+		},
+		"creature.skirr_dead": {
+			"path": "creatures/skirr/dead",
+			"display": [
+				70,
+				96
+			],
+			"source": [
+				140,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"creature.grindback": {
+			"path": "creatures/grindback/body",
+			"display": [
+				156,
+				196
+			],
+			"source": [
+				312,
+				392
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "armoured burrower: front shovel plate (top), rear vent (bottom)"
+		},
+		"creature.grindback_dead": {
+			"path": "creatures/grindback/dead",
+			"display": [
+				170,
+				200
+			],
+			"source": [
+				340,
+				400
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"creature.mound": {
+			"path": "creatures/grindback/mound",
+			"display": [
+				150,
+				118
+			],
+			"source": [
+				300,
+				236
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "sand mound pushed up by a burrowing grindback (the tremor tell)"
+		},
+		"creature.rimeback": {
+			"path": "creatures/rimeback/body",
+			"display": [
+				300,
+				400
+			],
+			"source": [
+				600,
+				800
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "large quarry body (head and tail are separate parts)"
+		},
+		"creature.rimeback_head": {
+			"path": "creatures/rimeback/head",
+			"display": [
+				170,
+				170
+			],
+			"source": [
+				340,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.75
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "horned head; pivot = neck"
+		},
+		"creature.rimeback_tail": {
+			"path": "creatures/rimeback/tail",
+			"display": [
+				110,
+				270
+			],
+			"source": [
+				220,
+				540
+			],
+			"pivot": [
+				0.5,
+				0.08
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "heavy tail; pivot = root"
+		},
+		"creature.rime_gland": {
+			"path": "creatures/rimeback/gland",
+			"display": [
+				66,
+				66
+			],
+			"source": [
+				132,
+				132
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "frost gland (breakable part, glows before the spit)"
+		},
+		"creature.rimeback_dead": {
+			"path": "creatures/rimeback/dead",
+			"display": [
+				360,
+				620
+			],
+			"source": [
+				720,
+				1240
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "carcass to harvest"
+		},
+		"decal.track_skirr": {
+			"path": "decals/track_skirr",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"decal.track_rime": {
+			"path": "decals/track_rime",
+			"display": [
+				96,
+				84
+			],
+			"source": [
+				192,
+				168
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"decal.furrow": {
+			"path": "decals/furrow",
+			"display": [
+				70,
+				88
+			],
+			"source": [
+				140,
+				176
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"decal.blood": {
+			"path": "decals/blood",
+			"display": [
+				48,
+				48
+			],
+			"source": [
+				96,
+				96
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"decal.skid": {
+			"path": "decals/skid",
+			"display": [
+				24,
+				40
+			],
+			"source": [
+				48,
+				80
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"item.skirr_hide": {
+			"path": "items/skirr_hide",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.skirr_fang": {
+			"path": "items/skirr_fang",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.grind_plate": {
+			"path": "items/grind_plate",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.rime_hide": {
+			"path": "items/rime_hide",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.rime_spine": {
+			"path": "items/rime_spine",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.rime_horn": {
+			"path": "items/rime_horn",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.rime_gland": {
+			"path": "items/rime_gland",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.thawheart": {
+			"path": "items/thawheart",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
 		}
 	},
 	"tiles": {
@@ -1687,6 +2230,102 @@
 			"path": "audio/ambience/junker_machine",
 			"bus": "Ambience",
 			"loop": true
+		},
+		"sfx.car_engine": {
+			"path": "audio/sfx/car_engine",
+			"bus": "SFX",
+			"loop": true,
+			"volume_db": 0
+		},
+		"sfx.tyre_skid": {
+			"path": "audio/sfx/tyre_skid",
+			"bus": "SFX",
+			"loop": true,
+			"volume_db": 0
+		},
+		"sfx.skirr_hiss": {
+			"path": "audio/sfx/skirr_hiss",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.skirr_bite": {
+			"path": "audio/sfx/skirr_bite",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.tremor": {
+			"path": "audio/sfx/tremor",
+			"bus": "SFX",
+			"loop": true,
+			"volume_db": 0
+		},
+		"sfx.rime_roar": {
+			"path": "audio/sfx/rime_roar",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.rime_step": {
+			"path": "audio/sfx/rime_step",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.creature_spit": {
+			"path": "audio/sfx/creature_spit",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.creature_growl": {
+			"path": "audio/sfx/creature_growl",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.loot": {
+			"path": "audio/sfx/loot",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.legendary": {
+			"path": "audio/sfx/legendary",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.garage_fit": {
+			"path": "audio/sfx/garage_fit",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.flesh_hit": {
+			"path": "audio/sfx/flesh_hit",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.part_break": {
+			"path": "audio/sfx/part_break",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.crash": {
+			"path": "audio/sfx/crash",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
+		},
+		"sfx.creature_down": {
+			"path": "audio/sfx/creature_down",
+			"bus": "SFX",
+			"loop": false,
+			"volume_db": 0
 		}
 	}
 }

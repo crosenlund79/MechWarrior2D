@@ -84,3 +84,39 @@ static func ensure_dir(path: String) -> String:
 	if not DirAccess.dir_exists_absolute(path):
 		DirAccess.make_dir_recursive_absolute(path)
 	return path
+
+
+## The project was called Heat Signature before the Thawborn conversion; its
+## user folder was "HeatSignature". On first start, saves and settings found
+## there are COPIED (never moved or deleted) into the Thawborn folder, only into
+## empty slots, only for the real player profile (not test instances). The
+## normal versioned migration (v4 → v5) converts each save when it is loaded.
+## Returns the number of files copied.
+const LEGACY_USER_DIR := "HeatSignature"
+
+
+static func import_legacy(legacy_root: String = "", dest_root: String = "") -> int:
+	if instance_name() != "" and legacy_root == "":
+		return 0
+	if legacy_root == "":
+		legacy_root = OS.get_user_data_dir().get_base_dir().path_join(LEGACY_USER_DIR)
+	if dest_root == "":
+		dest_root = ProjectSettings.globalize_path(user_root())
+	if not DirAccess.dir_exists_absolute(legacy_root) or legacy_root.simplify_path() == dest_root.simplify_path():
+		return 0
+	DirAccess.make_dir_recursive_absolute(dest_root.path_join("saves"))
+	var copied := 0
+	for slot in range(1, 4):
+		var src := legacy_root.path_join("saves/slot_%d.json" % slot)
+		var dst := dest_root.path_join("saves/slot_%d.json" % slot)
+		if FileAccess.file_exists(dst) or FileAccess.file_exists(dst + ".bak") or not FileAccess.file_exists(src):
+			continue
+		for ext in ["", ".bak"]:
+			if FileAccess.file_exists(src + ext) and DirAccess.copy_absolute(src + ext, dst + ext) == OK:
+				copied += 1
+	var sset := legacy_root.path_join("settings.cfg")
+	var dset := dest_root.path_join("settings.cfg")
+	if FileAccess.file_exists(sset) and not FileAccess.file_exists(dset):
+		if DirAccess.copy_absolute(sset, dset) == OK:
+			copied += 1
+	return copied

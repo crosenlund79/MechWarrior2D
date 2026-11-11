@@ -3,12 +3,70 @@
 		"name": "ITEM_RADIATOR_CORE",
 		"asset": "item.radiator_core",
 		"stack": 9,
-		"bulk": 1
+		"bulk": 1,
+		"rarity": "uncommon"
 	},
 	"scrap": {
 		"name": "ITEM_SCRAP",
 		"asset": "item.scrap",
 		"stack": 99,
-		"bulk": 0
+		"bulk": 0,
+		"rarity": "common"
+	},
+	"skirr_hide": {
+		"name": "ITEM_SKIRR_HIDE",
+		"asset": "item.skirr_hide",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "common"
+	},
+	"skirr_fang": {
+		"name": "ITEM_SKIRR_FANG",
+		"asset": "item.skirr_fang",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "uncommon"
+	},
+	"grind_plate": {
+		"name": "ITEM_GRIND_PLATE",
+		"asset": "item.grind_plate",
+		"stack": 99,
+		"bulk": 2,
+		"rarity": "uncommon"
+	},
+	"rime_hide": {
+		"name": "ITEM_RIME_HIDE",
+		"asset": "item.rime_hide",
+		"stack": 99,
+		"bulk": 2,
+		"rarity": "common"
+	},
+	"rime_spine": {
+		"name": "ITEM_RIME_SPINE",
+		"asset": "item.rime_spine",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "uncommon"
+	},
+	"rime_horn": {
+		"name": "ITEM_RIME_HORN",
+		"asset": "item.rime_horn",
+		"stack": 99,
+		"bulk": 2,
+		"rarity": "rare"
+	},
+	"rime_gland": {
+		"name": "ITEM_RIME_GLAND",
+		"asset": "item.rime_gland",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "rare"
+	},
+	"thawheart": {
+		"name": "ITEM_THAWHEART",
+		"asset": "item.thawheart",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "legendary"
 	}
 }

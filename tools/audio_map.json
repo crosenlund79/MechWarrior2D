@@ -156,5 +156,40 @@
 		"src": "General effects/Lava Bubbling 4.wav",
 		"mode": "loop",
 		"use": "Junker generator / machinery churn (positional)"
+	},
+	"sfx.loot": {
+		"src": "UI sounds/Open Loot Box Sound 2.wav",
+		"mode": "shot",
+		"use": "Material picked up"
+	},
+	"sfx.legendary": {
+		"src": "UI sounds/Success 3.wav",
+		"mode": "shot",
+		"use": "Legendary find (layered with power-up)"
+	},
+	"sfx.garage_fit": {
+		"src": "UI sounds/Unlocked 2.wav",
+		"mode": "shot",
+		"use": "Garage module fitted"
+	},
+	"sfx.flesh_hit": {
+		"src": "Body drop/Body Drop 1.wav",
+		"mode": "shot",
+		"use": "Shots hitting a creature (pitched up)"
+	},
+	"sfx.part_break": {
+		"src": "Gun sounds/Armor Break 2.wav",
+		"mode": "shot",
+		"use": "Creature part broken (horn, gland, tail, plate)"
+	},
+	"sfx.crash": {
+		"src": "Impact/Impact 3.wav",
+		"mode": "shot",
+		"use": "Car hits rock / wall"
+	},
+	"sfx.creature_down": {
+		"src": "Body drop/Body Drop 3.wav",
+		"mode": "shot",
+		"use": "Creature collapses (pitched down)"
 	}
 }
