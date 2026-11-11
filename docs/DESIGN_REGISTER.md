@@ -62,6 +62,11 @@ review · **DEFERRED** = explicitly out of scope for now.
 | TB-15 | Save v5 (Thawborn): old Heat Signature saves migrate; legacy user folder copied (never moved) on first start | APPROVED | |
 | TB-16 | Heat stays forgiving near the refuge; pressure escalates with distance (hot ground), damage, combat and storms | EXPLORING | `tools/heat_balance.py` |
 | TB-17 | In-game field guide (H) + hunt panel (condition, broken parts — no health bars) | EXPLORING | |
+| TB-18 | Playtest 001/003: reverse steering much gentler (`reverse_turn_rate` 1.1 → 0.6 rad/s at full reverse speed vs 2.9 forward) | EXPLORING | forward and handbrake unchanged |
+| TB-19 | Playtest 002: forgiving starter area — start radiator 85 %, engine load heat 0.9, slower sand wear; cruising settles ≈ 76 °C, below the 83 °C warm band | EXPLORING | storms/combat/damage still escalate |
+| TB-20 | Playtest 004: the system cursor is always visible in modal panels (garage, pause, settings, F10) | APPROVED | |
+| TB-21 | Playtest 005: persistent refuge garage storage; "Unload cargo" moves car + pack into it; repairs/modules pay from it while at the garage | EXPLORING | save v6 |
+| TB-22 | Playtest 006: player rounds 1240 px/s (was 620), same damage and fire rate; enemy slugs stay slow and readable | EXPLORING | segment hit tests, no tunnelling |
 | TB-30 | Mining, coal/iron/rare Antarctic ore, smelting/alloys, schematics, modular equipment | DEFERRED | **never implemented in this repository** (audit found no code, data or docs). Integration points: `data/items.json` (rarity, bulk), `Loot.spawn` for ore nodes, `Garage` modules for schematic-gated levels |
 | TB-31 | Autonomous ore cart | DEFERRED | roadmap only; would be a rival-car-style vehicle (`Drive` + an AI brain) following the player |
 | TB-32 | Minimap / full map with POIs | DEFERRED | not implemented before the conversion; areas + teleports in the location file are the data a map would read. The objective pointer and tracking compass cover navigation for now |

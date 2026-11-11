@@ -41,6 +41,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"pack": {},
 		},
 		"world": {"taken": {}, "drops": [], "next_drop": 1, "loot": [], "next_loot": 1},
+		"garage": {"storage": {}, "unloads": 0},
 		"enemies": create_enemies(loc),
 		"creatures": create_creatures(loc),
 		"tracks": seed_tracks(loc),
@@ -238,6 +239,10 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	m["upgrades"] = up
 	m["vel"] = [0.0, 0.0]
 	m["slip"] = 0.0
+	if not (s.get("garage") is Dictionary):
+		s["garage"] = {"storage": {}, "unloads": 0}
+	s["garage"]["storage"] = clean_inventory(s["garage"].get("storage", {}))
+	s["garage"]["unloads"] = int(s["garage"].get("unloads", 0))
 	var wd := Weather.create(Content.tuning.get("weather", {}))
 	if not (s.get("weather") is Dictionary) or not (str(s["weather"].get("state", "")) in Weather.STATES):
 		s["weather"] = wd

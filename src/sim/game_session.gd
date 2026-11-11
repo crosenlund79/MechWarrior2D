@@ -339,8 +339,19 @@ func cargo_bulk() -> int:
 	return b
 
 
+## Items usable right now: pack + car, plus the refuge garage store while at the garage.
 func have_item(item: String) -> int:
-	return GameState.count(pilot()["pack"], item) + GameState.count(mech()["storage"], item)
+	var n := GameState.count(pilot()["pack"], item) + GameState.count(mech()["storage"], item)
+	if at_garage():
+		n += GameState.count(garage_storage(), item)
+	return n
+
+
+## Persistent refuge storage (state.garage.storage).
+func garage_storage() -> Dictionary:
+	if not (state.get("garage") is Dictionary):
+		state["garage"] = {"storage": {}, "unloads": 0}
+	return state["garage"]["storage"]
 
 
 ## Engine noise the world can hear (0..~1.2): speed, a running engine, recent
@@ -1000,14 +1011,21 @@ func pack_has_room(bulk: int) -> bool:
 	return pack_bulk() + bulk <= int(tun("pilot").get("pack_capacity", 2))
 
 
+## Takes n items: from the garage store first (when at the garage), then the
+## pack, then the car. All-or-nothing.
 func _consume(item: String, n: int) -> bool:
-	var have := GameState.count(pilot()["pack"], item) + GameState.count(mech()["storage"], item)
-	if have < n:
+	if have_item(item) < n:
 		return false
-	var from_pack := mini(n, GameState.count(pilot()["pack"], item))
-	GameState.add(pilot()["pack"], item, -from_pack)
-	GameState.add(mech()["storage"], item, -(n - from_pack))
-	return true
+	var left := n
+	var sources: Array = [pilot()["pack"], mech()["storage"]]
+	if at_garage():
+		sources.push_front(garage_storage())
+	for inv in sources:
+		var take := mini(left, GameState.count(inv, item))
+		if take > 0:
+			GameState.add(inv, item, -take)
+			left -= take
+	return left == 0
 
 
 # ---------------------------------------------------------------- combat: player weapon
@@ -1927,6 +1945,30 @@ func garage_fit(module: String) -> bool:
 	Log.info("garage", "fitted", {"module": module, "level": upgrades()[module]})
 	save_now("garage")
 	return true
+
+
+## Moves everything carried (car cargo + pilot pack) into the persistent garage
+## store. A move, never a copy: unloading twice does nothing. Returns the number
+## of items moved.
+func unload_cargo() -> int:
+	if not at_garage():
+		return 0
+	var moved := 0
+	for inv in [mech()["storage"], pilot()["pack"]]:
+		for item in inv.keys():
+			var n := int(inv[item])
+			if n > 0:
+				GameState.add(garage_storage(), str(item), n)
+				moved += n
+			inv.erase(item)
+	if moved > 0:
+		state["garage"]["unloads"] = int(state["garage"].get("unloads", 0)) + 1
+		_cargo_warned = false
+		notice.emit("NOTICE_UNLOADED", [moved])
+		mech_event.emit("pickup")
+		Log.info("garage", "unloaded", {"items": moved})
+		save_now("unload")
+	return moved
 
 
 ## Scrap needed to fully repair the body and radiator at the garage.

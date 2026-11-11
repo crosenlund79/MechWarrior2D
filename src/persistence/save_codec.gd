@@ -11,7 +11,7 @@ extends RefCounted
 const FORMAT := "thawborn_save"
 ## Saves written by Heat Signature (the project before the Thawborn conversion).
 const LEGACY_FORMATS := ["heat_signature_save"]
-const VERSION := 5
+const VERSION := 6
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
@@ -20,6 +20,7 @@ static var MIGRATIONS := {
 	2: _migrate_2_to_3,
 	3: _migrate_3_to_4,
 	4: _migrate_4_to_5,
+	5: _migrate_5_to_6,
 }
 
 
@@ -132,6 +133,16 @@ static func _migrate_4_to_5(env: Dictionary) -> Dictionary:
 		s["world"]["next_loot"] = 1
 	s["converted_from"] = "heat_signature"
 	env["version"] = 5
+	return env
+
+
+## Version 6 (playtest fixes): persistent refuge garage storage. Older saves get
+## an empty store; everything they carried stays in the car.
+static func _migrate_5_to_6(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	if not (s.get("garage") is Dictionary):
+		s["garage"] = {"storage": {}, "unloads": 0}
+	env["version"] = 6
 	return env
 
 

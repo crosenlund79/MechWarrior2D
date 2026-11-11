@@ -154,6 +154,8 @@ try:
     r = g.cmd("garage repair")
     st = r["state"]
     check(r["ok"] or hull_before >= st["max_integrity"] - 0.5, "garage repair works (or nothing to fix)")
+    r = g.cmd("unload"); st = r["state"]
+    check(r["ok"] and not st["game"]["mech"]["storage"] and st["garage_storage"].get("rime_hide", 0) >= 2, "hunt cargo unloaded into the garage store")
     cool0 = st["car"]["cooling_coeff"]; maxi0 = st["max_integrity"]
     fitted = []
     for mod in ("cooling", "armor", "rig", "weapon", "tires"):
@@ -166,7 +168,7 @@ try:
     if "armor" in fitted:
         check(st["max_integrity"] > maxi0, "armour module: more body points")
     up = dict(st["game"]["mech"]["upgrades"])
-    stor = dict(st["game"]["mech"]["storage"])
+    stor = dict(st["game"]["mech"]["storage"]); store = dict(st["garage_storage"])
     ground_left = len(st["game"]["world"]["loot"])
 
     print("7. save, quit, reload")
@@ -175,7 +177,7 @@ try:
     st = g.cmd("continue 1")["state"]
     check(st["running"], "continue works")
     check(st["game"]["mech"]["upgrades"] == up, f"upgrades persisted ({st['game']['mech']['upgrades']})")
-    check(st["game"]["mech"]["storage"] == stor, "cargo persisted")
+    check(st["game"]["mech"]["storage"] == stor and st["garage_storage"] == store, "cargo and garage store persisted")
     check(creature(st, "rimeback")["ai"] == "dead" and creature(st, "rimeback")["harvested"], "the kill and harvest persisted")
     check(len(st["game"]["world"]["loot"]) == ground_left, f"ground loot persisted ({ground_left})")
     check(st["at_garage"], "the car is where it was left")

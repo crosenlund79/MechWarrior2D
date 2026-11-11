@@ -22,7 +22,7 @@ func _draw() -> void:
 		var d := v.normalized()
 		if str(sh["owner"]) == "player":
 			# heavy round: long hot tracer with a glow sheath
-			var tl := minf(56.0, float(sh["travelled"]))
+			var tl := minf(96.0, float(sh["travelled"]))   # fast rounds: longer streak
 			draw_line(p - d * tl, p, Color(1.0, 0.62, 0.25, 0.22), 9.0, true)
 			draw_line(p - d * tl * 0.8, p, Color(1.0, 0.82, 0.45, 0.55), 4.5, true)
 			draw_line(p - d * tl * 0.55, p, Color(1.0, 0.97, 0.85, 1.0), 2.4, true)

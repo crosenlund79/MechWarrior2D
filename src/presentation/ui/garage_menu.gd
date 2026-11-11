@@ -23,6 +23,7 @@ func _ready() -> void:
 	super._ready()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE   # never buy blind (the reticle restores it on close)
 	var bg := ColorRect.new()
 	bg.color = Color(0, 0, 0, 0.5)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -55,6 +56,7 @@ func _ready() -> void:
 	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_status)
 	var close := UiTheme.btn(tr("GARAGE_CLOSE"), func() -> void: close_menu())
+	close.name = "Close"
 	row.add_child(close)
 	_refresh()
 	close.call_deferred("grab_focus")
@@ -75,16 +77,27 @@ func _refresh() -> void:
 	var m := Session.mech()
 	_cond.text = tr("GARAGE_CONDITION") % [int(round(float(m["integrity"]))), int(round(Session.max_integrity())),
 		int(round(float(m["radiator"]) * 100.0)), Session.cargo_bulk(), Session.cargo_capacity()]
-	var inv := {}
+	var carried := {}
 	for src in [m["storage"], Session.pilot()["pack"]]:
 		for k in src:
-			inv[k] = int(inv.get(k, 0)) + int(src[k])
-	var parts: PackedStringArray = []
-	for k in inv:
-		parts.append("%s ×%d" % [tr(str(Content.items.get(k, {}).get("name", k))), int(inv[k])])
-	_cargo.text = tr("GARAGE_CARGO") % (", ".join(parts) if parts.size() > 0 else tr("GARAGE_EMPTY"))
+			carried[k] = int(carried.get(k, 0)) + int(src[k])
+	_cargo.text = tr("GARAGE_CARGO") % _list_items(carried) + "\n" + tr("GARAGE_STORED") % _list_items(Session.garage_storage())
 	for c in _list.get_children():
 		c.queue_free()
+	# unload: car cargo + pack → persistent garage storage
+	var urow := HBoxContainer.new()
+	_list.add_child(urow)
+	var ul := UiTheme.label(tr("GARAGE_UNLOAD_HINT"), 14, UiTheme.DIM)
+	ul.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ul.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	urow.add_child(ul)
+	var ub := UiTheme.btn(tr("GARAGE_UNLOAD"), func() -> void:
+		var n := Session.unload_cargo()
+		_status.text = tr("NOTICE_UNLOADED") % n if n > 0 else tr("GARAGE_NOTHING_TO_UNLOAD")
+		_refresh())
+	ub.name = "Unload"
+	ub.disabled = carried.is_empty()
+	urow.add_child(ub)
 	# full repair
 	var rc := Session.garage_repair_cost()
 	var rrow := HBoxContainer.new()
@@ -96,6 +109,7 @@ func _refresh() -> void:
 		if not Session.garage_repair():
 			_status.text = tr("NOTICE_NEED_SCRAP")
 		_refresh())
+	rb.name = "Repair"
 	rb.disabled = rc <= 0 or Session.have_item("scrap") <= 0
 	rrow.add_child(rb)
 	var tg: Dictionary = Session.tun("garage")
@@ -134,8 +148,17 @@ func _refresh() -> void:
 			else:
 				_status.text = tr("GARAGE_MISSING")
 			_refresh())
+		b.name = "Fit_" + module
 		b.disabled = not ok
 		box.add_child(b)
+
+
+func _list_items(inv: Dictionary) -> String:
+	var parts: PackedStringArray = []
+	for k in inv:
+		if int(inv[k]) > 0:
+			parts.append("%s ×%d" % [tr(str(Content.items.get(k, {}).get("name", k))), int(inv[k])])
+	return ", ".join(parts) if parts.size() > 0 else tr("GARAGE_EMPTY")
 
 
 func _fx_text(key: String, now: float, nxt: float) -> String:

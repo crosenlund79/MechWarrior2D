@@ -49,8 +49,9 @@
    toward its lair in the far south-west, leaving blood prints. Follow and finish it.
 6. Stop by the carcass, get out (**E**), walk up and **harvest** (E, 4 s). Get back in and roll slowly over
    the materials to load them. A legendary **Thawheart** drops only if both glands were broken.
-7. Drive back to the refuge bay and press **G**: repair for scrap and fit a module (for example
-   cooling L1 = frost gland + 2 scrap).
+7. Drive back to the refuge bay and press **G**. **Unload cargo** moves everything into the garage
+   store, which persists. Then repair for scrap and fit a module (for example cooling L1 = frost
+   gland + 2 scrap). Stored materials are used automatically while you're at the garage.
 8. Save (F5), quit, continue: upgrades, cargo, the carcass and any loot left lying are all kept.
 
 Other things to try: drive fast through the central dune sea (a **grindback** tunnels at you; shoot its
@@ -86,6 +87,11 @@ python3 tools/check_script_guides.py
 - Screenshots (needs a display): `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots.py docs/screenshots/<dir> <prefix>`
   (Phase A flow) or `python3 tools/shots_b.py docs/screenshots/phase_b` (illustrated location).
 - Regenerate art: `python3 tools/art/gen_art.py` (needs Python 3 + Pillow + numpy; ~1 min). Not needed to run the game.
+
+## Playtest fixes regression (needs a display)
+`xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/regression_playtest.py` checks reverse steering,
+starter-area heat, the garage cursor and purchases, cargo unloading and storage persistence, and bullet
+speed in a windowed game process. The cursor can only be checked with a real display.
 
 ## Windows build and installer
 `python3 tools/build_windows.py` exports with the *Windows Desktop* preset (needs the Godot 4.7.2 export

@@ -187,7 +187,7 @@ HINT_HARVEST_FOOT,Harvest the carcass (E) — materials fall on the sand.,Slagt 
 HINT_LOOT,Materials on the ground — roll slowly over them to load them.,Materialer på jorden — kør langsomt hen over dem for at læsse dem.
 HINT_LOOT_FOOT,Pick up the materials (E) or get in and drive over them.,Saml materialerne op (E) eller stig ind og kør hen over dem.
 HINT_RETURN_TO_GARAGE,You carry hunt materials. Drive back to the refuge garage bay to upgrade.,Du har jagtmaterialer med. Kør tilbage til tilflugtens garagebås for at opgradere.
-HINT_GARAGE,Garage bay — press G to repair and fit modules.,Garagebåsen — tryk G for at reparere og montere moduler.
+HINT_GARAGE,"Garage bay — press G to unload your cargo, repair and fit modules.","Garagebåsen — tryk G for at læsse af, reparere og montere moduler."
 NOTICE_SKIRR_ALERT,Skirrs — a pack is circling,Skirrer — en flok kredser
 NOTICE_TREMOR,The ground is shaking…,Jorden ryster…
 NOTICE_RIMEBACK_ALERT,The rimeback has noticed you,Rimeryggen har opdaget dig
@@ -201,7 +201,7 @@ NOTICE_PART_BROKEN,Broken: %s,Knækket: %s
 NOTICE_HARVESTED,Harvested — %d materials on the ground,Slagtet — %d materialer på jorden
 NOTICE_LOOT,+%s ×%d,+%s ×%d
 NOTICE_LEGENDARY,LEGENDARY FIND: %s ×%d,LEGENDARISK FUND: %s ×%d
-NOTICE_CARGO_FULL,Cargo full — upgrade the rig or unload at the garage,Lasten er fuld — opgrader riggen eller læs af i garagen
+NOTICE_CARGO_FULL,Cargo full — unload at the refuge garage or upgrade the rig,Lasten er fuld — læs af i tilflugtens garage eller opgrader riggen
 NOTICE_PILOT_HIT,You are hit — the suit is torn!,Du er ramt — dragten er flænget!
 NOTICE_FITTED,Fitted: %s (level %d),Monteret: %s (niveau %d)
 NOTICE_GARAGE_REPAIRED,Car repaired — body %d · grille %d%%,Bilen repareret — karosseri %d · køler %d%%
@@ -247,9 +247,9 @@ AREA_THAW_FLATS,The Thaw Flats,Tøfladerne
 AREA_DUNE_SEA,The dune sea,Klithavet
 AREA_SKIRR_DEN,Skirr country,Skirrland
 GARAGE_TITLE,REFUGE GARAGE,TILFLUGTENS GARAGE
-GARAGE_SUB,Fit modules with salvage and hunt materials. Materials are taken from the car and your pack.,Monter moduler med bjærgning og jagtmaterialer. Materialer tages fra bilen og din taske.
-GARAGE_CONDITION,Body %d / %d · grille %d%% · cargo %d / %d,Karosseri %d / %d · køler %d%% · last %d / %d
-GARAGE_CARGO,Carrying: %s,Medbringer: %s
+GARAGE_SUB,"Unload your cargo, repair and fit modules. Materials come from the garage store, the car and your pack.","Læs af, reparer og monter moduler. Materialer tages fra garagens lager, bilen og din taske."
+GARAGE_CONDITION,Body %d / %d · grille %d%% · car cargo %d / %d (bulk),Karosseri %d / %d · køler %d%% · billast %d / %d (fylde)
+GARAGE_CARGO,In the car: %s,I bilen: %s
 GARAGE_EMPTY,nothing,intet
 GARAGE_REPAIR,Full repair: %d scrap (you have %d),Fuld reparation: %d skrot (du har %d)
 GARAGE_REPAIR_NONE,The car is in full working order,Bilen er i fuld stand
@@ -278,13 +278,18 @@ MOD_WEAPON,Roof guns,Taggeværer
 MOD_WEAPON_DESC,Heavier rounds and faster feeds for the twin roof guns.,Tungere projektiler og hurtigere fødning til tvillinggeværerne.
 MOD_RIG,Cargo rig & tracker,Lastrig og sporfinder
 MOD_RIG_DESC,More cargo space and a longer reach for the track finder.,Mere lastplads og længere rækkevidde for sporfinderen.
+GARAGE_STORED,Garage storage: %s,Garagelager: %s
+GARAGE_UNLOAD,Unload cargo,Læs lasten af
+GARAGE_UNLOAD_HINT,Move everything in the car and your pack into the garage store. Stored materials stay here and are used for repairs and modules.,Flyt alt i bilen og din taske til garagens lager. Lagrede materialer bliver her og bruges til reparation og moduler.
+GARAGE_NOTHING_TO_UNLOAD,Nothing to unload,Intet at læsse af
+NOTICE_UNLOADED,Unloaded %d items into the garage store,Læssede %d genstande af i garagens lager
 HELP_TITLE,THAWBORN — field guide,THAWBORN — felthåndbog
-HELP_DRIVE,DRIVE: {move_up} accelerate · {move_down} brake / reverse · {move_left}{move_right} steer (the car only turns while rolling) · {handbrake} handbrake to drift.,KØR: {move_up} speeder · {move_down} brems / bak · {move_left}{move_right} styr (bilen drejer kun i fart) · {handbrake} håndbremse til drift.
+HELP_DRIVE,DRIVE: {move_up} accelerate · {move_down} brake / reverse · {move_left}{move_right} steer (the car only turns while rolling; reversing steers gently) · {handbrake} handbrake to drift.,KØR: {move_up} speeder · {move_down} brems / bak · {move_left}{move_right} styr (bilen drejer kun i fart) · {handbrake} håndbremse til drift.
 HELP_SHOOT,"SHOOT: aim with the mouse, hold left click or {fire}. The roof guns swing after the cursor; firing heats the engine.","SKYD: sigt med musen, hold venstre klik eller {fire}. Taggeværerne følger markøren; skud varmer motoren."
 HELP_HEAT,"HEAT: normal driving is safe near the refuge. Long fights, damage, storms and hot ground push the engine toward shutdown — ease off and find shade.","VARME: normal kørsel er sikker nær tilflugten. Lange kampe, skader, storme og hed jord presser motoren mod nødstop — slip speederen og find skygge."
 HELP_TRACK,TRACK: creatures leave tracks. Near sign the compass (bottom left) points the way the animal went; fresher tracks lead to it. Blood trails mean it is wounded.,"SPOR: dyrene efterlader spor. Ved spor peger kompasset (nederst til venstre) i dyrets retning; friskere spor fører til det. Blodspor betyder, at det er såret."
 HELP_HUNT,"HUNT: every creature telegraphs — skirrs crouch, grindbacks race a sand mound at you, the rimeback lowers its head and draws a lane. Steer out of it, then shoot weak parts. Speed and gunfire are loud.","JAGT: alle dyr varsler — skirrer dukker sig, slibe­rygge sender en sandbunke mod dig, rimeryggen sænker hovedet og tegner en bane. Styr ud af den, og skyd de svage dele. Fart og skud larmer."
 HELP_HARVEST,"HARVEST: stop by a carcass, get out ({interact}) and harvest. Materials drop on the sand — drive slowly over them to load the car.","SLAGT: stop ved et kadaver, stig ud ({interact}) og slagt. Materialer falder på sandet — kør langsomt hen over dem for at læsse dem."
-HELP_GARAGE,"GARAGE: park in the refuge bay and press {garage} to repair and fit armour, cooling, tyres, guns and the cargo rig.","GARAGE: parker i tilflugtens bås og tryk {garage} for at reparere og montere panser, køling, dæk, våben og lastrig."
+HELP_GARAGE,"GARAGE: park in the refuge bay and press {garage}. Unload cargo into the garage store (it keeps), repair, and fit armour, cooling, tyres, guns and the cargo rig.","GARAGE: parker i tilflugtens bås og tryk {garage}. Læs lasten af i garagens lager (den bevares), reparer, og monter panser, køling, dæk, våben og lastrig."
 HELP_FOOT,ON FOOT: the heat suit drains outside the car — shade slows it. Close the grille shutters ({service}) in the dunes.,TIL FODS: hededragten tømmes uden for bilen — skygge sænker det. Luk kølerskodderne ({service}) i klitterne.
 HELP_CLOSE,{help} toggles this guide.,{help} viser/skjuler denne håndbog.

@@ -249,6 +249,20 @@ func _run(line: String) -> void:
 				err = "garage action refused"
 		"give_materials":
 			Session.dev_give_materials()
+		"unload":
+			var nu := Session.unload_cargo()
+			ok = nu > 0
+			if not ok:
+				err = "nothing unloaded"
+		"click_garage":  # click_garage <button name>: press a garage panel button like the mouse would
+			var gm = main.game.hud.garage if main and main.game else null
+			var b = gm.find_child(a[0], true, false) if gm else null
+			if b is Button and not b.disabled:
+				b.pressed.emit()
+				await _wait(0.1)
+			else:
+				ok = false
+				err = "no enabled garage button " + (a[0] if a.size() > 0 else "")
 		"aim":  # aim <x> <y> (world)
 			Session.aim_point = Vector2(float(a[0]), float(a[1]))
 		"aim_enemy":  # aim at an enemy, optional local offset: aim_enemy [ox oy] [id=..]
@@ -460,6 +474,13 @@ func _state() -> Dictionary:
 		st["max_integrity"] = Session.max_integrity()
 		st["at_garage"] = Session.at_garage()
 		st["noise"] = Session.noise()
+		st["garage_storage"] = Session.garage_storage().duplicate()
+		var ps: Array = []
+		for sh in Session.projectiles:
+			if str(sh["owner"]) == "player":
+				ps.append((sh["vel"] as Vector2).length())
+		st["player_projectile_speeds"] = ps
+		st["mouse_visible"] = Input.mouse_mode == Input.MOUSE_MODE_VISIBLE
 		st["hits_taken"] = Session.hits_taken.duplicate()
 		st["car"] = {"max_speed": Session.car_tun()["max_speed"], "grip": Session.car_tun()["grip"], "accel": Session.car_tun()["accel"],
 			"cooling_coeff": Session.car_thermal()["cooling_coeff"], "damage": Session.player_weapon()["damage"], "cooldown": Session.player_weapon()["cooldown"]}

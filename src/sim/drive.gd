@@ -11,7 +11,8 @@ extends RefCounted
 ##     (accel / brake / coast rates; reverse is slower);
 ##   · steering turns the heading, scaled by forward speed (a parked car cannot
 ##     pivot; full lock is reached at `steer_full_speed`; turning gets gentler
-##     toward top speed; reverse steers inverted like a real car);
+##     toward top speed; reverse steers inverted like a real car, with its own
+##     much lower `reverse_turn_rate*` so backing up stays controllable);
 ##   · the world velocity is carried over when the heading changes (momentum),
 ##     then the LATERAL component is bled off by tyre grip (px/s²). When the
 ##     required cornering force exceeds grip the car slides; the handbrake
@@ -75,9 +76,15 @@ static func step(m: Dictionary, throttle: float, turn: float, can_drive: bool, t
 	var top := maxf(float(tm.get("max_speed", 420.0)), 1.0)
 	var steer_frac := clampf(absf(new_vf) / maxf(float(tm.get("steer_full_speed", 70.0)), 1.0), 0.0, 1.0)
 	var tr := lerpf(float(tm.get("turn_rate", 2.6)), float(tm.get("turn_rate_full_speed", 1.6)), clampf(absf(new_vf) / top, 0.0, 1.0))
+	var dir := 1.0 if new_vf >= -1.0 else -1.0
+	if dir < 0.0:
+		# Reversing: much gentler steering, and gentler still the faster you back up,
+		# so a reversing car never snaps round (playtest 001/003).
+		var rtop := maxf(float(tm.get("reverse_speed", 170.0)), 1.0)
+		tr = lerpf(float(tm.get("reverse_turn_rate", 1.1)), float(tm.get("reverse_turn_rate_full_speed", 0.6)), clampf(absf(new_vf) / rtop, 0.0, 1.0))
+		steer_frac = clampf(absf(new_vf) / maxf(float(tm.get("reverse_steer_full_speed", 110.0)), 1.0), 0.0, 1.0)
 	if handbrake:
 		tr *= float(tm.get("handbrake_turn", 1.45))
-	var dir := 1.0 if new_vf >= -1.0 else -1.0
 	h = wrapf(h + turn * tr * steer_frac * dir * dt, -PI, PI)
 	# --- tyres: bleed off sideways velocity (momentum survives the turn → slip)
 	var grip := float(tm.get("grip", 1300.0)) * float(zone.get("grip", 1.0))

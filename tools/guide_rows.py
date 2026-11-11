@@ -85,4 +85,5 @@ ROWS = [
  ("tools/regression_hunt.py", "Runtime regression of the full Thawborn loop: refuge → drive → track → hunt → harvest → loot → garage → save/reload; rival car, skirrs, grindback, sandstorm.", "Kørselsregression af hele Thawborn-løkken: tilflugt → kørsel → sporing → jagt → slagtning → bytte → garage → gem/indlæs; rivalbil, skirrer, sliberyg, sandstorm."),
  ("tools/build_windows.py", "Windows build: Godot export, portable zip and NSIS installer (export/).", "Windows-build: Godot-eksport, bærbar zip og NSIS-installationsprogram (export/)."),
  ("tools/shots_thawborn.py", "Screenshots of the Thawborn conversion and the menu backdrop capture.", "Skærmbilleder af Thawborn-konverteringen og optagelse af menubaggrunden."),
+ ("tools/regression_playtest.py", "Runtime regression for playtest fixes 001–006 (windowed): reverse steering, starter heat, garage cursor, cargo unloading + storage, fast bullets.", "Kørselsregression for spiltestrettelser 001–006 (i vindue): bakstyring, varme i startområdet, garagemarkør, aflæsning + lager, hurtige projektiler."),
 ]

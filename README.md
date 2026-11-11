@@ -13,7 +13,7 @@ break parts, bring it down → get out and harvest → load the loot → return 
 head, a charge lane appears, so steer out of it. A swinging tail warns of a sweep, and glowing glands
 warn of spit. Break its frost glands, horn and tail for rare materials. Badly hurt, it limps to its
 lair, bleeding. Bring it down, get out, harvest it, drive slowly over the materials to load them, and
-take them to the **refuge garage (G)**.
+take them to the **refuge garage (G)**, where you can unload them into the garage store.
 
 **Also out there:** **skirr** packs (they hear engines; they crouch before they lunge),
 **grindbacks** (buried, they feel vibration; a racing sand mound means one is coming up under you;

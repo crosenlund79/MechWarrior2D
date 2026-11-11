@@ -29,6 +29,7 @@ Never modify another project. Never alter `backup/*` branches.
 - `python3 tools/regression_junkers.py` (recoil, sandstorm, F10 dev menu, exploration, Junker base, turrets, defenders)
 - `python3 tools/regression_balance.py` (speed/responsiveness, progressive heat pressure)
 - `python3 tools/regression_hunt.py` (full Thawborn loop: drive, track, hunt, harvest, loot, garage, save/reload; rival car, skirrs, grindback, storm)
+- `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/regression_playtest.py` (playtest 001–006: reverse steering, starter heat, garage cursor, cargo storage, bullet speed)
 - Heat tuning changes: run `python3 tools/heat_balance.py` — ordinary travel must never warn.
 - Map layout changes: edit `tools/build_world_south.py` (south/east content, creatures, garage) and run it — it validates roads, creatures and the rimeback route vs rock/props.
 - Thawborn art: `python3 tools/art/gen_thawborn.py` (cars, creatures, tracks, materials; never touches overrides).

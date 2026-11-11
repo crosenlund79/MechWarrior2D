@@ -4,9 +4,22 @@ extends Control
 ## cannot fire (shutdown, crippled).
 
 
+## Modal panels (garage, pause, settings, dev menu) need the real cursor. This
+## node runs even while the tree is paused, so it can always restore it
+## (playtest 004: the cursor stayed hidden inside the pausing garage menu).
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+static func modal_open(tree: SceneTree) -> bool:
+	return tree.paused or DevMenu.is_open
+
+
 func _process(_delta: float) -> void:
-	var want := Session.running and Session.mode() == "mech" and not DevMenu.is_open
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN if want and not get_tree().paused else Input.MOUSE_MODE_VISIBLE
+	var want := Session.running and Session.mode() == "mech" and not modal_open(get_tree())
+	var mode := Input.MOUSE_MODE_HIDDEN if want else Input.MOUSE_MODE_VISIBLE
+	if Input.mouse_mode != mode:
+		Input.mouse_mode = mode
 	queue_redraw()
 
 

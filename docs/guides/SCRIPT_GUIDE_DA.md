@@ -89,3 +89,4 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/regression_hunt.py` | Kørselsregression af hele Thawborn-løkken: tilflugt → kørsel → sporing → jagt → slagtning → bytte → garage → gem/indlæs; rivalbil, skirrer, sliberyg, sandstorm. |
 | `tools/build_windows.py` | Windows-build: Godot-eksport, bærbar zip og NSIS-installationsprogram (export/). |
 | `tools/shots_thawborn.py` | Skærmbilleder af Thawborn-konverteringen og optagelse af menubaggrunden. |
+| `tools/regression_playtest.py` | Kørselsregression for spiltestrettelser 001–006 (i vindue): bakstyring, varme i startområdet, garagemarkør, aflæsning + lager, hurtige projektiler. |

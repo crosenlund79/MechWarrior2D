@@ -615,7 +615,7 @@ func test_parked_encounter_sequence() -> void:
 	var seen := ["unpiloted"]
 	var pilot_path := 0.0
 	var last := Content.v2(e["pilot"]["pos"])
-	for i in 200:
+	for i in 320:   # a cooler car is noticed a little later: allow 16 s
 		Session.tick(0.05)
 		if seen.is_empty() or seen[-1] != e["ai"]:
 			seen.append(e["ai"])
@@ -1306,7 +1306,7 @@ func test_migration_v4_to_v5_heat_signature_save() -> void:
 	env["version"] = 4
 	env["format"] = "heat_signature_save"
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 5 and str(up["format"]) == SaveCodec.FORMAT, "a Heat Signature v4 save migrates to Thawborn v5")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION and str(up["format"]) == SaveCodec.FORMAT, "a Heat Signature v4 save migrates to the current Thawborn format")
 	check(SaveCodec.validate(up) == "", "migrated save validates")
 	var s2 := GameState.sanitize(up["state"], loc)
 	check(s2["creatures"].size() == loc["creatures"].size(), "creatures appear in a converted save")
@@ -1346,3 +1346,123 @@ func test_dev_creatures_never_saved() -> void:
 	Session.dev_give_materials()
 	check(Session.have_item("thawheart") > 0, "dev can grant test materials")
 	Session.running = false
+
+
+# ---------------------------------------------------------------- playtest fixes 001–006
+
+func test_pt001_reverse_steering_is_gentle_and_controllable() -> void:
+	var tm: Dictionary = Content.tuning["mech"]
+	var th: Dictionary = Content.tuning["thermal"]
+	# forward reference: one second of full lock at low speed
+	var f := _car()
+	f["vel"] = [0.0, -150.0]
+	var r := _car()
+	r["vel"] = [0.0, 150.0]
+	r["speed"] = -150.0
+	for i in 60:
+		Drive.step(f, 0.3, 1.0, true, tm, th, _zone_open(), 1.0 / 60.0)
+		Drive.step(r, -0.9, 1.0, true, tm, th, _zone_open(), 1.0 / 60.0)
+	var fwd_turn := absf(float(f["heading"]))
+	var rev_turn := absf(float(r["heading"]))
+	check(rev_turn < fwd_turn * 0.6, "reverse turns far less than forward at the same speed (%.2f vs %.2f rad)" % [rev_turn, fwd_turn])
+	check(rev_turn > 0.3, "but reversing can still steer (%.2f rad/s)" % rev_turn)
+	# no abrupt direction change at full reverse speed
+	var fast := _car()
+	fast["vel"] = [0.0, float(tm["reverse_speed"])]
+	fast["speed"] = -float(tm["reverse_speed"])
+	var max_rate := 0.0
+	for i in 60:
+		var h0 := float(fast["heading"])
+		Drive.step(fast, -1.0, 1.0, true, tm, th, _zone_open(), 1.0 / 60.0)
+		max_rate = maxf(max_rate, absf(wrapf(float(fast["heading"]) - h0, -PI, PI)) * 60.0)
+	check(max_rate <= float(tm["reverse_turn_rate"]) + 0.01, "reverse yaw rate is capped (%.2f rad/s)" % max_rate)
+	check(max_rate < float(tm["turn_rate"]) * 0.5, "far below the forward turn rate")
+
+
+func test_pt002_starter_area_driving_never_warns() -> void:
+	var th: Dictionary = Content.tuning["thermal"]
+	var loc := Content.location()
+	var m := {"heat": float(th["start_heat"]), "radiator": float(th["start_radiator"]), "shutters_open": true, "engine": "running"}
+	var open := Content.zone_at(loc, Vector2(300, 2100))
+	var canyon := Content.zone_at(loc, Vector2(-900, 1450))
+	var eq_open := Thermal.equilibrium(m, true, 1.0, open, th)
+	var eq_canyon := Thermal.equilibrium(m, true, 1.0, canyon, th)
+	check(eq_open < float(th["warn_temp"]) - 12.0, "full-speed cruising near the refuge settles below the warm band (%.0f °C)" % eq_open)
+	check(eq_canyon < eq_open, "the canyon road is cooler still (%.0f °C)" % eq_canyon)
+	var good := m.duplicate()
+	good["radiator"] = 1.0
+	check(Thermal.equilibrium(good, true, 1.0, open, th) < eq_open, "good cooling handles it comfortably")
+	# escalation stays: damaged cooling + storm + combat-level heat still warns
+	var bad := m.duplicate()
+	bad["radiator"] = 0.25
+	var stormy := Weather.apply(open, {"state": "storm", "intensity": 1.0}, Content.tuning["weather"])
+	var w: Dictionary = Content.tuning["combat"]["player_weapon"]
+	var fire_q := float(w["heat_per_shot"]) / float(w["cooldown"])
+	var k := float(th["cooling_coeff"]) * float(stormy.get("cooling", 1.0)) * Thermal.efficiency(0.25, th)
+	var eq_bad := float(stormy["ambient"]) + (Thermal.heat_in(true, 0.6, stormy, th) + fire_q) / k
+	check(eq_bad > float(th["critical_temp"]), "damaged cooling + storm + combat still overheats (%.0f °C)" % eq_bad)
+
+
+func test_pt005_garage_storage_unload_use_persist() -> void:
+	var s := _fresh_session()
+	s["mech"]["pos"] = Session.loc["garage"]["pos"].duplicate()
+	s["mech"]["storage"] = {"rime_hide": 2, "scrap": 5, "rime_gland": 1}
+	s["pilot"]["pack"] = {"skirr_hide": 1}
+	var n := Session.unload_cargo()
+	check(n == 9, "unload moves everything carried (%d)" % n)
+	check(s["mech"]["storage"].is_empty() and s["pilot"]["pack"].is_empty(), "the car and pack are empty afterwards")
+	check(int(Session.garage_storage().get("rime_hide", 0)) == 2 and int(Session.garage_storage().get("scrap", 0)) == 5, "items are in the garage store")
+	check(Session.unload_cargo() == 0, "unloading again moves nothing (no duplication)")
+	check(int(Session.garage_storage().get("rime_hide", 0)) == 2, "store unchanged by the repeat")
+	check(Session.have_item("rime_gland") == 1, "stored materials count at the garage")
+	check(Session.garage_fit("cooling"), "a module is bought from stored materials (gland + scrap)")
+	check(int(Session.garage_storage().get("rime_gland", 0)) == 0 and int(Session.garage_storage().get("scrap", 0)) == 3, "the cost came out of the store exactly once")
+	s["mech"]["integrity"] = 50.0
+	check(Session.garage_repair(), "repair pays with stored scrap")
+	check(int(Session.garage_storage().get("scrap", 0)) < 3, "scrap taken from the store")
+	var env := SaveCodec.encode(Session.savable_state())
+	var st := GameState.sanitize(SaveCodec.migrate(JSON.parse_string(JSON.stringify(env)))["state"], Session.loc)
+	check(st["garage"]["storage"] == Session.garage_storage(), "the garage store persists through a save")
+	s["mech"]["pos"] = [0.0, 3000.0]
+	s["mech"]["storage"] = {"scrap": 1}
+	check(Session.unload_cargo() == 0 and int(s["mech"]["storage"]["scrap"]) == 1, "no unloading away from the refuge")
+	check(Session.have_item("rime_hide") == 0, "the store cannot be spent from the field")
+	Session.running = false
+
+
+func test_pt005_migration_v5_to_v6() -> void:
+	var loc := Content.location()
+	var st := GameState.create(loc, 1)
+	st.erase("garage")
+	st["mech"]["storage"] = {"rime_hide": 3}
+	var env := SaveCodec.encode(st)
+	env["version"] = 5
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 6 and SaveCodec.validate(up) == "", "v5 → v6 adds the garage store")
+	var s2 := GameState.sanitize(up["state"], loc)
+	check(s2["garage"]["storage"].is_empty() and int(s2["mech"]["storage"]["rime_hide"]) == 3, "cargo stays in the car, store starts empty")
+
+
+func test_pt006_fast_bullets_hit_without_tunnelling() -> void:
+	var w: Dictionary = Content.tuning["combat"]["player_weapon"]
+	check(float(w["speed"]) >= 1200.0, "player rounds fly about twice as fast as before (%.0f px/s, was 620)" % float(w["speed"]))
+	check(absf(float(w["damage"]) - 5.0) < 0.01 and absf(float(w["cooldown"]) - 0.3) < 0.01, "damage and fire rate unchanged")
+	var tc: Dictionary = Content.tuning["creatures"]
+	# a small skirr crossing the line of fire, simulated at a slow 20 fps (50 px+ per step)
+	var c := Creatures.create({"species": "skirr", "spawn": [400, 0]}, tc)
+	c["ai"] = "stalk"
+	var sh := Combat.make_shot("player", Vector2.ZERO, Vector2.RIGHT, w, RandomNumberGenerator.new())
+	sh["vel"] = Vector2.RIGHT * float(w["speed"])
+	var hit := ""
+	for i in 20:
+		sh["prev"] = sh["pos"]
+		sh["pos"] = (sh["pos"] as Vector2) + (sh["vel"] as Vector2) * 0.05
+		hit = Creatures.hit_part(c, sh["prev"], sh["pos"], float(sh["radius"]), tc["skirr"])
+		if hit != "":
+			break
+	check(hit == "body", "a 62 px-per-step round still hits a 60 px skirr (segment test)")
+	var eh: Dictionary = Content.tuning["combat"]["enemy_hit"]
+	sh["prev"] = Vector2(-200, 0)
+	sh["pos"] = Vector2(200, 0)
+	check(Combat.hit_test(sh, Vector2(0, 10), PI * 0.5, eh) != "", "rival cars are hit even when a step jumps right across them")
+	check(float(Content.tuning["combat"]["enemy_weapon"]["speed"]) < 400.0, "enemy slugs stay slow and dodgeable")

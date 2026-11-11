@@ -5,7 +5,7 @@
 Unicode true
 !define APPNAME "Thawborn"
 !ifndef VERSION
-  !define VERSION "0.2.0"
+  !define VERSION "0.2.1"
 !endif
 Name "${APPNAME} ${VERSION}"
 OutFile "..\..\export\Thawborn-${VERSION}-setup.exe"
