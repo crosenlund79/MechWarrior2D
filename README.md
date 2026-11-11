@@ -1,24 +1,24 @@
-# Heat Signature *(provisional working title)*
+# THAWBORN *(formerly "Heat Signature"; title provisional)*
 
-A straight top-down, post-apocalyptic mech survival game for Godot 4.7.2. Former Antarctica is now a
-desert hotter than Death Valley ever was. Your battered scrap mech is your shelter, your storage and your
-life support, and its greatest enemy is heat.
+A straight top-down, open-world **vehicular hunting/survival** game for Godot 4.7.2 — cars × monster
+hunting in the scorched, thawed Antarctic wasteland. The retreating ice exposed living species nobody
+knew existed. Your car is your transport, weapon, protection, storage and identity.
 
-**First playable loop:** drive → overheat → stop → exit → scavenge → return → repair → continue.
+**The loop:** prepare in the canyon refuge → drive out → find and follow tracks → survive a mobile hunt →
+break parts, bring it down → get out and harvest → load the loot → return → repair and upgrade the car.
 
-**Canyon Refuge:** follow the worn road west from the start shelter, down the canyon and around the
-bend, until you pass under the overhang. The cavern base has a parking bay, a walk-in workshop, a running
-generator and powered lamps. It's cool enough to work on foot. North of the pump-rig area, a
-survivor stands beside a parked scrapper. Get close and they run for it, climb in and power up.
+**First hunt:** leave the canyon refuge by the dirt road, go south past the old highway into the
+**Thaw Flats**. A **rimeback** grazes there on a long circuit, leaving deep tracks. The tracking compass
+(bottom left) points along the freshest sign. It telegraphs every attack. When it lowers its horned
+head, a charge lane appears, so steer out of it. A swinging tail warns of a sweep, and glowing glands
+warn of spit. Break its frost glands, horn and tail for rare materials. Badly hurt, it limps to its
+lair, bleeding. Bring it down, get out, harvest it, drive slowly over the materials to load them, and
+take them to the **refuge garage (G)**.
 
-**Southern Junkers:** follow the old highway south-east (or the rocky ravine from the salt pan)
-to the Junkers' fortified scrapyard. You'll face walls with a gate and two breaches, five easy
-turrets (at most two engage at once) and three Junker mechs, one of them a pilot who runs to a parked
-mech. Sandstorms roll in now and then: find shelter, because cooling and your suit suffer outside.
-**F10** opens the developer menu.
-
-**First hostile encounter:** a weak scrapper mech patrols the salt pan in the south-east. Shoot its exposed
-rear radiator to cook it, retreat to the awning's shade when you run hot, then strip its wreck on foot.
+**Also out there:** **skirr** packs (they hear engines; they crouch before they lunge),
+**grindbacks** (buried, they feel vibration; a racing sand mound means one is coming up under you;
+shoot the rear vent while it is dazed), hostile **rival cars** (scrappers and the Southern Junkers'
+fortified scrapyard with perimeter turrets), and **sandstorms**. **F10** opens the developer menu.
 
 ## Run it (Windows)
 1. On GitHub, open the branch you want and choose **Code → Download ZIP**. Extract it.
@@ -26,15 +26,16 @@ rear radiator to cook it, retreat to the awning's shade when you run hot, then s
 3. Press **F5** (Run Project). The first open imports assets, which takes a few seconds.
 
 More detail: [`docs/guides/TESTING_AND_LAUNCH.md`](docs/guides/TESTING_AND_LAUNCH.md).
+Old Heat Signature saves are copied over automatically on first start (the originals are kept).
 
-## Controls (remappable in Settings)
-| In the mech | On foot |
+## Controls (remappable in Settings) — press **H** in game for the field guide
+| In the car | On foot |
 |---|---|
-| W/S throttle, A/D turn | WASD walk |
-| Mouse turns the **upper housing**; **left click** (or Space) fires the twin guns | |
-| E exit (when stopped) | E salvage / enter mech / pick up |
-| R open/close radiator shutters | R repair radiator (core) / patch hull (2 scrap, or a slow free emergency patch) |
-| Mouse wheel or +/− zoom · F5 quick save · Esc pause · F3 dev overlay | |
+| W accelerate · S brake/reverse · A/D steer (only while rolling) · **Shift handbrake (drift)** | WASD walk (the heat suit drains) |
+| Mouse turns the **roof guns**; **left click** (or Space) fires | |
+| E get out (when stopped) · **G garage** (in the refuge bay) | E get in / harvest a carcass / pick up loot / strip a wreck |
+| R open/close the grille shutters | R repair radiator (core) / patch the body (scrap, or a slow free emergency patch) |
+| Mouse wheel or +/− zoom · F5 quick save · Esc pause · F3 dev overlay · H field guide | |
 
 ## Docs
 - [Architecture](docs/guides/ARCHITECTURE.md) · [Script guide EN](docs/guides/SCRIPT_GUIDE_EN.md) · [Script guide DA](docs/guides/SCRIPT_GUIDE_DA.md)

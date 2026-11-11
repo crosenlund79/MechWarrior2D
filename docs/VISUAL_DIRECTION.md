@@ -1,4 +1,4 @@
-# Heat Signature — visual direction: "Dirty Ink Wasteland"
+# Thawborn (formerly Heat Signature) — visual direction: "Dirty Ink Wasteland"
 
 **Status: EXPLORING (provisional until the creator reviews the rendered result).**
 Source DNA: Red Thaw (`crosenlund79/ZombieSurvival2D`, branch `iteration/010-red-thaw`, export commit
@@ -137,3 +137,29 @@ hardware and water.
 - The menu backdrop (`ui.menu_backdrop`) is a capture of the running game
   (`tools/shots_b.py --backdrop`). Replace it with a painting if you like.
 - No night or day cycle yet. No dynamic 2D shadows, by design.
+
+## 12. Thawborn: cars and the thawed-out creatures (same pipeline, `tools/art/gen_thawborn.py`)
+- **Player car.** A rugged flatbed 4×4 in the refuge colours: faded industrial yellow bonnet, faded utility
+  green cab, rust flatbed with strapped crates and teal coolant cans. It has a bull bar, the radiator
+  grille at the nose (the cooling hit area) and a roof gun ring with twin guns. The tyres are separate
+  sprites; the front pair visibly steers. Weight is shown by body roll, squat and dive, skid marks,
+  tyre dust and impact shake.
+- **Rival cars.** Scrappers in oxide red with welded mismatched plates, the cab offset left, and an
+  exposed front radiator with teal hoses. Junkers add oxide orange, tar hazard bands, the bone cog
+  insignia and a spiked ram bar. A crude roof gun swings toward its target.
+- **Creatures** must never read as machinery. Pale, cold hides that lived under ice: bone (196,190,176),
+  slate (104,110,116), frost (214,226,228), with **temper blue-violet** (112,92,124) mottling and
+  bands. That violet is also the legendary loot colour: the Thawheart is the rimeback's violet core.
+  Coolant teal stays reserved for cooling hardware.
+- **Telegraphs** are drawn in the world, never as UI:
+  - Rimeback charge: an amber lane.
+  - Rimeback tail sweep: a red arc behind it.
+  - Spit: the frost glands swell and glow.
+  - Grindback: a sand crack ring where it will erupt, and a racing sand mound before it.
+  - Skirr crouch: the body squashes and the eyes glint.
+- **Signs and loot.**
+  - Tracks are ink-stamped decals (three-toed skirr prints, deep cloven rimeback prints, grindback
+    furrows). They fade from dark to faint with age; blood drops mark a wounded animal.
+  - Loot lies on the sand with a rarity ring and glow: bone (common), straw (uncommon), bronze (rare)
+    and temper-violet plus a turning star (legendary).
+- All of this is generated placeholder art meant to be replaced (see `guides/ASSET_REPLACEMENT.md`).

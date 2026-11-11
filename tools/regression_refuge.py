@@ -106,7 +106,7 @@ try:
     g.cmd("walk_to -1260 800 15")
     g.cmd(f"walk_to {mp[0] + 150} {mp[1]} 25")
     r = g.cmd("interact")
-    check(r["state"]["game"]["mode"] == "mech", "back into the mech")
+    check(r["state"]["game"]["mode"] == "mech", "back into the car")
 
     print("6. music cue in the desert, faded in the refuge")
     g.cmd("set_mech 1500 1150 90"); g.cmd("wait 2"); g.cmd("music_cue"); g.cmd("wait 1")
@@ -130,7 +130,7 @@ try:
     g.cmd(f"set_mech {pp[0] - 900} {pp[1] + 500} 45"); g.cmd("debug heat -20"); g.cmd("wait 3")
     e = g.state()["game"]["enemies"][E2]
     check(e["ai"] == "unpiloted" and math.dist(e["pos"], ep) < 1, "unaware while the player is far; parked mech stays put")
-    g.cmd(f"set_mech {pp[0] - 230} {pp[1] + 170} 60")
+    g.cmd(f"set_mech {pp[0] + 230} {pp[1]} 270")   # beside the pilot, clear of the parked car
     seq, pilot_moves, mech_still = [], 0.0, True
     last = pp
     for _ in range(60):
@@ -163,7 +163,7 @@ try:
     print("8. interrupted encounter + save/load")
     st = g.cmd("new 3")["state"]
     e = st["game"]["enemies"][E2]; pp = e["pilot"]["pos"]
-    g.cmd(f"set_mech {pp[0] - 230} {pp[1] + 170} 60")
+    g.cmd(f"set_mech {pp[0] + 230} {pp[1]} 270")   # beside the pilot, clear of the parked car
     for _ in range(40):
         st = g.cmd("wait 0.1")["state"]
         if st["game"]["enemies"][E2]["ai"] == "boarding":

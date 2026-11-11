@@ -1,4 +1,4 @@
-# Testing and launch
+# Testing and launch (Thawborn)
 
 ## Creator workflow (Windows, no build steps)
 1. GitHub → select the branch → **Code → Download ZIP** → extract anywhere.
@@ -36,6 +36,27 @@
 6. Back at your mech: R repairs the radiator with the core, and R again patches the hull with 2 scrap.
    If your hull hits 0, the mech is crippled. Step out and R gives a slow, free emergency patch to 25 %.
 
+## The first hunt (about 6–10 minutes)
+1. New game: the car is parked in the canyon refuge garage bay. **H** shows the field guide.
+2. Drive out by the dirt road east, then south down the track to the old highway, then south into the
+   **Thaw Flats**. Ordinary driving never reaches the heat warning.
+3. Big hoof prints appear on the sand. The **tracking compass** (bottom left) names the species, shows how
+   fresh the sign is, and points the way the animal went. Follow fresher prints.
+4. The **rimeback** roars when it notices you (noise, heat, sight). Keep circling at 400–500 px. When it
+   lowers its head an amber **charge lane** appears, so steer out sideways. Close in, the tail coils
+   (red arc). At range, the frost glands glow before it spits.
+5. Shoot the glands, horn and tail. Broken parts drop materials on the sand. Below about 30 % it limps
+   toward its lair in the far south-west, leaving blood prints. Follow and finish it.
+6. Stop by the carcass, get out (**E**), walk up and **harvest** (E, 4 s). Get back in and roll slowly over
+   the materials to load them. A legendary **Thawheart** drops only if both glands were broken.
+7. Drive back to the refuge bay and press **G**: repair for scrap and fit a module (for example
+   cooling L1 = frost gland + 2 scrap).
+8. Save (F5), quit, continue: upgrades, cargo, the carcass and any loot left lying are all kept.
+
+Other things to try: drive fast through the central dune sea (a **grindback** tunnels at you; shoot its
+rear vent while it is dazed). Visit skirr country north-east of the salt pan (a pack circles and lunges).
+Meet the scrapper car by the salt pan or the Junker scrapyard. Start a storm from F10.
+
 ## Developer menu (F10)
 F10 opens it during play, without pausing. It has controls for:
 - **Weather:** dynamic weather on/off, clear now, start or stop a storm, storm intensity.
@@ -66,7 +87,18 @@ python3 tools/check_script_guides.py
   (Phase A flow) or `python3 tools/shots_b.py docs/screenshots/phase_b` (illustrated location).
 - Regenerate art: `python3 tools/art/gen_art.py` (needs Python 3 + Pillow + numpy; ~1 min). Not needed to run the game.
 
-## Windows export (optional)
-`export_presets.cfg` contains a *Windows Desktop* preset. In Godot: *Project → Export → Windows Desktop
-→ Export Project* (requires export templates). To use your own art with the exported .exe, put an
-`overrides` folder next to it (see the asset guide). **Status: not yet verified in this iteration.**
+## Windows build and installer
+`python3 tools/build_windows.py` exports with the *Windows Desktop* preset (needs the Godot 4.7.2 export
+templates installed) and writes three things to `export/`:
+- `Thawborn.exe` + `Thawborn.pck`;
+- a portable `Thawborn-<version>-windows.zip`;
+- if NSIS (`makensis`) is available, `Thawborn-<version>-setup.exe`.
+
+The installer installs per user (no admin rights) to `%LOCALAPPDATA%\Programs\Thawborn`. It adds a
+Start-menu shortcut, a desktop shortcut and an uninstaller. Saves (`%APPDATA%\Thawborn`) and your
+`overrides` folder are never removed. Put your own art into `overrides\` next to the .exe, using the same
+folder layout as `assets/templates`.
+
+What was verified in the build environment (Linux): the export completes, and the exported `.pck` runs in
+Godot (new game, driving, save) with every Thawborn asset resolving. The `.exe` itself has not been
+launched on Windows from here: no Windows or Wine was available.

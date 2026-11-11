@@ -28,7 +28,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"shutters_open": true,
 			"engine": "running",
 			"integrity": Content.t("mech", "integrity", 100.0),
-			"storage": {"scrap": 3},
+			"storage": {"scrap": 6},
 			"vel": [0.0, 0.0],
 			"slip": 0.0,
 			"upgrades": {},

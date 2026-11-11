@@ -174,6 +174,70 @@ func _run(line: String) -> void:
 				await get_tree().physics_frame
 				t7 += get_physics_process_delta_time()
 			Session.fire_held = false
+		"kite":  # kite <seconds> <radius> [part] cid=..: circle-strafe the creature while firing at a part,
+			# dodging sideways out of a telegraphed charge lane (what a player does). Stops when it dies.
+			var t8 := 0.0
+			var rad := float(a[1])
+			var part3 := a[2] if a.size() > 2 else "body"
+			var dodge := 0.0
+			var dodge_dir := 1.0
+			var orbit := 1.0
+			while t8 < float(a[0]) and Session.running and not Creatures.is_dead(Session.creature(cid)) and Session.mode() == "mech":
+				var c5: Dictionary = Session.creature(cid)
+				var cp5 := Content.v2(c5["pos"])
+				var me := Session.mech_pos()
+				var b5: Dictionary = Session.creature_brains.get(cid, {})
+				var tk5 := str(b5.get("tell_kind", ""))
+				var goal := cp5 + (me - cp5).normalized().rotated(orbit * 0.7) * rad
+				if (tk5 == "charge" or str(c5["ai"]) == "charge") and dodge <= 0.0:
+					var lane := Drive.forward(float(c5["heading"]))
+					dodge_dir = signf(lane.cross(me - cp5)) if absf(lane.cross(me - cp5)) > 1.0 else 1.0
+					dodge = 1.4
+				if dodge > 0.0:
+					dodge -= get_physics_process_delta_time()
+					var lane2 := Drive.forward(float(c5["heading"]))
+					goal = me + Vector2(-lane2.y, lane2.x) * dodge_dir * 400.0
+				if str(c5["ai"]) == "flee":
+					goal = cp5 + (me - cp5).normalized() * rad * 0.8
+				var to8 := goal - me
+				var diff8 := wrapf(atan2(to8.x, -to8.y) - float(Session.mech()["heading"]), -PI, PI)
+				var spd8 := float(Session.mech()["speed"])
+				var desired8 := 330.0 if dodge <= 0.0 else 460.0
+				if absf(diff8) > 1.3:
+					desired8 = 170.0
+				Session.drive_turn = clampf(diff8 * 2.2, -1.0, 1.0)
+				Session.drive_throttle = clampf((desired8 - spd8) / 110.0, -1.0, 1.0)
+				if absf(spd8) < 20.0 and t8 > 1.0 and int(t8 * 10.0) % 30 == 0:
+					orbit = -orbit
+				var off5 := Content.v2(Session.creature_tun(c5).get("parts", {}).get(part3, {}).get("offset", [0, 0]))
+				if part3 != "body" and float(c5["parts"].get(part3, 0.0)) <= 0.0:
+					off5 = Vector2.ZERO
+				Session.aim_point = cp5 + off5.rotated(float(c5["heading"]))
+				Session.fire_held = Creatures.targetable(c5)
+				await get_tree().physics_frame
+				t8 += get_physics_process_delta_time()
+			Session.fire_held = false
+			Session.drive_throttle = 0.0
+			Session.drive_turn = 0.0
+		"collect_loot":  # collect_loot [radius]: drive slowly over every ground loot item within radius
+			var r9 := float(a[0]) if a.size() > 0 else 900.0
+			for l9 in Session.state["world"]["loot"].duplicate():
+				var p9 := Content.v2(l9["pos"])
+				if p9.distance_to(Session.mech_pos()) > r9:
+					continue
+				var t9 := 0.0
+				while t9 < 12.0 and Loot.find(Session.state["world"], str(l9["id"])) >= 0 and Session.mode() == "mech":
+					var to9 := p9 - Session.mech_pos()
+					var diff9 := wrapf(atan2(to9.x, -to9.y) - float(Session.mech()["heading"]), -PI, PI)
+					var want9 := clampf(to9.length() * 1.2, 70.0, 220.0)
+					if absf(diff9) > 1.4 and to9.length() < 260.0:
+						want9 = -120.0   # back up to line up again
+					Session.drive_turn = clampf(diff9 * 2.2, -1.0, 1.0) * (1.0 if want9 > 0.0 else -1.0)
+					Session.drive_throttle = clampf((want9 - float(Session.mech()["speed"])) / 110.0, -1.0, 1.0)
+					await get_tree().physics_frame
+					t9 += get_physics_process_delta_time()
+			Session.drive_throttle = 0.0
+			Session.drive_turn = 0.0
 		"garage":  # garage fit <module> | garage repair
 			if a.size() > 1 and a[0] == "fit":
 				ok = Session.garage_fit(a[1])
@@ -300,6 +364,9 @@ func _run(line: String) -> void:
 			Session.mech()["pos"] = [float(a[0]), float(a[1])]
 			Session.mech()["heading"] = deg_to_rad(float(a[2]) if a.size() > 2 else 0.0)
 			Session.mech()["speed"] = 0.0
+			Session.mech()["vel"] = [0.0, 0.0]
+			Session._last_desired = Vector2.ZERO
+			Session._impact_cd = 0.5
 			if main.game:
 				main.game.world.mech_view.sync_from_state()
 				main.game.world.camera.snap()
@@ -313,6 +380,8 @@ func _run(line: String) -> void:
 			var v: Variant = a[1]
 			if a[1].is_valid_float():
 				v = float(a[1])
+			elif a[1] == "true" or a[1] == "false":
+				v = a[1] == "true"
 			Settings.set_value(a[0], v)
 		"rebind":
 			Settings.rebind(a[0], OS.find_keycode_from_string(a[1]))
@@ -331,6 +400,11 @@ func _run(line: String) -> void:
 				"grade":
 					if main.game:
 						main.game.world.atmosphere.set_enabled(on)
+				"garage":
+					if main.game and on and main.game.hud.garage == null:
+						Session.mech_event.emit("garage")
+					elif main.game and not on and main.game.hud.garage != null:
+						main.game.hud.garage.close_menu()
 				"pause":
 					if main.game and on != get_tree().paused:
 						main.game.toggle_pause()
@@ -386,6 +460,7 @@ func _state() -> Dictionary:
 		st["max_integrity"] = Session.max_integrity()
 		st["at_garage"] = Session.at_garage()
 		st["noise"] = Session.noise()
+		st["hits_taken"] = Session.hits_taken.duplicate()
 		st["car"] = {"max_speed": Session.car_tun()["max_speed"], "grip": Session.car_tun()["grip"], "accel": Session.car_tun()["accel"],
 			"cooling_coeff": Session.car_thermal()["cooling_coeff"], "damage": Session.player_weapon()["damage"], "cooldown": Session.player_weapon()["cooldown"]}
 		var briefs := {}

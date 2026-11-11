@@ -34,16 +34,18 @@ g.start()
 try:
     print("1. new game, drive, overheat")
     s = g.cmd("new 1")["state"]
-    check(s["running"] and s["game"]["mode"] == "mech", "new game starts in the mech")
-    m0 = s["game"]["mech"]
+    check(s["running"] and s["game"]["mode"] == "mech", "new game starts in the car")
+    check(s["area"] == "area_refuge", "the car starts in the canyon refuge")
+    g.cmd("set_mech 800 1250 90")   # the classic shelter loop by the pump rig
+    m0 = g.state()["game"]["mech"]
     r = g.cmd("drive_to 1500 1160 30")
-    check(r["ok"], "mech drives along the track (collision-free route)")
+    check(r["ok"], "car drives along the track (collision-free route)")
     pos = r["state"]["game"]["mech"]["pos"]
-    check(abs(pos[0] - m0["pos"][0]) > 300, "mech moved")
+    check(abs(pos[0] - m0["pos"][0]) > 300, "car moved")
     heat_after_drive = r["state"]["game"]["mech"]["heat"]
-    check(heat_after_drive > m0["heat"], f"driving heats the core ({m0['heat']:.1f} → {heat_after_drive:.1f})")
+    check(heat_after_drive > m0["heat"], f"driving heats the engine ({m0['heat']:.1f} → {heat_after_drive:.1f})")
     r = g.cmd("drive_to 2520 1100 40")
-    check(r["ok"], "mech reaches the wreck site")
+    check(r["ok"], "car reaches the wreck site")
     check(r["state"]["game"]["mech"]["heat"] < 98, f"ordinary driving stays below the warning ({r['state']['game']['mech']['heat']:.0f} °C)")
     g.cmd("debug damage 0.3")   # a damaged radiator is what makes the mech overheat
     # Keep the engine working hard (tight circles + firing) until the damaged radiator gives out.
@@ -58,11 +60,11 @@ try:
     check(st["game"]["stats"]["overheats"] > 0 and st["game"]["mech"]["engine"] == "shutdown",
           f"damaged radiator overheats → engine shutdown (heat {st['game']['mech']['heat']:.1f})")
     st = g.cmd("drive 1 0 2")["state"]
-    check(abs(st["game"]["mech"]["speed"]) < 3, "shut-down mech cannot drive")
+    check(abs(st["game"]["mech"]["speed"]) < 3, "shut-down car cannot drive")
     print("2. stop, exit, scavenge")
     g.cmd("stop")
     r = g.cmd("interact")
-    check(r["ok"] and r["state"]["game"]["mode"] == "foot", "exit the parked mech")
+    check(r["ok"] and r["state"]["game"]["mode"] == "foot", "get out of the parked car")
     check(r["state"]["game"]["mech"]["engine"] in ("off", "shutdown"), "parked engine is off")
     suit0 = r["state"]["game"]["pilot"]["suit"]
     p = r["state"]["game"]["pilot"]["pos"]
@@ -84,11 +86,11 @@ try:
     check(st["game"]["mech"]["radiator"] > rad0 + 0.5, f"radiator repaired ({rad0:.2f} → {st['game']['mech']['radiator']:.2f})")
     check(st["game"]["stats"]["repairs"] == 1, "repair counted")
     r = g.cmd("interact")
-    check(r["state"]["game"]["mode"] == "mech", "re-enter the mech")
+    check(r["state"]["game"]["mode"] == "mech", "get back in the car")
     g.cmd("debug timescale 8"); g.cmd("wait 6"); g.cmd("debug timescale 1")
     st = g.state()
     check(st["game"]["mech"]["engine"] == "running", "engine restarts after cooling")
-    check(st["game"]["pilot"]["suit"] > 90, "suit recovered inside the mech")
+    check(st["game"]["pilot"]["suit"] > 90, "suit recovered inside the car")
     heat_before = st["game"]["mech"]["heat"]
     g.cmd("drive_to 2300 1100 25")
     st = g.state()
@@ -104,7 +106,7 @@ finally:
 
 print("5. restart Godot → continue: persistence")
 ov_root = os.path.join(USER_DIR, "instances", "regression", "overrides")
-tiny_png(os.path.join(ov_root, "mechs/starter/hull.png"))
+tiny_png(os.path.join(ov_root, "vehicles/player/body.png"))
 open(os.path.join(ov_root, "items/radiator_core.png") if os.path.isdir(os.path.join(ov_root, "items")) else os.path.join(ov_root, "bad.png"), "w").write("garbage")
 g2 = Instance("regression", headless=HEADLESS)
 g2.start()
@@ -117,14 +119,14 @@ try:
     gm = st["game"]
     check(gm["world"]["taken"].get("salvage_pump_rig") is True, "collected salvage persisted")
     check(abs(gm["mech"]["radiator"] - saved_state["mech"]["radiator"]) < 0.01 and gm["stats"]["repairs"] == 1, "repair persisted")
-    check(abs(gm["mech"]["pos"][0] - saved_state["mech"]["pos"][0]) < 2, "mech position persisted")
+    check(abs(gm["mech"]["pos"][0] - saved_state["mech"]["pos"][0]) < 2, "car position persisted")
     print("6. art override / fallback")
-    check(st["asset_sources"].get("mech.hull") == "external", "external hull override used")
-    os.remove(os.path.join(ov_root, "mechs/starter/hull.png"))
+    check(st["asset_sources"].get("car.body") == "external", "external car body override used")
+    os.remove(os.path.join(ov_root, "vehicles/player/body.png"))
     st = g2.cmd("reload_assets")["state"]
     g2.cmd("wait 0.2")
     st = g2.state()
-    check(st["asset_sources"].get("mech.hull") == "template", "removing the override falls back to the template")
+    check(st["asset_sources"].get("car.body") == "template", "removing the override falls back to the template")
     print("7. on-foot suit failure consequence")
     g2.cmd("stop")
     r = g2.cmd("interact")
@@ -134,7 +136,7 @@ try:
     g2.cmd("debug timescale 6"); g2.cmd("wait 5"); g2.cmd("debug timescale 1")
     st = g2.state()
     print("     ", st["game"]["mode"], st["game"]["stats"], st["notices"][-4:])
-    check(st["game"]["stats"]["collapses"] == 1 and st["game"]["mode"] == "mech", "suit failure → collapse → wake in mech")
+    check(st["game"]["stats"]["collapses"] == 1 and st["game"]["mode"] == "mech", "suit failure → collapse → wake in the car")
     check(len(st["game"]["world"]["drops"]) == 1, "carried salvage dropped at the collapse site")
 finally:
     g2.quit()

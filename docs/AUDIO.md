@@ -48,6 +48,24 @@ glass and wood impacts, and the second storm ambience.
 `sfx.generator_hum`, `sfx.electric_hum`, `sfx.servo` and `sfx.mech_startup` are synthesised by
 `tools/gen_audio.py`, alongside the earlier placeholder effects. No music is generated.
 
+## Thawborn: car and creatures
+| ID | Source | Use |
+|---|---|---|
+| `sfx.car_engine` | generated (rough V8-style loop) | revs follow speed and throttle |
+| `sfx.tyre_skid` | generated (filtered squeal + sand roar) | volume follows lateral slip (drifts, hard turns) |
+| `sfx.crash` | inbox `Impact/Impact 3.wav` | car hits rock/wall; grindback eruption (pitched down) |
+| `sfx.loot` | inbox `UI sounds/Open Loot Box Sound 2.wav` | material picked up (pitch rises with rarity) |
+| `sfx.legendary` | inbox `UI sounds/Success 3.wav` (+ `sfx.power_up`) | legendary find |
+| `sfx.garage_fit` | inbox `UI sounds/Unlocked 2.wav` | module fitted |
+| `sfx.flesh_hit` | inbox `Body drop/Body Drop 1.wav` (pitched up) | rounds hitting hide |
+| `sfx.part_break` | inbox `Gun sounds/Armor Break 2.wav` | horn/gland/tail/plate broken |
+| `sfx.creature_down` | inbox `Body drop/Body Drop 3.wav` | creature collapses |
+| `sfx.skirr_hiss`, `sfx.skirr_bite` | generated | crouch tell, bite |
+| `sfx.tremor` | generated loop | a grindback tunnelling nearby (volume by distance) |
+| `sfx.rime_roar`, `sfx.rime_step`, `sfx.creature_growl`, `sfx.creature_spit` | generated | rimeback voice, footfalls (positional, shake the camera when close), tells, spit |
+
+The old walker footfall (`sfx.mech_step`) is no longer played. The file stays as a template.
+
 ## Theme music — "Where the Ice Once Lay"
 - **Main menu:** `music.theme` plays continuously. Shortly before the end, a fresh copy starts on the
   second player with a 5 s crossfade, so it repeats without a gap.

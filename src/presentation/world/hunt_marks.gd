@@ -32,6 +32,7 @@ func setup(floor_parent: Node2D, loot_parent: Node2D) -> void:
 	floor_parent.add_child(floor_layer)
 	loot_layer = Node2D.new()
 	loot_layer.name = "Loot"
+	loot_layer.z_index = 3   # above creatures and carcasses (loot must never hide under a body)
 	loot_parent.add_child(loot_layer)
 	_sync_tracks()
 	_sync_loot()

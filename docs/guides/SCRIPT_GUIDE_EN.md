@@ -15,10 +15,10 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/sim/thermal.gd` | Pure thermal model: heat in/out, equilibrium, shutdown, wear. |
 | `src/sim/game_state.gd` | Creates and sanitises the plain-data game state; inventory helpers. |
 | `src/sim/game_session.gd` | Autoload `Session`: owns the running game, tick, modes, interactions, autosave. |
-| `src/sim/drive.gd` | Shared walker drive dynamics + heat impairment (player and enemy). |
+| `src/sim/drive.gd` | Shared top-down car dynamics: throttle/brake/reverse, speed-dependent steering, tyre grip and slip, handbrake drift, heat impairment (player and rival cars). |
 | `src/sim/combat.gd` | Projectiles as data, cooling vs structure hit areas, damage. |
-| `src/sim/enemy_ai.gd` | Scrapper AI: patrol, detect (heat-based), engage with telegraph, disengage. |
-| `src/sim/encounter.gd` | Parked-mech encounter: pilot reaction, boarding, startup, flee, load resolution. |
+| `src/sim/enemy_ai.gd` | Rival-car AI: patrol, detect (heat + engine noise), chase and circle-strafe, roof gunner with telegraphed shots, retreat/escape. |
+| `src/sim/encounter.gd` | Parked-car encounter: the driver reacts, runs to the car, gets in, engine startup; flee; load resolution. |
 | `src/sim/weather.gd` | CLEAR/SANDSTORM weather: gradual build-up, zone storm exposure, cooling/suit/visibility effects. |
 | `src/sim/turret.gd` | Junker perimeter turret: rate-limited aim, line of sight, telegraphed slow fire. |
 | `src/persistence/save_codec.gd` | Save envelope, validation, migrations. |
@@ -30,12 +30,12 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/world/ground_builder.gd` | Ground tiles, patches and track strips. |
 | `src/presentation/world/scatter.gd` | Seeded decorative stones and mineral crusts. |
 | `src/presentation/world/prop_view.gd` | One static prop: sprite, footprint collision, cast shadow, roof fade. |
-| `src/presentation/world/mech_view.gd` | Mech body, legs, radiator, shutters, heat glow, steam, movement. |
+| `src/presentation/world/car_view.gd` | The player's car: body, steering front wheels, roof gun ring with twin guns and recoil, body roll/squat, skid marks, heat glow, damage FX, crash feedback. |
 | `src/presentation/world/pilot_view.gd` | Suited pilot on foot: movement, facing, procedural walk. |
 | `src/presentation/world/camera_rig.gd` | Follow camera with look-ahead, zoom and bounds. |
 | `src/presentation/world/player_input.gd` | Input actions → Session intents and requests. |
 | `src/presentation/world/sound_director.gd` | Maps state/events to loops and one-shots. |
-| `src/presentation/world/enemy_view.gd` | Enemy mech: movement, telegraph line, damage FX, wreck state. |
+| `src/presentation/world/enemy_view.gd` | Rival car: wheels, swinging roof gun, telegraph line, driver on foot, damage FX, wreck state. |
 | `src/presentation/world/projectiles_view.gd` | Draws projectiles; impact, cooling-hit and muzzle effects. |
 | `src/presentation/world/terrain_view.gd` | Rock masses, fading overhead covers, built walls and power cables. |
 | `src/presentation/world/turret_view.gd` | Turret visuals: rotating housing, laser telegraph, recoil, damage, wreck. |
@@ -77,3 +77,13 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/locale_src.py` | Source of all UI text (EN/DA) → locale/strings.csv. |
 | `tools/guide_rows.py` | Descriptions used to write the script guides. |
 | `tools/check_script_guides.py` | Checks/rewrites EN + DA script guides. |
+| `src/sim/creatures.gd` | The thawed-out ecosystem: skirr pack, grindback burrower and rimeback quarry — senses, telegraphed attacks, breakable parts, flee/burrow (pure data). |
+| `src/sim/garage.gd` | Refuge garage modules (armour, cooling, tyres, weapon, cargo rig): costs, levels, effects on car tuning. |
+| `src/sim/loot.gd` | Physical ground loot with rarities: spawn, drop tables, lookup. |
+| `src/presentation/world/creature_view.gd` | One creature: body parts, gait, in-world telegraphs (lanes, crack rings, arcs, glowing glands), hit/part-break FX, carcass. |
+| `src/presentation/world/hunt_marks.gd` | Tracks fading with age (blood marked), ground loot with rarity glow and legendary star, tyre skid marks. |
+| `src/presentation/ui/garage_menu.gd` | Garage screen: condition, cargo, full repair, modules with have/need costs and effect preview. |
+| `src/presentation/ui/help_overlay.gd` | In-game field guide (H): driving, shooting, heat, tracking, hunting, harvesting, garage, on foot. |
+| `src/presentation/ui/tracker_widget.gd` | Tracking compass: species, freshness, blood, arrow along the trail. |
+| `tools/art/gen_thawborn.py` | Ink-pipeline templates for cars, rival cars, creatures, tracks and hunt materials; registers manifest entries. |
+| `tools/regression_hunt.py` | Runtime regression of the full Thawborn loop: refuge → drive → track → hunt → harvest → loot → garage → save/reload; rival car, skirrs, grindback, sandstorm. |

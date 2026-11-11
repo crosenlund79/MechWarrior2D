@@ -10,7 +10,7 @@ from hs_driver import Instance
 
 HEADLESS = os.environ.get("HS_WINDOWED") != "1"
 fails = []
-WARN, CRIT = 98.0, 115.0
+WARN, CRIT = 95.0, 115.0
 
 
 def check(cond, what):
@@ -33,9 +33,9 @@ try:
     for k in range(20):
         st = g.cmd("drive 1 0 0.1")["state"]
         v = st["game"]["mech"]["speed"]; top = max(top, v)
-        if t90 is None and v >= 0.9 * 245: t90 = (k + 1) * 0.1
+        if t90 is None and v >= 0.9 * 460: t90 = (k + 1) * 0.1
     st = g.cmd("drive 1 0 1.0")["state"]; top = max(top, st["game"]["mech"]["speed"])
-    check(top >= 220, f"top speed is high ({top:.0f} px/s; was 150)")
+    check(top >= 420, f"car top speed ({top:.0f} px/s; the mech did 245)")
     check(t90 is not None and t90 <= 1.3, f"reaches 90 % speed quickly ({t90} s)")
     h0 = st["game"]["mech"]["heading"]
     st = g.cmd("drive 0.3 1 1.3")["state"]
@@ -47,7 +47,7 @@ try:
 
     print("2. ordinary travel is sustainable (starting radiator)")
     g.cmd("new 1"); g.cmd("dev toggle aggression")
-    route = [(700, 1500), (830, 2000), (770, 2600), (660, 3100), (1500, 3260), (2400, 3300), (2900, 3520), (2400, 3300), (1500, 3260), (620, 3290)]
+    route = [(-1400, 1250), (-900, 1480), (-200, 1520), (560, 1480), (700, 1500), (830, 2000), (770, 2600), (660, 3100), (1000, 3430), (1600, 3420), (2400, 3330), (2900, 3520), (2400, 3330), (1600, 3420), (1000, 3430), (620, 3290)]   # around the abandoned highway cars
     peak = 0.0
     for x, y in route:
         st = g.cmd(f"drive_to {x} {y} 40")["state"]
@@ -56,9 +56,11 @@ try:
     check(peak < WARN, f"a long drive never reaches the warning (peak {peak:.0f} °C)")
     check(st["game"]["stats"]["overheats"] == 0, "no overheat during exploration")
     check(st["game"]["mech"]["radiator"] > 0.45, f"the radiator survives ordinary travel ({st['game']['mech']['radiator']:.2f})")
+    check(st["game"]["mech"]["integrity"] > 80, f"road driving without crash damage ({st['game']['mech']['integrity']:.0f})")
+    g.cmd("dev repair")
 
     print("3. sustained combat builds heat progressively")
-    g.cmd("set_mech 300 2100 90"); g.cmd("debug heat -30"); g.cmd("wait 0.3")
+    g.cmd("set_mech 300 2100 90"); g.cmd(f"debug heat {64.0 - heat(g):.2f}"); g.cmd("wait 0.3")
     g.cmd("aim 300 1600")
     samples = []
     for k in range(10):
@@ -110,7 +112,7 @@ try:
     g.cmd("dev weather clear")
 
     print("6. damaged cooling while cruising: slow build, recoverable by easing off")
-    g.cmd("dev repair"); g.cmd("debug damage 0.75"); g.cmd("set_mech 1500 2100 90"); g.cmd("debug heat -60"); g.cmd("wait 0.3")
+    g.cmd("dev repair"); g.cmd("debug damage 0.75"); g.cmd("set_mech 1500 2100 90"); g.cmd(f"debug heat {24.0 - heat(g):.2f}"); g.cmd("wait 0.3")
     over0 = g.state()["game"]["stats"]["overheats"]
     samples = []
     for k in range(10):

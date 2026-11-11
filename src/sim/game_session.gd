@@ -69,6 +69,8 @@ var _fire_recent := 0.0
 var _impact_cd := 0.0
 var _last_desired := Vector2.ZERO
 var _track_prune_t := 0.0
+## Damage taken this session by source (runtime diagnostics for tests/balance).
+var hits_taken := {}
 
 
 ## Named discovery areas (location "areas"): the most specific (last) match wins.
@@ -878,7 +880,7 @@ func hint() -> String:
 			return "HINT_SALVAGE_WRECK" if md == "mech" else "HINT_SALVAGE_WRECK_FOOT"
 	if md == "foot":
 		return "HINT_RETURN"
-	if at_garage():
+	if at_garage() and (_carrying_materials() or float(mech()["integrity"]) < max_integrity() - 1.0):
 		return "HINT_GARAGE"
 	if _carrying_materials():
 		return "HINT_RETURN_TO_GARAGE"
@@ -1029,12 +1031,16 @@ func in_combat() -> bool:
 
 ## Id of a creature currently fighting the player (or "").
 func hunting() -> String:
+	var at := actor_pos()
 	for id in state.get("creatures", {}):
-		var a := str(state["creatures"][id]["ai"])
-		if not (a in ["roam", "buried", "dead", "flee", "stalk"]):
-			return id
-		if a == "stalk" and Content.v2(state["creatures"][id]["pos"]).distance_to(actor_pos()) < 700.0:
-			return id
+		var c: Dictionary = state["creatures"][id]
+		var a := str(c["ai"])
+		var d := Content.v2(c["pos"]).distance_to(at)
+		if a in ["roam", "buried", "dead"] or d > 1400.0:
+			continue
+		if a in ["flee", "stalk"] and d > 700.0:
+			continue
+		return id
 	return ""
 
 
@@ -1236,6 +1242,8 @@ func _tick_projectiles(dt: float) -> void:
 				var before := float(mech()["integrity"])
 				if not bool(dev["invulnerable"]):
 					Combat.apply_hit(mech(), sh, kind2)
+					var hk := "shot:" + str(sh["owner"]).get_slice(":", 0)
+					hits_taken[hk] = float(hits_taken.get(hk, 0.0)) + (before - float(mech()["integrity"]))
 				combat_event.emit("cooling_hit" if kind2 == "cooling" else "impact", {"pos": sh["pos"], "target": "player"})
 				combat_event.emit("player_hit", {"kind": kind2})
 				if kind2 == "cooling":
@@ -1647,6 +1655,8 @@ func _resolve_creature_attack(id: String, c: Dictionary, ev: Dictionary) -> void
 	var m := mech()
 	var before := float(m["integrity"])
 	m["integrity"] = maxf(0.0, before - dmg)
+	var key := "%s:%s" % [c["species"], ev.get("attack", "")]
+	hits_taken[key] = float(hits_taken.get(key, 0.0)) + dmg
 	# head-on hits smash the radiator grille at the nose
 	var to_attacker := (Content.v2(c["pos"]) - victim).normalized()
 	var front := to_attacker.dot(Drive.forward(float(m["heading"]))) > 0.5

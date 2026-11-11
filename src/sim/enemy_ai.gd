@@ -100,7 +100,7 @@ static func think(e: Dictionary, brain: Dictionary, target: Dictionary, defn: Di
 			if sees and not hurt and pos.distance_to(home) < float(te["leash_radius"]) * 0.8:
 				_set_state(e, brain, "alert")
 				out["event"] = "alert"
-			elif pos.distance_to(home) < 160.0:
+			elif pos.distance_to(home) < 240.0:   # cars circle rather than stop on a spot
 				_set_state(e, brain, "patrol")
 	# The gunner turret slews toward its target (or back to the bonnet).
 	var want := float(e["heading"])

@@ -41,6 +41,24 @@ Files dropped into `assets/overrides` while the editor is closed are read direct
    hatching (−55°, about 4–6 px apart, ~35 % opacity) → brush-pen linework in warm near-black
    `#211B15` with varied width and tapered ends → grime/dust → a slightly broken outer contour.
 
+## Thawborn IDs (cars, creatures, tracks, materials)
+Same rules as above: drop `<name>.png` into `assets/overrides/<dir>/` (or `<exe>/overrides/…`,
+`user://overrides/…`) and it replaces the template automatically. Everything rotating faces **up**
+(nose/head up) and is centred unless noted.
+
+| ID | Override path | Display box | Notes |
+|---|---|---|---|
+| `car.body` | `vehicles/player/body.png` | 132×240 | player car, nose up; radiator grille at the nose |
+| `car.wheel` | `vehicles/player/wheel.png` | 28×48 | one tyre; four are placed, the front pair steers |
+| `car.gun_ring` / `car.twin_gun` | `vehicles/player/gun_ring.png` / `twin_gun.png` | 76×76 / 24×70 | roof mount; gun pivot 70 % down |
+| `rival.body` / `rival.junker_body` | `vehicles/scrapper/body.png` / `vehicles/junker/body.png` | 118×214 / 124×220 | rival cars |
+| `rival.wreck` / `rival.junker_wreck` / `rival.gun` | `vehicles/…/wreck.png`, `vehicles/rival/gun.png` | | |
+| `creature.skirr` (+`_dead`) | `creatures/skirr/body.png` / `dead.png` | 62×92 | |
+| `creature.grindback` (+`_dead`), `creature.mound` | `creatures/grindback/…` | 156×196 | shovel plate top, vent bottom |
+| `creature.rimeback`, `_head`, `_tail`, `creature.rime_gland`, `creature.rimeback_dead` | `creatures/rimeback/…` | 300×400 body | head pivot = neck (75 %), tail pivot = root (8 %) |
+| `decal.track_skirr`, `decal.track_rime`, `decal.furrow`, `decal.blood`, `decal.skid` | `decals/…` | | ground decals (faded by age in game) |
+| `item.skirr_hide` … `item.thawheart` | `items/<item>.png` | 44×44 | loot icons; rarity glow is drawn by the game |
+
 ## Regenerating the bundled templates
 `python3 tools/art/gen_art.py` (illustrated, Phase B) or `python3 tools/gen_placeholders.py --force`
 (diagnostic, Phase A). These only write `assets/templates/`; they never touch `assets/overrides/`.

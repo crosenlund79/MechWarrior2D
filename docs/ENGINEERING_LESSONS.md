@@ -26,3 +26,18 @@ Captain's Hat (LCH). Only lessons that apply here are listed.
 12. **Never transfer perspective-dependent settings blindly.** RT's y-sort, pivots and baked
     ellipse shadows assume 3/4. Here they became centre pivots, world-aligned runtime cast
     shadows and roof fading.
+
+## Thawborn conversion
+- **Keep the data keys, change the fiction.** The mech→car conversion kept `state.mech`, mode `"mech"` and
+  the `mech` tuning section. Every save, tool and test kept working, and only the presentation, physics
+  and text changed. Document legacy names loudly (CLAUDE.md, ARCHITECTURE).
+- **Fast cars break scripted routes.** Waypoints that suited a 245 px/s walker drove a 460 px/s car into
+  props. Route scripts must follow roads, and a test driver must steer like a car: slow for corners,
+  back out when stuck.
+- **Emergent AI breaks naive tests.** Circle-strafing rival cars drive into the line of fire, and their
+  wrecks soak up shots. Tests now take clear firing positions and pursue retreating cars, as a player would.
+- **Diagnostics before tuning.** `Session.hits_taken` (damage by source) showed the first hunt was hard
+  because a grindback and spit globs joined in, not because of the rimeback's charge.
+- **Absolute, not relative, test setup.** `debug heat -30` depended on earlier sections; tests now set
+  absolute values.
+- **Draw order for loot.** Loot must render above carcasses, or the legendary drop hides under the body.

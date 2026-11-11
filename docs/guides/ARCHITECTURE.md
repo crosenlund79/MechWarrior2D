@@ -99,6 +99,40 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
 - `python3 tools/heat_balance.py` prints the resulting situation table. Keep "ordinary travel: never
   warns" and "stacked pressure: overheats after a warning".
 
+## Thawborn conversion (cars × hunting)
+- **Legacy names.** The player's vehicle is a car, but the plain-data record keeps the key `state.mech`,
+  the in-car mode is `"mech"` and its tuning section is `mech`. That keeps every Heat Signature save, tool
+  and test path valid. Treat `mech` as "the player's car". Rival cars live in `state.enemies` (same IDs as the
+  former enemy mechs).
+- **Car dynamics** (`src/sim/drive.gd`, shared by player and rivals). The engine drives the forward
+  component of a world velocity (`vel`). Steering scales with forward speed and inverts in reverse. Tyre
+  grip bleeds sideways velocity at `grip` px/s² (zone `grip` scales it). The handbrake cuts grip for a
+  drift. `slip` feeds skid marks and audio. Walls take the speed they absorb (`Session.commit_mech`),
+  and a hard hit costs body points (`impact_*`).
+- **Rival cars** (`src/sim/enemy_ai.gd`). A driver chases and circle-strafes at `preferred_range`. A roof
+  gunner (`brain.gun`) swings onto the target and telegraphs every shot. The car retreats below
+  `retreat_frac` and escapes home, where it patches up. Detection = sight + heat + engine `noise()`.
+- **Creatures** (`src/sim/creatures.gd`, pure data). State is `state.creatures[id]` = {species, pos,
+  heading, speed, hp, parts, ai, home, pack, dead_at, harvested}; runtime brains are
+  `Session.creature_brains`. `Creatures.step` returns a desired move plus events (alert, tell, attack,
+  spit, flee, enrage, burrow, surface). `Session` resolves attacks against the car or the pilot (radius
+  test, front hits damage the radiator grille, knockback into `vel`). Creature bodies are
+  `CreatureView` CharacterBody2Ds on layer 8. Rocks block them, and big surfaced creatures block the car.
+- **Parts.** `tuning.creatures.<species>.parts` gives each part an offset, radius, damage multiplier and
+  optional hp (breakable, `drop` = physical loot) and optional `dazed_mult`. A broken part changes
+  behaviour: a broken horn weakens the charge, broken glands mean fewer spit globs, a broken tail means no sweep.
+- **Tracks** (`state.tracks`, persisted, capped). Creatures drop prints every `track_every` px while moving
+  (a grindback only while buried). `Session.tracker()` returns the freshest readable sign within
+  range, which the rig module extends. New runs are seeded with old rimeback prints along its route.
+- **Loot** (`src/sim/loot.gd`, `state.world.loot`). Items lie on the ground with a rarity from
+  `data/items.json`. The car scoops them up below `loot_pickup_speed` (cargo bulk limit); on foot the
+  pilot uses Interact. Harvesting a large carcass is an on-foot task.
+- **Garage** (`src/sim/garage.gd`). Modules and costs come from `tuning.garage`; fitted levels are in
+  `state.mech.upgrades`. `Session.car_tun()`, `car_thermal()` and `player_weapon()` apply them, so every
+  system reads the upgraded values. The location's `garage` (refuge bay) gates fitting and repair.
+- **Respawn.** A dead creature returns after `respawn_time` once the player is far from its spawn.
+  Dev-spawned creatures carry `"dev": true` and are never saved.
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
 Format version **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).

@@ -15,10 +15,10 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/sim/thermal.gd` | Ren varmemodel: varme ind/ud, ligevægt, nødstop, slid. |
 | `src/sim/game_state.gd` | Opretter og renser spillets rene datatilstand; hjælpere til inventar. |
 | `src/sim/game_session.gd` | Autoload `Session`: ejer det kørende spil, tik, tilstande, interaktioner, autogem. |
-| `src/sim/drive.gd` | Fælles gangdynamik + varmehæmning (spiller og fjende). |
+| `src/sim/drive.gd` | Fælles bildynamik set ovenfra: speeder/brems/bak, hastighedsafhængig styring, dækgreb og udskridning, håndbremsedrift, varmehæmning (spiller og rivaler). |
 | `src/sim/combat.gd` | Projektiler som data, træfzoner for køler vs. skrog, skade. |
-| `src/sim/enemy_ai.gd` | Skrotmech-AI: patrulje, opdagelse (varmebaseret), angreb med varsel, tilbagetrækning. |
-| `src/sim/encounter.gd` | Parkeret-mech-møde: pilotens reaktion, ombordstigning, opstart, flugt, indlæsning. |
+| `src/sim/enemy_ai.gd` | Rivalbil-AI: patrulje, opdagelse (varme + motorstøj), forfølgelse og cirkling, taggevær med varslede skud, tilbagetog/flugt. |
+| `src/sim/encounter.gd` | Parkeret-bil-møde: føreren reagerer, løber til bilen, stiger ind, motoren starter; flugt; indlæsning. |
 | `src/sim/weather.gd` | KLART/SANDSTORM-vejr: gradvis opbygning, zoners stormudsættelse, effekt på køling/dragt/sigtbarhed. |
 | `src/sim/turret.gd` | Skrotternes perimetertårn: begrænset drejning, sigtelinje, varslet langsom ild. |
 | `src/persistence/save_codec.gd` | Gemmefilens kuvert, validering, migreringer. |
@@ -30,12 +30,12 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/world/ground_builder.gd` | Jordfliser, områder og sporstrimler. |
 | `src/presentation/world/scatter.gd` | Seedet dekorativ spredning af sten og mineralskorper. |
 | `src/presentation/world/prop_view.gd` | Én fast genstand: sprite, kollisionsfodaftryk, kastet skygge, tagtoning. |
-| `src/presentation/world/mech_view.gd` | Mechens krop, ben, køler, skodder, varmeglød, damp, bevægelse. |
+| `src/presentation/world/car_view.gd` | Spillerens bil: karosseri, styrende forhjul, tagring med tvillinggeværer og rekyl, krængning, bremsespor, varmeglød, skadeeffekter, kollisionsfeedback. |
 | `src/presentation/world/pilot_view.gd` | Piloten i dragt til fods: bevægelse, retning, proceduremæssig gang. |
 | `src/presentation/world/camera_rig.gd` | Følgekamera med fremsyn, zoom og grænser. |
 | `src/presentation/world/player_input.gd` | Input-handlinger → hensigter og forespørgsler til Session. |
 | `src/presentation/world/sound_director.gd` | Kobler tilstand/hændelser til lydløkker og enkeltlyde. |
-| `src/presentation/world/enemy_view.gd` | Fjendtlig mech: bevægelse, sigtelinje, skadeeffekter, vragtilstand. |
+| `src/presentation/world/enemy_view.gd` | Rivalbil: hjul, drejeligt taggevær, sigtelinje, fører til fods, skadeeffekter, vragtilstand. |
 | `src/presentation/world/projectiles_view.gd` | Tegner projektiler; nedslag, kølertræf og mundingsglimt. |
 | `src/presentation/world/terrain_view.gd` | Klippemasser, overdækninger der toner ud, byggede vægge og strømkabler. |
 | `src/presentation/world/turret_view.gd` | Tårnvisning: roterende hus, lasersigte, rekyl, skade, vrag. |
@@ -77,3 +77,13 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/locale_src.py` | Kilde til al UI-tekst (EN/DA) → locale/strings.csv. |
 | `tools/guide_rows.py` | Beskrivelser brugt til scriptguiderne. |
 | `tools/check_script_guides.py` | Kontrollerer/skriver EN- og DA-scriptguiderne. |
+| `src/sim/creatures.gd` | Det optøede økosystem: skirr-flok, sliberyg-graver og rimeryg-bytte — sanser, varslede angreb, brækbare dele, flugt/nedgravning (rene data). |
+| `src/sim/garage.gd` | Tilflugtens garagemoduler (panser, køling, dæk, våben, lastrig): pris, niveauer, effekt på bilens balance. |
+| `src/sim/loot.gd` | Fysisk bytte på jorden med sjældenhed: oprettelse, droptabeller, opslag. |
+| `src/presentation/world/creature_view.gd` | Ét dyr: kropsdele, gang, varsler i verden (baner, revneringe, buer, glødende kirtler), træf-/brudeffekter, kadaver. |
+| `src/presentation/world/hunt_marks.gd` | Spor der falmer med alderen (blodmærkede), bytte på jorden med sjældenhedsglød og legendarisk stjerne, bremsespor. |
+| `src/presentation/ui/garage_menu.gd` | Garageskærm: tilstand, last, fuld reparation, moduler med har/mangler og effektvisning. |
+| `src/presentation/ui/help_overlay.gd` | Felthåndbog i spillet (H): kørsel, skydning, varme, sporing, jagt, slagtning, garage, til fods. |
+| `src/presentation/ui/tracker_widget.gd` | Sporkompas: art, friskhed, blod, pil langs sporet. |
+| `tools/art/gen_thawborn.py` | Tusch-pipeline-skabeloner til biler, rivaler, dyr, spor og jagtmaterialer; registrerer manifestposter. |
+| `tools/regression_hunt.py` | Kørselsregression af hele Thawborn-løkken: tilflugt → kørsel → sporing → jagt → slagtning → bytte → garage → gem/indlæs; rivalbil, skirrer, sliberyg, sandstorm. |

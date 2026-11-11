@@ -168,17 +168,23 @@ try:
     check(hull1 > hull0 - 40, "difficulty stays introductory over 10 s at the gate")
     tid = sorted(engaged_seen)[0]
     tpos = [t for t in json.load(open("data/locations/desert_basin_01.json"))["turrets"] if t["id"] == tid][0]["pos"]
-    g.cmd("dev toggle invulnerable"); g.cmd(f"aim {tpos[0]} {tpos[1]}"); g.cmd("wait 1.0")
+    # rival cars circle-strafe: a guard (or its wreck) may sit in the line of fire, so take a clear
+    # firing position close to the turret, like a player would
+    g.cmd("dev toggle invulnerable"); g.cmd("wait 0.1")
+    for e_id, e_st in g.state()["game"]["enemies"].items():
+        if e_st["ai"] == "wreck": print("      wreck", e_id, [round(v) for v in e_st["pos"]])
+    g.cmd(f"set_mech {tpos[0] + 120} {tpos[1] - 230} 205"); g.cmd(f"aim {tpos[0]} {tpos[1]}"); g.cmd("wait 1.0")
     for _ in range(12):
         if g.state()["game"]["turrets"][tid]["destroyed"]:
             break
         g.cmd(f"aim {tpos[0]} {tpos[1]}"); g.cmd("fire_for 1.0")
     st = g.state()
+    print(f"      car: heat {st['game']['mech']['heat']:.0f} engine {st['game']['mech']['engine']} body {st['game']['mech']['integrity']:.0f} turret hp {st['game']['turrets'][tid]['hp']:.0f} pos {[round(v) for v in st['game']['mech']['pos']]} tpos {tpos}")
     check(st["game"]["turrets"][tid]["destroyed"], f"turret {tid} destroyed by the twin guns")
     check("NOTICE_TURRET_DESTROYED" in st["notices"], "destruction announced")
     # defenders: the gate guard is a Junker and engages
     gg = st["game"]["enemies"]["junker_gate_guard"]
-    check(gg["ai"] in ("alert", "engage", "return"), f"Junker gate guard reacts ({gg['ai']})")
+    check(gg["ai"] in ("alert", "engage", "return", "retreat", "wreck"), f"Junker gate guard reacts ({gg['ai']})")
     for _ in range(14):
         if g.state()["game"]["enemies"]["junker_gate_guard"]["ai"] == "wreck":
             break

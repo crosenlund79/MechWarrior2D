@@ -81,21 +81,35 @@ try:
     check(a["gun_angle"] is not None, "turret aims at the mouse point")
     e_before = en(a)
     heat_before = a["game"]["mech"]["heat"]
-    g.cmd("fire_for 2.5 body")
+    for _ in range(3):   # it circle-strafes: re-close and fire short bursts
+        g.cmd("fire_for 1.5 body")
+        p = en(g.state())["pos"]
+        if en(g.state())["integrity"] < e_before["integrity"]:
+            break
+        g.cmd(f"set_mech {p[0]} {p[1] - 380} 180"); g.cmd("aim_enemy"); g.cmd("wait 0.3")
     st = g.state()
     check(en(st)["integrity"] < e_before["integrity"], f"shots hit structure ({e_before['integrity']:.0f} → {en(st)['integrity']:.0f})")
     check(st["game"]["mech"]["heat"] > heat_before, "firing heats the player's mech")
     rad_before = en(st)["radiator"]
-    # flank so the rear radiator is exposed, then target it
-    for _ in range(3):   # short flanking bursts: an engaged enemy turns to hide its radiator
+    # get in front of it: a rival car's radiator grille is at the nose
+    for _ in range(8):
+        if en(g.state())["radiator"] < rad_before - 0.12:
+            break
         g.cmd(f"set_enemy {ep[0]} {ep[1]} 270 engage")      # enemy faces west
-        g.cmd(f"set_mech {ep[0] + 360} {ep[1] + 60} 270")   # player behind it (east)
+        g.cmd(f"set_mech {ep[0] - 380} {ep[1] + 40} 90")    # player ahead of its nose (west)
         g.cmd("fire_for 1.2 cooling")
     st = g.state()
     check(en(st)["radiator"] < rad_before - 0.1, f"targeted shots damage the cooling ({rad_before:.2f} → {en(st)['radiator']:.2f})")
 
     print("6. enemy overheats / impaired / disabled")
-    g.cmd("fire_for 8 cooling")
+    # rival cars retreat when badly hurt: pursue (stay ahead of its nose) and keep hitting the grille
+    for _ in range(8):
+        e = en(g.state())
+        if e["ai"] == "wreck" or e["heat"] > 95:
+            break
+        p = e["pos"]
+        g.cmd(f"set_mech {p[0] + 380 * math.sin(e['heading'])} {p[1] - 380 * math.cos(e['heading'])} {math.degrees(e['heading']) + 180}")
+        g.cmd("fire_for 2 cooling")
     st = g.state()
     e = en(st)
     check(e["heat"] > 90 or e["ai"] == "wreck", f"damaged cooling makes the enemy run hot ({e['heat']:.0f} °C)")
@@ -150,7 +164,7 @@ try:
     rad0 = g.state()["game"]["mech"]["radiator"]
     g.cmd("service"); g.cmd("wait_task")
     st = g.state()
-    check(st["game"]["mech"]["radiator"] > rad0 + 0.4, "salvaged core repairs the radiator")
+    check(st["game"]["mech"]["radiator"] > min(1.0, rad0 + 0.4) - 0.01 and st["game"]["stats"]["repairs"] >= 1, f"salvaged core repairs the radiator ({rad0:.2f} → {st['game']['mech']['radiator']:.2f})")
     i0 = st["game"]["mech"]["integrity"]
     if i0 < 100:
         g.cmd("service"); g.cmd("wait_task")

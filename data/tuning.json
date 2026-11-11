@@ -10,8 +10,8 @@
 		"turn_rate_full_speed": 1.55,
 		"exit_max_speed": 25.0,
 		"collision_radius": 50.0,
-		"enter_radius": 150.0,
-		"service_radius": 175.0,
+		"enter_radius": 205.0,
+		"service_radius": 215.0,
 		"impair_max": 0.45,
 		"integrity": 100.0,
 		"housing_turn_rate": 7.0,
@@ -44,7 +44,7 @@
 		"min_efficiency": 0.18,
 		"shutters_closed_airflow": 0.45,
 		"engine_off_heat": 0.0,
-		"warn_temp": 98.0,
+		"warn_temp": 95.0,
 		"critical_temp": 115.0,
 		"restart_temp": 90.0,
 		"max_temp": 135.0,
@@ -530,27 +530,27 @@
 	},
 	"garage": {
 		"_note": "Refuge garage modules. Each level: cost {item: n} + effect values (multipliers end in _mult). Location of the garage bay: location 'garage'.",
-		"repair_scrap_per": 25.0,
+		"repair_scrap_per": 35.0,
 		"modules": {
 			"armor": {
 				"levels": [
 					{
 						"cost": {
-							"scrap": 4,
-							"skirr_hide": 2
+							"rime_hide": 2,
+							"scrap": 2
 						},
 						"integrity": 25.0
 					},
 					{
 						"cost": {
-							"scrap": 6,
-							"grind_plate": 2
+							"grind_plate": 2,
+							"scrap": 4
 						},
 						"integrity": 50.0
 					},
 					{
 						"cost": {
-							"rime_hide": 2,
+							"rime_hide": 3,
 							"grind_plate": 3
 						},
 						"integrity": 80.0
@@ -561,15 +561,16 @@
 				"levels": [
 					{
 						"cost": {
-							"radiator_core": 1,
-							"scrap": 3
+							"rime_gland": 1,
+							"scrap": 2
 						},
 						"cooling_mult": 1.15
 					},
 					{
 						"cost": {
+							"radiator_core": 1,
 							"rime_gland": 1,
-							"scrap": 4
+							"scrap": 3
 						},
 						"cooling_mult": 1.32
 					},
@@ -586,8 +587,8 @@
 				"levels": [
 					{
 						"cost": {
-							"scrap": 3,
-							"skirr_hide": 3
+							"skirr_hide": 3,
+							"scrap": 2
 						},
 						"grip_mult": 1.15,
 						"accel_mult": 1.08
@@ -595,7 +596,8 @@
 					{
 						"cost": {
 							"skirr_fang": 2,
-							"scrap": 4
+							"rime_spine": 1,
+							"scrap": 3
 						},
 						"grip_mult": 1.28,
 						"accel_mult": 1.16,
@@ -604,7 +606,7 @@
 					{
 						"cost": {
 							"rime_spine": 2,
-							"grind_plate": 1
+							"grind_plate": 2
 						},
 						"grip_mult": 1.42,
 						"accel_mult": 1.25,
@@ -616,14 +618,15 @@
 				"levels": [
 					{
 						"cost": {
-							"scrap": 5
+							"skirr_fang": 1,
+							"scrap": 3
 						},
 						"damage_mult": 1.2,
 						"cooldown_mult": 0.93
 					},
 					{
 						"cost": {
-							"skirr_fang": 2,
+							"rime_horn": 1,
 							"scrap": 4
 						},
 						"damage_mult": 1.45,
@@ -632,6 +635,7 @@
 					{
 						"cost": {
 							"rime_horn": 1,
+							"grind_plate": 2,
 							"scrap": 6
 						},
 						"damage_mult": 1.8,
@@ -643,8 +647,8 @@
 				"levels": [
 					{
 						"cost": {
-							"scrap": 3,
-							"skirr_hide": 1
+							"skirr_hide": 1,
+							"scrap": 2
 						},
 						"cargo": 8.0,
 						"tracker_mult": 1.4
