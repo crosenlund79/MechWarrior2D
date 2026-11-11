@@ -165,7 +165,11 @@ try:
     g.cmd("debug timescale 1")
     check(drain_shade / 2.0 < drain_sun, f"suit drains slower in shade ({drain_shade/2:.2f}/s vs {drain_sun:.2f}/s)")
     mp = st["game"]["mech"]["pos"]
-    g.cmd(f"walk_to {mp[0]} {mp[1] + 140} 40")
+    # walk back beside the car; try another side if the wreck or awning posts are in the way
+    for dx, dy in ((0, 140), (140, 0), (-140, 0), (0, -140)):
+        g.cmd(f"walk_to {mp[0] + dx} {mp[1] + dy} 25")
+        if any(i["kind"] == "enter" for i in g.state()["interactions"]):
+            break
     rad0 = g.state()["game"]["mech"]["radiator"]
     g.cmd("service"); g.cmd("wait_task")
     st = g.state()

@@ -66,11 +66,14 @@ try:
         if math.dist(rp, me) < 750 or rb["ai"] not in ("roam",):
             found = True
             break
-        tk = st["tracker"]
-        if not tk:
-            # drive toward the freshest sign we last knew of (the flats centre)
+        # read the sign like a player: the compass names the species, so follow RIMEBACK prints
+        # (the freshest nearby rimeback track), not whatever animal crossed last
+        now = st["game"]["playtime"]
+        near = [t for t in st["game"]["tracks"] if t["s"] == "rimeback" and math.dist(t["p"], me) < 900]
+        if not near:
             g.cmd("drive_to -200 4700 8"); continue
-        h = tk["heading"]
+        tk = max(near, key=lambda t: t["t"])
+        h = tk["h"]
         tx, ty = me[0] + math.sin(h) * 450, me[1] - math.cos(h) * 450
         g.cmd(f"drive_to {tx:.0f} {ty:.0f} 6")
     check(found, "following the trail leads to the rimeback")
