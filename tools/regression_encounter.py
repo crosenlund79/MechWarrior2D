@@ -49,9 +49,10 @@ try:
     check(en(st)["ai"] in ("alert", "engage"), f"enemy detects the hot mech ({en(st)['ai']})")
     check("NOTICE_ENEMY_ALERT" in st["notices"], "detection is announced")
     d0 = math.dist(en(st)["pos"], st["game"]["mech"]["pos"])
-    g.cmd("wait 3")
-    st = g.state()
-    d1 = math.dist(en(st)["pos"], st["game"]["mech"]["pos"])
+    d1 = d0
+    for _ in range(12):   # it circle-strafes, so take the closest approach over 3 s
+        st = g.cmd("wait 0.25")["state"]
+        d1 = min(d1, math.dist(en(st)["pos"], st["game"]["mech"]["pos"]))
     check(en(st)["ai"] == "engage", "enemy engages")
     check(d1 < d0 - 10 or d1 < 420, f"enemy closes to its preferred range ({d0:.0f} → {d1:.0f})")
 
