@@ -78,7 +78,14 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/guide_rows.py` | Beskrivelser brugt til scriptguiderne. |
 | `tools/check_script_guides.py` | Kontrollerer/skriver EN- og DA-scriptguiderne. |
 | `src/sim/creatures.gd` | Det optøede økosystem: skirr-flok, sliberyg-graver og rimeryg-bytte — sanser, varslede angreb, brækbare dele, flugt/nedgravning (rene data). |
-| `src/sim/garage.gd` | Tilflugtens garagemoduler (panser, køling, dæk, våben, lastrig): pris, niveauer, effekt på bilens balance. |
+| `src/sim/garage.gd` | Bosættelsesværkstedets opgraderingslinjer (chassis, motor, turbo, panser, dæk, køling, våben, last): priser, rang-krav, effekt på bil/varme/våben, migrering af gamle opgraderinger. |
+| `src/sim/journey.gd` | Kontinentets rutenet (data/journey.json): knuder, forbindelser, brændstof, ankomst-bogføring, korteste rute og nærmeste sikre zone. |
+| `src/presentation/ui/hazard_ribbon.gd` | Diagonal advarselstape i øverste højre hjørne: DANGER / SAFE-ZONE / CLEARED. |
+| `src/presentation/ui/minimap.gd` | Minikort: veje, klipper, bosættelse, porte, blinkende anomalier, opdagede steder, spillerpil. |
+| `src/presentation/ui/journey_map.gd` | Kontinentkort (M): knudernes status, ruter med brændstofpris, knudeinfo, sæt kurs. |
+| `src/presentation/world/poi_view.gd` | Forladte ekspeditionssteder (vrag, død fører, papirer, ild) og vartegn. |
+| `src/presentation/world/relief.gd` | Kun-visuel højde: højdefelt, skyggelagt terræn, højdeskalering af objekter. |
+| `tools/build_continent.py` | Genererer og validerer bosættelses- og territoriekortene til rejsen (kør efter build_world_south.py). |
 | `src/sim/loot.gd` | Fysisk bytte på jorden med sjældenhed: oprettelse, droptabeller, opslag. |
 | `src/presentation/world/creature_view.gd` | Ét dyr: kropsdele, gang, varsler i verden (baner, revneringe, buer, glødende kirtler), træf-/brudeffekter, kadaver. |
 | `src/presentation/world/hunt_marks.gd` | Spor der falmer med alderen (blodmærkede), bytte på jorden med sjældenhedsglød og legendarisk stjerne, bremsespor. |

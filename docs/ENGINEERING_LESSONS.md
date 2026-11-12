@@ -41,3 +41,13 @@ Captain's Hat (LCH). Only lessons that apply here are listed.
 - **Absolute, not relative, test setup.** `debug heat -30` depended on earlier sections; tests now set
   absolute values.
 - **Draw order for loot.** Loot must render above carcasses, or the legendary drop hides under the body.
+- **Teleports poison `get_real_velocity()`.** After a position jump (travel, dev teleport, test
+  placement) the reported velocity includes the jump; feeding it back into the car model launched the car
+  at −3500 px/s. `commit_mech`/`commit_enemy` now reject velocities that `move_and_slide` could not
+  have produced (it can only slow a car).
+- **Never scale physics bodies for visuals.** Scaling a `CharacterBody2D` for the elevation illusion
+  broke collision; only sprite/holder nodes are scaled.
+- **Cars cannot turn on the spot.** Rival cars pinned against a pylon stayed stuck until the AI learned
+  to back out with opposite lock.
+- **One live site, the rest stashed.** Per-location state (`state.sites`) keeps the save flat and lets
+  every existing system keep reading `state.creatures` etc. unchanged.

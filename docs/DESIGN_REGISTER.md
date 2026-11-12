@@ -67,9 +67,20 @@ review · **DEFERRED** = explicitly out of scope for now.
 | TB-20 | Playtest 004: the system cursor is always visible in modal panels (garage, pause, settings, F10) | APPROVED | |
 | TB-21 | Playtest 005: persistent refuge garage storage; "Unload cargo" moves car + pack into it; repairs/modules pay from it while at the garage | EXPLORING | save v6 |
 | TB-22 | Playtest 006: player rounds 1240 px/s (was 620), same damage and fire rate; enemy slugs stay slow and readable | EXPLORING | segment hit tests, no tunnelling |
-| TB-30 | Mining, coal/iron/rare Antarctic ore, smelting/alloys, schematics, modular equipment | DEFERRED | **never implemented in this repository** (audit found no code, data or docs). Integration points: `data/items.json` (rarity, bulk), `Loot.spawn` for ore nodes, `Garage` modules for schematic-gated levels |
-| TB-31 | Autonomous ore cart | DEFERRED | roadmap only; would be a rival-car-style vehicle (`Drive` + an AI brain) following the player |
-| TB-32 | Minimap / full map with POIs | DEFERRED | not implemented before the conversion; areas + teleports in the location file are the data a map would read. The objective pointer and tracking compass cover navigation for now |
+| TB-30 | Mining, ore, smelting/alloys, recipes, schematics, crafting | REMOVED | removed from the design by the Continental Journey brief (never implemented). Progression is money + priced upgrades |
+| TB-31 | Autonomous ore / mining cart | REMOVED | removed from the design by the Continental Journey brief |
+| TB-32 | Minimap with POIs | EXPLORING | implemented in CJ-09 |
+| **CJ-01** | **Continental Journey**: Thawborn is the locked title. Core loop PREPARE → HUNT → RETURN on a journey from Ersthafen to Stahlheim carrying a sealed case (identity and story deliberately left open) | APPROVED | branch `iteration/continental-journey` |
+| CJ-02 | German-industrial frontier naming (NOT WWII/Nazi): Ersthafen (was Landfall), Stahlheim, Jäger, Eisback (rimeback display name), Eisenwolf Werke; Kaltbrunn, Eisenhalt, Taubecken, Salzpfanne, Rostfeld, Weißgrat, Frostgrund; Wühler (grindback); Tankstelle, Handelsposten | EXPLORING | UI stays English; internal IDs unchanged |
+| CJ-03 | Handling: max speed 560 px/s, camera farther out and pulling back with speed, smoothstep steering onset with speed, better reverse steering; guns 1900 px/s, 0.17 s cooldown, 1000 px range | EXPLORING | `tuning.json` `mech`, `player_weapon`; segment hit tests (no tunnelling) |
+| CJ-04 | Terrain elevation illusion: smooth heightfield (noise + raised rock flanks, flattened roads/yards), hillshade + contours, ±7 % altitude scale and longer shadows for objects | EXPLORING | visual only — collision/aim/navigation unchanged |
+| CJ-05 | Route network of 9 physical nodes (3 settlements, 5 territories, hub) with branches that reconnect; fuel cost per route; current/discovered/available/completed state persisted; tier 0–5 difficulty | EXPLORING | `data/journey.json`, `tools/build_continent.py` |
+| CJ-06 | Settlements are physical walled safe zones with services (garage, repair, refuel, market, upgrades, storage); hazard tape DANGER / SAFE-ZONE / CLEARED | EXPLORING | |
+| CJ-07 | Exits: deceleration within 380 px of the edge, prompt (6 s cooldown after declining), auto-exit past the boundary, destination = the neighbour behind the nearest gate | EXPLORING | no invisible walls for the car |
+| CJ-08 | Economy: sell drops for money; fuel (forgiving start, limp mode, never a softlock); 8 priced upgrade lines with rank unlocks; Jäger rank 1–10 | EXPLORING | `tuning.json` `shop`, `economy` |
+| CJ-09 | Minimap (bottom right) in every location; anomalies blink until discovered; abandoned expedition sites (dead driver, wreck, sometimes burning, sometimes loot, searched once) | EXPLORING | |
+| CJ-10 | F10: fuel, full repair, grant upgrade, complete node, clear territory creatures, money | APPROVED | never saved |
+| CJ-11 | Main menu: weathered workshop table with the creator's two prints (`assets/Illustrations/`), job card menu | EXPLORING | prints are creator art; table is a template |
 | TB-33 | Further species, cities, quests, networking, full mining economy | DEFERRED | scope guard |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |

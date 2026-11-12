@@ -3,7 +3,7 @@
 Permanent project rules. Keep this file short; details live in `docs/`.
 
 ## Identity
-- **Thawborn** (formerly Heat Signature; provisional title). Repo `github.com/crosenlund79/MechWarrior2D`,
+- **Thawborn** (formerly Heat Signature; LOCKED title). Repo `github.com/crosenlund79/MechWarrior2D`,
   `project.godot` name `Thawborn`, user dir `Thawborn` (legacy `HeatSignature` saves are copied on first
   start). Godot **4.7.2**, GDScript, Compatibility renderer, Windows desktop target. Do not upgrade the
   engine silently. Vehicular hunting/survival: the player's vehicle is a CAR; internal legacy identifiers
@@ -31,7 +31,8 @@ Never modify another project. Never alter `backup/*` branches.
 - `python3 tools/regression_hunt.py` (full Thawborn loop: drive, track, hunt, harvest, loot, garage, save/reload; rival car, skirrs, grindback, storm)
 - `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/regression_playtest.py` (playtest 001–006: reverse steering, starter heat, garage cursor, cargo storage, bullet speed)
 - Heat tuning changes: run `python3 tools/heat_balance.py` — ordinary travel must never warn.
-- Map layout changes: edit `tools/build_world_south.py` (south/east content, creatures, garage) and run it — it validates roads, creatures and the rimeback route vs rock/props.
+- Map layout changes: edit `tools/build_world_south.py` (Taubecken basin) then run `tools/build_continent.py`
+  (settlements/territories/gates/POIs, patches the basin) — both validate geometry. Always run both, in that order.
 - Thawborn art: `python3 tools/art/gen_thawborn.py` (cars, creatures, tracks, materials; never touches overrides).
 - `python3 tools/check_script_guides.py` — update EN + DA script guides for new/removed scripts
 
@@ -47,6 +48,11 @@ Never modify another project. Never alter `backup/*` branches.
   from saves. Never persist cheat state.
 - Multiplayer is NOT approved. Any future multiplayer must be host-authoritative.
 - No speculative systems. Scope limits: see `docs/DESIGN_REGISTER.md` (DEFERRED).
+
+## Journey
+Ersthafen → branching routes → Stahlheim (`data/journey.json`), carrying a sealed case whose identity is
+NOT defined — do not invent it. Crafting/mining/ore/smelting/recipes are removed from the design.
+German-industrial frontier naming, never WWII/Nazi aesthetics; UI text stays English.
 
 ## Visual direction
 `docs/VISUAL_DIRECTION.md`. Straight top-down (not Red Thaw's 3/4). Provisional until the creator reviews.

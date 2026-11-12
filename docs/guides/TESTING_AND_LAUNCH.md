@@ -36,6 +36,19 @@
 6. Back at your mech: R repairs the radiator with the core, and R again patches the hull with 2 scrap.
    If your hull hits 0, the mech is crippled. Step out and R gives a slow, free emergency patch to 25 %.
 
+## The continental journey (about 20–30 minutes)
+1. New game: you start in **Ersthafen** (SAFE-ZONE tape, top right). Press **M** for the continental map.
+   Click a node for its info and **Set course**.
+2. Leave by the east gate: near the edge the car slows and asks **Leave this area?** (E or the button).
+   Drive past the edge to leave without the prompt.
+3. **Taubecken** (DANGER): hunt the Eisback, investigate blinking anomalies on the minimap (bottom right),
+   search expedition sites on foot. Flee by any gate.
+4. Back in Ersthafen press **G** in the Eisenwolf bay: **Markt** sells drops, **Werkstatt** repairs and
+   refuels, **Aufrüsten** buys upgrades (rank-locked levels), **Lager** unloads cargo.
+5. Travel on: Kaltbrunn / Salzpfanne / Rostfeld → Eisenhalt / Weißgrat → Frostgrund → **Stahlheim**.
+   Arriving there delivers the case; the tape then reads **CLEARED**.
+6. F10 has fuel, repair, money, grant upgrade, complete/travel to node and clear creatures.
+
 ## The first hunt (about 6–10 minutes)
 1. New game: the car is parked in the canyon refuge garage bay. **H** shows the field guide.
 2. Drive out by the dirt road east, then south down the track to the old highway, then south into the
@@ -63,7 +76,9 @@ F10 opens it during play, without pausing. It has controls for:
 - **Weather:** dynamic weather on/off, clear now, start or stop a storm, storm intensity.
 - **Enemies:** spawn scrappers or Junkers near you, clear spawned enemies, aggression on/off.
 - **Player and mech:** repair all, refill suit, restore cooling, invulnerability, simulation speed.
-- **Teleport:** to the refuge, the Junker base, the cooling station or the scrap field.
+- **Teleport:** to named spots of the current map.
+- **Journey:** refuel, repair completely, +1000 money, grant a selected upgrade, complete or travel to a
+  selected node, clear the territory's creatures.
 - **Reset:** restore default settings.
 
 None of it is saved, and it resets on new game, continue and return to menu. A "DEV:" badge in the
@@ -77,6 +92,9 @@ python3 tools/regression.py
 python3 tools/regression_encounter.py
 python3 tools/regression_refuge.py
 python3 tools/regression_junkers.py
+python3 tools/regression_balance.py
+python3 tools/regression_hunt.py
+python3 tools/heat_balance.py
 python3 tools/check_script_guides.py
 ```
 - `run_tests.tscn`: unit and regression suite covering content, manifest, zones, thermal maths,
@@ -84,6 +102,10 @@ python3 tools/check_script_guides.py
 - `regression.py`: starts the **real game** twice (via `--autotest`). It plays drive → overheat → stop →
   exit → salvage → return → repair → continue, then restarts Godot and verifies persistence, settings
   persistence, external override → removal → template fallback, and the suit-collapse consequence.
+- `regression_hunt.py`: the full journey in the real game — Ersthafen → exit prompt → Taubecken hunt,
+  harvest, loot, flee prompt + auto exit → sell, refuel, repair, upgrade → save/reload → onward to
+  Stahlheim (delivery, CLEARED, persistence).
+- Journey screenshots: `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots_journey.py docs/screenshots/journey`.
 - Screenshots (needs a display): `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots.py docs/screenshots/<dir> <prefix>`
   (Phase A flow) or `python3 tools/shots_b.py docs/screenshots/phase_b` (illustrated location).
 - Regenerate art: `python3 tools/art/gen_art.py` (needs Python 3 + Pillow + numpy; ~1 min). Not needed to run the game.

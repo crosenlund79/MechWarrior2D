@@ -78,7 +78,14 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/guide_rows.py` | Descriptions used to write the script guides. |
 | `tools/check_script_guides.py` | Checks/rewrites EN + DA script guides. |
 | `src/sim/creatures.gd` | The thawed-out ecosystem: skirr pack, grindback burrower and rimeback quarry — senses, telegraphed attacks, breakable parts, flee/burrow (pure data). |
-| `src/sim/garage.gd` | Refuge garage modules (armour, cooling, tyres, weapon, cargo rig): costs, levels, effects on car tuning. |
+| `src/sim/garage.gd` | Settlement workshop upgrade lines (chassis, engine, turbo, armour, tyres, cooling, weapons, cargo): prices, rank unlocks, effects on car/heat/gun tuning, legacy upgrade migration. |
+| `src/sim/journey.gd` | Continental route network (data/journey.json): nodes, edges, fuel costs, arrival bookkeeping, shortest route and nearest safe zone. |
+| `src/presentation/ui/hazard_ribbon.gd` | Diagonal hazard tape in the top-right corner: DANGER / SAFE-ZONE / CLEARED. |
+| `src/presentation/ui/minimap.gd` | Minimap: roads, rock, settlement, gates, blinking anomalies, discovered sites, player arrow. |
+| `src/presentation/ui/journey_map.gd` | Continental map screen (M): node states, routes with fuel cost, node info, set course. |
+| `src/presentation/world/poi_view.gd` | Abandoned expedition sites (wreck, dead driver, papers, fire) and landmarks. |
+| `src/presentation/world/relief.gd` | Visual-only elevation: heightfield, hillshade texture, altitude scale for objects. |
+| `tools/build_continent.py` | Generates and validates the settlement and territory maps of the continental journey (run after build_world_south.py). |
 | `src/sim/loot.gd` | Physical ground loot with rarities: spawn, drop tables, lookup. |
 | `src/presentation/world/creature_view.gd` | One creature: body parts, gait, in-world telegraphs (lanes, crack rings, arcs, glowing glands), hit/part-break FX, carcass. |
 | `src/presentation/world/hunt_marks.gd` | Tracks fading with age (blood marked), ground loot with rarity glow and legendary star, tyre skid marks. |

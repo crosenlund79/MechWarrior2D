@@ -59,6 +59,16 @@ Same rules as above: drop `<name>.png` into `assets/overrides/<dir>/` (or `<exe>
 | `decal.track_skirr`, `decal.track_rime`, `decal.furrow`, `decal.blood`, `decal.skid` | `decals/…` | | ground decals (faded by age in game) |
 | `item.skirr_hide` … `item.thawheart` | `items/<item>.png` | 44×44 | loot icons; rarity glow is drawn by the game |
 
+## Continental Journey IDs
+| ID | Path | Notes |
+|---|---|---|
+| `ui.photo_combat` / `ui.photo_garage` | **creator art** `assets/Illustrations/Thawborn combat.png` / `Thawborn garage.png` | main-menu prints; used as-is, never regenerated. An override in `ui/` still wins |
+| `ui.menu_table` | `ui/menu_table.png` | workshop table behind the prints (template, 1920×1080 source) |
+| `ui.continent_map` | `ui/continent_map.png` | parchment background of the continental map (M) |
+| `sign.ersthafen` … `sign.stahlheim`, `sign.eisenwolf`, `sign.tankstelle`, `sign.handelsposten` | `signs/<name>.png` | settlement signs |
+| `poi.corpse`, `poi.papers` | `poi/corpse.png`, `poi/papers.png` | abandoned expedition site |
+| `item.salvaged_parts`, `item.logbook`, `item.instrument` | `items/<item>.png` | expedition loot |
+
 ## Regenerating the bundled templates
-`python3 tools/art/gen_art.py` (illustrated, Phase B) or `python3 tools/gen_placeholders.py --force`
+`python3 tools/art/gen_thawborn.py` (Thawborn art, never touches creator art or overrides), `python3 tools/art/gen_art.py` (illustrated, Phase B) or `python3 tools/gen_placeholders.py --force`
 (diagnostic, Phase A). These only write `assets/templates/`; they never touch `assets/overrides/`.

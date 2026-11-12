@@ -127,15 +127,42 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
 - **Loot** (`src/sim/loot.gd`, `state.world.loot`). Items lie on the ground with a rarity from
   `data/items.json`. The car scoops them up below `loot_pickup_speed` (cargo bulk limit); on foot the
   pilot uses Interact. Harvesting a large carcass is an on-foot task.
-- **Garage** (`src/sim/garage.gd`). Modules and costs come from `tuning.garage`; fitted levels are in
-  `state.mech.upgrades`. `Session.car_tun()`, `car_thermal()` and `player_weapon()` apply them, so every
+- **Garage** (`src/sim/garage.gd`). Upgrade lines, prices and rank unlocks come from `tuning.shop`
+  (since the Continental Journey; was `tuning.garage` materials); fitted levels are in `state.mech.upgrades`. `Session.car_tun()`, `car_thermal()` and `player_weapon()` apply them, so every
   system reads the upgraded values. The location's `garage` (refuge bay) gates fitting and repair.
 - **Respawn.** A dead creature returns after `respawn_time` once the player is far from its spawn.
   Dev-spawned creatures carry `"dev": true` and are never saved.
 
+## Continental Journey
+- **Route network** (`src/sim/journey.gd`, `data/journey.json`). Nine nodes, each a physical location in
+  `data/locations/`; edges carry a fuel cost. `state.journey = {node, from, visited, discovered,
+  completed, delivered, cargo_intact, course}`. `Journey.arrive()` updates it and returns events.
+  `next_hop()` (Dijkstra) drives the objective pointer toward the plotted course.
+- **Per-site state.** Only the current location is live in `state` (`Journey.SITE_KEYS`: enemies,
+  creatures, tracks, turrets, world). `Session.travel_to(node)` stashes them in `state.sites[location]`,
+  loads the destination (or `GameState.create_site` the first time), places the car at the gate leading
+  back, and emits `started` so `main` rebuilds the game screen. Revisits restore the stash, so wrecks,
+  carcasses, loot, tracks and searched sites persist.
+- **Exits** (`Session._tick_exits`). Map bounds sit on physics layer 16: creatures, rivals and the pilot
+  collide with it; the car does not. Within `exit_margin` of an edge `edge_speed_factor()` slows the car
+  and `exit_prompt` asks (HUD panel; cooldown after declining). Past the bound, the car leaves by the
+  nearest gate (`gates` in the location file name the neighbour each side leads to).
+- **Economy** (`tuning.shop`, `tuning.economy`). `state.money`, `state.rank {xp, level}`, `mech.fuel`.
+  Fuel burns per px driven (plus idle); empty means limp mode (×0.32 speed), never a softlock. Settlement
+  services (`garage.services`) gate repair/refuel/market/upgrades/storage. `Garage` (8 lines × levels with
+  price, rank and effects) feeds `car_tun()`, `car_thermal()` and `player_weapon()`.
+- **Difficulty.** Each node has a tier; `Creatures.scaled()` and `enemy_tun()` raise health, damage and
+  senses per tier (`economy.tier_*`).
+- **POIs.** Location `pois` (expedition sites, landmarks); `world.pois[id] = {discovered, searched}`.
+  Discovered within 420 px (XP); an expedition is searched once on foot (2.5 s) and drops its loot table.
+- **Presentation.** `HazardRibbon` (zone tape), `Minimap`, `JourneyMap` (M, pauses), `PoiView`,
+  `Relief` (visual-only heightfield: hillshade sprite + `scale_at()` on visual nodes, never on bodies).
+- **Content pipeline.** `tools/build_world_south.py` (the basin) then `tools/build_continent.py`
+  (settlements, territories, gates, POIs; validates geometry).
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
-Format version **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
+Format version **7** (v6 → v7 adds fuel, money, rank, journey, per-site stash and POI state; v5 → v6 garage storage; v4 → v5 Thawborn). Earlier **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
 Write: temp → read back → validate → previous file to `.bak` → replace. Load: main → validate/migrate →
 else `.bak` (reported as "recovered"). Migrations: `SaveCodec.MIGRATIONS[from_version]`. Stable IDs:
 salvage nodes and props are named in location data; drops get `drop_<n>`. Autosave: new game, enter
