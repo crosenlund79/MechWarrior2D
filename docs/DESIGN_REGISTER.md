@@ -80,7 +80,7 @@ review · **DEFERRED** = explicitly out of scope for now.
 | CJ-08 | Economy: sell drops for money; fuel (forgiving start, limp mode, never a softlock); 8 priced upgrade lines with rank unlocks; Jäger rank 1–10 | EXPLORING | `tuning.json` `shop`, `economy` |
 | CJ-09 | Minimap (bottom right) in every location; anomalies blink until discovered; abandoned expedition sites (dead driver, wreck, sometimes burning, sometimes loot, searched once) | EXPLORING | |
 | CJ-10 | F10: fuel, full repair, grant upgrade, complete node, clear territory creatures, money | APPROVED | never saved |
-| CJ-11 | Main menu: weathered workshop table with the creator's two prints (`assets/Illustrations/`), job card menu | EXPLORING | prints are creator art; table is a template |
+| CJ-11 | Main menu: weathered workshop table with the creator's two prints and the creator's logo as the title (`assets/Illustrations/`), job card menu | EXPLORING | prints + logo are creator art; table is a template |
 | TB-33 | Further species, cities, quests, networking, full mining economy | DEFERRED | scope guard |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |

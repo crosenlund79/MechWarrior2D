@@ -6,6 +6,7 @@ extends UiRoot
 ## and the menu typed on an Eisenwolf job card. Continue / New game (slot
 ## picker) / Settings / Quit. Responsive: the layout is relative to the screen.
 ##
+## The title is the creator's logo (ui.logo, assets/Illustrations/Thawborn Logo.png).
 ## The prints are ui.photo_combat / ui.photo_garage: the creator's files in
 ## assets/Illustrations/ are used first (manifest "creator" path), generated
 ## template_ prints are only a fallback; overrides work without code changes.
@@ -20,6 +21,7 @@ var _prints: Array[Control] = []
 var _card: PanelContainer
 var _t := 0.0
 var _lamp: ColorRect
+var _logo: TextureRect
 
 const INK := Color("#2a2119")
 const PAPER := Color("#e6dcc4")
@@ -59,8 +61,15 @@ func _ready() -> void:
 	_card.add_child(v)
 	var hdr := _ink(tr("MENU_CARD_HEADER"), 11)
 	v.add_child(hdr)
-	var title := _ink(tr("GAME_TITLE"), 44)
-	v.add_child(title)
+	# the title is the creator's logo (ui.logo → assets/Illustrations/Thawborn Logo.png)
+	_logo = TextureRect.new()
+	_logo.name = "Logo"
+	_logo.texture = Assets.texture("ui.logo")
+	_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_logo.tooltip_text = tr("GAME_TITLE")
+	v.add_child(_logo)
 	var sub := _ink(tr("GAME_SUBTITLE"), 14)
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.custom_minimum_size = Vector2(360, 0)
@@ -134,7 +143,7 @@ func _layout() -> void:
 	# prints: combat upper-left, garage overlapping to the right and lower
 	var w := s.x * 0.47
 	var h := w * 470.0 / 836.0
-	var spec := [[Vector2(s.x * 0.04, s.y * 0.07), -3.6], [Vector2(s.x * 0.44, s.y * 0.2), 2.8]]
+	var spec := [[Vector2(s.x * 0.04, s.y * 0.035), -3.6], [Vector2(s.x * 0.44, s.y * 0.2), 2.8]]
 	for i in _prints.size():
 		var p := _prints[i]
 		p.size = Vector2(w, h)
@@ -147,9 +156,11 @@ func _layout() -> void:
 				c.position = Vector2(-20, -10) if k == 0 else Vector2(w - 70, h - 16)
 				c.rotation = deg_to_rad(-35.0 if k == 0 else -35.0)
 	# the job card: lower left, over the survey map, clear of the prints' centres
-	_card.custom_minimum_size = Vector2(minf(420.0, s.x * 0.34), 0)
+	var cw := minf(420.0, s.x * 0.34)
+	_card.custom_minimum_size = Vector2(cw, 0)
+	_logo.custom_minimum_size = Vector2(cw - 36.0, minf((cw - 36.0) * 470.0 / 836.0, s.y * 0.19))
 	_card.reset_size()
-	_card.position = Vector2(s.x * 0.05, s.y - _card.size.y - s.y * 0.05)
+	_card.position = Vector2(s.x * 0.05, s.y - _card.size.y - s.y * 0.025)
 	_card.pivot_offset = _card.size * 0.5
 	_card.rotation = deg_to_rad(-1.2)
 
@@ -157,7 +168,7 @@ func _layout() -> void:
 func _process(delta: float) -> void:
 	_t += delta
 	_lamp.color.a = 0.025 + 0.015 * sin(_t * 0.9) * sin(_t * 0.37)
-	if _card.size.y > 0 and abs(_card.position.y - (size.y - _card.size.y - size.y * 0.05)) > 1.0:
+	if _card.size.y > 0 and abs(_card.position.y - (size.y - _card.size.y - size.y * 0.025)) > 1.0:
 		_layout()
 
 
@@ -241,6 +252,11 @@ func _continue(slot: int) -> void:
 	var err := Session.continue_slot(slot)
 	if err != "":
 		_status.text = tr("MENU_LOAD_FAILED") % err
+
+
+## Asset source of the title logo (tests / diagnostics).
+func logo_source() -> String:
+	return str(Assets.source.get("ui.logo", ""))
 
 
 ## Asset sources in use for the prints (tests / diagnostics).

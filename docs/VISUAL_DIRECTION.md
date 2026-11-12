@@ -174,6 +174,7 @@ hardware and water.
 - **Zone tape:** diagonal hazard tape in the top-right corner — red DANGER, yellow SAFE-ZONE, sage-grey
   CLEARED (Stahlheim after the delivery).
 - **Main menu:** the creator's two prints (`assets/Illustrations/`) lie rotated on a weathered workshop
-  table under a warm lamp, with tape, a map, tools and papers; the menu is a paper job card.
+  table under a warm lamp, with tape, a map, tools and papers; the menu is a paper job card headed by
+  the creator's logo (`assets/Illustrations/Thawborn Logo.png`) in place of typed title text.
 - **Minimap and continental map:** parchment and ink, like a field surveyor's chart; anomalies blink
   temper-violet until identified.

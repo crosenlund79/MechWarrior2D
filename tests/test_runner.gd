@@ -1681,3 +1681,21 @@ func test_cj_migration_v6_to_v7_single_map_save() -> void:
 	check(int(s2["money"]) > 0 and float(s2["mech"]["fuel"]) > 0.0, "money and fuel added")
 	check(int(s2["mech"]["upgrades"].get("armor", 0)) == 2 and int(s2["mech"]["upgrades"].get("cargo", 0)) == 1 and int(s2["mech"]["upgrades"].get("weapons", 0)) == 1, "old upgrades map onto the new lines")
 	check(int(s2["mech"]["storage"]["rime_horn"]) == 1, "carried materials stay as sellable cargo")
+
+
+func test_cj_menu_uses_creator_logo_and_prints() -> void:
+	for id in ["ui.logo", "ui.photo_combat", "ui.photo_garage"]:
+		var cr := str(AssetCatalog.entry(id).get("creator", ""))
+		check(cr.begins_with("res://assets/Illustrations/") and ResourceLoader.exists(cr), "%s points at the creator's file (%s)" % [id, cr])
+		check(AssetCatalog.bundled_candidates(id)[0] == cr, "%s: the creator's file comes before any template" % id)
+		check(ResourceLoader.exists(AssetCatalog.template_paths(id)[0]), "%s has a template_ fallback" % id)
+	var menu := MainMenu.new()
+	add_child(menu)
+	await get_tree().process_frame
+	var logo: TextureRect = menu.get_node_or_null("PanelContainer/VBoxContainer/Logo")
+	if logo == null:
+		logo = menu.find_child("Logo", true, false)
+	check(logo != null and logo.texture != null, "the menu title is the logo image")
+	check(menu.logo_source() == "bundled", "the logo comes from the creator's file (%s)" % menu.logo_source())
+	check(menu.print_sources() == ["bundled", "bundled"], "both creator prints are on the table (%s)" % [menu.print_sources()])
+	menu.queue_free()

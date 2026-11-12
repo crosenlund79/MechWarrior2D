@@ -65,6 +65,8 @@ ENTRIES["ui.photo_combat"] = S("ui/photo_combat", 836, 470, rot=False, note="mai
 ENTRIES["ui.photo_combat"]["creator"] = "res://assets/Illustrations/Thawborn combat.png"
 ENTRIES["ui.photo_garage"] = S("ui/photo_garage", 836, 470, rot=False, note="main-menu print; the creator's 'assets/Illustrations/Thawborn garage.png' is used when present")
 ENTRIES["ui.photo_garage"]["creator"] = "res://assets/Illustrations/Thawborn garage.png"   # drawn at display size (the canvas supersamples 2x anyway)
+ENTRIES["ui.logo"] = S("ui/logo", 836, 470, rot=False, note="main-menu title; the creator's 'assets/Illustrations/Thawborn Logo.png' is used when present")
+ENTRIES["ui.logo"]["creator"] = "res://assets/Illustrations/Thawborn Logo.png"
 ITEMS = ["skirr_hide", "skirr_fang", "grind_plate", "rime_hide", "rime_spine", "rime_horn", "rime_gland", "thawheart", "salvaged_parts", "logbook", "instrument"]
 for it in ITEMS:
     ENTRIES["item." + it] = S("items/" + it, 44, 44, rot=False)
@@ -751,7 +753,20 @@ def gen_photo_fallbacks():
         c.save(out(pid), outline=0.0, burn=0.3)
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks]
+def gen_logo_fallback():
+    """Fallback title plate (riveted sign on a transparent ground), used only if the creator's logo is missing."""
+    c = canvas_for("ui.logo", 431)
+    W, H = ENTRIES["ui.logo"]["source"]
+    board = [(60, 250), (W - 60, 230), (W - 50, H - 250), (70, H - 230)]
+    plate(c, board, (92, 88, 80), line=4.0, grime=0.6, hatch_alpha=40)
+    c.rivets([(100, 280), (W - 100, 262), (W - 96, H - 280), (110, H - 262)], 5.0)
+    _text(c, (W / 2, H / 2 - 20), "THAWBORN", 200, (232, 222, 196))
+    _text(c, (W / 2, H / 2 + 140), "EISENWOLF WERKE", 46, (176, 74, 50), FONT_M, alpha=220)
+    c.desertize(dust=0.5, abrasion=0.6, bleach=0.45, seams=0.6)
+    c.save(out("ui.logo"))
+
+
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

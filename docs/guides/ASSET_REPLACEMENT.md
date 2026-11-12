@@ -63,6 +63,7 @@ Same rules as above: drop `<name>.png` into `assets/overrides/<dir>/` (or `<exe>
 | ID | Path | Notes |
 |---|---|---|
 | `ui.photo_combat` / `ui.photo_garage` | **creator art** `assets/Illustrations/Thawborn combat.png` / `Thawborn garage.png` | main-menu prints; used as-is, never regenerated. An override in `ui/` still wins |
+| `ui.logo` | **creator art** `assets/Illustrations/Thawborn Logo.png` | main-menu title (replaces the typed THAWBORN); used as-is. Fallback `ui/template_logo.png` |
 | `ui.menu_table` | `ui/menu_table.png` | workshop table behind the prints (template, 1920×1080 source) |
 | `ui.continent_map` | `ui/continent_map.png` | parchment background of the continental map (M) |
 | `sign.ersthafen` … `sign.stahlheim`, `sign.eisenwolf`, `sign.tankstelle`, `sign.handelsposten` | `signs/<name>.png` | settlement signs |

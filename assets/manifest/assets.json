@@ -2058,6 +2058,23 @@
 			],
 			"note": "main-menu print; the creator's 'assets/Illustrations/Thawborn garage.png' is used when present",
 			"creator": "res://assets/Illustrations/Thawborn garage.png"
+		},
+		"ui.logo": {
+			"path": "ui/logo",
+			"display": [
+				836,
+				470
+			],
+			"source": [
+				1672,
+				940
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "main-menu title; the creator's 'assets/Illustrations/Thawborn Logo.png' is used when present",
+			"creator": "res://assets/Illustrations/Thawborn Logo.png"
 		}
 	},
 	"tiles": {

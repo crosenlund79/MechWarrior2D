@@ -496,7 +496,7 @@ func _run(line: String) -> void:
 
 
 func _state() -> Dictionary:
-	var st := {"running": Session.running, "menu_prints": main.menu.print_sources() if main and main.menu and is_instance_valid(main.menu) else [], "notices": _notices.duplicate(), "save_status": Session.save_status,
+	var st := {"running": Session.running, "menu_prints": main.menu.print_sources() if main and main.menu and is_instance_valid(main.menu) else [], "menu_logo": main.menu.logo_source() if main and main.menu and is_instance_valid(main.menu) else "", "notices": _notices.duplicate(), "save_status": Session.save_status,
 		"recovered": Session.recovered_from_backup, "paused": get_tree().paused,
 		"settings": Settings.values.duplicate(), "bindings": Settings.bindings.duplicate(),
 		"asset_sources": Assets.source.duplicate(), "recent_slot": Saves.most_recent_slot(), "music_id": Audio.music_id, "music_pos": Audio.music_position(),
