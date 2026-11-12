@@ -43,7 +43,7 @@ try:
     check(st["music_id"] == "music.theme" and 0 < st["music_pos"] < 12, f"theme repeats via crossfade (pos {st['music_pos']:.1f} s)")
 
     print("2. rotating housing, twin guns, independent chassis")
-    st = g.cmd("new 1")["state"]
+    st = g.cmd("new 1 taubecken")["state"]
     g.cmd("wait 4")
     check(g.state()["music_id"] in ("", None) or not g.state()["music_cue"], "gameplay starts without constant music")
     m = st["game"]["mech"]
@@ -123,7 +123,7 @@ print("7. parked enemy mech encounter")
 g = Instance("refuge", headless=HEADLESS)
 g.start()
 try:
-    st = g.cmd("new 2")["state"]
+    st = g.cmd("new 2 taubecken")["state"]
     e = st["game"]["enemies"][E2]
     check(e["ai"] == "unpiloted" and e["pilot"]["state"] == "outside", "pilot stands outside the inactive mech")
     ep, pp = e["pos"], e["pilot"]["pos"]
@@ -161,7 +161,7 @@ try:
     check(g.state()["game"]["enemies"][E2]["ai"] == "wreck", "the boarded mech can be defeated as before")
 
     print("8. interrupted encounter + save/load")
-    st = g.cmd("new 3")["state"]
+    st = g.cmd("new 3 taubecken")["state"]
     e = st["game"]["enemies"][E2]; pp = e["pilot"]["pos"]
     g.cmd(f"set_mech {pp[0] + 230} {pp[1]} 270")   # beside the pilot, clear of the parked car
     for _ in range(40):
@@ -180,7 +180,7 @@ try:
     check(e["ai"] in ("return", "patrol", "alert", "engage") and e["pilot"]["state"] == "aboard",
           f"loading mid-boarding resolves forward ({e['ai']}, pilot {e['pilot']['state']}) — no replay")
     check(sum(1 for k in st["game"]["enemies"] if k == E2) == 1, "no duplicated encounter")
-    g.cmd("new 2")
+    g.cmd("new 2 taubecken")
     e = g.state()["game"]["enemies"][E2]
     g.cmd(f"set_mech {e['pos'][0] - 340} {e['pos'][1] + 120} 70")
     g.cmd("debug enemy_integrity 0"); g.cmd("wait 2")

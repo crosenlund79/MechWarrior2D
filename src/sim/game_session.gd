@@ -534,13 +534,22 @@ func mech_velocity(dt: float) -> Vector2:
 
 ## Called by the car view after move_and_slide with the real result. Walls and
 ## rocks take the velocity they absorbed; a hard hit damages the car.
+const TELEPORT_JUMP := 150.0   # px in one physics frame: more than any car can drive
+
+
 func commit_mech(pos: Vector2, real_velocity: Vector2) -> void:
 	var m := mech()
 	var old := Content.v2(m["pos"])
 	m["pos"] = [pos.x, pos.y]
-	state["stats"]["distance"] = float(state["stats"]["distance"]) + old.distance_to(pos)
-	if mode() == "mech":
-		_burn_fuel(old.distance_to(pos) * float(tun("economy").get("fuel_per_px", 0.0035)))
+	# A teleport (travel, dev, test placement) makes get_real_velocity() report
+	# the jump itself; move_and_slide can only ever slow a car, never speed it up.
+	if real_velocity.length() > _last_desired.length() + 60.0 or old.distance_to(pos) > TELEPORT_JUMP:
+		real_velocity = _last_desired if old.distance_to(pos) <= TELEPORT_JUMP else Vector2.ZERO
+		_last_desired = real_velocity
+	else:
+		state["stats"]["distance"] = float(state["stats"]["distance"]) + old.distance_to(pos)
+		if mode() == "mech":
+			_burn_fuel(old.distance_to(pos) * float(tun("economy").get("fuel_per_px", 0.0035)))
 	var lost := (_last_desired - real_velocity).length()
 	m["vel"] = [real_velocity.x, real_velocity.y]
 	m["speed"] = real_velocity.dot(Drive.forward(float(m["heading"])))
@@ -1281,6 +1290,8 @@ func commit_enemy(id: String, pos: Vector2, real_velocity: Vector2) -> void:
 	var e := enemy(id)
 	if e.is_empty():
 		return
+	if real_velocity.length() > TELEPORT_JUMP * 10.0:
+		real_velocity = Vector2.ZERO          # teleported (see commit_mech)
 	e["pos"] = [pos.x, pos.y]
 	e["vel"] = [real_velocity.x, real_velocity.y]
 	e["speed"] = real_velocity.dot(Drive.forward(float(e["heading"])))
@@ -2247,7 +2258,7 @@ func gate_to(node_id: String) -> Dictionary:
 signal travelled(from_node: String, to_node: String)
 
 
-func travel_to(node_id: String, force: bool = false) -> String:
+func travel_to(node_id: String, force: bool = false, at_start: bool = false) -> String:
 	if not running:
 		return "not running"
 	var here := current_node()
@@ -2280,7 +2291,7 @@ func travel_to(node_id: String, force: bool = false) -> String:
 	var g := gate_to(here)
 	var p := Content.v2(dest.get("mech_start", {}).get("pos", [0, 0]))
 	var hd := float(dest.get("mech_start", {}).get("heading_deg", 0.0))
-	if not g.is_empty():
+	if not g.is_empty() and not at_start:
 		p = Content.v2(g["entry"])
 		hd = float(g["heading_deg"])
 	var m := mech()

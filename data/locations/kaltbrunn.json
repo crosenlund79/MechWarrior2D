@@ -779,7 +779,7 @@
 	"creatures": [],
 	"pois": [],
 	"relief": {
-		"seed": 35,
+		"seed": 6001,
 		"amp": 0.5,
 		"scale": 900.0
 	},

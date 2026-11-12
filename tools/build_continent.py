@@ -367,7 +367,7 @@ def patch_basin():
     b = d["bounds"]  # [-2600, 0, 9400, 6200]
     d["gates"] = [
         {"id": "gate_ersthafen", "to": "ersthafen", "side": "w", "pos": [b[0], 3330], "entry": [b[0] + 420, 3330], "heading_deg": 90},
-        {"id": "gate_kaltbrunn", "to": "kaltbrunn", "side": "e", "pos": [b[0] + b[2], 1300], "entry": [b[0] + b[2] - 420, 1300], "heading_deg": 270},
+        {"id": "gate_kaltbrunn", "to": "kaltbrunn", "side": "e", "pos": [b[0] + b[2], 2150], "entry": [b[0] + b[2] - 420, 2150], "heading_deg": 270},
         {"id": "gate_rostfeld", "to": "rostfeld", "side": "e", "pos": [b[0] + b[2], 2700], "entry": [b[0] + b[2] - 420, 2700], "heading_deg": 270},
     ]
     d["quarry"] = "rimeback"

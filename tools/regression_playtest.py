@@ -28,7 +28,7 @@ g = Instance("playtest", headless=False, extra_args=["--rendering-driver", "open
 g.wipe(); g.start()
 try:
     g.cmd("window 1600 900"); g.cmd("setting show_tutorial false")
-    g.cmd("new 1"); g.cmd("dev toggle aggression")
+    g.cmd("new 1 taubecken"); g.cmd("dev toggle aggression")
 
     print("1. reverse steering (001/003)")
     g.cmd("set_mech 300 2100 90"); g.cmd("wait 0.3")
@@ -82,14 +82,17 @@ try:
     g.cmd("dev clear")
 
     print("4. garage cursor (004) and 5. storage (005)")
-    g.cmd("dev teleport refuge"); g.cmd("wait 0.5")
+    g.cmd("travel ersthafen force"); g.cmd("devx money 2000"); g.cmd("give_materials")
+    gp = g.state()["game"]["mech"]["pos"]
+    g.cmd("dev teleport garage"); g.cmd("wait 0.5")
     st = g.state()
     check(not st["mouse_visible"], "while driving the system cursor is hidden (reticle)")
-    g.cmd("give_materials"); g.cmd("ui garage on"); g.cmd("wait 0.4")
+    g.cmd("ui garage on"); g.cmd("wait 0.4")
     st = g.state()
     check(st["garage_open"] and st["paused"], "the garage opens and pauses the game")
     check(st["mouse_visible"], "the mouse cursor is visible in the garage")
     carried = dict(st["game"]["mech"]["storage"])
+    g.cmd("click_garage Tab_storage"); g.cmd("wait 0.2")
     r = g.cmd("click_garage Unload"); g.cmd("wait 0.2")
     st = g.state()
     check(r["ok"] and not st["game"]["mech"]["storage"], "Unload cargo empties the car")
@@ -97,10 +100,16 @@ try:
     store1 = dict(st["garage_storage"])
     r2 = g.cmd("click_garage Unload")
     check(not r2["ok"], "the Unload button is disabled once the car is empty (no repeat)")
+    m0 = g.state()["money"]
+    g.cmd("click_garage Tab_upgrades"); g.cmd("wait 0.2")
     r = g.cmd("click_garage Fit_armor"); g.cmd("wait 0.2")
     st = g.state()
-    check(r["ok"] and st["game"]["mech"]["upgrades"].get("armor") == 1, "buying a module with the mouse works from stored materials")
-    check(st["garage_storage"].get("scrap", 0) < store1.get("scrap", 0), "its cost came out of the store")
+    check(r["ok"] and st["game"]["mech"]["upgrades"].get("armor") == 1, "buying an upgrade with the mouse works")
+    check(st["money"] < m0, f"it was paid in Mark ({m0} → {st['money']})")
+    g.cmd("click_garage Tab_market"); g.cmd("wait 0.2")
+    r = g.cmd("click_garage SellAll_rime_hide"); g.cmd("wait 0.2")
+    st = g.state()
+    check(r["ok"] and st["garage_storage"].get("rime_hide", 0) == 0 and st["money"] > m0 - 300, "stored loot sells from the market tab")
     r = g.cmd("click_garage Close"); g.cmd("wait 0.4")
     st = g.state()
     check(not st["garage_open"] and not st["paused"], "closing the panel resumes the game")
@@ -114,7 +123,7 @@ try:
     st = g.cmd("continue 1")["state"]
     check(st["garage_storage"] == store2, "the garage store survives save + restart")
     check(st["game"]["mech"]["upgrades"].get("armor") == 1, "the bought module persisted")
-    g.cmd("set_mech 300 2100 90")
+    g.cmd("set_mech 300 300 90")
     check(not g.cmd("unload")["ok"], "no unloading out in the field")
 finally:
     g.quit()

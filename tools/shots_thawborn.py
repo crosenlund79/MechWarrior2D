@@ -25,7 +25,7 @@ def wait_for_tell(cid, kinds, tries=60, step=0.1):
 try:
     g.cmd("window 1600 900")
     g.cmd("setting show_tutorial false")
-    g.cmd("new 1"); g.cmd("wait 1.5")
+    g.cmd("new 1 taubecken"); g.cmd("wait 1.5")
     if "--backdrop" in sys.argv:
         g.cmd("ui hud off"); g.cmd("setting zoom 0.75"); g.cmd("set_mech -320 4500 120")
         g.cmd("set_creature 120 4280 roam cid=rimeback"); g.cmd("dev toggle aggression"); g.cmd("wait 2.5")

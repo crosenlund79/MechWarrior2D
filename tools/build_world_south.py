@@ -228,9 +228,9 @@ d["creatures"] = [
     {"id": "skirr_n2", "species": "skirr", "pack": "north", "spawn": [3350, 640]},
     {"id": "skirr_n3", "species": "skirr", "pack": "north", "spawn": [3200, 700]},
     {"id": "skirr_n4", "species": "skirr", "pack": "north", "spawn": [3400, 520]},
-    {"id": "skirr_f1", "species": "skirr", "pack": "flats", "spawn": [-2150, 4000]},
-    {"id": "skirr_f2", "species": "skirr", "pack": "flats", "spawn": [-2080, 3950]},
-    {"id": "skirr_f3", "species": "skirr", "pack": "flats", "spawn": [-2220, 3940]},
+    {"id": "skirr_f1", "species": "skirr", "pack": "flats", "spawn": [1150, 5750]},
+    {"id": "skirr_f2", "species": "skirr", "pack": "flats", "spawn": [1220, 5700]},
+    {"id": "skirr_f3", "species": "skirr", "pack": "flats", "spawn": [1080, 5690]},
     {"id": "grindback_dunes", "species": "grindback", "spawn": [1640, 1950]},
     {"id": "grindback_flats", "species": "grindback", "spawn": [-1100, 3900]},
     {"id": "rimeback", "species": "rimeback", "spawn": [-200, 5000], "heading_deg": 90}]

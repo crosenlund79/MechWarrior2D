@@ -168,6 +168,9 @@ static func _migrate_6_to_7(env: Dictionary) -> Dictionary:
 		s["journey"] = {"node": here, "from": "ersthafen", "visited": {"ersthafen": true, here: true},
 			"discovered": {"ersthafen": true, "taubecken": true, "kaltbrunn": true, "rostfeld": true},
 			"completed": {"ersthafen": true}, "delivered": false, "cargo_intact": true}
+		var rb = s.get("creatures", {}).get("rimeback") if s.get("creatures") is Dictionary else null
+		if rb is Dictionary and str(rb.get("ai", "")) == "dead":
+			s["journey"]["completed"]["taubecken"] = true   # the quarry was already hunted
 	if s.get("world") is Dictionary and not s["world"].has("pois"):
 		s["world"]["pois"] = {}
 	env["version"] = 7

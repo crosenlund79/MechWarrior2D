@@ -30,7 +30,7 @@ g = Instance("encounter", headless=HEADLESS)
 g.wipe(); g.start()
 try:
     print("1. patrol")
-    st = g.cmd("new 1")["state"]
+    st = g.cmd("new 1 taubecken")["state"]
     e0 = en(st)
     check(e0["ai"] == "patrol", "enemy starts on patrol")
     g.cmd("wait 4")
@@ -40,7 +40,8 @@ try:
     check(e1["ai"] == "patrol", "start area is out of detection range")
 
     print("2. detect + pursue")
-    ep = e1["pos"]
+    ep = [3000, 2000]   # open salt pan, clear of the pylons
+    g.cmd(f"set_enemy {ep[0]} {ep[1]} 270 patrol")
     g.cmd(f"set_mech {ep[0] - 420} {ep[1]} 90")
     g.cmd("debug heat 25")       # a hot mech is visible from farther away
     g.cmd("wait 3")

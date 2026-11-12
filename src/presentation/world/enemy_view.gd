@@ -344,7 +344,9 @@ func _process(delta: float) -> void:
 	var wv = get_parent()
 	if wv and wv.get("relief"):
 		hgt = wv.relief.height_at(global_position)
-	scale = scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	# visual-only elevation scale (never scale the physics body itself)
+	body.scale = body.scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	gun_holder.scale = body.scale
 	shadow.global_position = global_position + SHADOW_OFFSET * lerpf(0.45, 1.0, _pose) * (1.0 + hgt * Relief.SHADOW_K)
 	var sb: Node2D = shadow.get_child(0) if shadow.get_child_count() > 0 else null
 	if sb:

@@ -1211,36 +1211,52 @@ func test_harvest_bonus_loot_pickup_by_car_and_cargo_limit() -> void:
 
 func test_garage_costs_effects_and_persistence() -> void:
 	var s := _fresh_session()
-	var tg: Dictionary = Content.tuning["garage"]
-	s["mech"]["pos"] = Session.loc["garage"]["pos"].duplicate()
-	check(Session.at_garage(), "the refuge bay is the garage")
-	check(Session.garage_check("armor") == "GARAGE_MISSING", "a new run cannot afford armour yet")
+	_at_settlement(s)
+	check(Session.at_garage() and Session.has_service("upgrade"), "the settlement garage sells upgrades")
+	check(Session.garage_check("chassis") == "GARAGE_RANK_LOCKED", "chassis L1 needs Jäger rank 2")
+	s["money"] = 0
+	check(Session.garage_check("armor") == "GARAGE_NO_MONEY", "upgrades cost money, not materials")
+	s["money"] = 100000
+	s["rank"] = {"xp": 999999, "level": 10}
 	var base_int := Session.max_integrity()
 	var base_grip := float(Session.car_tun()["grip"])
+	var base_speed := float(Session.car_tun()["max_speed"])
 	var base_cool := float(Session.car_thermal()["cooling_coeff"])
 	var base_dmg := float(Session.player_weapon()["damage"])
 	var base_cargo := Session.cargo_capacity()
-	for k in 3:
-		Session.dev_give_materials()
-	for mod in ["armor", "cooling", "tires", "weapon", "rig"]:
-		check(Session.garage_fit(mod), "fit " + mod)
-	check(Session.max_integrity() > base_int, "armour raises max body points")
+	for mod in Garage.MODULES:
+		var m0 := Session.money()
+		var price := int(Garage.next_level(Session.tun("shop"), Session.upgrades(), mod)["price"])
+		check(Session.garage_fit(mod), "buy " + mod)
+		check(Session.money() == m0 - price, "%s cost exactly its price (%d M)" % [mod, price])
+	check(Session.max_integrity() > base_int, "armour + chassis raise max body points")
 	check(float(Session.car_tun()["grip"]) > base_grip, "tyres raise grip")
-	check(float(Session.car_thermal()["cooling_coeff"]) > base_cool, "cooling module cools better")
-	check(float(Session.player_weapon()["damage"]) > base_dmg, "weapon module hits harder")
-	check(Session.cargo_capacity() > base_cargo, "rig adds cargo")
+	check(float(Session.car_tun()["max_speed"]) > base_speed, "engine + turbo raise top speed")
+	check(float(Session.car_thermal()["cooling_coeff"]) > base_cool, "cooling line cools better")
+	check(float(Session.car_thermal()["move_heat"]) > float(Session.tun("thermal")["move_heat"]), "the turbo runs the engine a little hotter (trade-off)")
+	check(float(Session.player_weapon()["damage"]) > base_dmg, "weapons line hits harder")
+	check(Session.cargo_capacity() > base_cargo, "cargo line adds capacity")
 	approx(float(s["mech"]["integrity"]), Session.max_integrity(), 0.01, "new armour arrives undamaged")
 	s["mech"]["integrity"] = 40.0
 	s["mech"]["radiator"] = 0.5
-	GameState.add(s["mech"]["storage"], "scrap", 40)
+	var cost := Session.garage_repair_cost()
+	var m1 := Session.money()
 	check(Session.garage_repair(), "garage repair")
+	check(Session.money() == m1 - cost, "repair paid in Mark (%d)" % cost)
 	approx(float(s["mech"]["integrity"]), Session.max_integrity(), 0.5, "full repair")
 	var env := SaveCodec.encode(Session.savable_state())
 	var st := GameState.sanitize(SaveCodec.migrate(JSON.parse_string(JSON.stringify(env)))["state"], Session.loc)
-	check(int(st["mech"]["upgrades"]["armor"]) == 1 and int(st["mech"]["upgrades"]["rig"]) == 1, "upgrades persist through a save")
-	s["mech"]["pos"] = [0.0, 3000.0]
-	check(not Session.garage_fit("armor"), "no fitting away from the garage")
+	check(int(st["mech"]["upgrades"]["armor"]) == 1 and int(st["mech"]["upgrades"]["cargo"]) == 1 and int(st["money"]) == Session.money(), "upgrades and money persist through a save")
+	s["mech"]["pos"] = [100.0, 100.0]
+	check(not Session.garage_fit("armor"), "no shopping away from the garage")
 	Session.running = false
+
+
+func _at_settlement(s: Dictionary) -> void:
+	Session.loc = Content.location("ersthafen")
+	s["location"] = "ersthafen"
+	s["journey"]["node"] = "ersthafen"
+	s["mech"]["pos"] = Session.loc["garage"]["pos"].duplicate()
 
 
 func test_tracks_lead_to_the_animal_and_tracker_reads_them() -> void:
@@ -1345,6 +1361,9 @@ func test_dev_creatures_never_saved() -> void:
 	check(not Session.savable_state()["creatures"].has(id), "dev-spawned creatures are stripped from saves")
 	Session.dev_give_materials()
 	check(Session.have_item("thawheart") > 0, "dev can grant test materials")
+	var nd := int(s["stats"].get("dev_actions", 0))
+	Session.dev_refuel()
+	check(Session.fuel() == Session.fuel_capacity() and int(s["stats"]["dev_actions"]) > nd, "dev refuel works and is recorded")
 	Session.running = false
 
 
@@ -1405,7 +1424,7 @@ func test_pt002_starter_area_driving_never_warns() -> void:
 
 func test_pt005_garage_storage_unload_use_persist() -> void:
 	var s := _fresh_session()
-	s["mech"]["pos"] = Session.loc["garage"]["pos"].duplicate()
+	_at_settlement(s)
 	s["mech"]["storage"] = {"rime_hide": 2, "scrap": 5, "rime_gland": 1}
 	s["pilot"]["pack"] = {"skirr_hide": 1}
 	var n := Session.unload_cargo()
@@ -1413,20 +1432,17 @@ func test_pt005_garage_storage_unload_use_persist() -> void:
 	check(s["mech"]["storage"].is_empty() and s["pilot"]["pack"].is_empty(), "the car and pack are empty afterwards")
 	check(int(Session.garage_storage().get("rime_hide", 0)) == 2 and int(Session.garage_storage().get("scrap", 0)) == 5, "items are in the garage store")
 	check(Session.unload_cargo() == 0, "unloading again moves nothing (no duplication)")
-	check(int(Session.garage_storage().get("rime_hide", 0)) == 2, "store unchanged by the repeat")
-	check(Session.have_item("rime_gland") == 1, "stored materials count at the garage")
-	check(Session.garage_fit("cooling"), "a module is bought from stored materials (gland + scrap)")
-	check(int(Session.garage_storage().get("rime_gland", 0)) == 0 and int(Session.garage_storage().get("scrap", 0)) == 3, "the cost came out of the store exactly once")
-	s["mech"]["integrity"] = 50.0
-	check(Session.garage_repair(), "repair pays with stored scrap")
-	check(int(Session.garage_storage().get("scrap", 0)) < 3, "scrap taken from the store")
+	var m0 := Session.money()
+	var earned := Session.sell_item("rime_gland", 1)
+	check(earned == Session.item_value("rime_gland") and Session.money() == m0 + earned, "stored loot sells for its value")
+	check(int(Session.garage_storage().get("rime_gland", 0)) == 0, "sold from the store, once")
+	check(Session.sell_item("rime_gland", 1) == 0, "cannot sell what is gone")
 	var env := SaveCodec.encode(Session.savable_state())
 	var st := GameState.sanitize(SaveCodec.migrate(JSON.parse_string(JSON.stringify(env)))["state"], Session.loc)
 	check(st["garage"]["storage"] == Session.garage_storage(), "the garage store persists through a save")
-	s["mech"]["pos"] = [0.0, 3000.0]
+	s["mech"]["pos"] = [100.0, 100.0]
 	s["mech"]["storage"] = {"scrap": 1}
-	check(Session.unload_cargo() == 0 and int(s["mech"]["storage"]["scrap"]) == 1, "no unloading away from the refuge")
-	check(Session.have_item("rime_hide") == 0, "the store cannot be spent from the field")
+	check(Session.unload_cargo() == 0 and int(s["mech"]["storage"]["scrap"]) == 1, "no unloading away from a garage")
 	Session.running = false
 
 
@@ -1438,15 +1454,17 @@ func test_pt005_migration_v5_to_v6() -> void:
 	var env := SaveCodec.encode(st)
 	env["version"] = 5
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 6 and SaveCodec.validate(up) == "", "v5 → v6 adds the garage store")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION and SaveCodec.validate(up) == "", "v5 → v6 (→ current) adds the garage store")
 	var s2 := GameState.sanitize(up["state"], loc)
 	check(s2["garage"]["storage"].is_empty() and int(s2["mech"]["storage"]["rime_hide"]) == 3, "cargo stays in the car, store starts empty")
 
 
 func test_pt006_fast_bullets_hit_without_tunnelling() -> void:
 	var w: Dictionary = Content.tuning["combat"]["player_weapon"]
-	check(float(w["speed"]) >= 1200.0, "player rounds fly about twice as fast as before (%.0f px/s, was 620)" % float(w["speed"]))
-	check(absf(float(w["damage"]) - 5.0) < 0.01 and absf(float(w["cooldown"]) - 0.3) < 0.01, "damage and fire rate unchanged")
+	check(float(w["speed"]) >= 1800.0, "player rounds are fast (%.0f px/s, was 620 in 0.2.0)" % float(w["speed"]))
+	check(float(w["cooldown"]) < 0.2 and float(w["range"]) >= 950.0, "faster fire rate and longer range")
+	var th: Dictionary = Content.tuning["thermal"]
+	check(absf(float(w["heat_per_shot"]) / float(w["cooldown"]) - 0.85 / 0.3) < 0.1, "heat per second of fire unchanged (heat balance kept)")
 	var tc: Dictionary = Content.tuning["creatures"]
 	# a small skirr crossing the line of fire, simulated at a slow 20 fps (50 px+ per step)
 	var c := Creatures.create({"species": "skirr", "spawn": [400, 0]}, tc)
@@ -1466,3 +1484,200 @@ func test_pt006_fast_bullets_hit_without_tunnelling() -> void:
 	sh["pos"] = Vector2(200, 0)
 	check(Combat.hit_test(sh, Vector2(0, 10), PI * 0.5, eh) != "", "rival cars are hit even when a step jumps right across them")
 	check(float(Content.tuning["combat"]["enemy_weapon"]["speed"]) < 400.0, "enemy slugs stay slow and dodgeable")
+
+
+# ---------------------------------------------------------------- Continental journey
+
+func test_cj_route_network_branches_and_reconnects() -> void:
+	var nodes := Journey.nodes()
+	check(nodes.size() >= 9, "a genuinely playable network (%d nodes)" % nodes.size())
+	check(str(Journey.data()["start"]) == "ersthafen" and str(Journey.data()["goal"]) == "stahlheim", "Ersthafen → Stahlheim")
+	check(Journey.neighbors("taubecken").size() >= 3, "Taubecken branches")
+	check(Journey.neighbors("eisenhalt").size() >= 3, "routes reconnect at Eisenhalt")
+	check(Journey.next_hop("ersthafen", "stahlheim") == "taubecken", "routing works from the start")
+	var tiers_ok := true
+	for id in nodes:
+		var loc := Content.location(str(nodes[id]["location"]))
+		if loc.is_empty() or loc.get("gates", []).size() != Journey.neighbors(id).size():
+			tiers_ok = false
+			print("  map/gates problem: ", id)
+	check(tiers_ok, "every node is a real map with one gate per route")
+	check(int(Journey.node("stahlheim")["tier"]) > int(Journey.node("rostfeld")["tier"]) and int(Journey.node("rostfeld")["tier"]) > int(Journey.node("taubecken")["tier"]), "danger escalates toward Stahlheim")
+	for id in nodes:
+		if Journey.is_safe(id):
+			var l2 := Content.location(str(nodes[id]["location"]))
+			check(l2.get("creatures", []).is_empty() and l2.has("garage"), "%s is a creature-free settlement with a garage" % id)
+
+
+func test_cj_new_game_starts_in_ersthafen_with_money_fuel_rank() -> void:
+	var loc := Content.location("ersthafen")
+	var s := GameState.create(loc, 2)
+	check(str(s["journey"]["node"]) == "ersthafen" and bool(s["journey"]["discovered"].get("taubecken", false)), "start node + first route known")
+	check(int(s["money"]) > 0 and float(s["mech"]["fuel"]) > 50.0 and int(s["rank"]["level"]) == 1, "money, fuel, rank 1")
+	check(s["creatures"].is_empty(), "Ersthafen has no creatures")
+
+
+func test_cj_travel_stashes_and_restores_sites() -> void:
+	var s := _fresh_session()
+	Session.loc = Content.location("ersthafen")
+	s["location"] = "ersthafen"
+	s["journey"] = Journey.create()
+	s["creatures"] = {}
+	s["enemies"] = {}
+	s["world"] = GameState.create_world()
+	s["mech"]["storage"] = {"rime_hide": 2}
+	var fuel0 := Session.fuel()
+	check(Session.travel_to("stahlheim") != "", "cannot jump to an unconnected node")
+	check(Session.travel_to("taubecken") == "", "travel to Taubecken")
+	check(str(Session.state["location"]) == "desert_basin_01" and Session.current_node() == "taubecken", "now in the basin")
+	check(Session.fuel() < fuel0, "the route cost fuel")
+	check(Session.state["creatures"].has("rimeback"), "the basin's creatures are there")
+	check(int(Session.state["mech"]["storage"]["rime_hide"]) == 2, "cargo travels with the car")
+	var g := Session.gate_to("ersthafen")
+	check(Content.v2(Session.mech()["pos"]).distance_to(Content.v2(g["entry"])) < 1.0, "arrived at the gate from Ersthafen")
+	Session.state["creatures"]["rimeback"]["hp"] = 12.0
+	Session.state["world"]["loot"].append({"id": "loot_x", "item": "scrap", "n": 1, "pos": [0, 4000]})
+	check(Session.travel_to("ersthafen") == "", "back to Ersthafen")
+	check(Session.travel_to("taubecken") == "", "and out again")
+	check(absf(float(Session.state["creatures"]["rimeback"]["hp"]) - 12.0) < 0.01, "the basin remembered the wounded Eisback")
+	check(Loot.find(Session.state["world"], "loot_x") >= 0, "and the loot left on the ground")
+	check(bool(Session.journey()["visited"].get("taubecken", false)) and bool(Session.journey()["discovered"].get("rostfeld", false)), "visiting reveals the onward routes")
+	Session.running = false
+
+
+func test_cj_exit_prompt_decline_cooldown_and_auto_exit() -> void:
+	var s := _fresh_session()
+	Session.travel_to("taubecken", true)
+	s = Session.state
+	var g := Session.gate_to("rostfeld")
+	var b: Array = Session.loc["bounds"]
+	var edge_x := float(b[0]) + float(b[2])
+	s["mech"]["pos"] = [edge_x - 200.0, float(g["pos"][1])]
+	Session._exit_cd = 0.0
+	Session._tick_exits(0.1)
+	check(not Session.exit_prompt.is_empty() and str(Session.exit_prompt["to"]) == "rostfeld" and str(Session.exit_prompt["kind"]) == "flee", "near the edge of a territory: 'Flee this territory?' toward the gate's destination")
+	check(Session.edge_speed_factor() < 1.0, "the car is slowed near the edge")
+	Session.decline_exit()
+	check(Session.exit_prompt.is_empty(), "declining closes the prompt")
+	for i in 5:
+		Session._tick_exits(0.5)
+	check(Session.exit_prompt.is_empty(), "no prompt spam while lingering at the edge")
+	s["mech"]["pos"] = [edge_x + 80.0, float(g["pos"][1])]
+	Session._tick_exits(0.1)
+	check(Session.current_node() == "rostfeld", "driving on past the boundary leaves anyway")
+	Session.running = false
+
+
+func test_cj_fuel_burn_limp_mode_and_refuel() -> void:
+	var s := _fresh_session()
+	_at_settlement(s)
+	s["mech"]["fuel"] = 1.0
+	Session._burn_fuel(5.0)
+	check(Session.fuel() == 0.0 and Session.limp_mode(), "an empty tank switches to limp mode")
+	check(float(Session.car_tun()["max_speed"]) > 50.0 and float(Session.car_tun()["max_speed"]) < float(Session.tun("mech")["max_speed"]) * 0.5, "limp mode is slow but never stranded")
+	s["money"] = 10
+	var litres := Session.refuel()
+	check(litres > 0.0 and litres <= 5.0 and Session.money() < 10, "refuel as far as the money goes")
+	s["money"] = 0
+	check(Session.refuel() == 0.0, "no money, no fuel — but the car still limps")
+	s["money"] = 1000
+	Session.refuel()
+	check(absf(Session.fuel() - Session.fuel_capacity()) < 1.0, "full tank")
+	Session.running = false
+
+
+func test_cj_rank_xp_unlocks() -> void:
+	var s := _fresh_session()
+	check(GameState.rank_for_xp(0) == 1 and GameState.rank_for_xp(130) == 2, "rank thresholds")
+	Session.add_xp(5000, "test")
+	check(Session.rank_level() >= 5, "XP raises the Jäger rank (%d)" % Session.rank_level())
+	Session.running = false
+
+
+func test_cj_quarry_kill_completes_territory() -> void:
+	var s := _fresh_session()
+	Session.travel_to("taubecken", true)
+	var c: Dictionary = Session.state["creatures"]["rimeback"]
+	var xp0 := int(Session.state["rank"]["xp"])
+	Session._creature_dies("rimeback", c)
+	check(bool(Session.journey()["completed"].get("taubecken", false)), "bringing down the quarry completes the territory")
+	check(int(Session.state["rank"]["xp"]) > xp0, "and earns Jäger XP")
+	Session.running = false
+
+
+func test_cj_pois_discover_search_once() -> void:
+	var s := _fresh_session()
+	Session.travel_to("salzpfanne", true)
+	var p: Dictionary = {}
+	for q in Session.loc.get("pois", []):
+		if str(q["kind"]) == "expedition" and not q.get("loot", {}).is_empty():
+			p = q
+			break
+	check(not p.is_empty(), "territories have abandoned expeditions with loot")
+	var ps := Session.poi_state(str(p["id"]))
+	check(not bool(ps["discovered"]), "unidentified until found (anomaly)")
+	Session.state["mech"]["pos"] = [float(p["pos"][0]) + 200.0, float(p["pos"][1])]
+	Session._tick_pois()
+	check(bool(Session.poi_state(str(p["id"]))["discovered"]), "driving close discovers it")
+	var l0: int = Session.state["world"]["loot"].size()
+	Session._finish_search(str(p["id"]))
+	var l1: int = Session.state["world"]["loot"].size()
+	check(l1 > l0, "searching drops its loot on the ground")
+	Session._finish_search(str(p["id"]))
+	check(Session.state["world"]["loot"].size() == l1, "searching again finds nothing new (no duplication)")
+	Session.travel_to("kaltbrunn", true)
+	Session.travel_to("salzpfanne", true)
+	check(bool(Session.poi_state(str(p["id"]))["searched"]), "the searched state persists across travel")
+	Session.running = false
+
+
+func test_cj_tier_scaling_makes_later_creatures_tougher() -> void:
+	var tc: Dictionary = Content.tuning["creatures"]
+	var ec: Dictionary = Content.tuning["economy"]
+	var t1 := Creatures.scaled(tc, 1, ec)
+	var t4 := Creatures.scaled(tc, 4, ec)
+	check(float(t4["rimeback"]["hp"]) > float(t1["rimeback"]["hp"]) * 1.5, "a tier-4 Eisback is much tougher")
+	check(float(t4["skirr"]["bite_damage"]) > float(t1["skirr"]["bite_damage"]), "and hits harder")
+	check(absf(float(t1["rimeback"]["hp"]) - float(tc["rimeback"]["hp"])) < 0.01, "tier 1 = base values")
+
+
+func test_cj_relief_smooth_and_visual_only() -> void:
+	var loc := Content.location("weissgrat")
+	var r := Relief.for_location(loc)
+	var maxd := 0.0
+	var p := Vector2(500, 2400)
+	var prev := r.height_at(p)
+	for i in 400:
+		p += Vector2(14, 0)
+		var h := r.height_at(p)
+		maxd = maxf(maxd, absf(h - prev))
+		prev = h
+	check(maxd < 0.12, "height changes smoothly (max step %.3f per 14 px) — no abrupt resizing" % maxd)
+	var lo := 1.0
+	var hi := -1.0
+	for i in 2000:
+		var q := Vector2(randf() * 6600.0, randf() * 4800.0)
+		lo = minf(lo, r.height_at(q))
+		hi = maxf(hi, r.height_at(q))
+	check(hi - lo > 0.6, "the territory is genuinely hilly (range %.2f)" % (hi - lo))
+	check(Relief.SCALE_K <= 0.1, "object scaling stays subtle")
+
+
+func test_cj_migration_v6_to_v7_single_map_save() -> void:
+	var loc := Content.location("desert_basin_01")
+	var st := GameState.create(loc, 1)
+	for k in ["journey", "money", "rank", "sites"]:
+		st.erase(k)
+	st["mech"].erase("fuel")
+	st["mech"]["upgrades"] = {"armor": 2, "rig": 1, "weapon": 1}
+	st["mech"]["storage"] = {"rime_horn": 1}
+	st["creatures"]["rimeback"]["ai"] = "dead"
+	var env := SaveCodec.encode(st)
+	env["version"] = 6
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 7 and SaveCodec.validate(up) == "", "v6 → v7")
+	var s2 := GameState.sanitize(up["state"], loc)
+	check(str(s2["journey"]["node"]) == "taubecken", "an old basin save continues in the Taubecken")
+	check(int(s2["money"]) > 0 and float(s2["mech"]["fuel"]) > 0.0, "money and fuel added")
+	check(int(s2["mech"]["upgrades"].get("armor", 0)) == 2 and int(s2["mech"]["upgrades"].get("cargo", 0)) == 1 and int(s2["mech"]["upgrades"].get("weapons", 0)) == 1, "old upgrades map onto the new lines")
+	check(int(s2["mech"]["storage"]["rime_horn"]) == 1, "carried materials stay as sellable cargo")

@@ -66,9 +66,11 @@ func _run(line: String) -> void:
 	var ok := true
 	var err := ""
 	match cmd:
-		"new":
+		"new":  # new <slot> [node]: a fresh run (at Ersthafen), optionally moved to a node's start spot (tests)
 			PlayerInput.driver_control = true
 			Session.start_new(int(a[0]) if a.size() > 0 else 1)
+			if a.size() > 1:
+				Session.travel_to(a[1], true, true)   # placed at the map's start spot (the refuge in the Taubecken)
 			await _wait(0.3)
 		"continue":
 			PlayerInput.driver_control = true
@@ -535,6 +537,7 @@ func _state() -> Dictionary:
 		st["player_projectile_speeds"] = ps
 		st["mouse_visible"] = Input.mouse_mode == Input.MOUSE_MODE_VISIBLE
 		st["hits_taken"] = Session.hits_taken.duplicate()
+		st["enemy_intents"] = Session.enemy_intents.duplicate(true)
 		st["car"] = {"max_speed": Session.car_tun()["max_speed"], "grip": Session.car_tun()["grip"], "accel": Session.car_tun()["accel"],
 			"cooling_coeff": Session.car_thermal()["cooling_coeff"], "damage": Session.player_weapon()["damage"], "cooldown": Session.player_weapon()["cooldown"]}
 		var briefs := {}

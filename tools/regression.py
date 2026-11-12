@@ -33,7 +33,7 @@ g.wipe()
 g.start()
 try:
     print("1. new game, drive, overheat")
-    s = g.cmd("new 1")["state"]
+    s = g.cmd("new 1 taubecken")["state"]
     check(s["running"] and s["game"]["mode"] == "mech", "new game starts in the car")
     check(s["area"] == "area_refuge", "the car starts in the canyon refuge")
     g.cmd("set_mech 800 1250 90")   # the classic shelter loop by the pump rig

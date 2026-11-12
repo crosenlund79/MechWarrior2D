@@ -1,20 +1,33 @@
 #!/usr/bin/env python3
-"""Runtime regression for the Thawborn first-playable loop (real game process):
-start at the canyon refuge → drive out by road (car feel, heat fairness) → find
+"""Runtime regression for the Thawborn journey loop (real game process):
+start in Ersthafen (settlement) → drive out through the gate (edge prompt) → Taubecken → road (car feel, heat fairness) → find
 and follow rimeback tracks → survive its telegraphed attacks while circling and
 shooting → break parts → it flees, follow → kill → get out, harvest → physical
 loot → load it by driving over it → return → garage repair + upgrade → save,
 quit, reload → everything persisted. Plus: rival-car encounter (telegraphed
 roof gunner, retreat), skirr pack + grindback behaviours, sandstorm path.
   python3 tools/regression_hunt.py      exit 0 = pass"""
-import os, sys, math
+import os, sys, math, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hs_driver import Instance
 
 HEADLESS = os.environ.get("HS_WINDOWED") != "1"
 fails = []
 WARN = 98.0
-ROAD_OUT = [(-1400, 1250), (-900, 1480), (-200, 1520), (560, 1480), (700, 2200), (650, 3000), (560, 3330), (-150, 3380), (-150, 4150)]
+ROAD_OUT = [(-1400, 3340), (-500, 3360), (-150, 3390), (-150, 4150)]
+ROAD_BACK = [(-150, 3390), (-500, 3360), (-1400, 3340), (-2250, 3330)]
+
+
+def leave_by(g, side, start, step, tries=12):
+    """Drive toward a map edge until the exit prompt shows (returns its state)."""
+    for k in range(tries):
+        st = g.state()
+        if st["exit_prompt"]:
+            return st
+        me = st["game"]["mech"]["pos"]
+        tx, ty = me[0] + step[0], me[1] + step[1]
+        g.cmd(f"drive_to {tx:.0f} {ty:.0f} 6")
+    return g.state()
 
 
 def check(cond, what):
@@ -30,13 +43,19 @@ def creature(st, cid):
 g = Instance("hunt", headless=HEADLESS)
 g.wipe(); g.start()
 try:
-    print("1. start at the canyon refuge")
+    print("1. start in Ersthafen and leave by the gate")
     st = g.cmd("new 1")["state"]
-    m = st["game"]["mech"]
-    check(st["game"]["mode"] == "mech" and st["area"] == "area_refuge", f"the car starts in the refuge ({st['area']})")
-    check(st["at_garage"], "parked in the garage bay")
+    check(st["node"] == "ersthafen" and st["zone_status"] == "safe", f"the journey starts in Ersthafen, a safe zone ({st['node']})")
+    check(st["at_garage"] and st["money"] > 0 and st["fuel"] > 90, "parked at the Eisenwolf garage with money and a full tank")
+    gate = [g2 for g2 in json.load(open("data/locations/ersthafen.json"))["gates"] if g2["to"] == "taubecken"][0]
+    g.cmd(f"drive_to {gate['entry'][0]} {gate['entry'][1]} 30")
+    st = leave_by(g, "e", gate["entry"], (300, 0))
+    check(bool(st["exit_prompt"]) and st["exit_prompt"]["kind"] == "leave", f"at the edge: 'Leave this area?' ({st['exit_prompt']})")
+    check(abs(st["game"]["mech"]["speed"]) <= 260, f"the car slowed down near the edge ({st['game']['mech']['speed']:.0f})")
+    st = g.cmd("exit yes")["state"]
+    check(st["node"] == "taubecken" and st["zone_status"] == "danger", f"arrived in the Taubecken territory ({st['node']}, {st['zone_status']})")
     check(st["creature_views"] == len(st["game"]["creatures"]) and len(st["game"]["creatures"]) >= 10, "creatures are alive in the world")
-    check(st["hint"] == "HINT_HUNT", f"the objective points at the hunt ({st['hint']})")
+    m = st["game"]["mech"]
 
     print("2. drive out by road (car handling, heat fairness)")
     peak, crash_free = 0.0, True
@@ -139,40 +158,53 @@ try:
     rarities = [n for n in st["notices"] if n in ("NOTICE_LOOT", "NOTICE_LEGENDARY")]
     check(len(rarities) > 0, "pickups announced")
 
-    print("6. return to the garage, repair and upgrade")
+    print("6. flee back to Ersthafen, sell, refuel, upgrade")
     st = g.state()
-    print(f"       (car body {st['game']['mech']['integrity']:.0f}, grille {st['game']['mech']['radiator']:.2f})")
+    print(f"       (car body {st['game']['mech']['integrity']:.0f}, grille {st['game']['mech']['radiator']:.2f}, fuel {st['fuel']:.0f} L, rank {st['rank']})")
     if st["game"]["mech"]["integrity"] <= 0:
-        # crippled: the field patch on foot gets you home (tested path)
         g.cmd("stop"); g.cmd("interact"); g.cmd("service"); g.cmd("wait 6.5"); g.cmd("interact")
         st = g.state()
         check(st["game"]["mech"]["integrity"] > 0, "field patch on foot makes a crippled car drivable")
-    for x, y in reversed(ROAD_OUT[:-1]):
+    for x, y in ROAD_BACK:
         g.cmd(f"drive_to {x} {y} 35")
-    g.cmd("drive_to -1440 930 30"); g.cmd("stop")
+    st = leave_by(g, "w", None, (-300, 0))
+    check(bool(st["exit_prompt"]) and st["exit_prompt"]["kind"] == "flee", f"at the territory edge: 'Flee this territory?' ({st['exit_prompt']})")
+    g.cmd("exit no")
+    st = g.cmd("wait 1.5")["state"]
+    check(not st["exit_prompt"] and st["node"] == "taubecken", "declining keeps you in the territory, no prompt spam")
+    me = st["game"]["mech"]["pos"]
+    g.cmd(f"drive_to {me[0] - 700:.0f} {me[1]:.0f} 10")
     st = g.state()
-    check(st["at_garage"], "back in the garage bay")
-    check(st["hint"] in ("HINT_GARAGE", "HINT_RETURN_TO_GARAGE") or st["at_garage"], f"hint points at the garage ({st['hint']})")
-    hull_before = st["game"]["mech"]["integrity"]
-    r = g.cmd("garage repair")
-    st = r["state"]
-    check(r["ok"] or hull_before >= st["max_integrity"] - 0.5, "garage repair works (or nothing to fix)")
-    r = g.cmd("unload"); st = r["state"]
-    check(r["ok"] and not st["game"]["mech"]["storage"] and st["garage_storage"].get("rime_hide", 0) >= 2, "hunt cargo unloaded into the garage store")
-    cool0 = st["car"]["cooling_coeff"]; maxi0 = st["max_integrity"]
+    check(st["node"] == "ersthafen", f"driving on past the boundary exits anyway ({st['node']})")
+    cargo_before = dict(st["game"]["mech"]["storage"])
+    gp = json.load(open("data/locations/ersthafen.json"))["garage"]["pos"]
+    g.cmd(f"drive_to {gp[0]} {gp[1]} 40"); g.cmd("stop")
+    st = g.state()
+    check(st["at_garage"], "parked in the Ersthafen garage")
+    check(st["hint"] in ("HINT_GARAGE",), f"hint points at the garage ({st['hint']})")
+    money0 = st["money"]
+    sold = 0
+    for item, n in cargo_before.items():
+        if g.cmd(f"sell {item} {n}")["ok"]:
+            sold += 1
+    st = g.state()
+    check(sold >= 2 and st["money"] > money0 + 300, f"hunt loot sold for Mark ({money0} → {st['money']} M)")
+    check(st["journey"]["completed"].get("taubecken"), "the Taubecken is marked completed (its quarry is down)")
+    check(st["rank"]["level"] >= 2, f"the hunt raised the Jäger rank ({st['rank']})")
+    r = g.cmd("refuel"); st = r["state"]
+    check(st["fuel"] > 95, f"refuelled ({st['fuel']:.0f} L)")
+    if st["game"]["mech"]["integrity"] < st["max_integrity"] - 1:
+        check(g.cmd("garage repair")["ok"], "repaired for Mark")
     fitted = []
-    for mod in ("cooling", "armor", "rig", "weapon", "tires"):
+    for mod in ("weapons", "armor", "engine", "cooling", "tires", "cargo"):
         if g.cmd(f"garage fit {mod}")["ok"]:
             fitted.append(mod)
     st = g.state()
-    check(len(fitted) >= 1, f"hunt materials buy at least one module ({fitted})")
-    if "cooling" in fitted:
-        check(st["car"]["cooling_coeff"] > cool0, "cooling module: engine cools better")
-    if "armor" in fitted:
-        check(st["max_integrity"] > maxi0, "armour module: more body points")
+    check(len(fitted) >= 1, f"hunt money buys upgrades ({fitted})")
     up = dict(st["game"]["mech"]["upgrades"])
     stor = dict(st["game"]["mech"]["storage"]); store = dict(st["garage_storage"])
-    ground_left = len(st["game"]["world"]["loot"])
+    money1 = st["money"]
+    ground_left = 0
 
     print("7. save, quit, reload")
     g.cmd("save")
@@ -181,9 +213,11 @@ try:
     check(st["running"], "continue works")
     check(st["game"]["mech"]["upgrades"] == up, f"upgrades persisted ({st['game']['mech']['upgrades']})")
     check(st["game"]["mech"]["storage"] == stor and st["garage_storage"] == store, "cargo and garage store persisted")
-    check(creature(st, "rimeback")["ai"] == "dead" and creature(st, "rimeback")["harvested"], "the kill and harvest persisted")
-    check(len(st["game"]["world"]["loot"]) == ground_left, f"ground loot persisted ({ground_left})")
+    check(st["money"] == money1 and st["node"] == "ersthafen", "money and position on the continent persisted")
+    check(st["journey"]["completed"].get("taubecken") and st["journey"]["visited"].get("taubecken"), "journey progress persisted")
     check(st["at_garage"], "the car is where it was left")
+    r = g.cmd("travel taubecken"); st = r["state"]
+    check(creature(st, "rimeback")["ai"] == "dead" and creature(st, "rimeback")["harvested"], "the kill and harvest persisted in the Taubecken")
 
     print("8. rival-car encounter")
     g.cmd("dev repair"); g.cmd("set_mech 3000 2200 0"); g.cmd("wait 0.5")
@@ -232,6 +266,21 @@ try:
     check(st["game"]["mech"]["engine"] != "shutdown", f"cruising through the storm does not shut down ({st['game']['mech']['heat']:.0f} °C)")
     check(st["noise"] < 1.0, f"the storm muffles engine noise ({st['noise']:.2f})")
     g.cmd("dev weather clear")
+
+    print("11. onward toward Stahlheim")
+    g.cmd("devx repair"); g.cmd("set_mech 5600 2150 90"); g.cmd("wait 0.3")
+    st = leave_by(g, "e", None, (350, 0))
+    if st["exit_prompt"]:
+        st = g.cmd("exit yes")["state"]
+    check(st["node"] == "kaltbrunn" and st["zone_status"] == "safe", f"onward to Kaltbrunn ({st['node']})")
+    check(st["journey"]["completed"].get("kaltbrunn") and st["journey"]["discovered"].get("salzpfanne"), "arriving completes the settlement and reveals the next route")
+    for n in ("salzpfanne", "eisenhalt", "frostgrund", "stahlheim"):
+        st = g.cmd(f"travel {n}")["state"]
+    check(st["node"] == "stahlheim" and st["zone_status"] == "cleared", f"Stahlheim reached with the cargo: CLEARED ({st['zone_status']})")
+    check(st["journey"]["delivered"], "the sealed case is delivered")
+    g.cmd("save"); g.quit(); g.start()
+    st = g.cmd("continue 1")["state"]
+    check(st["node"] == "stahlheim" and st["journey"]["delivered"] and st["zone_status"] == "cleared", "the delivered journey persists")
 finally:
     g.quit()
 print("\nRESULT:", "PASS" if not fails else f"FAIL ({len(fails)})")

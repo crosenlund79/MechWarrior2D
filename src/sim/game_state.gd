@@ -166,6 +166,9 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	var d := create(loc, int(s.get("slot", 1)))
 	for key in d:
 		if not s.has(key) or typeof(s[key]) != typeof(d[key]):
+			# JSON loads every number as float; accept int/float interchangeably (money!)
+			if s.has(key) and (typeof(s[key]) in [TYPE_INT, TYPE_FLOAT]) and (typeof(d[key]) in [TYPE_INT, TYPE_FLOAT]):
+				continue
 			s[key] = d[key]
 	for sub in ["mech", "pilot", "world", "stats"]:
 		for key in d[sub]:

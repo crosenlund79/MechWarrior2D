@@ -24,7 +24,7 @@ def check(cond, what):
 g = Instance("junkers", headless=HEADLESS)
 g.wipe(); g.start()
 try:
-    st = g.cmd("new 1")["state"]
+    st = g.cmd("new 1 taubecken")["state"]
     print("1. heavy twin-gun recoil at every housing angle")
     g.cmd("set_mech 1500 1150 90"); g.cmd("dev toggle aggression")
     m0 = g.state()["game"]["mech"]["pos"]
@@ -147,7 +147,7 @@ finally:
 print("6. turrets + defenders")
 g = Instance("junkers", headless=HEADLESS); g.start()
 try:
-    st = g.cmd("new 2")["state"]
+    st = g.cmd("new 2 taubecken")["state"]
     g.cmd("set_mech 5180 3950 180")
     tw = st["game"]["turrets"]
     check(len(tw) >= 4 and all(not t["destroyed"] for t in tw.values()), "perimeter turrets armed")

@@ -26,7 +26,7 @@ def heat(g):
 g = Instance("balance", headless=HEADLESS)
 g.wipe(); g.start()
 try:
-    g.cmd("new 1"); g.cmd("dev toggle aggression")
+    g.cmd("new 1 taubecken"); g.cmd("dev toggle aggression")
     print("1. speed and responsiveness")
     g.cmd("set_mech 300 2100 90"); g.cmd("wait 0.3")
     top, t90 = 0.0, None
@@ -46,7 +46,7 @@ try:
     check(abs(stopped) < 3, "brakes to a stop promptly")
 
     print("2. ordinary travel is sustainable (starting radiator)")
-    g.cmd("new 1"); g.cmd("dev toggle aggression")
+    g.cmd("new 1 taubecken"); g.cmd("dev toggle aggression")
     route = [(-1400, 1250), (-900, 1480), (-200, 1520), (560, 1480), (700, 1500), (830, 2000), (770, 2600), (660, 3100), (1000, 3430), (1600, 3420), (2400, 3330), (2900, 3520), (2400, 3330), (1600, 3420), (1000, 3430), (620, 3290)]   # around the abandoned highway cars
     peak = 0.0
     for x, y in route:

@@ -102,6 +102,20 @@ static func think(e: Dictionary, brain: Dictionary, target: Dictionary, defn: Di
 				out["event"] = "alert"
 			elif pos.distance_to(home) < 240.0:   # cars circle rather than stop on a spot
 				_set_state(e, brain, "patrol")
+	# Unstick: a car pinned against an obstacle (wants to drive, not moving) backs
+	# up with opposite lock for a moment — cars cannot turn on the spot.
+	if float(brain.get("reverse_t", 0.0)) > 0.0:
+		brain["reverse_t"] = float(brain["reverse_t"]) - dt
+		out["throttle"] = -0.8
+		out["turn"] = -float(brain.get("reverse_turn", 1.0))
+	elif absf(float(out["throttle"])) > 0.2 and absf(float(e.get("speed", 0.0))) < 15.0:
+		brain["stuck_t"] = float(brain.get("stuck_t", 0.0)) + dt
+		if float(brain["stuck_t"]) > 0.9:
+			brain["stuck_t"] = 0.0
+			brain["reverse_t"] = 1.1
+			brain["reverse_turn"] = signf(float(out["turn"])) if absf(float(out["turn"])) > 0.1 else 1.0
+	else:
+		brain["stuck_t"] = 0.0
 	# The gunner turret slews toward its target (or back to the bonnet).
 	var want := float(e["heading"])
 	if gun_target != Vector2.INF:
