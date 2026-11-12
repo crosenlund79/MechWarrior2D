@@ -85,6 +85,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/ui/journey_map.gd` | Continental map screen (M): node states, routes with fuel cost, node info, set course. |
 | `src/presentation/world/poi_view.gd` | Abandoned expedition sites (wreck, dead driver, papers, fire) and landmarks. |
 | `src/presentation/world/relief.gd` | Visual-only elevation: heightfield, hillshade texture, altitude scale for objects. |
+| `tools/shots_journey.py` | Screenshots of the Continental Journey (menu, settlement, workshop, continental map, minimap, expedition, hills, Stahlheim); needs a display. |
 | `tools/build_continent.py` | Generates and validates the settlement and territory maps of the continental journey (run after build_world_south.py). |
 | `src/sim/loot.gd` | Physical ground loot with rarities: spawn, drop tables, lookup. |
 | `src/presentation/world/creature_view.gd` | One creature: body parts, gait, in-world telegraphs (lanes, crack rings, arcs, glowing glands), hit/part-break FX, carcass. |

@@ -85,6 +85,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/ui/journey_map.gd` | Kontinentkort (M): knudernes status, ruter med brændstofpris, knudeinfo, sæt kurs. |
 | `src/presentation/world/poi_view.gd` | Forladte ekspeditionssteder (vrag, død fører, papirer, ild) og vartegn. |
 | `src/presentation/world/relief.gd` | Kun-visuel højde: højdefelt, skyggelagt terræn, højdeskalering af objekter. |
+| `tools/shots_journey.py` | Skærmbilleder af rejsen (menu, bosættelse, værksted, kontinentkort, minikort, ekspedition, bakker, Stahlheim); kræver skærm. |
 | `tools/build_continent.py` | Genererer og validerer bosættelses- og territoriekortene til rejsen (kør efter build_world_south.py). |
 | `src/sim/loot.gd` | Fysisk bytte på jorden med sjældenhed: oprettelse, droptabeller, opslag. |
 | `src/presentation/world/creature_view.gd` | Ét dyr: kropsdele, gang, varsler i verden (baner, revneringe, buer, glødende kirtler), træf-/brudeffekter, kadaver. |
