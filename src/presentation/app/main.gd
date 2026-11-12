@@ -31,8 +31,7 @@ func _show_menu() -> void:
 		menu.queue_free()
 	menu = MainMenu.new()
 	menu.open_settings.connect(open_settings)
-	menu_layer.add_child(menu)
-	MenuBackdrop.show_on(self)
+	menu_layer.add_child(menu)   # the menu draws its own workbench + prints (no backdrop)
 
 
 func open_settings() -> void:

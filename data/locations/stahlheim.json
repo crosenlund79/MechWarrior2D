@@ -1,0 +1,808 @@
+{
+	"id": "stahlheim",
+	"name": "NODE_STAHLHEIM",
+	"node": "stahlheim",
+	"kind": "hub",
+	"tier": 5,
+	"bounds": [
+		0,
+		0,
+		4400,
+		3400
+	],
+	"default_zone": {
+		"ambient": 65.5,
+		"solar": 1.2,
+		"abrasion": 1.0,
+		"drag": 1.0,
+		"suit": 1.0,
+		"label": "ZONE_OPEN_SAND",
+		"storm_exposure": 1.0,
+		"grip": 0.92
+	},
+	"zone_types": {
+		"shade": {
+			"ambient": 44.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.35,
+			"label": "ZONE_SHADE",
+			"storm_exposure": 0.6,
+			"grip": 1.0
+		},
+		"dunes": {
+			"ambient": 60.0,
+			"solar": 1.0,
+			"abrasion": 22.0,
+			"drag": 0.62,
+			"suit": 1.1,
+			"label": "ZONE_DUNES",
+			"storm_exposure": 1.0,
+			"grip": 0.7
+		},
+		"salt": {
+			"ambient": 63.0,
+			"solar": 1.3,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"suit": 1.25,
+			"label": "ZONE_SALT",
+			"storm_exposure": 1.0,
+			"grip": 1.0
+		},
+		"canyon": {
+			"ambient": 50.0,
+			"solar": 0.45,
+			"abrasion": 0.3,
+			"drag": 1.0,
+			"suit": 0.6,
+			"cooling": 1.1,
+			"label": "ZONE_CANYON",
+			"storm_exposure": 0.45,
+			"grip": 1.0
+		},
+		"refuge": {
+			"ambient": 34.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.12,
+			"cooling": 1.3,
+			"sheltered": true,
+			"label": "ZONE_REFUGE",
+			"storm_exposure": 0.08,
+			"grip": 1.05
+		},
+		"ravine": {
+			"ambient": 52.0,
+			"solar": 0.5,
+			"abrasion": 0.5,
+			"drag": 1.0,
+			"suit": 0.65,
+			"cooling": 1.05,
+			"storm_exposure": 0.45,
+			"label": "ZONE_RAVINE",
+			"grip": 1.0
+		},
+		"junker": {
+			"ambient": 60.0,
+			"solar": 1.05,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"suit": 1.05,
+			"storm_exposure": 0.95,
+			"label": "ZONE_JUNKER",
+			"grip": 0.95
+		},
+		"settlement": {
+			"ambient": 46.0,
+			"solar": 0.55,
+			"abrasion": 0.2,
+			"drag": 1.0,
+			"grip": 1.05,
+			"suit": 0.35,
+			"cooling": 1.25,
+			"label": "ZONE_SETTLEMENT",
+			"storm_exposure": 0.35,
+			"safe": true
+		},
+		"frost": {
+			"ambient": 49.0,
+			"solar": 1.15,
+			"abrasion": 0.5,
+			"drag": 0.95,
+			"grip": 0.8,
+			"suit": 1.2,
+			"label": "ZONE_FROST",
+			"storm_exposure": 1.0
+		},
+		"scorch": {
+			"ambient": 66.0,
+			"solar": 1.35,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"grip": 0.95,
+			"suit": 1.4,
+			"label": "ZONE_SCORCH",
+			"storm_exposure": 1.0
+		}
+	},
+	"patches": [
+		{
+			"id": "yard",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					730.0,
+					630.0
+				],
+				[
+					3670.0,
+					630.0
+				],
+				[
+					3670.0,
+					2770.0
+				],
+				[
+					730.0,
+					2770.0
+				]
+			]
+		},
+		{
+			"id": "road_0",
+			"tile": "ground.asphalt",
+			"width": 150,
+			"path": [
+				[
+					2200,
+					3400
+				],
+				[
+					2226,
+					3250
+				],
+				[
+					2106,
+					3100
+				],
+				[
+					2159,
+					2950
+				],
+				[
+					2200,
+					2800.0
+				],
+				[
+					2200,
+					1700
+				]
+			]
+		}
+	],
+	"zones": [
+		{
+			"id": "compound",
+			"type": "settlement",
+			"polygon": [
+				[
+					700.0,
+					600.0
+				],
+				[
+					3700.0,
+					600.0
+				],
+				[
+					3700.0,
+					2800.0
+				],
+				[
+					700.0,
+					2800.0
+				]
+			]
+		}
+	],
+	"props": [
+		{
+			"id": "werkstatt_floor",
+			"asset": "refuge.workshop_floor",
+			"pos": [
+				1940,
+				1380
+			],
+			"layer": "floor"
+		},
+		{
+			"id": "werkstatt_roof",
+			"asset": "refuge.workshop_roof",
+			"pos": [
+				1940,
+				1380
+			],
+			"layer": "overhead",
+			"occlude": true
+		},
+		{
+			"id": "werkstatt_sign",
+			"asset": "sign.eisenwolf",
+			"pos": [
+				1940,
+				1210
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					250,
+					30
+				]
+			}
+		},
+		{
+			"id": "werkstatt_lamp_a",
+			"asset": "junker.lamp",
+			"pos": [
+				1765,
+				1490
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.7,
+				0.35
+			],
+			"light_energy": 0.45,
+			"light_scale": 1.8
+		},
+		{
+			"id": "werkstatt_lamp_b",
+			"asset": "junker.lamp",
+			"pos": [
+				2115,
+				1490
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.7,
+				0.35
+			],
+			"light_energy": 0.45,
+			"light_scale": 1.8
+		},
+		{
+			"id": "tank_canopy",
+			"asset": "road.canopy",
+			"pos": [
+				2620,
+				1400
+			],
+			"layer": "overhead",
+			"occlude": true
+		},
+		{
+			"id": "tank_pump_a",
+			"asset": "road.pump",
+			"pos": [
+				2540,
+				1400
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 16
+			}
+		},
+		{
+			"id": "tank_pump_b",
+			"asset": "road.pump",
+			"pos": [
+				2700,
+				1400
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 16
+			}
+		},
+		{
+			"id": "tank_sign",
+			"asset": "sign.tankstelle",
+			"pos": [
+				2620,
+				1210
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					210,
+					28
+				]
+			}
+		},
+		{
+			"id": "handel_kiosk",
+			"asset": "road.kiosk",
+			"pos": [
+				1820,
+				2060
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					230,
+					150
+				]
+			}
+		},
+		{
+			"id": "handel_sign",
+			"asset": "sign.handelsposten",
+			"pos": [
+				1820,
+				1930
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					230,
+					28
+				]
+			}
+		},
+		{
+			"id": "town_sign",
+			"asset": "sign.stahlheim",
+			"pos": [
+				2320,
+				1820
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					250,
+					30
+				]
+			}
+		},
+		{
+			"id": "parked_0",
+			"asset": "road.car",
+			"pos": [
+				2580,
+				2080
+			],
+			"layer": "low",
+			"rot": 10,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "parked_1",
+			"asset": "road.car",
+			"pos": [
+				2820,
+				2120
+			],
+			"layer": "low",
+			"rot": -8,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "parked_2",
+			"asset": "road.car",
+			"pos": [
+				1440,
+				2000
+			],
+			"layer": "low",
+			"rot": 92,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "tent_0",
+			"asset": "shelter.awning",
+			"pos": [
+				960,
+				850
+			],
+			"layer": "overhead",
+			"occlude": true
+		},
+		{
+			"id": "crates_0",
+			"asset": "refuge.crates",
+			"pos": [
+				1090,
+				910
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					90,
+					80
+				]
+			}
+		},
+		{
+			"id": "tent_1",
+			"asset": "shelter.awning",
+			"pos": [
+				3400,
+				2540
+			],
+			"layer": "overhead",
+			"occlude": true
+		},
+		{
+			"id": "crates_1",
+			"asset": "refuge.crates",
+			"pos": [
+				3530,
+				2600
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					90,
+					80
+				]
+			}
+		},
+		{
+			"id": "tent_2",
+			"asset": "shelter.awning",
+			"pos": [
+				980,
+				2520
+			],
+			"layer": "overhead",
+			"occlude": true
+		},
+		{
+			"id": "crates_2",
+			"asset": "refuge.crates",
+			"pos": [
+				1110,
+				2580
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					90,
+					80
+				]
+			}
+		},
+		{
+			"id": "flag",
+			"asset": "shelter.flag",
+			"pos": [
+				2240,
+				1660
+			],
+			"layer": "low"
+		},
+		{
+			"id": "generator",
+			"asset": "junker.generator",
+			"pos": [
+				3480,
+				760
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					150,
+					100
+				]
+			}
+		},
+		{
+			"id": "barrels",
+			"asset": "shelter.barrels",
+			"pos": [
+				870,
+				770
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 44
+			}
+		},
+		{
+			"id": "hub_tower_a",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				3320,
+				2440
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			}
+		},
+		{
+			"id": "hub_tank_a",
+			"asset": "cs.tank",
+			"pos": [
+				1080,
+				960
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "hub_works",
+			"asset": "junker.workshop",
+			"pos": [
+				2900,
+				2220
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					520,
+					350
+				]
+			}
+		},
+		{
+			"id": "hub_billboard",
+			"asset": "road.billboard",
+			"pos": [
+				1440,
+				2400
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					290,
+					40
+				]
+			}
+		},
+		{
+			"id": "rock_6",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				560,
+				244
+			],
+			"layer": "low",
+			"rot": 178,
+			"collision": {
+				"circle": 50
+			}
+		}
+	],
+	"scatter": [
+		{
+			"seed": 596,
+			"count": 70,
+			"area": [
+				0,
+				0,
+				4400,
+				3400
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			]
+		}
+	],
+	"scatter_avoid": [
+		[
+			600.0,
+			500.0,
+			3200,
+			2400
+		],
+		[
+			2080,
+			3130,
+			266,
+			390
+		],
+		[
+			1986,
+			2980,
+			360,
+			390
+		],
+		[
+			1986,
+			2830,
+			293,
+			390
+		],
+		[
+			2039,
+			2680.0,
+			281,
+			390.0
+		],
+		[
+			2080,
+			1580,
+			240,
+			1340.0
+		]
+	],
+	"enemies": [],
+	"salvage": [],
+	"terrain": {
+		"masses": [],
+		"covers": [],
+		"walls": [
+			{
+				"id": "compound_wall",
+				"tile": "junker.wall_strip",
+				"width": 30,
+				"segments": [
+					[
+						[
+							700,
+							600
+						],
+						[
+							3700,
+							600
+						]
+					],
+					[
+						[
+							700,
+							2800
+						],
+						[
+							2020,
+							2800
+						]
+					],
+					[
+						[
+							2380,
+							2800
+						],
+						[
+							3700,
+							2800
+						]
+					],
+					[
+						[
+							700,
+							600
+						],
+						[
+							700,
+							2800
+						]
+					],
+					[
+						[
+							3700,
+							600
+						],
+						[
+							3700,
+							2800
+						]
+					]
+				]
+			}
+		],
+		"cables": []
+	},
+	"turrets": [],
+	"areas": [
+		{
+			"id": "area_stahlheim",
+			"name": "NODE_STAHLHEIM",
+			"polygon": [
+				[
+					700.0,
+					600.0
+				],
+				[
+					3700.0,
+					600.0
+				],
+				[
+					3700.0,
+					2800.0
+				],
+				[
+					700.0,
+					2800.0
+				]
+			]
+		}
+	],
+	"teleports": {
+		"garage": {
+			"pos": [
+				1940,
+				1380
+			],
+			"heading_deg": 180
+		}
+	},
+	"creatures": [],
+	"pois": [],
+	"relief": {
+		"seed": 8949,
+		"amp": 0.5,
+		"scale": 900.0
+	},
+	"weather_mult": 2.25,
+	"gates": [
+		{
+			"id": "gate_frostgrund",
+			"to": "frostgrund",
+			"side": "s",
+			"pos": [
+				2200,
+				3400
+			],
+			"entry": [
+				2200,
+				2980
+			],
+			"heading_deg": 0
+		}
+	],
+	"garage": {
+		"pos": [
+			1940,
+			1380
+		],
+		"radius": 260.0,
+		"services": [
+			"repair",
+			"fuel",
+			"sell",
+			"upgrade",
+			"storage"
+		],
+		"name": "GARAGE_EISENWOLF"
+	},
+	"mech_start": {
+		"pos": [
+			1940,
+			1380
+		],
+		"heading_deg": 180
+	}
+}

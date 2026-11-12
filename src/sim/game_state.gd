@@ -32,6 +32,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"vel": [0.0, 0.0],
 			"slip": 0.0,
 			"upgrades": {},
+			"fuel": Content.t("economy", "start_fuel", 100.0),
 		},
 		"pilot": {
 			"pos": [p.x, p.y],
@@ -40,33 +41,71 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 			"strain": 0.0,
 			"pack": {},
 		},
-		"world": {"taken": {}, "drops": [], "next_drop": 1, "loot": [], "next_loot": 1},
+		"world": create_world(),
 		"garage": {"storage": {}, "unloads": 0},
 		"enemies": create_enemies(loc),
 		"creatures": create_creatures(loc),
 		"tracks": seed_tracks(loc),
 		"turrets": create_turrets(loc),
+		"sites": {},
+		"journey": Journey.create(),
+		"money": int(Content.t("economy", "start_money", 250.0)),
+		"rank": {"xp": 0, "level": 1},
 		"weather": Weather.create(Content.tuning.get("weather", {})),
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0, "kills": 0, "harvests": 0, "upgrades": 0},
 	}
 
 
+static func create_world() -> Dictionary:
+	return {"taken": {}, "drops": [], "next_drop": 1, "loot": [], "next_loot": 1, "pois": {}}
+
+
+## The location-specific part of the state (one per visited map, see Journey.SITE_KEYS).
+static func create_site(loc: Dictionary) -> Dictionary:
+	return {"world": create_world(), "enemies": create_enemies(loc), "creatures": create_creatures(loc),
+		"tracks": seed_tracks(loc), "turrets": create_turrets(loc)}
+
+
+## Rank level for an XP total (thresholds in tuning economy.rank_xp).
+static func rank_for_xp(xp: int) -> int:
+	var th: Array = Content.tuning.get("economy", {}).get("rank_xp", [0])
+	var lv := 1
+	for i in th.size():
+		if xp >= int(th[i]):
+			lv = i + 1
+	return lv
+
+
 ## Creatures from the location, keyed by stable IDs.
 static func create_creatures(loc: Dictionary) -> Dictionary:
 	var out := {}
-	var tc: Dictionary = Content.tuning.get("creatures", {})
+	var tc: Dictionary = Creatures.scaled(Content.tuning.get("creatures", {}), int(loc.get("tier", 1)), Content.tuning.get("economy", {}))
 	for d in loc.get("creatures", []):
-		out[str(d["id"])] = Creatures.create(d, tc)
+		var dd: Dictionary = d.duplicate()
+		if str(dd.get("species", "")) == "rimeback" and not dd.has("route") and loc.has("rimeback_route"):
+			dd["route"] = loc["rimeback_route"]
+			dd["lair"] = loc.get("rimeback_lair", dd.get("spawn"))
+		out[str(d["id"])] = Creatures.create(dd, tc)
 	return out
 
 
 ## Old rimeback tracks along its grazing route (so a new run has sign to find):
 ## walked backwards from the spawn, older the further back.
 static func seed_tracks(loc: Dictionary) -> Array:
-	var route: Array = loc.get("rimeback_route", [])
 	var out: Array = []
-	if route.size() < 2:
-		return out
+	var routes: Array = []
+	if loc.get("rimeback_route", []).size() >= 2:
+		routes.append(loc["rimeback_route"])
+	for d in loc.get("creatures", []):
+		if str(d.get("species", "")) == "rimeback" and d.get("route", []).size() >= 2:
+			routes.append(d["route"])
+	for r in routes:
+		out.append_array(_seed_route(r))
+	return out
+
+
+static func _seed_route(route: Array) -> Array:
+	var out: Array = []
 	var tr: Dictionary = Content.tuning.get("creatures", {}).get("rimeback", {})
 	var every := float(tr.get("track_every", 90.0))
 	var speed := maxf(float(tr.get("roam_speed", 80.0)), 1.0)
@@ -201,7 +240,7 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	# Creatures: keep known IDs (alive/dead/harvested), add missing ones, resume calmly.
 	var cr := {}
 	var hadc: Dictionary = s.get("creatures", {}) if s.get("creatures") is Dictionary else {}
-	var tc: Dictionary = Content.tuning.get("creatures", {})
+	var tc: Dictionary = Creatures.scaled(Content.tuning.get("creatures", {}), int(loc.get("tier", 1)), Content.tuning.get("economy", {}))
 	for cd in loc.get("creatures", []):
 		var cid := str(cd["id"])
 		var fc := Creatures.create(cd, tc)
@@ -231,14 +270,20 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	s["world"]["loot"] = loot
 	if not s["world"].has("next_loot"):
 		s["world"]["next_loot"] = 1
-	var up := {}
-	if m.get("upgrades") is Dictionary:
-		for k in m["upgrades"]:
-			if str(k) in Garage.MODULES:
-				up[str(k)] = clampi(int(m["upgrades"][k]), 0, Garage.max_level(Content.tuning.get("garage", {}), str(k)))
-	m["upgrades"] = up
+	m["upgrades"] = Garage.migrate_upgrades(m["upgrades"] if m.get("upgrades") is Dictionary else {}, Content.tuning.get("shop", {}))
 	m["vel"] = [0.0, 0.0]
 	m["slip"] = 0.0
+	s["journey"] = Journey.sanitize(s.get("journey"))
+	s["money"] = maxi(0, int(s.get("money", 0)))
+	if not (s.get("rank") is Dictionary):
+		s["rank"] = {"xp": 0, "level": 1}
+	s["rank"]["xp"] = maxi(0, int(s["rank"].get("xp", 0)))
+	s["rank"]["level"] = rank_for_xp(int(s["rank"]["xp"]))
+	if not (s.get("sites") is Dictionary):
+		s["sites"] = {}
+	m["fuel"] = clampf(float(m.get("fuel", Content.t("economy", "start_fuel", 100.0))), 0.0, Content.t("economy", "fuel_capacity", 100.0))
+	if not (s["world"].get("pois") is Dictionary):
+		s["world"]["pois"] = {}
 	if not (s.get("garage") is Dictionary):
 		s["garage"] = {"storage": {}, "unloads": 0}
 	s["garage"]["storage"] = clean_inventory(s["garage"].get("storage", {}))

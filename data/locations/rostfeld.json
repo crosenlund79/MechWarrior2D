@@ -1,0 +1,1807 @@
+{
+	"id": "rostfeld",
+	"name": "NODE_ROSTFELD",
+	"node": "rostfeld",
+	"kind": "territory",
+	"tier": 2,
+	"bounds": [
+		0,
+		0,
+		6600,
+		4800
+	],
+	"default_zone": {
+		"ambient": 61.0,
+		"solar": 1.08,
+		"abrasion": 1.0,
+		"drag": 1.0,
+		"suit": 1.0,
+		"label": "ZONE_OPEN_SAND",
+		"storm_exposure": 1.0,
+		"grip": 0.92
+	},
+	"zone_types": {
+		"shade": {
+			"ambient": 44.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.35,
+			"label": "ZONE_SHADE",
+			"storm_exposure": 0.6,
+			"grip": 1.0
+		},
+		"dunes": {
+			"ambient": 60.0,
+			"solar": 1.0,
+			"abrasion": 22.0,
+			"drag": 0.62,
+			"suit": 1.1,
+			"label": "ZONE_DUNES",
+			"storm_exposure": 1.0,
+			"grip": 0.7
+		},
+		"salt": {
+			"ambient": 63.0,
+			"solar": 1.3,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"suit": 1.25,
+			"label": "ZONE_SALT",
+			"storm_exposure": 1.0,
+			"grip": 1.0
+		},
+		"canyon": {
+			"ambient": 50.0,
+			"solar": 0.45,
+			"abrasion": 0.3,
+			"drag": 1.0,
+			"suit": 0.6,
+			"cooling": 1.1,
+			"label": "ZONE_CANYON",
+			"storm_exposure": 0.45,
+			"grip": 1.0
+		},
+		"refuge": {
+			"ambient": 34.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.12,
+			"cooling": 1.3,
+			"sheltered": true,
+			"label": "ZONE_REFUGE",
+			"storm_exposure": 0.08,
+			"grip": 1.05
+		},
+		"ravine": {
+			"ambient": 52.0,
+			"solar": 0.5,
+			"abrasion": 0.5,
+			"drag": 1.0,
+			"suit": 0.65,
+			"cooling": 1.05,
+			"storm_exposure": 0.45,
+			"label": "ZONE_RAVINE",
+			"grip": 1.0
+		},
+		"junker": {
+			"ambient": 60.0,
+			"solar": 1.05,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"suit": 1.05,
+			"storm_exposure": 0.95,
+			"label": "ZONE_JUNKER",
+			"grip": 0.95
+		},
+		"settlement": {
+			"ambient": 46.0,
+			"solar": 0.55,
+			"abrasion": 0.2,
+			"drag": 1.0,
+			"grip": 1.05,
+			"suit": 0.35,
+			"cooling": 1.25,
+			"label": "ZONE_SETTLEMENT",
+			"storm_exposure": 0.35,
+			"safe": true
+		},
+		"frost": {
+			"ambient": 49.0,
+			"solar": 1.15,
+			"abrasion": 0.5,
+			"drag": 0.95,
+			"grip": 0.8,
+			"suit": 1.2,
+			"label": "ZONE_FROST",
+			"storm_exposure": 1.0
+		},
+		"scorch": {
+			"ambient": 66.0,
+			"solar": 1.35,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"grip": 0.95,
+			"suit": 1.4,
+			"label": "ZONE_SCORCH",
+			"storm_exposure": 1.0
+		}
+	},
+	"patches": [
+		{
+			"id": "track_0",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					0,
+					2400
+				],
+				[
+					521,
+					2361
+				],
+				[
+					1000,
+					2710
+				],
+				[
+					1541,
+					2485
+				],
+				[
+					2082,
+					2250
+				],
+				[
+					2556,
+					2650
+				],
+				[
+					3076,
+					2614
+				],
+				[
+					3575,
+					2782
+				]
+			]
+		},
+		{
+			"id": "track_1",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					3300,
+					0
+				],
+				[
+					3386,
+					393
+				],
+				[
+					3157,
+					817
+				],
+				[
+					3602,
+					1174
+				],
+				[
+					3301,
+					1605
+				],
+				[
+					3760,
+					1961
+				],
+				[
+					3420,
+					2396
+				],
+				[
+					3575,
+					2782
+				]
+			]
+		},
+		{
+			"id": "track_2",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					6600,
+					2400
+				],
+				[
+					6153,
+					2337
+				],
+				[
+					5731,
+					2469
+				],
+				[
+					5273,
+					2318
+				],
+				[
+					4913,
+					2951
+				],
+				[
+					4456,
+					2806
+				],
+				[
+					3989,
+					2580
+				],
+				[
+					3575,
+					2782
+				]
+			]
+		},
+		{
+			"id": "patch_0",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					2234,
+					4069
+				],
+				[
+					2245,
+					4469
+				],
+				[
+					1837,
+					4580
+				],
+				[
+					1432,
+					4815
+				],
+				[
+					1120,
+					4451
+				],
+				[
+					951,
+					4069
+				],
+				[
+					1111,
+					3684
+				],
+				[
+					1405,
+					3424
+				],
+				[
+					1877,
+					3384
+				],
+				[
+					2088,
+					3798
+				]
+			]
+		},
+		{
+			"id": "patch_1",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					6295,
+					1438
+				],
+				[
+					6239,
+					1675
+				],
+				[
+					5985,
+					1717
+				],
+				[
+					5661,
+					1726
+				],
+				[
+					5371,
+					1611
+				],
+				[
+					5390,
+					1438
+				],
+				[
+					5384,
+					1133
+				],
+				[
+					5647,
+					1138
+				],
+				[
+					5921,
+					1018
+				],
+				[
+					6132,
+					1202
+				]
+			]
+		},
+		{
+			"id": "patch_2",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					3527,
+					2686
+				],
+				[
+					3334,
+					3073
+				],
+				[
+					3095,
+					3054
+				],
+				[
+					2708,
+					3187
+				],
+				[
+					2572,
+					3070
+				],
+				[
+					2382,
+					2686
+				],
+				[
+					2487,
+					2331
+				],
+				[
+					2724,
+					2049
+				],
+				[
+					3108,
+					2196
+				],
+				[
+					3508,
+					2310
+				]
+			]
+		},
+		{
+			"id": "patch_3",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					5941,
+					691
+				],
+				[
+					5766,
+					1003
+				],
+				[
+					5586,
+					1131
+				],
+				[
+					5308,
+					1193
+				],
+				[
+					5048,
+					988
+				],
+				[
+					4944,
+					691
+				],
+				[
+					5061,
+					496
+				],
+				[
+					5334,
+					305
+				],
+				[
+					5644,
+					235
+				],
+				[
+					5900,
+					482
+				]
+			]
+		}
+	],
+	"zones": [],
+	"props": [
+		{
+			"id": "rock_0",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2292,
+				1717
+			],
+			"layer": "low",
+			"rot": 142,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_1",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2995,
+				3258
+			],
+			"layer": "low",
+			"rot": 269,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_2",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2757,
+				3022
+			],
+			"layer": "low",
+			"rot": 331,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_4",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				1753,
+				3986
+			],
+			"layer": "low",
+			"rot": 197,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_6",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4372,
+				2225
+			],
+			"layer": "low",
+			"rot": 245,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_7",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4548,
+				1323
+			],
+			"layer": "low",
+			"rot": 246,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_8",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				449,
+				1968
+			],
+			"layer": "low",
+			"rot": 107,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_9",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				1246,
+				3140
+			],
+			"layer": "low",
+			"rot": 140,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_10",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				693,
+				4226
+			],
+			"layer": "low",
+			"rot": 254,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_11",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				1268,
+				2330
+			],
+			"layer": "low",
+			"rot": 3,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_12",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2805,
+				3972
+			],
+			"layer": "low",
+			"rot": 339,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_13",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4802,
+				1617
+			],
+			"layer": "low",
+			"rot": 89,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_14",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4251,
+				3242
+			],
+			"layer": "low",
+			"rot": 178,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_20",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2181,
+				3742
+			],
+			"layer": "low",
+			"rot": 226,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_21",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5557,
+				1944
+			],
+			"layer": "low",
+			"rot": 335,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_23",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5069,
+				3193
+			],
+			"layer": "low",
+			"rot": 87,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_24",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4664,
+				4431
+			],
+			"layer": "low",
+			"rot": 159,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_25",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				791,
+				3883
+			],
+			"layer": "low",
+			"rot": 43,
+			"collision": {
+				"circle": 50
+			}
+		}
+	],
+	"scatter": [
+		{
+			"seed": 344,
+			"count": 160,
+			"area": [
+				0,
+				0,
+				6600,
+				4800
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.rock_small_b",
+				"prop.stones",
+				"prop.stones"
+			]
+		}
+	],
+	"scatter_avoid": [
+		[
+			-90,
+			2271,
+			701,
+			219
+		],
+		[
+			431,
+			2271,
+			659,
+			529
+		],
+		[
+			910,
+			2395,
+			721,
+			405
+		],
+		[
+			1451,
+			2160,
+			721,
+			415
+		],
+		[
+			1992,
+			2160,
+			654,
+			580
+		],
+		[
+			2466,
+			2524,
+			700,
+			216
+		],
+		[
+			2986,
+			2524,
+			679,
+			348
+		],
+		[
+			3210,
+			-90,
+			266,
+			573
+		],
+		[
+			3067,
+			303,
+			409,
+			604
+		],
+		[
+			3067,
+			727,
+			625,
+			537
+		],
+		[
+			3211,
+			1084,
+			481,
+			611
+		],
+		[
+			3211,
+			1515,
+			639,
+			536
+		],
+		[
+			3330,
+			1871,
+			520,
+			615
+		],
+		[
+			3330,
+			2306,
+			335,
+			566
+		],
+		[
+			6063,
+			2247,
+			627,
+			243
+		],
+		[
+			5641,
+			2247,
+			602,
+			312
+		],
+		[
+			5183,
+			2228,
+			638,
+			331
+		],
+		[
+			4823,
+			2228,
+			540,
+			813
+		],
+		[
+			4366,
+			2716,
+			637,
+			325
+		],
+		[
+			3899,
+			2490,
+			647,
+			406
+		],
+		[
+			3485,
+			2490,
+			594,
+			382
+		]
+	],
+	"enemies": [
+		{
+			"id": "rival_0",
+			"type": "scrapper",
+			"spawn": [
+				5338,
+				692
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					5338,
+					692
+				],
+				[
+					5738,
+					692
+				],
+				[
+					5738,
+					1092
+				],
+				[
+					5338,
+					1092
+				]
+			]
+		},
+		{
+			"id": "rival_1",
+			"type": "junker",
+			"spawn": [
+				1401,
+				3658
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					1401,
+					3658
+				],
+				[
+					1801,
+					3658
+				],
+				[
+					1801,
+					4058
+				],
+				[
+					1401,
+					4058
+				]
+			]
+		},
+		{
+			"id": "rival_2",
+			"type": "scrapper",
+			"spawn": [
+				3657,
+				4275
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					3657,
+					4275
+				],
+				[
+					4057,
+					4275
+				],
+				[
+					4057,
+					4675
+				],
+				[
+					3657,
+					4675
+				]
+			]
+		}
+	],
+	"salvage": [],
+	"terrain": {
+		"masses": [
+			{
+				"id": "ridge_1",
+				"tile": "ground.rock_top",
+				"height": 74,
+				"rough": 22,
+				"seed": 1,
+				"polygon": [
+					[
+						3855,
+						565
+					],
+					[
+						3921,
+						630
+					],
+					[
+						3986,
+						695
+					],
+					[
+						4062,
+						728
+					],
+					[
+						4143,
+						743
+					],
+					[
+						4221,
+						770
+					],
+					[
+						4296,
+						805
+					],
+					[
+						4378,
+						821
+					],
+					[
+						4466,
+						814
+					],
+					[
+						4561,
+						790
+					],
+					[
+						4593,
+						692
+					],
+					[
+						4528,
+						625
+					],
+					[
+						4454,
+						585
+					],
+					[
+						4389,
+						520
+					],
+					[
+						4305,
+						512
+					],
+					[
+						4228,
+						484
+					],
+					[
+						4157,
+						437
+					],
+					[
+						4063,
+						458
+					],
+					[
+						3981,
+						445
+					],
+					[
+						3889,
+						463
+					]
+				]
+			},
+			{
+				"id": "ridge_2",
+				"tile": "ground.rock_top",
+				"height": 63,
+				"rough": 22,
+				"seed": 2,
+				"polygon": [
+					[
+						4193,
+						1361
+					],
+					[
+						4223,
+						1494
+					],
+					[
+						4277,
+						1614
+					],
+					[
+						4316,
+						1742
+					],
+					[
+						4383,
+						1856
+					],
+					[
+						4427,
+						1982
+					],
+					[
+						4491,
+						2097
+					],
+					[
+						4577,
+						2201
+					],
+					[
+						4646,
+						2313
+					],
+					[
+						4732,
+						2417
+					],
+					[
+						4799,
+						2383
+					],
+					[
+						4764,
+						2252
+					],
+					[
+						4727,
+						2124
+					],
+					[
+						4665,
+						2007
+					],
+					[
+						4622,
+						1881
+					],
+					[
+						4564,
+						1763
+					],
+					[
+						4487,
+						1654
+					],
+					[
+						4417,
+						1542
+					],
+					[
+						4343,
+						1432
+					],
+					[
+						4254,
+						1330
+					]
+				]
+			},
+			{
+				"id": "ridge_3",
+				"tile": "ground.rock_top",
+				"height": 73,
+				"rough": 22,
+				"seed": 3,
+				"polygon": [
+					[
+						4905,
+						3285
+					],
+					[
+						4819,
+						3296
+					],
+					[
+						4723,
+						3284
+					],
+					[
+						4642,
+						3306
+					],
+					[
+						4564,
+						3335
+					],
+					[
+						4488,
+						3366
+					],
+					[
+						4418,
+						3411
+					],
+					[
+						4361,
+						3482
+					],
+					[
+						4291,
+						3528
+					],
+					[
+						4234,
+						3600
+					],
+					[
+						4275,
+						3687
+					],
+					[
+						4363,
+						3679
+					],
+					[
+						4451,
+						3673
+					],
+					[
+						4531,
+						3650
+					],
+					[
+						4613,
+						3631
+					],
+					[
+						4690,
+						3602
+					],
+					[
+						4747,
+						3529
+					],
+					[
+						4822,
+						3495
+					],
+					[
+						4879,
+						3422
+					],
+					[
+						4942,
+						3364
+					]
+				]
+			},
+			{
+				"id": "ridge_4",
+				"tile": "ground.rock_top",
+				"height": 47,
+				"rough": 22,
+				"seed": 4,
+				"polygon": [
+					[
+						2868,
+						1048
+					],
+					[
+						2785,
+						1042
+					],
+					[
+						2705,
+						1046
+					],
+					[
+						2627,
+						1059
+					],
+					[
+						2548,
+						1064
+					],
+					[
+						2472,
+						1084
+					],
+					[
+						2393,
+						1092
+					],
+					[
+						2322,
+						1135
+					],
+					[
+						2250,
+						1172
+					],
+					[
+						2179,
+						1213
+					],
+					[
+						2196,
+						1285
+					],
+					[
+						2280,
+						1294
+					],
+					[
+						2359,
+						1285
+					],
+					[
+						2439,
+						1284
+					],
+					[
+						2521,
+						1286
+					],
+					[
+						2597,
+						1268
+					],
+					[
+						2668,
+						1227
+					],
+					[
+						2746,
+						1214
+					],
+					[
+						2815,
+						1163
+					],
+					[
+						2887,
+						1128
+					]
+				]
+			},
+			{
+				"id": "ridge_5",
+				"tile": "ground.rock_top",
+				"height": 51,
+				"rough": 22,
+				"seed": 5,
+				"polygon": [
+					[
+						595,
+						1012
+					],
+					[
+						669,
+						1117
+					],
+					[
+						738,
+						1229
+					],
+					[
+						819,
+						1326
+					],
+					[
+						923,
+						1394
+					],
+					[
+						1000,
+						1495
+					],
+					[
+						1106,
+						1560
+					],
+					[
+						1232,
+						1601
+					],
+					[
+						1345,
+						1658
+					],
+					[
+						1473,
+						1696
+					],
+					[
+						1544,
+						1606
+					],
+					[
+						1467,
+						1505
+					],
+					[
+						1400,
+						1391
+					],
+					[
+						1322,
+						1291
+					],
+					[
+						1206,
+						1238
+					],
+					[
+						1123,
+						1144
+					],
+					[
+						1020,
+						1075
+					],
+					[
+						901,
+						1025
+					],
+					[
+						789,
+						968
+					],
+					[
+						672,
+						916
+					]
+				]
+			},
+			{
+				"id": "ridge_6",
+				"tile": "ground.rock_top",
+				"height": 58,
+				"rough": 22,
+				"seed": 6,
+				"polygon": [
+					[
+						5116,
+						3946
+					],
+					[
+						5183,
+						4000
+					],
+					[
+						5248,
+						4055
+					],
+					[
+						5315,
+						4108
+					],
+					[
+						5388,
+						4151
+					],
+					[
+						5449,
+						4214
+					],
+					[
+						5530,
+						4240
+					],
+					[
+						5614,
+						4262
+					],
+					[
+						5694,
+						4291
+					],
+					[
+						5782,
+						4305
+					],
+					[
+						5815,
+						4246
+					],
+					[
+						5755,
+						4180
+					],
+					[
+						5686,
+						4131
+					],
+					[
+						5625,
+						4067
+					],
+					[
+						5555,
+						4020
+					],
+					[
+						5485,
+						3972
+					],
+					[
+						5407,
+						3941
+					],
+					[
+						5322,
+						3921
+					],
+					[
+						5235,
+						3903
+					],
+					[
+						5151,
+						3883
+					]
+				]
+			},
+			{
+				"id": "ridge_7",
+				"tile": "ground.rock_top",
+				"height": 61,
+				"rough": 22,
+				"seed": 7,
+				"polygon": [
+					[
+						5868,
+						2734
+					],
+					[
+						5886,
+						2856
+					],
+					[
+						5918,
+						2972
+					],
+					[
+						5939,
+						3092
+					],
+					[
+						5988,
+						3203
+					],
+					[
+						6007,
+						3324
+					],
+					[
+						6070,
+						3429
+					],
+					[
+						6120,
+						3539
+					],
+					[
+						6188,
+						3642
+					],
+					[
+						6241,
+						3751
+					],
+					[
+						6314,
+						3724
+					],
+					[
+						6299,
+						3602
+					],
+					[
+						6260,
+						3487
+					],
+					[
+						6237,
+						3368
+					],
+					[
+						6196,
+						3254
+					],
+					[
+						6163,
+						3138
+					],
+					[
+						6112,
+						3029
+					],
+					[
+						6059,
+						2920
+					],
+					[
+						6001,
+						2813
+					],
+					[
+						5939,
+						2708
+					]
+				]
+			}
+		],
+		"covers": [],
+		"walls": [],
+		"cables": []
+	},
+	"turrets": [],
+	"areas": [
+		{
+			"id": "area_rostfeld",
+			"name": "NODE_ROSTFELD",
+			"polygon": [
+				[
+					0,
+					0
+				],
+				[
+					6600,
+					0
+				],
+				[
+					6600,
+					4800
+				],
+				[
+					0,
+					4800
+				]
+			]
+		}
+	],
+	"teleports": {
+		"hub": {
+			"pos": [
+				3575,
+				2782
+			],
+			"heading_deg": 90
+		},
+		"gate_taubecken": {
+			"pos": [
+				420,
+				2400
+			],
+			"heading_deg": 90
+		},
+		"gate_eisenhalt": {
+			"pos": [
+				3300,
+				420
+			],
+			"heading_deg": 180
+		},
+		"gate_weissgrat": {
+			"pos": [
+				6180,
+				2400
+			],
+			"heading_deg": 270
+		}
+	},
+	"creatures": [
+		{
+			"id": "skirr_0_0",
+			"species": "skirr",
+			"pack": "rostfeld_0",
+			"spawn": [
+				4780,
+				569
+			]
+		},
+		{
+			"id": "skirr_0_1",
+			"species": "skirr",
+			"pack": "rostfeld_0",
+			"spawn": [
+				4850,
+				629
+			]
+		},
+		{
+			"id": "skirr_0_2",
+			"species": "skirr",
+			"pack": "rostfeld_0",
+			"spawn": [
+				4920,
+				569
+			]
+		},
+		{
+			"id": "skirr_1_0",
+			"species": "skirr",
+			"pack": "rostfeld_1",
+			"spawn": [
+				1975,
+				3009
+			]
+		},
+		{
+			"id": "skirr_1_1",
+			"species": "skirr",
+			"pack": "rostfeld_1",
+			"spawn": [
+				2045,
+				3069
+			]
+		},
+		{
+			"id": "skirr_1_2",
+			"species": "skirr",
+			"pack": "rostfeld_1",
+			"spawn": [
+				2115,
+				3009
+			]
+		},
+		{
+			"id": "grindback_0",
+			"species": "grindback",
+			"spawn": [
+				1632,
+				4271
+			]
+		},
+		{
+			"id": "grindback_1",
+			"species": "grindback",
+			"spawn": [
+				1819,
+				989
+			]
+		},
+		{
+			"id": "eisback_0",
+			"species": "rimeback",
+			"spawn": [
+				2514,
+				2000
+			],
+			"route": [
+				[
+					2514,
+					2000
+				],
+				[
+					1881,
+					1557
+				],
+				[
+					3041,
+					1656
+				],
+				[
+					6079,
+					620
+				],
+				[
+					5276,
+					2931
+				],
+				[
+					5504,
+					3515
+				],
+				[
+					3852,
+					4141
+				]
+			],
+			"lair": [
+				3539,
+				3472
+			],
+			"heading_deg": 90
+		}
+	],
+	"pois": [
+		{
+			"id": "exp_0",
+			"kind": "expedition",
+			"pos": [
+				4820,
+				1119
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {}
+		},
+		{
+			"id": "exp_1",
+			"kind": "expedition",
+			"pos": [
+				2018,
+				2498
+			],
+			"name": "POI_EXPEDITION",
+			"burning": false,
+			"wreck": "rival.wreck",
+			"loot": {
+				"scrap": 6,
+				"radiator_core": 1
+			}
+		},
+		{
+			"id": "exp_2",
+			"kind": "expedition",
+			"pos": [
+				5177,
+				2869
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {
+				"salvaged_parts": 1
+			}
+		},
+		{
+			"id": "landmark_0",
+			"kind": "landmark",
+			"pos": [
+				1327,
+				3555
+			],
+			"name": "POI_LANDMARK_ROSTFELD",
+			"asset": "wreck.hauler",
+			"loot": {}
+		}
+	],
+	"relief": {
+		"seed": 3935,
+		"amp": 1.0,
+		"scale": 900.0
+	},
+	"weather_mult": 1.5,
+	"gates": [
+		{
+			"id": "gate_taubecken",
+			"to": "taubecken",
+			"side": "w",
+			"pos": [
+				0,
+				2400
+			],
+			"entry": [
+				420,
+				2400
+			],
+			"heading_deg": 90
+		},
+		{
+			"id": "gate_eisenhalt",
+			"to": "eisenhalt",
+			"side": "n",
+			"pos": [
+				3300,
+				0
+			],
+			"entry": [
+				3300,
+				420
+			],
+			"heading_deg": 180
+		},
+		{
+			"id": "gate_weissgrat",
+			"to": "weissgrat",
+			"side": "e",
+			"pos": [
+				6600,
+				2400
+			],
+			"entry": [
+				6180,
+				2400
+			],
+			"heading_deg": 270
+		}
+	],
+	"quarry": "eisback_0"
+}

@@ -1,6 +1,6 @@
 {
 	"id": "desert_basin_01",
-	"name": "LOC_DESERT_BASIN",
+	"name": "NODE_TAUBECKEN",
 	"bounds": [
 		-2600,
 		0,
@@ -91,6 +91,38 @@
 			"storm_exposure": 0.95,
 			"label": "ZONE_JUNKER",
 			"grip": 0.95
+		},
+		"settlement": {
+			"ambient": 46.0,
+			"solar": 0.55,
+			"abrasion": 0.2,
+			"drag": 1.0,
+			"grip": 1.05,
+			"suit": 0.35,
+			"cooling": 1.25,
+			"label": "ZONE_SETTLEMENT",
+			"storm_exposure": 0.35,
+			"safe": true
+		},
+		"frost": {
+			"ambient": 49.0,
+			"solar": 1.15,
+			"abrasion": 0.5,
+			"drag": 0.95,
+			"grip": 0.8,
+			"suit": 1.2,
+			"label": "ZONE_FROST",
+			"storm_exposure": 1.0
+		},
+		"scorch": {
+			"ambient": 66.0,
+			"solar": 1.35,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"grip": 0.95,
+			"suit": 1.4,
+			"label": "ZONE_SCORCH",
+			"storm_exposure": 1.0
 		}
 	},
 	"mech_start": {
@@ -2896,6 +2928,23 @@
 			"_wave": "south"
 		},
 		{
+			"seed": 42,
+			"count": 60,
+			"area": [
+				3600,
+				0,
+				3200,
+				2600
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.stones",
+				"prop.rock_small_b"
+			],
+			"_wave": "south"
+		},
+		{
 			"seed": 41,
 			"count": 150,
 			"area": [
@@ -3126,6 +3175,30 @@
 			180,
 			320,
 			280
+		],
+		[
+			4300,
+			500,
+			1600,
+			1300
+		],
+		[
+			150,
+			3150,
+			1000,
+			700
+		],
+		[
+			1300,
+			3650,
+			1500,
+			1050
+		],
+		[
+			-2500,
+			3250,
+			7300,
+			250
 		],
 		[
 			4300,
@@ -4566,7 +4639,12 @@
 			930
 		],
 		"radius": 300.0,
-		"_note": "refuge garage bay (car must be stopped here)"
+		"_note": "refuge garage bay (car must be stopped here)",
+		"services": [
+			"repair",
+			"storage"
+		],
+		"name": "GARAGE_REFUGE"
 	},
 	"creatures": [
 		{
@@ -4695,5 +4773,110 @@
 	"rimeback_lair": [
 		-2000,
 		5650
+	],
+	"node": "taubecken",
+	"kind": "territory",
+	"tier": 1,
+	"gates": [
+		{
+			"id": "gate_ersthafen",
+			"to": "ersthafen",
+			"side": "w",
+			"pos": [
+				-2600,
+				3330
+			],
+			"entry": [
+				-2180,
+				3330
+			],
+			"heading_deg": 90
+		},
+		{
+			"id": "gate_kaltbrunn",
+			"to": "kaltbrunn",
+			"side": "e",
+			"pos": [
+				6800,
+				1300
+			],
+			"entry": [
+				6380,
+				1300
+			],
+			"heading_deg": 270
+		},
+		{
+			"id": "gate_rostfeld",
+			"to": "rostfeld",
+			"side": "e",
+			"pos": [
+				6800,
+				2700
+			],
+			"entry": [
+				6380,
+				2700
+			],
+			"heading_deg": 270
+		}
+	],
+	"quarry": "rimeback",
+	"relief": {
+		"seed": 4242,
+		"amp": 1.0,
+		"scale": 950.0
+	},
+	"weather_mult": 1.0,
+	"pois": [
+		{
+			"id": "exp_basin_0",
+			"kind": "expedition",
+			"pos": [
+				1700,
+				5600
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {
+				"salvaged_parts": 1,
+				"logbook": 1
+			}
+		},
+		{
+			"id": "exp_basin_1",
+			"kind": "expedition",
+			"pos": [
+				2300,
+				5300
+			],
+			"name": "POI_EXPEDITION",
+			"burning": false,
+			"wreck": "rival.wreck",
+			"loot": {}
+		},
+		{
+			"id": "landmark_refuge",
+			"kind": "landmark",
+			"pos": [
+				-1440,
+				930
+			],
+			"name": "POI_LANDMARK_REFUGE",
+			"asset": "",
+			"loot": {}
+		},
+		{
+			"id": "landmark_station",
+			"kind": "landmark",
+			"pos": [
+				4400,
+				1260
+			],
+			"name": "POI_LANDMARK_STATION",
+			"asset": "",
+			"loot": {}
+		}
 	]
 }

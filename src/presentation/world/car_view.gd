@@ -284,7 +284,12 @@ func _process(delta: float) -> void:
 	smoke.global_position = global_position + Vector2(0, -90).rotated(body.rotation)
 	_flash = move_toward(_flash, 0.0, delta * 3.0)
 	body.modulate = Color(1, 1, 1).lerp(Color(1.9, 0.55, 0.5), _flash)
-	shadow.global_position = global_position + SHADOW_OFFSET
+	var hgt := 0.0
+	if world_ref and world_ref.relief:
+		hgt = world_ref.relief.height_at(global_position)
+	body.scale = body.scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	housing_holder.scale = body.scale
+	shadow.global_position = global_position + SHADOW_OFFSET * (1.0 + hgt * Relief.SHADOW_K)
 	if housing_shadow:
 		housing_shadow.rotation = housing_holder.rotation
 		housing_shadow.position = housing_holder.position

@@ -39,6 +39,14 @@ var hunt_parts: Label
 var tracker: TrackerWidget
 var help: HelpOverlay
 var garage: GarageMenu
+var map_screen: JourneyMap
+var fuel_bar: ProgressBar
+var fuel_label: Label
+var money_label: Label
+var ribbon: HazardRibbon
+var minimap: Minimap
+var exit_panel: PanelContainer
+var exit_label: Label
 var _heat_fill := {}
 var _hunt_seen := ""
 var _hunt_t := 0.0
@@ -78,6 +86,21 @@ func toggle_help() -> void:
 		add_child(help)
 		help.visible = false
 	help.visible = not help.visible
+
+
+func open_map() -> void:
+	if map_screen != null or garage != null:
+		return
+	get_tree().paused = true
+	map_screen = JourneyMap.new()
+	get_parent().add_child(map_screen)
+	map_screen.closed.connect(func() -> void:
+		map_screen = null
+		get_tree().paused = false)
+
+
+func modal_open() -> bool:
+	return garage != null or map_screen != null
 
 
 func _on_mech_event(ev: String) -> void:
@@ -130,6 +153,9 @@ func _build() -> void:
 	hull_bar = _bar(v, UiTheme.STRAW)
 	v.add_child(UiTheme.label(tr("HUD_COOLING"), 12, UiTheme.DIM))
 	cool_bar = _bar(v, UiTheme.COOLANT)
+	fuel_label = UiTheme.label("", 12, UiTheme.DIM)
+	v.add_child(fuel_label)
+	fuel_bar = _bar(v, UiTheme.STRAW)
 	cool_label = UiTheme.label("", 13, UiTheme.PAPER)
 	v.add_child(cool_label)
 	status_label = UiTheme.label("", 13, UiTheme.PAPER)
@@ -151,7 +177,7 @@ func _build() -> void:
 	hint_label = UiTheme.label("", 18, UiTheme.PAPER)
 	hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	hint_label.offset_left = 340
-	hint_label.offset_right = -340
+	hint_label.offset_right = -600   # clear of the money/cargo panel and the hazard ribbon
 	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_label.add_theme_constant_override("outline_size", 6)
@@ -161,7 +187,7 @@ func _build() -> void:
 	notices = VBoxContainer.new()
 	notices.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	notices.offset_left = 340
-	notices.offset_right = -340
+	notices.offset_right = -600
 	notices.offset_top = 92
 	notices.alignment = BoxContainer.ALIGNMENT_BEGIN
 	add_child(notices)
@@ -169,12 +195,14 @@ func _build() -> void:
 	var cp := PanelContainer.new()
 	cp.add_theme_stylebox_override("panel", UiTheme.panel(0.82))
 	cp.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	cp.position = Vector2(-16, 16)
+	cp.position = Vector2(-238, 16)   # left of the hazard ribbon in the corner
 	cp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	add_child(cp)
 	var cv := VBoxContainer.new()
 	cv.add_theme_constant_override("separation", 4)
 	cp.add_child(cv)
+	money_label = UiTheme.label("", 15, UiTheme.STRAW)
+	cv.add_child(money_label)
 	cargo_label = UiTheme.label("", 14)
 	cv.add_child(cargo_label)
 	zone_label = UiTheme.label("", 13, UiTheme.DIM)
@@ -185,7 +213,7 @@ func _build() -> void:
 	hunt_panel = PanelContainer.new()
 	hunt_panel.add_theme_stylebox_override("panel", UiTheme.panel(0.82))
 	hunt_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	hunt_panel.position = Vector2(-16, 150)
+	hunt_panel.position = Vector2(-16, 250)
 	hunt_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	hunt_panel.custom_minimum_size = Vector2(250, 0)
 	add_child(hunt_panel)
@@ -205,6 +233,39 @@ func _build() -> void:
 		if kind in ["creature_hit", "creature_alert", "creature_tell", "part_broken", "creature_dead"]:
 			_hunt_seen = str(data.get("id", ""))
 			_hunt_t = 12.0)
+	# --- hazard ribbon (top-right corner), minimap (bottom-right), exit prompt (centre)
+	ribbon = HazardRibbon.new()
+	add_child(ribbon)
+	minimap = Minimap.new()
+	minimap.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	minimap.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	minimap.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	minimap.position = Vector2(-16 - Minimap.W, -16 - Minimap.H - 22)
+	add_child(minimap)
+	exit_panel = PanelContainer.new()
+	exit_panel.add_theme_stylebox_override("panel", UiTheme.panel(0.93))
+	exit_panel.set_anchors_preset(Control.PRESET_CENTER)
+	exit_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	exit_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	exit_panel.position = Vector2(-230, 60)
+	exit_panel.custom_minimum_size = Vector2(460, 0)
+	add_child(exit_panel)
+	var ev := VBoxContainer.new()
+	exit_panel.add_child(ev)
+	exit_label = UiTheme.label("", 18, UiTheme.PAPER)
+	exit_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	exit_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ev.add_child(exit_label)
+	var eh := HBoxContainer.new()
+	eh.alignment = BoxContainer.ALIGNMENT_CENTER
+	ev.add_child(eh)
+	var yes := UiTheme.btn(tr("EXIT_YES"), func() -> void: Session.confirm_exit())
+	yes.name = "ExitYes"
+	eh.add_child(yes)
+	var no := UiTheme.btn(tr("EXIT_NO"), func() -> void: Session.decline_exit())
+	no.name = "ExitNo"
+	eh.add_child(no)
+	exit_panel.visible = false
 	# --- tracking compass (bottom-left)
 	tracker = TrackerWidget.new()
 	tracker.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
@@ -216,7 +277,7 @@ func _build() -> void:
 	dev_badge.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	dev_badge.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	dev_badge.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	dev_badge.position = Vector2(-16, -16)
+	dev_badge.position = Vector2(-16, -232)
 	dev_badge.add_theme_constant_override("outline_size", 5)
 	dev_badge.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	add_child(dev_badge)
@@ -291,6 +352,16 @@ func _process(delta: float) -> void:
 	hull_label.text = tr("HUD_HULL") % int(round(integ * 100.0))
 	hull_label.add_theme_color_override("font_color", UiTheme.DANGER if integ < 0.25 else UiTheme.DIM)
 	cool_bar.value = Thermal.efficiency(float(m["radiator"]), tt) * Thermal.airflow(bool(m["shutters_open"]), tt)
+	var fc := Session.fuel_capacity()
+	fuel_bar.value = Session.fuel() / maxf(fc, 1.0)
+	fuel_label.text = tr("HUD_FUEL") % [int(round(Session.fuel())), int(round(fc))] + ("  ·  " + tr("HUD_LIMP") if Session.limp_mode() else "")
+	fuel_label.add_theme_color_override("font_color", UiTheme.DANGER if Session.fuel() < float(Session.tun("economy").get("low_fuel_warn", 15.0)) else UiTheme.DIM)
+	var rk: Dictionary = Session.state.get("rank", {})
+	money_label.text = tr("HUD_MONEY") % [Session.money(), int(rk.get("level", 1)), tr("RANK_%d" % int(rk.get("level", 1)))]
+	exit_panel.visible = not Session.exit_prompt.is_empty()
+	if exit_panel.visible:
+		var dest := tr(str(Journey.node(str(Session.exit_prompt["to"])).get("name", "")))
+		exit_label.text = (tr("EXIT_LEAVE") if str(Session.exit_prompt["kind"]) == "leave" else tr("EXIT_FLEE")) % dest
 	cool_label.text = tr("HUD_RADIATOR") % [int(round(float(m["radiator"]) * 100.0)),
 		tr("HUD_SHUTTERS_OPEN") if m["shutters_open"] else tr("HUD_SHUTTERS_CLOSED")]
 	status_label.text = tr("HUD_ENGINE_" + str(m["engine"]).to_upper())

@@ -19,6 +19,7 @@ var markers: Node2D
 var mech_view: CarView     # the player's car (legacy name kept for tools)
 var creature_views := {}
 var marks: HuntMarks
+var relief: Relief
 var pilot_view: PilotView
 var camera: CameraRig
 var enemy_views := {}
@@ -43,6 +44,16 @@ func _ready() -> void:
 	markers = _layer("Markers", 2)
 	overhead = _layer("Overhead", Z["overhead"])
 	GroundBuilder.build(ground, loc)
+	relief = Relief.for_location(loc)
+	var shade := Sprite2D.new()
+	shade.name = "Hillshade"
+	shade.texture = relief.hillshade()
+	shade.centered = false
+	shade.position = relief.origin - Vector2(Relief.CELL, Relief.CELL) * 0.5
+	shade.scale = Vector2(Relief.CELL, Relief.CELL)
+	shade.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	shade.z_index = 1
+	ground.add_child(shade)
 	rock = _layer("Rock", 3)
 	cover_layer = _layer("Covers", 21)
 	terrain = TerrainView.new()
@@ -57,12 +68,17 @@ func _ready() -> void:
 		pv.setup(d)
 		props.append(pv)
 	Scatter.build(low, loc)
+	for pd in loc.get("pois", []):
+		var pv2 := PoiView.new()
+		pv2.setup(pd)
+		low.add_child(pv2)
 	marks = HuntMarks.new()
 	add_child(marks)
 	marks.setup(floor_layer, markers)
 	for cid in Session.state.get("creatures", {}):
 		_add_creature_view(str(cid))
 	Session.world_moves_creatures = true
+	Session.world_owner = self
 	mech_view = CarView.new()
 	mech_view.name = "Car"
 	mech_view.z_index = Z["mech"]
@@ -107,6 +123,10 @@ func _build_bounds(loc: Dictionary) -> void:
 	var r := Rect2(b[0], b[1], b[2], b[3])
 	var body := StaticBody2D.new()
 	body.name = "Bounds"
+	# Layer 16: the map edge stops creatures, rivals and the pilot, but NOT the
+	# car — driving out of a territory leaves it (Session._tick_exits).
+	body.collision_layer = 16
+	body.collision_mask = 0
 	for seg in [[r.position, Vector2(r.end.x, r.position.y)], [Vector2(r.end.x, r.position.y), r.end],
 			[r.end, Vector2(r.position.x, r.end.y)], [Vector2(r.position.x, r.end.y), r.position]]:
 		var cs := CollisionShape2D.new()
@@ -139,7 +159,9 @@ func add_skid(at: Vector2, rot: float, strength: float) -> void:
 
 
 func _exit_tree() -> void:
-	Session.world_moves_creatures = false
+	# a replacement world (after travelling) may already own creature movement
+	if Session.world_owner == self:
+		Session.world_moves_creatures = false
 
 
 func _on_dev_spawned(id: String) -> void:

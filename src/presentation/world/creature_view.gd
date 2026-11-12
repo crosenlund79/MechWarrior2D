@@ -52,7 +52,7 @@ func _ready() -> void:
 	species = str(c.get("species", "skirr"))
 	var ts := Session.creature_tun(c)
 	collision_layer = 8
-	collision_mask = 1
+	collision_mask = 1 | 16
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_cs = CollisionShape2D.new()
 	var circle := CircleShape2D.new()
@@ -307,7 +307,12 @@ func _process(delta: float) -> void:
 	# --- shadow (world-aligned offset)
 	shadow_h.visible = main.visible or dead
 	_sync_shadow(dead_sprite if dead else main)
-	shadow_h.global_position = pos + SHADOW_OFFSET * (1.4 if species == "rimeback" else 1.0)
+	var hgt := 0.0
+	var wv = get_parent()
+	if wv and wv.get("relief"):
+		hgt = wv.relief.height_at(pos)
+	body.scale = body.scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	shadow_h.global_position = pos + SHADOW_OFFSET * (1.4 if species == "rimeback" else 1.0) * (1.0 + hgt * Relief.SHADOW_K)
 	shadow_h.rotation = body.rotation
 	if dead and not _was_dead:
 		var puff := FxKit.puff(Color(0.45, 0.36, 0.28, 0.6), 20)

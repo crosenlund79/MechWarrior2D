@@ -4,69 +4,103 @@
 		"asset": "item.radiator_core",
 		"stack": 9,
 		"bulk": 1,
-		"rarity": "uncommon"
+		"rarity": "uncommon",
+		"value": 70
 	},
 	"scrap": {
 		"name": "ITEM_SCRAP",
 		"asset": "item.scrap",
 		"stack": 99,
 		"bulk": 0,
-		"rarity": "common"
+		"rarity": "common",
+		"value": 6
 	},
 	"skirr_hide": {
 		"name": "ITEM_SKIRR_HIDE",
 		"asset": "item.skirr_hide",
 		"stack": 99,
 		"bulk": 1,
-		"rarity": "common"
+		"rarity": "common",
+		"value": 22
 	},
 	"skirr_fang": {
 		"name": "ITEM_SKIRR_FANG",
 		"asset": "item.skirr_fang",
 		"stack": 99,
 		"bulk": 1,
-		"rarity": "uncommon"
+		"rarity": "uncommon",
+		"value": 45
 	},
 	"grind_plate": {
 		"name": "ITEM_GRIND_PLATE",
 		"asset": "item.grind_plate",
 		"stack": 99,
 		"bulk": 2,
-		"rarity": "uncommon"
+		"rarity": "uncommon",
+		"value": 60
 	},
 	"rime_hide": {
 		"name": "ITEM_RIME_HIDE",
 		"asset": "item.rime_hide",
 		"stack": 99,
 		"bulk": 2,
-		"rarity": "common"
+		"rarity": "common",
+		"value": 55
 	},
 	"rime_spine": {
 		"name": "ITEM_RIME_SPINE",
 		"asset": "item.rime_spine",
 		"stack": 99,
 		"bulk": 1,
-		"rarity": "uncommon"
+		"rarity": "uncommon",
+		"value": 80
 	},
 	"rime_horn": {
 		"name": "ITEM_RIME_HORN",
 		"asset": "item.rime_horn",
 		"stack": 99,
 		"bulk": 2,
-		"rarity": "rare"
+		"rarity": "rare",
+		"value": 180
 	},
 	"rime_gland": {
 		"name": "ITEM_RIME_GLAND",
 		"asset": "item.rime_gland",
 		"stack": 99,
 		"bulk": 1,
-		"rarity": "rare"
+		"rarity": "rare",
+		"value": 150
 	},
 	"thawheart": {
 		"name": "ITEM_THAWHEART",
 		"asset": "item.thawheart",
 		"stack": 99,
 		"bulk": 1,
-		"rarity": "legendary"
+		"rarity": "legendary",
+		"value": 1000
+	},
+	"salvaged_parts": {
+		"name": "ITEM_SALVAGED_PARTS",
+		"asset": "item.salvaged_parts",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "common",
+		"value": 35
+	},
+	"logbook": {
+		"name": "ITEM_LOGBOOK",
+		"asset": "item.logbook",
+		"stack": 99,
+		"bulk": 0,
+		"rarity": "uncommon",
+		"value": 90
+	},
+	"instrument": {
+		"name": "ITEM_INSTRUMENT",
+		"asset": "item.instrument",
+		"stack": 99,
+		"bulk": 1,
+		"rarity": "rare",
+		"value": 260
 	}
 }

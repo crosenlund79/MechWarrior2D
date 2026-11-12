@@ -36,8 +36,8 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not Session.running:
 		return
-	if screen and screen.hud and screen.hud.garage != null:
-		return   # the garage menu handles its own keys
+	if screen and screen.hud and screen.hud.modal_open():
+		return   # the garage / map screens handle their own keys
 	if event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
 		if screen.main.settings_layer.get_child_count() == 0:
@@ -45,7 +45,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if get_tree().paused or driver_control:
 		return
-	if event.is_action_pressed("interact"):
+	if event.is_action_pressed("interact") and not Session.exit_prompt.is_empty():
+		Session.confirm_exit()
+	elif event.is_action_pressed("journey_map"):
+		if screen and screen.hud:
+			screen.hud.open_map()
+	elif event.is_action_pressed("interact"):
 		Session.request("interact")
 	elif event.is_action_pressed("service"):
 		Session.request("service")

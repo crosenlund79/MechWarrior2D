@@ -249,6 +249,48 @@ func _run(line: String) -> void:
 				err = "garage action refused"
 		"give_materials":
 			Session.dev_give_materials()
+		"travel":  # travel <node> [force]
+			err = Session.travel_to(a[0], a.size() > 1)
+			ok = err == ""
+			await _wait(0.5)
+		"exit":  # exit yes|no: answer the edge prompt
+			if Session.exit_prompt.is_empty():
+				ok = false
+				err = "no exit prompt"
+			elif a[0] == "yes":
+				ok = Session.confirm_exit()
+				await _wait(0.5)
+			else:
+				Session.decline_exit()
+		"sell":  # sell <item> <n>
+			ok = Session.sell_item(a[0], int(a[1]) if a.size() > 1 else 1) > 0
+		"refuel":
+			ok = Session.refuel() > 0.0
+		"devx":  # devx <fuel|repair|money n|upgrade line|complete node|clear>
+			match a[0]:
+				"fuel":
+					Session.dev_refuel()
+				"repair":
+					Session.dev_repair_all()
+				"money":
+					Session.dev_money(int(a[1]))
+				"upgrade":
+					ok = Session.dev_grant_upgrade(a[1])
+				"complete":
+					ok = Session.dev_complete_node(a[1])
+				"clear":
+					Session.dev_clear_creatures()
+		"set_fuel":
+			Session.mech()["fuel"] = float(a[0])
+		"map":  # map on|off|select <node>|course
+			if main and main.game:
+				if a[0] == "on":
+					main.game.hud.open_map()
+				elif a[0] == "off" and main.game.hud.map_screen:
+					main.game.hud.map_screen.close_map()
+				elif a[0] == "select" and main.game.hud.map_screen:
+					main.game.hud.map_screen.select(a[1])
+			await _wait(0.2)
 		"unload":
 			var nu := Session.unload_cargo()
 			ok = nu > 0
@@ -452,7 +494,7 @@ func _run(line: String) -> void:
 
 
 func _state() -> Dictionary:
-	var st := {"running": Session.running, "notices": _notices.duplicate(), "save_status": Session.save_status,
+	var st := {"running": Session.running, "menu_prints": main.menu.print_sources() if main and main.menu and is_instance_valid(main.menu) else [], "notices": _notices.duplicate(), "save_status": Session.save_status,
 		"recovered": Session.recovered_from_backup, "paused": get_tree().paused,
 		"settings": Settings.values.duplicate(), "bindings": Settings.bindings.duplicate(),
 		"asset_sources": Assets.source.duplicate(), "recent_slot": Saves.most_recent_slot(), "music_id": Audio.music_id, "music_pos": Audio.music_position(),
@@ -475,6 +517,17 @@ func _state() -> Dictionary:
 		st["at_garage"] = Session.at_garage()
 		st["noise"] = Session.noise()
 		st["garage_storage"] = Session.garage_storage().duplicate()
+		st["node"] = Session.current_node()
+		st["location"] = str(Session.loc.get("id", ""))
+		st["zone_status"] = Session.zone_status()
+		st["exit_prompt"] = Session.exit_prompt.duplicate()
+		st["money"] = Session.money()
+		st["fuel"] = Session.fuel()
+		st["limp"] = Session.limp_mode()
+		st["rank"] = Session.state.get("rank", {}).duplicate()
+		st["journey"] = Session.journey().duplicate(true)
+		st["services"] = Session.garage_services() if Session.loc.has("garage") else []
+		st["objective"] = Session.nearest_objective()
 		var ps: Array = []
 		for sh in Session.projectiles:
 			if str(sh["owner"]) == "player":
@@ -495,6 +548,8 @@ func _state() -> Dictionary:
 			st["enemy_views"] = main.game.world.enemy_views.size()
 			st["creature_views"] = main.game.world.creature_views.size()
 			st["garage_open"] = main.game.hud.garage != null
+			st["map_open"] = main.game.hud.map_screen != null
+			st["poi_views"] = main.game.world.low.get_children().filter(func(n): return n is PoiView).size()
 		if main and main.game:
 			st["cover"] = main.game.world.cover_amount()
 			st["exposure"] = main.game.sound.exposure

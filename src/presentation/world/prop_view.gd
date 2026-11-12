@@ -45,6 +45,15 @@ func setup(d: Dictionary) -> void:
 	var holder := Node2D.new()
 	holder.rotation = rot
 	add_child(holder)
+	# elevation illusion: standing props on high ground read slightly larger and
+	# cast a longer shadow (visual only — the collision footprint is unchanged)
+	if str(d.get("layer", "low")) == "low":
+		var rf := Relief.for_location(Session.loc)
+		var hk := rf.height_at(position)
+		holder.scale = Vector2.ONE * (1.0 + hk * Relief.SCALE_K)
+		if shadow:
+			shadow.scale = holder.scale
+			shadow.position *= 1.0 + hk * Relief.SHADOW_K
 	sprite = Sprite2D.new()
 	sprite.set_meta("asset", asset)
 	holder.add_child(sprite)

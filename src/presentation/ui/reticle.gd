@@ -16,7 +16,7 @@ static func modal_open(tree: SceneTree) -> bool:
 
 
 func _process(_delta: float) -> void:
-	var want := Session.running and Session.mode() == "mech" and not modal_open(get_tree())
+	var want := Session.running and Session.mode() == "mech" and not modal_open(get_tree()) and Session.exit_prompt.is_empty()
 	var mode := Input.MOUSE_MODE_HIDDEN if want else Input.MOUSE_MODE_VISIBLE
 	if Input.mouse_mode != mode:
 		Input.mouse_mode = mode

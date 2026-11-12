@@ -65,6 +65,7 @@ var _area := ""
 var creature_brains := {}
 var creature_moves := {}
 var world_moves_creatures := false   # true while a WorldView moves creature bodies
+var world_owner: Object = null
 var _fire_recent := 0.0
 var _impact_cd := 0.0
 var _last_desired := Vector2.ZERO
@@ -112,7 +113,7 @@ func tun(section: String) -> Dictionary:
 
 func start_new(slot_index: int) -> void:
 	Content.ensure()
-	loc = Content.location()
+	loc = Content.location(str(Journey.node(str(Journey.data().get("start", "ersthafen"))).get("location", Content.DEFAULT_LOCATION)))
 	slot = slot_index
 	state = GameState.create(loc, slot)
 	recovered_from_backup = false
@@ -300,20 +301,30 @@ func enemy_tun(e: Dictionary) -> Dictionary:
 	var ov: Dictionary = tun("enemy_types").get(str(e.get("type", "scrapper")), {})
 	for k in ov:
 		t[k] = ov[k]
+	var k2 := maxf(0.0, float(int(loc.get("tier", 1)) - 1))
+	if k2 > 0.0:
+		var ec := tun("economy")
+		t["integrity"] = float(t.get("integrity", 55.0)) * (1.0 + float(ec.get("tier_hp", 0.3)) * k2)
+		t["damage_mult"] = float(t.get("damage_mult", 1.0)) * (1.0 + float(ec.get("tier_damage", 0.18)) * k2)
 	return t
 
 
 ## The player's car tuning with fitted garage modules applied.
 func car_tun() -> Dictionary:
-	return Garage.car_tuning(tun("mech"), tun("garage"), upgrades())
+	var t := Garage.car_tuning(tun("mech"), tun("shop"), upgrades())
+	if not state.is_empty() and limp_mode():
+		# out of fuel: the engine runs on fumes and reserve — slow, but never stranded
+		t["max_speed"] = float(t["max_speed"]) * float(tun("economy").get("limp_speed_mult", 0.32))
+		t["accel"] = float(t["accel"]) * float(tun("economy").get("limp_accel_mult", 0.5))
+	return t
 
 
 func car_thermal() -> Dictionary:
-	return Garage.thermal_tuning(tun("thermal"), tun("garage"), upgrades())
+	return Garage.thermal_tuning(tun("thermal"), tun("shop"), upgrades())
 
 
 func player_weapon() -> Dictionary:
-	return Garage.weapon_tuning(tun("combat")["player_weapon"], tun("garage"), upgrades())
+	return Garage.weapon_tuning(tun("combat")["player_weapon"], tun("shop"), upgrades())
 
 
 func upgrades() -> Dictionary:
@@ -329,7 +340,7 @@ func max_integrity() -> float:
 
 
 func cargo_capacity() -> int:
-	return Garage.cargo_capacity(int(tun("mech").get("cargo_bulk", 14)), tun("garage"), upgrades())
+	return Garage.cargo_capacity(int(tun("mech").get("cargo_bulk", 14)), tun("shop"), upgrades())
 
 
 func cargo_bulk() -> int:
@@ -415,6 +426,13 @@ func tick(dt: float) -> void:
 	_tick_creatures(dt)
 	_tick_projectiles(dt)
 	_tick_loot_pickup()
+	_tick_pois()
+	if engine_on() and mode() == "mech":
+		_burn_fuel(float(tun("economy").get("fuel_idle_per_s", 0.008)) * dt)
+	var here_loc := str(state.get("location", ""))
+	_tick_exits(dt)
+	if not running or str(state.get("location", "")) != here_loc:
+		return   # travelled to another node this tick
 	var zt := _actor_zone_type()
 	if zt != _zone_type:
 		var was := _zone_type
@@ -494,6 +512,8 @@ func _tick_task(dt: float) -> void:
 				_finish_turret_salvage(str(done["target"]))
 			"harvest":
 				_finish_harvest(str(done["target"]))
+			"search":
+				_finish_search(str(done["target"]))
 			"hull":
 				_finish_hull_repair(false)
 			"patch":
@@ -504,7 +524,11 @@ func _tick_task(dt: float) -> void:
 
 ## Called by the mech view each physics frame. Returns the desired velocity.
 func mech_velocity(dt: float) -> Vector2:
-	_last_desired = Drive.step(mech(), drive_throttle, drive_turn, can_drive(), car_tun(), car_thermal(), mech_zone, dt, drive_handbrake and can_drive())
+	var ct := car_tun()
+	var ef := edge_speed_factor()
+	if ef < 1.0:
+		ct["max_speed"] = float(ct["max_speed"]) * ef
+	_last_desired = Drive.step(mech(), drive_throttle, drive_turn, can_drive(), ct, car_thermal(), mech_zone, dt, drive_handbrake and can_drive())
 	return _last_desired
 
 
@@ -515,6 +539,8 @@ func commit_mech(pos: Vector2, real_velocity: Vector2) -> void:
 	var old := Content.v2(m["pos"])
 	m["pos"] = [pos.x, pos.y]
 	state["stats"]["distance"] = float(state["stats"]["distance"]) + old.distance_to(pos)
+	if mode() == "mech":
+		_burn_fuel(old.distance_to(pos) * float(tun("economy").get("fuel_per_px", 0.0035)))
 	var lost := (_last_desired - real_velocity).length()
 	m["vel"] = [real_velocity.x, real_velocity.y]
 	m["speed"] = real_velocity.dot(Drive.forward(float(m["heading"])))
@@ -710,6 +736,13 @@ func _nearest_pickup(pp: Vector2, r: float) -> Dictionary:
 		if dc <= best_d + reach:
 			best_d = dc - reach
 			best = {"action": "interact", "kind": "harvest", "target": cid, "label": "ACT_HARVEST", "enabled": true}
+	for p in loc.get("pois", []):
+		if str(p.get("kind", "")) != "expedition" or bool(poi_state(str(p["id"]))["searched"]):
+			continue
+		var dp := pp.distance_to(Content.v2(p["pos"]))
+		if dp <= best_d + 60.0:
+			best_d = dp - 60.0
+			best = {"action": "interact", "kind": "search", "target": str(p["id"]), "label": "ACT_SEARCH", "enabled": true}
 	for l in state["world"].get("loot", []):
 		var dl := pp.distance_to(Content.v2(l["pos"]))
 		if dl <= best_d:
@@ -767,6 +800,8 @@ func request(action: String) -> bool:
 				return _start_task("hull", "mech", float(tun("hull_repair").get("duration", 3.0)))
 			"patch":
 				return _start_task("patch", "mech", float(tun("hull_repair").get("emergency_duration", 6.0)))
+			"search":
+				return _start_task("search", str(it["target"]), 2.5)
 			"harvest":
 				return _start_task("harvest", str(it["target"]), float(tun("creatures").get("harvest_duration", 4.0)))
 			"loot":
@@ -891,14 +926,39 @@ func hint() -> String:
 			return "HINT_SALVAGE_WRECK" if md == "mech" else "HINT_SALVAGE_WRECK_FOOT"
 	if md == "foot":
 		return "HINT_RETURN"
-	if at_garage() and (_carrying_materials() or float(mech()["integrity"]) < max_integrity() - 1.0):
-		return "HINT_GARAGE"
-	if _carrying_materials():
-		return "HINT_RETURN_TO_GARAGE"
+	if not exit_prompt.is_empty():
+		return "HINT_EXIT_LEAVE" if is_safe_zone() else "HINT_EXIT_FLEE"
+	if bool(journey().get("delivered", false)) and is_safe_zone():
+		return "HINT_DELIVERED"
+	if limp_mode():
+		return "HINT_NO_FUEL"
+	if is_safe_zone():
+		if at_garage():
+			return "HINT_GARAGE"
+		if _carrying_materials() or float(mech()["integrity"]) < max_integrity() * 0.7:
+			return "HINT_SETTLEMENT_GARAGE"
+		if fuel() < fuel_capacity() * 0.5:
+			return "HINT_REFUEL"
+		return "HINT_SETTLEMENT_DEPART"
+	if fuel() < float(tun("economy").get("low_fuel_warn", 15.0)):
+		return "HINT_FUEL_LOW"
+	if cargo_bulk() >= int(cargo_capacity() * 0.85):
+		return "HINT_CARGO_FULL_RETURN"
 	var tk := tracker()
 	if not tk.is_empty():
 		return "HINT_TRACKS_BLOOD" if bool(tk["blood"]) else "HINT_TRACKS"
+	if bool(journey()["completed"].get(current_node(), false)):
+		return "HINT_TERRITORY_DONE"
 	return "HINT_HUNT"
+
+
+## Position of the gate on this map that starts the route toward a node.
+func _gate_toward(node_id: String) -> Vector2:
+	var hop := Journey.next_hop(current_node(), node_id)
+	var g := gate_to(hop)
+	if g.is_empty():
+		return Vector2.INF
+	return Content.v2(g["pos"])
 
 
 func _nearest_loot(from: Vector2) -> Vector2:
@@ -930,11 +990,18 @@ func nearest_objective() -> Vector2:
 	var lp := _nearest_loot(from)
 	if lp != Vector2.INF and lp.distance_to(from) < 900.0:
 		return lp
-	if hunting() == "" and mode() == "mech" and float(mech()["radiator"]) >= 0.6:
-		if _carrying_materials() and not at_garage():
-			return Content.v2(loc.get("garage", {}).get("pos", [0, 0]))
-		if not _carrying_materials() and tracker().is_empty():
-			return Content.v2(loc.get("hunt_hint", [-300, 4300]))
+	if hunting() == "" and mode() == "mech":
+		if is_safe_zone():
+			if (_carrying_materials() or float(mech()["integrity"]) < max_integrity() * 0.7 or fuel() < fuel_capacity() * 0.5) and not at_garage() and loc.has("garage"):
+				return Content.v2(loc["garage"]["pos"])
+			return _gate_toward(course())
+		if cargo_bulk() >= int(cargo_capacity() * 0.85) or fuel() < float(tun("economy").get("low_fuel_warn", 15.0)) or bool(journey()["completed"].get(current_node(), false)):
+			var safe := Journey.nearest_safe(current_node())
+			return _gate_toward(course() if bool(journey()["completed"].get(current_node(), false)) and not _carrying_materials() else safe)
+		if tracker().is_empty():
+			var q := creature(str(loc.get("quarry", "")))
+			if not q.is_empty() and not Creatures.is_dead(q):
+				return Content.v2(q.get("home", q["pos"]))
 	if parts_available() > 0 and float(mech()["radiator"]) < 0.6:
 		return mech_pos() if mode() == "foot" else Vector2.INF
 	var best := Vector2.INF
@@ -1192,6 +1259,8 @@ func _check_enemy_disabled(id: String, e: Dictionary, thermal: Dictionary) -> vo
 	e["salvaged"] = false
 	brains[id]["windup"] = 0.0
 	notice.emit("NOTICE_ENEMY_DISABLED", [])
+	if not bool(e.get("dev", false)):
+		add_xp(xp_for("rival"), "rival")
 	combat_event.emit("enemy_disabled", {"id": id, "pos": Content.v2(e["pos"]), "cooked": cooked})
 	Log.info("combat", "enemy_disabled", {"id": id, "integrity": snappedf(e["integrity"], 0.1), "radiator": snappedf(e["radiator"], 0.01), "heat": snappedf(e["heat"], 0.1)})
 	save_now("enemy_disabled")
@@ -1565,8 +1634,12 @@ func creature(id: String) -> Dictionary:
 	return state.get("creatures", {}).get(id, {})
 
 
+func creature_tuning() -> Dictionary:
+	return Creatures.scaled(tun("creatures"), int(loc.get("tier", 1)), tun("economy"))
+
+
 func creature_tun(c: Dictionary) -> Dictionary:
-	return tun("creatures").get(str(c.get("species", "skirr")), {})
+	return creature_tuning().get(str(c.get("species", "skirr")), {})
 
 
 func creature_def(id: String) -> Dictionary:
@@ -1588,7 +1661,7 @@ func _creature_target() -> Dictionary:
 
 
 func _tick_creatures(dt: float) -> void:
-	var tc := tun("creatures")
+	var tc := creature_tuning()
 	var target := _creature_target()
 	var playtime := float(state["playtime"])
 	for id in state.get("creatures", {}):
@@ -1713,7 +1786,7 @@ func tracker() -> Dictionary:
 	if not running:
 		return {}
 	var at := actor_pos()
-	var rng := Garage.tracker_range(float(tun("mech").get("tracker_range", 380.0)), tun("garage"), upgrades())
+	var rng := Garage.tracker_range(float(tun("mech").get("tracker_range", 380.0)), tun("shop"), upgrades())
 	if mode() == "foot":
 		rng *= 0.6
 	var life := float(tun("creatures").get("track_life", 420.0))
@@ -1783,6 +1856,9 @@ func _creature_dies(id: String, c: Dictionary) -> void:
 	c["harvested"] = false
 	creature_moves[id] = Vector2.ZERO
 	state["stats"]["kills"] = int(state["stats"].get("kills", 0)) + 1
+	add_xp(xp_for(str(c["species"])), "kill")
+	if id == str(loc.get("quarry", "")) and not bool(c.get("dev", false)):
+		complete_node(current_node())
 	combat_event.emit("creature_dead", {"id": id, "species": c["species"], "pos": Content.v2(c["pos"])})
 	notice.emit("NOTICE_%s_DOWN" % str(c["species"]).to_upper(), [])
 	if not bool(ts.get("harvest", false)):
@@ -1917,41 +1993,74 @@ func at_garage() -> bool:
 	return mech_pos().distance_to(Content.v2(g["pos"])) <= float(g.get("radius", 300.0))
 
 
-## Cost check for the next level of a module. Returns "" if it can be fitted,
-## otherwise a reason key.
+## Services offered by the garage here (settlements: everything; the canyon
+## refuge field garage: repair + storage).
+func garage_services() -> Array:
+	return loc.get("garage", {}).get("services", ["repair", "fuel", "sell", "upgrade", "storage"])
+
+
+func has_service(s: String) -> bool:
+	return at_garage() and s in garage_services()
+
+
+func money() -> int:
+	return int(state.get("money", 0))
+
+
+func rank_level() -> int:
+	return int(state.get("rank", {}).get("level", 1))
+
+
+func add_money(n: int) -> void:
+	state["money"] = maxi(0, money() + n)
+
+
+## Jäger XP: kills, discoveries, completed nodes, sales. Rank-ups unlock shop levels.
+func add_xp(n: int, why: String = "") -> void:
+	if n <= 0 or state.is_empty():
+		return
+	var r: Dictionary = state["rank"]
+	var before := int(r["level"])
+	r["xp"] = int(r["xp"]) + n
+	r["level"] = GameState.rank_for_xp(int(r["xp"]))
+	if int(r["level"]) > before:
+		notice.emit("NOTICE_RANK_UP", ["RANK_%d" % int(r["level"]), int(r["level"])])
+		mech_event.emit("rank_up")
+		Log.info("economy", "rank_up", {"level": r["level"], "why": why})
+
+
+func xp_for(key: String) -> int:
+	return int(tun("economy").get("xp", {}).get(key, 0))
+
+
+## "" if the next level of a line can be bought here, else a reason key.
 func garage_check(module: String) -> String:
-	var nxt := Garage.next_level(tun("garage"), upgrades(), module)
-	if nxt.is_empty():
-		return "GARAGE_MAXED"
-	if not Garage.can_afford(nxt.get("cost", {}), have_item):
-		return "GARAGE_MISSING"
-	return ""
+	if not has_service("upgrade"):
+		return "GARAGE_NO_SHOP"
+	return Garage.check(tun("shop"), upgrades(), module, money(), rank_level())
 
 
 func garage_fit(module: String) -> bool:
-	if not at_garage() or garage_check(module) != "":
+	if garage_check(module) != "":
 		return false
-	var nxt := Garage.next_level(tun("garage"), upgrades(), module)
-	for item in nxt.get("cost", {}):
-		_consume(str(item), int(nxt["cost"][item]))
+	var nxt := Garage.next_level(tun("shop"), upgrades(), module)
+	add_money(-int(nxt.get("price", 0)))
 	var before_max := max_integrity()
 	upgrades()[module] = Garage.level(upgrades(), module) + 1
-	# new armour plates arrive undamaged
 	mech()["integrity"] = minf(max_integrity(), float(mech()["integrity"]) + maxf(0.0, max_integrity() - before_max))
 	state["stats"]["upgrades"] = int(state["stats"].get("upgrades", 0)) + 1
-	notice.emit("NOTICE_FITTED", ["MOD_" + module.to_upper(), Garage.level(upgrades(), module)])
+	notice.emit("NOTICE_FITTED", [str(nxt.get("name", "MOD_" + module.to_upper())), Garage.level(upgrades(), module)])
 	combat_event.emit("garage", {"module": module})
 	mech_event.emit("repaired")
-	Log.info("garage", "fitted", {"module": module, "level": upgrades()[module]})
+	Log.info("garage", "fitted", {"module": module, "level": upgrades()[module], "price": nxt.get("price", 0)})
 	save_now("garage")
 	return true
 
 
 ## Moves everything carried (car cargo + pilot pack) into the persistent garage
-## store. A move, never a copy: unloading twice does nothing. Returns the number
-## of items moved.
+## store. A move, never a copy. Returns the number of items moved.
 func unload_cargo() -> int:
-	if not at_garage():
+	if not has_service("storage"):
 		return 0
 	var moved := 0
 	for inv in [mech()["storage"], pilot()["pack"]]:
@@ -1971,24 +2080,26 @@ func unload_cargo() -> int:
 	return moved
 
 
-## Scrap needed to fully repair the body and radiator at the garage.
+## Price in Mark for a full repair of body + radiator here.
 func garage_repair_cost() -> int:
-	var per := float(tun("garage").get("repair_scrap_per", 25.0))
-	var missing := (max_integrity() - float(mech()["integrity"])) + (1.0 - float(mech()["radiator"])) * 60.0
-	return int(ceil(maxf(0.0, missing) / per))
+	var tsh := tun("shop")
+	var body := (max_integrity() - float(mech()["integrity"])) * float(tsh.get("repair_price_per_point", 1.2))
+	var rad := (1.0 - float(mech()["radiator"])) * 100.0 * float(tsh.get("radiator_price_per_pct", 3.0))
+	return int(ceil(maxf(0.0, body + rad)))
 
 
+## Repairs as much as the money allows (all of it when affordable).
 func garage_repair() -> bool:
-	if not at_garage():
+	if not has_service("repair"):
 		return false
 	var cost := garage_repair_cost()
 	if cost <= 0:
 		return false
-	var pay := mini(cost, have_item("scrap"))
+	var pay := mini(cost, money())
 	if pay <= 0:
-		notice.emit("NOTICE_NEED_SCRAP", [])
+		notice.emit("NOTICE_NO_MONEY", [])
 		return false
-	_consume("scrap", pay)
+	add_money(-pay)
 	var frac := float(pay) / float(cost)
 	var m := mech()
 	m["integrity"] = minf(max_integrity(), float(m["integrity"]) + (max_integrity() - float(m["integrity"])) * frac)
@@ -2000,6 +2111,355 @@ func garage_repair() -> bool:
 	mech_event.emit("repaired")
 	save_now("garage_repair")
 	return true
+
+
+# ---------------------------------------------------------------- fuel
+
+func fuel() -> float:
+	return float(mech().get("fuel", 0.0))
+
+
+func fuel_capacity() -> float:
+	return float(tun("economy").get("fuel_capacity", 100.0))
+
+
+## Fills the tank as far as the money allows. Returns litres bought.
+func refuel() -> float:
+	if not has_service("fuel"):
+		return 0.0
+	var price := float(tun("shop").get("fuel_price", 2.0))
+	var want := fuel_capacity() - fuel()
+	if want < 0.5:
+		return 0.0
+	var litres := minf(want, floorf(float(money()) / maxf(price, 0.01)))
+	if litres <= 0.0:
+		if want > 0.0:
+			notice.emit("NOTICE_NO_MONEY", [])
+		return 0.0
+	add_money(-int(ceil(litres * price)))
+	mech()["fuel"] = fuel() + litres
+	notice.emit("NOTICE_REFUELLED", [int(round(litres))])
+	combat_event.emit("refuel", {})
+	save_now("refuel")
+	return litres
+
+
+func refuel_cost() -> int:
+	var missing := fuel_capacity() - fuel()
+	if missing < 0.5:
+		return 0
+	return int(ceil(missing * float(tun("shop").get("fuel_price", 2.0))))
+
+
+func _burn_fuel(litres: float) -> void:
+	if litres <= 0.0 or bool(dev.get("infinite_fuel", false)):
+		return
+	var m := mech()
+	var before := float(m.get("fuel", 0.0))
+	m["fuel"] = maxf(0.0, before - litres)
+	var warn := float(tun("economy").get("low_fuel_warn", 15.0))
+	if before > warn and float(m["fuel"]) <= warn:
+		notice.emit("NOTICE_FUEL_LOW", [])
+	if before > 0.0 and float(m["fuel"]) <= 0.0:
+		notice.emit("NOTICE_FUEL_EMPTY", [])
+
+
+func limp_mode() -> bool:
+	return fuel() <= 0.0
+
+
+# ---------------------------------------------------------------- market
+
+func item_value(item: String) -> int:
+	return int(round(float(Content.items.get(item, {}).get("value", 0)) * float(tun("shop").get("sell_rate", 1.0))))
+
+
+## Sells n of an item from the car, the pack, then the garage store.
+func sell_item(item: String, n: int = 1) -> int:
+	if not has_service("sell") or n <= 0 or item_value(item) <= 0:
+		return 0
+	var have := GameState.count(mech()["storage"], item) + GameState.count(pilot()["pack"], item) + GameState.count(garage_storage(), item)
+	n = mini(n, have)
+	if n <= 0:
+		return 0
+	var left := n
+	for inv in [mech()["storage"], pilot()["pack"], garage_storage()]:
+		var take := mini(left, GameState.count(inv, item))
+		if take > 0:
+			GameState.add(inv, item, -take)
+			left -= take
+	var earned := item_value(item) * n
+	add_money(earned)
+	state["stats"]["sold"] = int(state["stats"].get("sold", 0)) + earned
+	add_xp(int(float(earned) / 100.0 * float(xp_for("sold_per_100"))), "sell")
+	notice.emit("NOTICE_SOLD", [Content.items.get(item, {}).get("name", item), n, earned])
+	combat_event.emit("sold", {"item": item, "n": n, "earned": earned})
+	save_now("sell")
+	return earned
+
+
+## Everything sellable here: {item: count} over car + pack + store.
+func sellable() -> Dictionary:
+	var out := {}
+	for inv in [mech()["storage"], pilot()["pack"], garage_storage()]:
+		for k in inv:
+			if item_value(str(k)) > 0:
+				out[k] = int(out.get(k, 0)) + int(inv[k])
+	return out
+
+
+# ---------------------------------------------------------------- journey
+
+func journey() -> Dictionary:
+	return state.get("journey", {})
+
+
+func current_node() -> String:
+	return str(journey().get("node", ""))
+
+
+func is_safe_zone() -> bool:
+	return str(loc.get("kind", "territory")) != "territory"
+
+
+## "danger" | "safe" | "cleared" for the hazard ribbon.
+func zone_status() -> String:
+	if str(loc.get("kind", "")) == "hub" and bool(journey().get("delivered", false)):
+		return "cleared"
+	return "safe" if is_safe_zone() else "danger"
+
+
+func tier() -> int:
+	return int(loc.get("tier", 1))
+
+
+## Gate of this map that leads to a node (or {}).
+func gate_to(node_id: String) -> Dictionary:
+	for g in loc.get("gates", []):
+		if str(g["to"]) == node_id:
+			return g
+	return {}
+
+
+## Moves the whole party (car, pilot, cargo, money) to a neighbouring node: the
+## current map's site state is stashed, the destination's restored (or created),
+## the car arrives at the destination's gate from here. Returns "" or an error.
+signal travelled(from_node: String, to_node: String)
+
+
+func travel_to(node_id: String, force: bool = false) -> String:
+	if not running:
+		return "not running"
+	var here := current_node()
+	if not force and not (node_id in Journey.neighbors(here)):
+		return "not connected"
+	var nd := Journey.node(node_id)
+	if nd.is_empty():
+		return "unknown node"
+	var dest := Content.location(str(nd["location"]))
+	if dest.is_empty():
+		return "missing location"
+	if mode() != "mech":
+		state["mode"] = "mech"
+	# stash the map we leave
+	var site := {}
+	for k in Journey.SITE_KEYS:
+		site[k] = state.get(k)
+	state["sites"][str(state["location"])] = site
+	_burn_fuel(Journey.edge_fuel(here, node_id))
+	# restore / create the destination
+	loc = dest
+	state["location"] = str(dest["id"])
+	var stored: Dictionary = state["sites"].get(str(dest["id"]), {})
+	if stored.is_empty():
+		stored = GameState.create_site(dest)
+	for k in Journey.SITE_KEYS:
+		state[k] = stored.get(k, GameState.create_site(dest)[k])
+	state["sites"].erase(str(dest["id"]))
+	# arrive at the gate that faces where we came from
+	var g := gate_to(here)
+	var p := Content.v2(dest.get("mech_start", {}).get("pos", [0, 0]))
+	var hd := float(dest.get("mech_start", {}).get("heading_deg", 0.0))
+	if not g.is_empty():
+		p = Content.v2(g["entry"])
+		hd = float(g["heading_deg"])
+	var m := mech()
+	m["pos"] = [p.x, p.y]
+	m["heading"] = deg_to_rad(hd)
+	m["speed"] = 0.0
+	m["vel"] = [0.0, 0.0]
+	if str(m["engine"]) != "shutdown":
+		m["engine"] = "running"
+	pilot()["pos"] = [p.x, p.y]
+	state = GameState.sanitize(state, loc)
+	var evs := Journey.arrive(journey(), node_id)
+	for ev in evs:
+		if str(ev) == "first_visit" and Journey.is_safe(node_id):
+			add_xp(xp_for("settlement"), "settlement")
+		elif str(ev).begins_with("discovered:"):
+			pass
+		elif str(ev) == "delivered":
+			notice.emit("NOTICE_DELIVERED", [])
+	exit_prompt = {}
+	_exit_cd = 3.0
+	Log.info("journey", "travel", {"from": here, "to": node_id, "fuel": snappedf(fuel(), 0.1)})
+	_begin()
+	notice.emit("NOTICE_ARRIVED", [str(nd.get("name", node_id))])
+	travelled.emit(here, node_id)
+	save_now("travel")
+	return ""
+
+
+## The node the player has plotted on the continental map ("" = straight for Stahlheim).
+func set_course(node_id: String) -> void:
+	journey()["course"] = node_id
+	notice.emit("NOTICE_COURSE_SET", [str(Journey.node(node_id).get("name", node_id))])
+
+
+func course() -> String:
+	var c := str(journey().get("course", ""))
+	if c == current_node() or c == "":
+		return str(Journey.data().get("goal", ""))
+	return c
+
+
+## Marks the current territory completed (its quarry is down) — XP + notice.
+func complete_node(node_id: String) -> void:
+	var j := journey()
+	if bool(j["completed"].get(node_id, false)):
+		return
+	j["completed"][node_id] = true
+	add_xp(xp_for("complete"), "complete")
+	notice.emit("NOTICE_TERRITORY_CLEARED", [str(Journey.node(node_id).get("name", node_id))])
+	Log.info("journey", "completed", {"node": node_id})
+
+
+# ---------------------------------------------------------------- territory exits
+
+## {gate, to, kind ("leave"|"flee")} while the car is at the edge and the prompt
+## is up; {} otherwise. Read by the HUD.
+var exit_prompt := {}
+var _exit_cd := 0.0
+var _exit_declined_at := Vector2.INF
+
+
+func _edge_distance(p: Vector2) -> float:
+	var b: Array = loc.get("bounds", [0, 0, 3600, 2600])
+	return minf(minf(p.x - float(b[0]), float(b[0]) + float(b[2]) - p.x), minf(p.y - float(b[1]), float(b[1]) + float(b[3]) - p.y))
+
+
+func _nearest_gate(p: Vector2) -> Dictionary:
+	var best := {}
+	var bd := INF
+	for g in loc.get("gates", []):
+		var d := p.distance_to(Content.v2(g["pos"]))
+		if d < bd:
+			bd = d
+			best = g
+	return best
+
+
+## Edge handling: near a map edge the car slows, the prompt appears (once; a
+## cooldown after "stay"), and driving on past the boundary leaves anyway.
+func _tick_exits(dt: float) -> void:
+	_exit_cd = maxf(0.0, _exit_cd - dt)
+	if mode() != "mech" or loc.get("gates", []).is_empty():
+		exit_prompt = {}
+		return
+	var p := mech_pos()
+	var d := _edge_distance(p)
+	var margin := float(tun("mech").get("exit_margin", 380.0))
+	if d < -40.0:
+		var g := _nearest_gate(p)
+		if not g.is_empty():
+			travel_to(str(g["to"]))
+		return
+	if d > margin:
+		exit_prompt = {}
+		if _exit_declined_at != Vector2.INF and p.distance_to(_exit_declined_at) > margin * 1.5:
+			_exit_declined_at = Vector2.INF
+		return
+	if exit_prompt.is_empty() and _exit_cd <= 0.0 and _exit_declined_at == Vector2.INF:
+		var g2 := _nearest_gate(p)
+		if not g2.is_empty():
+			exit_prompt = {"gate": str(g2["id"]), "to": str(g2["to"]), "kind": "leave" if is_safe_zone() else "flee"}
+			notice.emit("NOTICE_EDGE", [])
+
+
+## Speed cap near the edge (gradual deceleration toward the boundary).
+func edge_speed_factor() -> float:
+	if mode() != "mech" or loc.get("gates", []).is_empty() or exit_prompt.is_empty():
+		return 1.0
+	var margin := float(tun("mech").get("exit_margin", 380.0))
+	var d := clampf(_edge_distance(mech_pos()) / margin, 0.0, 1.0)
+	return lerpf(float(tun("mech").get("exit_slow_speed", 170.0)) / maxf(float(car_tun().get("max_speed", 560.0)), 1.0), 1.0, d)
+
+
+func confirm_exit() -> bool:
+	if exit_prompt.is_empty():
+		return false
+	var to := str(exit_prompt["to"])
+	exit_prompt = {}
+	return travel_to(to) == ""
+
+
+func decline_exit() -> void:
+	if exit_prompt.is_empty():
+		return
+	exit_prompt = {}
+	_exit_cd = float(tun("mech").get("exit_prompt_cooldown", 6.0))
+	_exit_declined_at = mech_pos()
+
+
+# ---------------------------------------------------------------- points of interest (anomalies)
+
+func poi_state(id: String) -> Dictionary:
+	var pois: Dictionary = state["world"].get("pois", {})
+	if not pois.has(id):
+		pois[id] = {"discovered": false, "searched": false}
+		state["world"]["pois"] = pois
+	return pois[id]
+
+
+func _tick_pois() -> void:
+	var at := actor_pos()
+	for p in loc.get("pois", []):
+		var ps := poi_state(str(p["id"]))
+		if bool(ps["discovered"]):
+			continue
+		if at.distance_to(Content.v2(p["pos"])) < float(tun("economy").get("discover_radius", 420.0)):
+			ps["discovered"] = true
+			add_xp(xp_for("discovery"), "discovery")
+			notice.emit("NOTICE_DISCOVERED", [str(p.get("name", "POI_EXPEDITION"))])
+			combat_event.emit("discovered", {"id": p["id"], "pos": Content.v2(p["pos"])})
+			Log.info("poi", "discovered", {"id": p["id"]})
+			save_now("discovery")
+
+
+func poi_def(id: String) -> Dictionary:
+	for p in loc.get("pois", []):
+		if str(p["id"]) == id:
+			return p
+	return {}
+
+
+func _finish_search(id: String) -> void:
+	var p := poi_def(id)
+	var ps := poi_state(id)
+	if p.is_empty() or bool(ps["searched"]):
+		return
+	ps["searched"] = true
+	ps["discovered"] = true
+	var drops: Dictionary = p.get("loot", {})
+	if drops.is_empty():
+		notice.emit("NOTICE_SEARCH_EMPTY", [])
+	else:
+		var made := Loot.spawn(state["world"], Content.v2(p["pos"]) + Vector2(60, 40), drops, _rng, 70.0)
+		for l in made:
+			combat_event.emit("loot_spawned", {"id": l["id"], "item": l["item"], "pos": Content.v2(l["pos"])})
+		notice.emit("NOTICE_SEARCH_FOUND", [made.size()])
+	mech_event.emit("pickup")
+	save_now("search")
 
 
 # ---------------------------------------------------------------- developer: creatures and materials
@@ -2033,3 +2493,62 @@ func dev_give_materials() -> void:
 	for item in ["scrap", "skirr_hide", "skirr_fang", "grind_plate", "rime_hide", "rime_spine", "rime_horn", "rime_gland", "thawheart", "radiator_core"]:
 		GameState.add(inv, item, 6 if item == "scrap" else 2)
 	notice.emit("NOTICE_DEV_MATERIALS", [])
+
+
+# ---------------------------------------------------------------- developer: journey, fuel, upgrades (F10)
+
+func _dev_mark() -> void:
+	state["stats"]["dev_actions"] = int(state["stats"].get("dev_actions", 0)) + 1
+
+
+func dev_refuel() -> void:
+	mech()["fuel"] = fuel_capacity()
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_FUEL_FULL"])
+
+
+func dev_grant_upgrade(line: String) -> bool:
+	if not (line in Garage.MODULES) or Garage.level(upgrades(), line) >= Garage.max_level(tun("shop"), line):
+		return false
+	var before_max := max_integrity()
+	upgrades()[line] = Garage.level(upgrades(), line) + 1
+	mech()["integrity"] = minf(max_integrity(), float(mech()["integrity"]) + maxf(0.0, max_integrity() - before_max))
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_UPGRADE_GRANTED"])
+	return true
+
+
+func dev_complete_node(node_id: String) -> bool:
+	if Journey.node(node_id).is_empty():
+		return false
+	journey()["discovered"][node_id] = true
+	for n in Journey.neighbors(node_id):
+		journey()["discovered"][n] = true
+	journey()["completed"][node_id] = true
+	if node_id == str(Journey.data().get("goal", "")) and current_node() == node_id:
+		journey()["delivered"] = true
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_NODE_COMPLETED"])
+	return true
+
+
+## Removes every living creature of the current map (no loot, no XP).
+func dev_clear_creatures() -> int:
+	var n := 0
+	for id in state.get("creatures", {}):
+		var c: Dictionary = state["creatures"][id]
+		if not Creatures.is_dead(c):
+			c["ai"] = "dead"
+			c["dead_at"] = float(state["playtime"])
+			c["harvested"] = true
+			creature_moves[id] = Vector2.ZERO
+			n += 1
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_CREATURES_CLEARED"])
+	return n
+
+
+func dev_money(amount: int) -> void:
+	add_money(amount)
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_MONEY"])

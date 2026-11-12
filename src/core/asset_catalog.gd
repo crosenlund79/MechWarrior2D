@@ -86,10 +86,15 @@ static func template_paths(id: String) -> PackedStringArray:
 	return out
 
 
-## Bundled override: res://assets/overrides/<dir>/<name>.<ext>
+## Bundled override: res://assets/overrides/<dir>/<name>.<ext>. A manifest
+## "creator" path (creator-supplied artwork kept where the creator put it, e.g.
+## assets/Illustrations/) comes first.
 static func bundled_candidates(id: String) -> PackedStringArray:
 	var s := _split(id)
 	var out := PackedStringArray()
+	var cr = entry(id).get("creator", "")
+	if cr is String and cr != "":
+		out.append(cr)
 	for ext in _exts(id):
 		out.append(BUNDLED_ROOT + s[0] + "/" + s[1] + "." + ext)
 	return out

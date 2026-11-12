@@ -1,16 +1,21 @@
 class_name Garage
 extends RefCounted
-## Refuge garage: car modifications bought with salvage and hunt materials.
-## Pure data. Module definitions and costs live in data/tuning.json "garage";
-## the fitted levels live in state.mech.upgrades {module: level}.
+## Eisenwolf Werke garage: car upgrades bought with MONEY (no crafting), gated by
+## the Jäger hunting rank. Pure data. Lines, levels, prices, rank requirements
+## and effects live in data/tuning.json "shop"; fitted levels in
+## state.mech.upgrades {line: level}.
 ##
-## Effects (all multiplicative on the base tuning, so balance stays in one file):
-##   armor   → +integrity            cooling → × cooling_coeff
-##   tires   → × grip, × accel       weapon  → × damage, × cooldown
-##   rig     → + cargo bulk, × tracker range
+## Effects combine across lines: additive keys (integrity, cargo) are summed,
+## multiplicative keys (*_mult) are multiplied.
+##   chassis → +integrity, +cargo        engine  → ×speed, ×accel
+##   turbo   → ×accel, ×speed, ×heat      armor   → +integrity
+##   tires   → ×grip, ×accel              cooling → ×cooling
+##   weapons → ×damage, ×cooldown, ×range, ×bullet speed
+##   cargo   → +cargo, ×tracker range
 
-
-const MODULES := ["armor", "cooling", "tires", "weapon", "rig"]
+const MODULES := ["chassis", "engine", "turbo", "armor", "tires", "cooling", "weapons", "cargo"]
+## Fitted levels from before the economy rework map onto the new lines.
+const LEGACY := {"weapon": "weapons", "rig": "cargo"}
 
 
 static func defs(tg: Dictionary) -> Dictionary:
@@ -32,59 +37,92 @@ static func next_level(tg: Dictionary, upgrades: Dictionary, module: String) -> 
 	return lv[n] if n < lv.size() else {}
 
 
-## Effect value of a module at its fitted level (key = effect name).
-static func effect(tg: Dictionary, upgrades: Dictionary, module: String, key: String, default_value: float) -> float:
-	var n := level(upgrades, module)
-	if n <= 0:
-		return default_value
+static func current_level(tg: Dictionary, upgrades: Dictionary, module: String) -> Dictionary:
 	var lv: Array = defs(tg).get(module, {}).get("levels", [])
-	return float(lv[mini(n, lv.size()) - 1].get(key, default_value))
+	var n := mini(level(upgrades, module), lv.size())
+	return lv[n - 1] if n > 0 else {}
 
 
-static func can_afford(cost: Dictionary, have: Callable) -> bool:
-	for item in cost:
-		if int(have.call(str(item))) < int(cost[item]):
-			return false
-	return true
+## Effect value of ONE line at its fitted level.
+static func effect(tg: Dictionary, upgrades: Dictionary, module: String, key: String, default_value: float) -> float:
+	var cur := current_level(tg, upgrades, module)
+	return float(cur.get(key, default_value)) if not cur.is_empty() else default_value
 
 
-## Car tuning with the fitted modules applied.
+## Combined effect of all lines for one key.
+static func total(tg: Dictionary, upgrades: Dictionary, key: String) -> float:
+	var mult := key.ends_with("_mult")
+	var v := 1.0 if mult else 0.0
+	for m in MODULES:
+		var cur := current_level(tg, upgrades, m)
+		if cur.has(key):
+			v = v * float(cur[key]) if mult else v + float(cur[key])
+	return v
+
+
+## "" if the next level can be bought, else a reason key.
+static func check(tg: Dictionary, upgrades: Dictionary, module: String, money: int, rank: int) -> String:
+	var nxt := next_level(tg, upgrades, module)
+	if nxt.is_empty():
+		return "GARAGE_MAXED"
+	if rank < int(nxt.get("rank", 1)):
+		return "GARAGE_RANK_LOCKED"
+	if money < int(nxt.get("price", 0)):
+		return "GARAGE_NO_MONEY"
+	return ""
+
+
+## Car tuning with the fitted lines applied.
 static func car_tuning(base: Dictionary, tg: Dictionary, upgrades: Dictionary) -> Dictionary:
 	var t := base.duplicate()
-	t["integrity"] = float(base.get("integrity", 100.0)) + effect(tg, upgrades, "armor", "integrity", 0.0)
-	t["grip"] = float(base.get("grip", 1300.0)) * effect(tg, upgrades, "tires", "grip_mult", 1.0)
-	t["accel"] = float(base.get("accel", 300.0)) * effect(tg, upgrades, "tires", "accel_mult", 1.0)
-	t["max_speed"] = float(base.get("max_speed", 420.0)) * effect(tg, upgrades, "tires", "speed_mult", 1.0)
+	t["integrity"] = float(base.get("integrity", 100.0)) + total(tg, upgrades, "integrity")
+	t["grip"] = float(base.get("grip", 1300.0)) * total(tg, upgrades, "grip_mult")
+	t["accel"] = float(base.get("accel", 300.0)) * total(tg, upgrades, "accel_mult")
+	t["max_speed"] = float(base.get("max_speed", 460.0)) * total(tg, upgrades, "speed_mult")
 	return t
 
 
 static func thermal_tuning(base: Dictionary, tg: Dictionary, upgrades: Dictionary) -> Dictionary:
 	var t := base.duplicate()
-	t["cooling_coeff"] = float(base.get("cooling_coeff", 0.15)) * effect(tg, upgrades, "cooling", "cooling_mult", 1.0)
+	t["cooling_coeff"] = float(base.get("cooling_coeff", 0.15)) * total(tg, upgrades, "cooling_mult")
+	t["move_heat"] = float(base.get("move_heat", 1.0)) * total(tg, upgrades, "heat_mult")
 	return t
 
 
 static func weapon_tuning(base: Dictionary, tg: Dictionary, upgrades: Dictionary) -> Dictionary:
 	var t := base.duplicate()
-	t["damage"] = float(base.get("damage", 5.0)) * effect(tg, upgrades, "weapon", "damage_mult", 1.0)
-	t["cooldown"] = float(base.get("cooldown", 0.3)) * effect(tg, upgrades, "weapon", "cooldown_mult", 1.0)
+	t["damage"] = float(base.get("damage", 5.0)) * total(tg, upgrades, "damage_mult")
+	t["cooldown"] = float(base.get("cooldown", 0.3)) * total(tg, upgrades, "cooldown_mult")
+	t["range"] = float(base.get("range", 700.0)) * total(tg, upgrades, "range_mult")
+	t["speed"] = float(base.get("speed", 1200.0)) * total(tg, upgrades, "bullet_mult")
 	return t
 
 
 static func cargo_capacity(base_capacity: int, tg: Dictionary, upgrades: Dictionary) -> int:
-	return base_capacity + int(effect(tg, upgrades, "rig", "cargo", 0.0))
+	return base_capacity + int(total(tg, upgrades, "cargo"))
 
 
 static func tracker_range(base_range: float, tg: Dictionary, upgrades: Dictionary) -> float:
-	return base_range * effect(tg, upgrades, "rig", "tracker_mult", 1.0)
+	return base_range * total(tg, upgrades, "tracker_mult")
 
 
-## Human-readable effect lines for the next level vs now: [[key, now, next], ...].
+## Readable effect lines for the next level vs now: [[key, now, next], ...].
 static func preview(tg: Dictionary, upgrades: Dictionary, module: String) -> Array:
 	var nxt := next_level(tg, upgrades, module)
 	var out: Array = []
 	for k in nxt:
-		if k == "cost":
+		if k in ["price", "rank", "name"]:
 			continue
-		out.append([k, effect(tg, upgrades, module, k, 0.0 if not k.ends_with("_mult") else 1.0), float(nxt[k])])
+		out.append([k, effect(tg, upgrades, module, k, 1.0 if str(k).ends_with("_mult") else 0.0), float(nxt[k])])
+	return out
+
+
+## Migrates fitted levels from the material-cost garage (armor, cooling, tires,
+## weapon, rig) onto the money shop lines, clamped to each line's maximum.
+static func migrate_upgrades(old: Dictionary, tg: Dictionary) -> Dictionary:
+	var out := {}
+	for k in old:
+		var line: String = LEGACY.get(str(k), str(k))
+		if line in MODULES:
+			out[line] = clampi(int(old[k]), 0, max_level(tg, line))
 	return out

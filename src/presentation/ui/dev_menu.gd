@@ -63,11 +63,25 @@ func _build() -> void:
 	_row([["Spawn Junker", func() -> void: _spawn("junker", 1)], ["Clear spawned", func() -> void: Session.dev_clear_spawned()]])
 	_toggle("aggro", "Enemy aggression", func() -> void: Session.dev["aggression"] = not Session.dev["aggression"])
 	_head("Creatures")
-	_row([["Skirr pack (3)", func() -> void: _spawn_c("skirr", 3)], ["Grindback", func() -> void: _spawn_c("grindback", 1)],
-		["Rimeback", func() -> void: _spawn_c("rimeback", 1)]])
+	_row([["Skirr pack (3)", func() -> void: _spawn_c("skirr", 3)], ["Wühler", func() -> void: _spawn_c("grindback", 1)],
+		["Eisback", func() -> void: _spawn_c("rimeback", 1)]])
 	_head("Player / car")
-	_row([["Repair all", func() -> void: Session.dev_repair_all()], ["Refill suit", func() -> void: Session.debug("suit", 100.0)]])
-	_row([["Give test materials", func() -> void: Session.dev_give_materials()]])
+	_row([["Repair car completely", func() -> void: Session.dev_repair_all()], ["Refill fuel", func() -> void: Session.dev_refuel()],
+		["Refill suit", func() -> void: Session.debug("suit", 100.0)]])
+	_row([["+1000 M", func() -> void: Session.dev_money(1000)], ["Give test materials", func() -> void: Session.dev_give_materials()]])
+	_upgrade_pick = OptionButton.new()
+	for m in Garage.MODULES:
+		_upgrade_pick.add_item(m)
+	_pick_row(_upgrade_pick, "Grant upgrade level", func() -> void:
+		if not Session.dev_grant_upgrade(Garage.MODULES[_upgrade_pick.selected]):
+			Session.notice.emit("NOTICE_DEV", ["GARAGE_MAXED"]))
+	_head("Journey")
+	_node_pick = OptionButton.new()
+	for id in Journey.nodes():
+		_node_pick.add_item(id)
+	_pick_row(_node_pick, "Complete node", func() -> void: Session.dev_complete_node(_node_pick.get_item_text(_node_pick.selected)))
+	_row([["Travel to selected node", func() -> void: Session.travel_to(_node_pick.get_item_text(_node_pick.selected), true)],
+		["Clear territory creatures", func() -> void: Session.dev_clear_creatures()]])
 	_row([["Restore cooling", func() -> void: Session.dev_restore_cooling()]])
 	_toggle("invuln", "Invulnerable", func() -> void: Session.dev["invulnerable"] = not Session.dev["invulnerable"])
 	_head("Simulation speed")
@@ -78,15 +92,31 @@ func _build() -> void:
 			Session.dev["time_scale"] = vv
 			Session.time_scale = vv])
 	_row(sp)
-	_head("Teleport")
-	_row([["Canyon refuge", func() -> void: Session.dev_teleport("refuge")], ["Junker base", func() -> void: Session.dev_teleport("junker_base")]])
-	_row([["Cooling station", func() -> void: Session.dev_teleport("cooling_station")], ["Scrap field", func() -> void: Session.dev_teleport("scrap_field")]])
-	_row([["Thaw Flats (rimeback)", func() -> void: Session.dev_teleport("thaw_flats")], ["Dune sea", func() -> void: Session.dev_teleport("dune_sea")],
-		["Skirr den", func() -> void: Session.dev_teleport("skirr_den")]])
+	_head("Teleport (this map)")
+	_tp_pick = OptionButton.new()
+	for k in Session.loc.get("teleports", {}):
+		_tp_pick.add_item(str(k))
+	_pick_row(_tp_pick, "Teleport", func() -> void:
+		if _tp_pick.item_count > 0:
+			Session.dev_teleport(_tp_pick.get_item_text(_tp_pick.selected)))
 	_head("")
 	_row([["Restore default settings", func() -> void:
 		Session.dev_reset()
 		_intensity.value = 0.85]])
+
+
+var _upgrade_pick: OptionButton
+var _node_pick: OptionButton
+var _tp_pick: OptionButton
+
+
+func _pick_row(pick: OptionButton, label: String, cb: Callable) -> void:
+	var h := HBoxContainer.new()
+	pick.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(pick)
+	var b := UiTheme.btn(label, cb)
+	h.add_child(b)
+	_list.add_child(h)
 
 
 func _spawn_c(species: String, n: int) -> void:

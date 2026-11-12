@@ -11,7 +11,7 @@ extends RefCounted
 const FORMAT := "thawborn_save"
 ## Saves written by Heat Signature (the project before the Thawborn conversion).
 const LEGACY_FORMATS := ["heat_signature_save"]
-const VERSION := 6
+const VERSION := 7
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
@@ -21,6 +21,7 @@ static var MIGRATIONS := {
 	3: _migrate_3_to_4,
 	4: _migrate_4_to_5,
 	5: _migrate_5_to_6,
+	6: _migrate_6_to_7,
 }
 
 
@@ -143,6 +144,33 @@ static func _migrate_5_to_6(env: Dictionary) -> Dictionary:
 	if not (s.get("garage") is Dictionary):
 		s["garage"] = {"storage": {}, "unloads": 0}
 	env["version"] = 6
+	return env
+
+
+## Version 7 (continental journey): money, fuel, Jäger rank, the route network
+## and per-map site state. A save from the single-map game continues in the
+## Taubecken (the old desert basin) — Ersthafen behind it, routes onward
+## discovered. Material upgrades map onto the new shop lines (sanitize), carried
+## materials stay sellable cargo.
+static func _migrate_6_to_7(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	var m = s.get("mech")
+	if m is Dictionary and not m.has("fuel"):
+		m["fuel"] = 100.0
+	if not s.has("money"):
+		s["money"] = 250
+	if not s.has("rank"):
+		s["rank"] = {"xp": 0, "level": 1}
+	if not s.has("sites"):
+		s["sites"] = {}
+	if not s.has("journey"):
+		var here := "taubecken" if str(s.get("location", "desert_basin_01")) == "desert_basin_01" else "ersthafen"
+		s["journey"] = {"node": here, "from": "ersthafen", "visited": {"ersthafen": true, here: true},
+			"discovered": {"ersthafen": true, "taubecken": true, "kaltbrunn": true, "rostfeld": true},
+			"completed": {"ersthafen": true}, "delivered": false, "cargo_intact": true}
+	if s.get("world") is Dictionary and not s["world"].has("pois"):
+		s["world"]["pois"] = {}
+	env["version"] = 7
 	return env
 
 

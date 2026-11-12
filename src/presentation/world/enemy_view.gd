@@ -50,7 +50,7 @@ func setup(enemy_id: String) -> void:
 
 func _ready() -> void:
 	collision_layer = 4
-	collision_mask = 1 | 4 | 8
+	collision_mask = 1 | 4 | 8 | 16
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	_cs = CollisionShape2D.new()
 	var c := CapsuleShape2D.new()
@@ -340,7 +340,12 @@ func _process(delta: float) -> void:
 		boom.emitting = true
 		boom.finished.connect(boom.queue_free)
 	_was_wreck = is_wreck
-	shadow.global_position = global_position + SHADOW_OFFSET * lerpf(0.45, 1.0, _pose)
+	var hgt := 0.0
+	var wv = get_parent()
+	if wv and wv.get("relief"):
+		hgt = wv.relief.height_at(global_position)
+	scale = scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	shadow.global_position = global_position + SHADOW_OFFSET * lerpf(0.45, 1.0, _pose) * (1.0 + hgt * Relief.SHADOW_K)
 	var sb: Node2D = shadow.get_child(0) if shadow.get_child_count() > 0 else null
 	if sb:
 		sb.rotation = body.rotation

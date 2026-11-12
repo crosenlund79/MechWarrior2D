@@ -1,0 +1,29 @@
+{
+	"_note": "Continental route network (Ersthafen → Stahlheim). Node pos = position on the continental map (0..1000 × 0..700). kind: settlement | territory | hub. location = data/locations/<id>.json. Edges are two-way; fuel = litres the transit costs. Generated maps come from tools/build_continent.py.",
+	"start": "ersthafen",
+	"goal": "stahlheim",
+	"cargo": {"id": "sealed_case", "name": "CARGO_SEALED_CASE", "desc": "CARGO_SEALED_CASE_DESC"},
+	"nodes": {
+		"ersthafen": {"kind": "settlement", "location": "ersthafen", "tier": 0, "pos": [120, 560], "name": "NODE_ERSTHAFEN", "desc": "NODE_ERSTHAFEN_DESC"},
+		"taubecken": {"kind": "territory", "location": "desert_basin_01", "tier": 1, "pos": [280, 470], "name": "NODE_TAUBECKEN", "desc": "NODE_TAUBECKEN_DESC"},
+		"kaltbrunn": {"kind": "settlement", "location": "kaltbrunn", "tier": 1, "pos": [380, 300], "name": "NODE_KALTBRUNN", "desc": "NODE_KALTBRUNN_DESC"},
+		"salzpfanne": {"kind": "territory", "location": "salzpfanne", "tier": 2, "pos": [540, 230], "name": "NODE_SALZPFANNE", "desc": "NODE_SALZPFANNE_DESC"},
+		"rostfeld": {"kind": "territory", "location": "rostfeld", "tier": 2, "pos": [470, 520], "name": "NODE_ROSTFELD", "desc": "NODE_ROSTFELD_DESC"},
+		"eisenhalt": {"kind": "settlement", "location": "eisenhalt", "tier": 3, "pos": [640, 400], "name": "NODE_EISENHALT", "desc": "NODE_EISENHALT_DESC"},
+		"weissgrat": {"kind": "territory", "location": "weissgrat", "tier": 3, "pos": [700, 590], "name": "NODE_WEISSGRAT", "desc": "NODE_WEISSGRAT_DESC"},
+		"frostgrund": {"kind": "territory", "location": "frostgrund", "tier": 4, "pos": [800, 300], "name": "NODE_FROSTGRUND", "desc": "NODE_FROSTGRUND_DESC"},
+		"stahlheim": {"kind": "hub", "location": "stahlheim", "tier": 5, "pos": [910, 150], "name": "NODE_STAHLHEIM", "desc": "NODE_STAHLHEIM_DESC"}
+	},
+	"edges": [
+		["ersthafen", "taubecken", 6],
+		["taubecken", "kaltbrunn", 8],
+		["taubecken", "rostfeld", 8],
+		["kaltbrunn", "salzpfanne", 7],
+		["salzpfanne", "eisenhalt", 8],
+		["rostfeld", "eisenhalt", 8],
+		["rostfeld", "weissgrat", 10],
+		["eisenhalt", "frostgrund", 9],
+		["weissgrat", "frostgrund", 10],
+		["frostgrund", "stahlheim", 10]
+	]
+}

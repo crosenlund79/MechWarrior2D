@@ -1802,6 +1802,262 @@
 				0.5,
 				0.5
 			]
+		},
+		"sign.ersthafen": {
+			"path": "signs/ersthafen",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.kaltbrunn": {
+			"path": "signs/kaltbrunn",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.eisenhalt": {
+			"path": "signs/eisenhalt",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.stahlheim": {
+			"path": "signs/stahlheim",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.eisenwolf": {
+			"path": "signs/eisenwolf",
+			"display": [
+				260,
+				44
+			],
+			"source": [
+				520,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.tankstelle": {
+			"path": "signs/tankstelle",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.handelsposten": {
+			"path": "signs/handelsposten",
+			"display": [
+				260,
+				44
+			],
+			"source": [
+				520,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"poi.corpse": {
+			"path": "poi/corpse",
+			"display": [
+				64,
+				90
+			],
+			"source": [
+				128,
+				180
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "dead expedition driver in a heat suit"
+		},
+		"poi.papers": {
+			"path": "poi/papers",
+			"display": [
+				70,
+				60
+			],
+			"source": [
+				140,
+				120
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"ui.continent_map": {
+			"path": "ui/continent_map",
+			"display": [
+				1000,
+				700
+			],
+			"source": [
+				2000,
+				1400
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "Eisenwolf survey chart of the thawed continent (journey map background)"
+		},
+		"ui.menu_table": {
+			"path": "ui/menu_table",
+			"display": [
+				1920,
+				1080
+			],
+			"source": [
+				1920,
+				1080
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "weathered workbench in an Ersthafen garage (main menu); the creator's photographs are laid on it by the game"
+		},
+		"item.salvaged_parts": {
+			"path": "items/salvaged_parts",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.logbook": {
+			"path": "items/logbook",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.instrument": {
+			"path": "items/instrument",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"ui.photo_combat": {
+			"path": "ui/photo_combat",
+			"display": [
+				836,
+				470
+			],
+			"source": [
+				1672,
+				940
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "main-menu print; the creator's 'assets/Illustrations/Thawborn combat.png' is used when present",
+			"creator": "res://assets/Illustrations/Thawborn combat.png"
+		},
+		"ui.photo_garage": {
+			"path": "ui/photo_garage",
+			"display": [
+				836,
+				470
+			],
+			"source": [
+				1672,
+				940
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "main-menu print; the creator's 'assets/Illustrations/Thawborn garage.png' is used when present",
+			"creator": "res://assets/Illustrations/Thawborn garage.png"
 		}
 	},
 	"tiles": {

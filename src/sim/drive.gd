@@ -74,7 +74,9 @@ static func step(m: Dictionary, throttle: float, turn: float, can_drive: bool, t
 	v += forward(h) * (new_vf - vf)
 	# --- steering: scales with forward speed (no pivoting on the spot)
 	var top := maxf(float(tm.get("max_speed", 420.0)), 1.0)
-	var steer_frac := clampf(absf(new_vf) / maxf(float(tm.get("steer_full_speed", 70.0)), 1.0), 0.0, 1.0)
+	# Steering authority builds with momentum (smooth onset, no turning on the spot):
+	# s = smoothstep over 0..steer_full_speed, so a creeping car barely yaws.
+	var steer_frac := smoothstep(0.0, maxf(float(tm.get("steer_full_speed", 70.0)), 1.0), absf(new_vf))
 	var tr := lerpf(float(tm.get("turn_rate", 2.6)), float(tm.get("turn_rate_full_speed", 1.6)), clampf(absf(new_vf) / top, 0.0, 1.0))
 	var dir := 1.0 if new_vf >= -1.0 else -1.0
 	if dir < 0.0:
@@ -82,7 +84,7 @@ static func step(m: Dictionary, throttle: float, turn: float, can_drive: bool, t
 		# so a reversing car never snaps round (playtest 001/003).
 		var rtop := maxf(float(tm.get("reverse_speed", 170.0)), 1.0)
 		tr = lerpf(float(tm.get("reverse_turn_rate", 1.1)), float(tm.get("reverse_turn_rate_full_speed", 0.6)), clampf(absf(new_vf) / rtop, 0.0, 1.0))
-		steer_frac = clampf(absf(new_vf) / maxf(float(tm.get("reverse_steer_full_speed", 110.0)), 1.0), 0.0, 1.0)
+		steer_frac = smoothstep(0.0, maxf(float(tm.get("reverse_steer_full_speed", 110.0)), 1.0), absf(new_vf))
 	if handbrake:
 		tr *= float(tm.get("handbrake_turn", 1.45))
 	h = wrapf(h + turn * tr * steer_frac * dir * dt, -PI, PI)

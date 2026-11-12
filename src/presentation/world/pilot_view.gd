@@ -14,7 +14,7 @@ var _facing := 0.0
 
 func _ready() -> void:
 	collision_layer = 2
-	collision_mask = 1 | 4
+	collision_mask = 1 | 4 | 16
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
 	var cs := CollisionShape2D.new()
 	var c := CircleShape2D.new()

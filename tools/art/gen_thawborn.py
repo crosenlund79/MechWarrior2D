@@ -50,7 +50,22 @@ ENTRIES = {
     "decal.blood": S("decals/blood", 48, 48, rot=False),
     "decal.skid": S("decals/skid", 24, 40, rot=True),
 }
-ITEMS = ["skirr_hide", "skirr_fang", "grind_plate", "rime_hide", "rime_spine", "rime_horn", "rime_gland", "thawheart"]
+SIGNS = {"sign.ersthafen": ("ERSTHAFEN", "GEGR. ALS LANDFALL"), "sign.kaltbrunn": ("KALTBRUNN", "WASSER · DIESEL"),
+         "sign.eisenhalt": ("EISENHALT", "HALTEPUNKT 3"), "sign.stahlheim": ("STAHLHEIM", "ENDSTATION"),
+         "sign.eisenwolf": ("EISENWOLF WERKE", "WERKSTATT · TEILE"), "sign.tankstelle": ("TANKSTELLE", "DIESEL · KÜHLMITTEL"),
+         "sign.handelsposten": ("HANDELSPOSTEN", "ANKAUF · VERKAUF")}
+for sid, (t1, _t2) in SIGNS.items():
+    ENTRIES[sid] = S("signs/" + sid.split(".")[1], 260 if len(t1) > 10 else 230, 44, rot=False, note="painted settlement plate (Thawborn frontier German)")
+ENTRIES["poi.corpse"] = S("poi/corpse", 64, 90, note="dead expedition driver in a heat suit")
+ENTRIES["poi.papers"] = S("poi/papers", 70, 60, rot=False)
+ENTRIES["ui.continent_map"] = S("ui/continent_map", 1000, 700, rot=False, note="Eisenwolf survey chart of the thawed continent (journey map background)")
+ENTRIES["ui.menu_table"] = S("ui/menu_table", 1920, 1080, rot=False, note="weathered workbench in an Ersthafen garage (main menu); the creator's photographs are laid on it by the game")
+ENTRIES["ui.menu_table"]["source"] = [1920, 1080]
+ENTRIES["ui.photo_combat"] = S("ui/photo_combat", 836, 470, rot=False, note="main-menu print; the creator's 'assets/Illustrations/Thawborn combat.png' is used when present")
+ENTRIES["ui.photo_combat"]["creator"] = "res://assets/Illustrations/Thawborn combat.png"
+ENTRIES["ui.photo_garage"] = S("ui/photo_garage", 836, 470, rot=False, note="main-menu print; the creator's 'assets/Illustrations/Thawborn garage.png' is used when present")
+ENTRIES["ui.photo_garage"]["creator"] = "res://assets/Illustrations/Thawborn garage.png"   # drawn at display size (the canvas supersamples 2x anyway)
+ITEMS = ["skirr_hide", "skirr_fang", "grind_plate", "rime_hide", "rime_spine", "rime_horn", "rime_gland", "thawheart", "salvaged_parts", "logbook", "instrument"]
 for it in ITEMS:
     ENTRIES["item." + it] = S("items/" + it, 44, 44, rot=False)
 
@@ -66,7 +81,7 @@ register()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gen_art as G  # noqa: E402  (reads the updated manifest)
 from gen_art import plate, bolts_along, canvas_for, out  # noqa: E402
-from inkkit import blob, rrect  # noqa: E402
+from inkkit import blob, rrect, SS  # noqa: E402
 
 # creature palette: pale, cold hides that lived under ice (not machinery colours)
 HIDE = (196, 190, 176)
@@ -142,6 +157,10 @@ def gen_car_body():
         x = cx - 96 + i * 28
         c.fill([(x, 456), (x + 14, 456), (x + 10, 466), (x - 4, 466)], (40, 36, 30) if i % 2 else G.PAINT_Y, tex=0.1)
     bolts_along(c, [(cx - 98, 306), (cx + 98, 306), (cx + 100, 454), (cx - 100, 454)], 26, 6)
+    badge = [(cx - 40, 160), (cx + 40, 160), (cx + 40, 172), (cx - 40, 172)]   # Eisenwolf Werke maker's plate on the cowl
+    c.fill(badge, (176, 164, 132), tex=0.1)
+    c.ink_poly(badge, 1.2)
+    _text(c, (cx, 166), "EISENWOLF", 10, (50, 36, 26))
     c.desertize(dust=0.5, abrasion=0.45, bleach=0.35, seams=0.6, heat=[(cx, 40, 50, 0.4), (cx - 108, 308, 24, 0.7), (cx + 108, 308, 24, 0.7)])
     c.save(out("car.body"))
 
@@ -514,7 +533,225 @@ def gen_materials():
     icon("thawheart", 968, heart)
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials]
+from PIL import Image, ImageDraw, ImageFont, ImageFilter  # noqa: E402
+FONT_B = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_C = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"   # stencil-like plate lettering
+FONT_M = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+
+
+def _font(path, size):
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def _text(c, xy, text, size, col, path=FONT_C, anchor="mm", alpha=235):
+    """Text in SOURCE pixel coordinates / size (the canvas works at SS× internally)."""
+    d = ImageDraw.Draw(c.img)
+    f = _font(path, int(size * SS))
+    d.text((xy[0] * SS, xy[1] * SS), text, font=f, fill=tuple(col) + (alpha,), anchor=anchor)
+
+
+def gen_signs():
+    for sid, (t1, t2) in SIGNS.items():
+        c = canvas_for(sid, abs(hash(sid)) % 999)
+        W, H = ENTRIES[sid]["source"]
+        board = [(6, 8), (W - 6, 4), (W - 4, H - 8), (8, H - 4)]
+        col = G.PAINT_Y if sid in ("sign.tankstelle",) else ((150, 70, 44) if sid == "sign.eisenwolf" else (70, 74, 70))
+        plate(c, board, col, line=2.6, grime=0.5, hatch_alpha=40)
+        c.rivets([(16, 16), (W - 16, 14), (W - 16, H - 16), (16, H - 14)], 2.4)
+        txt_col = (232, 222, 196) if col != G.PAINT_Y else (40, 34, 28)
+        _text(c, (W / 2, H / 2 - 9), t1, 34 if len(t1) > 10 else 40, txt_col)
+        _text(c, (W / 2, H / 2 + 24), t2, 15, txt_col, FONT_M, alpha=200)
+        c.desertize(dust=0.5, abrasion=0.6, bleach=0.45, seams=0.6)
+        c.save(out(sid))
+
+
+def gen_poi():
+    c = canvas_for("poi.corpse", 971)
+    W, H = ENTRIES["poi.corpse"]["source"]
+    cx = W / 2
+    legs = [(cx - 20, H * 0.55), (cx - 8, H * 0.95), (cx + 4, H * 0.95), (cx + 18, H * 0.58)]
+    plate(c, legs, (164, 110, 66), line=2.2, grime=0.4)
+    torso = blob(cx, H * 0.4, W * 0.3, H * 0.2, 14, 0.1, 2)
+    plate(c, torso, (196, 132, 70), line=2.4, grime=0.5)
+    for y in (H * 0.34, H * 0.44):   # hi-vis stripes, faded
+        c.ink([(cx - W * 0.26, y), (cx + W * 0.26, y + 4)], 4.0, wobble=0.4, color=(214, 170, 90), alpha=200)
+    c.ink([(cx - W * 0.28, H * 0.35), (cx - W * 0.46, H * 0.62)], 9.0, wobble=0.5, color=(160, 106, 64), alpha=255)
+    c.ink([(cx + W * 0.28, H * 0.33), (cx + W * 0.44, H * 0.14)], 9.0, wobble=0.5, color=(160, 106, 64), alpha=255)
+    c.fill_ellipse((cx - 15, H * 0.08, cx + 15, H * 0.24), (90, 84, 78), tex=0.2)
+    c.ink_ellipse((cx - 15, H * 0.08, cx + 15, H * 0.24), 2.0)
+    c.fill([(cx - 9, H * 0.13), (cx + 9, H * 0.13), (cx + 7, H * 0.18), (cx - 7, H * 0.18)], (120, 80, 40), tex=0.1)  # cracked visor
+    c.ink([(cx - 6, H * 0.13), (cx + 4, H * 0.18)], 1.2, color=(230, 220, 200))
+    c.desertize(dust=0.8, abrasion=0.3, bleach=0.5, seams=0.6)
+    c.save(out("poi.corpse"))
+    c = canvas_for("poi.papers", 972)
+    W, H = ENTRIES["poi.papers"]["source"]
+    for k in range(5):
+        x = c.rng.uniform(10, W - 50); y = c.rng.uniform(8, H - 40); a = c.rng.uniform(-0.5, 0.5)
+        pts = [(x + math.cos(a) * dx - math.sin(a) * dy, y + math.sin(a) * dx + math.cos(a) * dy) for dx, dy in ((0, 0), (36, 0), (36, 30), (0, 30))]
+        c.fill(pts, (226, 214, 186), tex=0.15)
+        c.ink_poly(pts, 1.2)
+        for r in range(3):
+            c.ink([(pts[0][0] + 6, pts[0][1] + 8 + r * 7), (pts[1][0] - 6, pts[1][1] + 8 + r * 7)], 1.0, alpha=120)
+    c.desertize(dust=0.6, abrasion=0.2, bleach=0.5, seams=0.2)
+    c.save(out("poi.papers"), outline=1.2, burn=0.1)
+
+
+def gen_expedition_items():
+    def icon(it, seed, draw):
+        c = canvas_for("item." + it, seed)
+        draw(c, *ENTRIES["item." + it]["source"])
+        c.desertize(dust=0.25, abrasion=0.15, bleach=0.15, seams=0.4)
+        c.save(out("item." + it))
+    icon("salvaged_parts", 981, lambda c, W, H: (plate(c, [(W * .15, H * .4), (W * .55, H * .3), (W * .6, H * .7), (W * .2, H * .78)], G.STEEL, line=2.2, grime=0.4),
+                                                 c.fill_ellipse((W * .52, H * .2, W * .86, H * .54), G.RUST, tex=0.3), c.ink_ellipse((W * .52, H * .2, W * .86, H * .54), 2.0),
+                                                 c.fill_ellipse((W * .63, H * .31, W * .75, H * .43), G.HOLE, tex=0.1)))
+    icon("logbook", 982, lambda c, W, H: (plate(c, [(W * .2, H * .15), (W * .78, H * .12), (W * .82, H * .86), (W * .22, H * .88)], (96, 70, 48), line=2.4, grime=0.3),
+                                          _text(c, (W * .5, H * .45), "LOG", 18, (220, 200, 160))))
+    icon("instrument", 983, lambda c, W, H: (plate(c, rrect(W * .16, H * .2, W * .84, H * .8, 6, 0.3, 1), G.STEEL_D, line=2.4, grime=0.2),
+                                             c.fill_ellipse((W * .3, H * .3, W * .7, H * .7), (220, 214, 196), tex=0.05), c.ink_ellipse((W * .3, H * .3, W * .7, H * .7), 1.8),
+                                             c.ink([(W * .5, H * .5), (W * .62, H * .38)], 2.0, color=(170, 40, 30))))
+
+
+def gen_continent():
+    """Survey chart: parchment, the continent outline with ice rim, ridge hatching, a compass, Eisenwolf title block."""
+    c = canvas_for("ui.continent_map", 990)
+    W, H = ENTRIES["ui.continent_map"]["source"]
+    c.fill([(0, 0), (W, 0), (W, H), (0, H)], (206, 186, 146), tex=0.5, cell=40)
+    land = blob(W * 0.52, H * 0.52, W * 0.44, H * 0.42, 40, 0.12, 31)
+    c.fill(land, (190, 160, 112), tex=0.45, cell=30)
+    c.ink_poly(land, 4.0)
+    rim = [(x + (W * 0.52 - x) * 0.03, y + (H * 0.52 - y) * 0.03) for x, y in land]
+    c.ink_poly(rim, 2.0, alpha=140, color=(80, 100, 110))
+    for k in range(70):   # ridge hatching
+        x = W * c.rng.uniform(0.15, 0.9); y = H * c.rng.uniform(0.15, 0.88)
+        a = c.rng.uniform(0, math.pi)
+        c.ink([(x, y), (x + math.cos(a) * 26, y + math.sin(a) * 26)], 2.0, wobble=1.0, alpha=110)
+        c.ink([(x + 6, y + 4), (x + 6 + math.cos(a) * 18, y + 4 + math.sin(a) * 18)], 1.4, wobble=1.0, alpha=90)
+    for k in range(9):   # dune / salt flats
+        x = W * c.rng.uniform(0.2, 0.85); y = H * c.rng.uniform(0.2, 0.85)
+        c.fill_ellipse((x - 60, y - 26, x + 60, y + 26), (222, 206, 170), tex=0.3)
+    # compass rose (bottom-left) and title block (bottom-right)
+    cx, cy = W * 0.1, H * 0.84
+    for a in range(8):
+        r = 60 if a % 2 == 0 else 30
+        ang = a * math.pi / 4 - math.pi / 2
+        c.ink([(cx, cy), (cx + math.cos(ang) * r, cy + math.sin(ang) * r)], 2.4 if a % 2 == 0 else 1.4)
+    _text(c, (cx, cy - 78), "N", 26, (40, 30, 24))
+    tb = [(W * 0.66, H * 0.86), (W * 0.97, H * 0.86), (W * 0.97, H * 0.97), (W * 0.66, H * 0.97)]
+    c.fill(tb, (222, 206, 172), tex=0.2)
+    c.ink_poly(tb, 2.0)
+    _text(c, (W * 0.815, H * 0.9), "EISENWOLF WERKE · VERMESSUNG", 28, (50, 36, 26))
+    _text(c, (W * 0.815, H * 0.94), "KONTINENTALKARTE  BLATT 1  —  ERSTHAFEN–STAHLHEIM", 16, (60, 44, 32), FONT_M)
+    c.desertize(dust=0.4, abrasion=0.3, bleach=0.3, seams=0.4)
+    c.save(out("ui.continent_map"), outline=0.0, burn=0.25)
+
+
+def gen_menu_table():
+    """Workbench seen from above under a hanging garage lamp: brushed, oil-stained sheet steel on timber
+    trestles, a survey map, technical papers with Eisenwolf headers, tools, bolts, a gear, a mug ring and a
+    rag. The game lays the creator's photographs on it (they cover the centre)."""
+    from PIL import Image as _I
+    c = canvas_for("ui.menu_table", 995)
+    W, H = ENTRIES["ui.menu_table"]["source"]
+    c.fill([(0, 0), (W, 0), (W, H), (0, H)], (78, 56, 38), tex=0.6, cell=40)   # timber floor / trestles
+    for k in range(10):
+        y = k * H / 10
+        c.ink([(0, y), (W, y + c.rng.uniform(-6, 6))], 3.0, wobble=0.6, alpha=170, color=(36, 24, 16))
+    steel = [(W * 0.04, H * 0.05), (W * 0.96, H * 0.04), (W * 0.965, H * 0.955), (W * 0.035, H * 0.95)]
+    c.fill(steel, (104, 96, 84), tex=0.3, cell=14)
+    for k in range(900):   # brushed steel streaks
+        x = c.rng.uniform(W * 0.05, W * 0.95); y = c.rng.uniform(H * 0.06, H * 0.94)
+        c.ink([(x, y), (x + c.rng.uniform(40, 160), y + c.rng.uniform(-2, 2))], 1.0, wobble=0.1, alpha=c.rng.randint(25, 70),
+              color=(190, 180, 160) if k % 3 else (40, 34, 28))
+    c.ink_poly(steel, 5.0)
+    c.rivets([(W * 0.05 + k * W * 0.03, H * 0.065) for k in range(31)] + [(W * 0.05 + k * W * 0.03, H * 0.935) for k in range(31)], 3.0)
+    for k in range(10):   # oil stains and mug rings
+        x = c.rng.uniform(W * 0.1, W * 0.9); y = c.rng.uniform(H * 0.1, H * 0.9); r = c.rng.uniform(30, 90)
+        c.fill_ellipse((x - r, y - r * 0.8, x + r, y + r * 0.8), (60, 50, 40), tex=0.4)
+    for k in range(3):
+        x = c.rng.uniform(W * 0.45, W * 0.9); y = c.rng.uniform(H * 0.12, H * 0.3)
+        c.ink_ellipse((x - 38, y - 38, x + 38, y + 38), 4.0, alpha=110, color=(60, 34, 20))
+    # survey map (left, partly under the photos)
+    mp = [(W * 0.05, H * 0.56), (W * 0.31, H * 0.52), (W * 0.33, H * 0.92), (W * 0.07, H * 0.94)]
+    c.fill(mp, (206, 186, 146), tex=0.4, cell=24)
+    c.ink_poly(mp, 2.4)
+    for k in range(26):
+        x = c.rng.uniform(W * 0.08, W * 0.3); y = c.rng.uniform(H * 0.57, H * 0.9)
+        c.ink([(x, y), (x + c.rng.uniform(-50, 50), y + c.rng.uniform(-24, 24))], 1.8, wobble=1.3, alpha=150, color=(90, 60, 40))
+    c.ink([(W * 0.1, H * 0.86), (W * 0.15, H * 0.76), (W * 0.21, H * 0.71), (W * 0.29, H * 0.58)], 4.0, wobble=0.6, color=(160, 40, 30), alpha=220)
+    for (x, y) in [(W * 0.1, H * 0.86), (W * 0.21, H * 0.71), (W * 0.29, H * 0.58)]:
+        c.fill_ellipse((x - 8, y - 8, x + 8, y + 8), (160, 40, 30), tex=0.1)
+    _text(c, (W * 0.18, H * 0.6), "BLATT 1", 26, (70, 50, 34))
+    # technical papers with headers (right)
+    for k, (x, y, a) in enumerate([(W * 0.71, H * 0.6, 0.07), (W * 0.79, H * 0.63, -0.05)]):
+        pts = [(x + math.cos(a) * dx - math.sin(a) * dy, y + math.sin(a) * dx + math.cos(a) * dy) for dx, dy in ((0, 0), (300, 0), (300, 340), (0, 340))]
+        c.fill(pts, (226, 214, 188), tex=0.2)
+        c.ink_poly(pts, 1.8)
+        for r in range(13):
+            ox = 26 - math.sin(a) * (70 + r * 20); oy = math.cos(a) * (70 + r * 20) + math.sin(a) * 26
+            c.ink([(x + ox, y + oy), (x + ox + math.cos(a) * 240, y + oy + math.sin(a) * 240)], 1.4, alpha=130)
+        _text(c, (x + 150, y + 36), "EISENWOLF WERKE" if k == 0 else "FAHRGESTELL TYP 7", 24, (70, 40, 30))
+    # tools: large spanner, bolts, a gear, rag, stamped plate
+    c.ink([(W * 0.42, H * 0.9), (W * 0.6, H * 0.79)], 26.0, wobble=0.2, color=(150, 146, 136), alpha=255)
+    c.ink([(W * 0.42, H * 0.9), (W * 0.6, H * 0.79)], 3.0, wobble=0.2)
+    for (x, y, r) in [(W * 0.61, H * 0.78, 34), (W * 0.41, H * 0.91, 30)]:
+        c.fill_ellipse((x - r, y - r, x + r, y + r), (150, 146, 136), tex=0.2)
+        c.fill_ellipse((x - r * 0.45, y - r * 0.45, x + r * 0.45, y + r * 0.45), (70, 62, 54), tex=0.1)
+        c.ink_ellipse((x - r, y - r, x + r, y + r), 2.4)
+    gx, gy = W * 0.88, H * 0.42
+    teeth = []
+    for k in range(24):
+        ang = k / 24 * math.tau
+        rr = 70 if k % 2 == 0 else 56
+        teeth.append((gx + math.cos(ang) * rr, gy + math.sin(ang) * rr))
+    c.fill(teeth, (120, 74, 48), tex=0.4)
+    c.ink_poly(teeth, 2.4)
+    c.fill_ellipse((gx - 22, gy - 22, gx + 22, gy + 22), (60, 50, 40), tex=0.1)
+    for k in range(18):
+        x = c.rng.uniform(W * 0.45, W * 0.66); y = c.rng.uniform(H * 0.86, H * 0.93)
+        c.fill_ellipse((x - 9, y - 9, x + 9, y + 9), (124, 116, 104), tex=0.2)
+        c.ink_ellipse((x - 9, y - 9, x + 9, y + 9), 1.6)
+    rag = blob(W * 0.92, H * 0.15, 90, 60, 14, 0.25, 7)
+    c.fill(rag, (150, 60, 44), tex=0.5)
+    c.ink_poly(rag, 2.4)
+    pl = [(W * 0.86, H * 0.84), (W * 0.95, H * 0.84), (W * 0.95, H * 0.9), (W * 0.86, H * 0.9)]
+    c.fill(pl, (170, 158, 124), tex=0.15)
+    c.ink_poly(pl, 2.2)
+    c.rivets([(W * 0.865, H * 0.85), (W * 0.945, H * 0.85), (W * 0.865, H * 0.89), (W * 0.945, H * 0.89)], 2.4)
+    _text(c, (W * 0.905, H * 0.87), "EW · Nr. 0417", 22, (40, 30, 22), FONT_M)
+    c.desertize(dust=0.5, abrasion=0.25, bleach=0.15, seams=0.6)
+    c.finish(outline=0.0, burn=0.25)
+    # warm hanging-lamp light pool (upper centre) and a dark vignette
+    img = c.img
+    w2, h2 = img.size
+    yy, xx = np.mgrid[0:h2, 0:w2]
+    d = np.sqrt(((xx - w2 * 0.5) / (w2 * 0.55)) ** 2 + ((yy - h2 * 0.38) / (h2 * 0.75)) ** 2)
+    light = np.clip(1.25 - d * 0.75, 0.45, 1.25)
+    arr = np.asarray(img, np.float32)
+    arr[..., 0] *= light * 1.06
+    arr[..., 1] *= light * 0.98
+    arr[..., 2] *= light * 0.84
+    _I.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "RGBA").resize((W, H), _I.LANCZOS).save(out("ui.menu_table"))
+
+
+def gen_photo_fallbacks():
+    """Fallback prints (sepia, worn border) used only if the creator's illustrations are missing."""
+    for pid, title in (("ui.photo_combat", "JAGD"), ("ui.photo_garage", "WERKSTATT")):
+        c = canvas_for(pid, 997)
+        W, H = ENTRIES[pid]["source"]
+        c.fill([(0, 0), (W, 0), (W, H), (0, H)], (226, 214, 188), tex=0.3)
+        inner = [(40, 34), (W - 40, 34), (W - 40, H - 34), (40, H - 34)]
+        c.fill(inner, (150, 112, 74), tex=0.7, cell=40)
+        c.ink_poly(inner, 3.0)
+        _text(c, (W / 2, H / 2), title, 90, (226, 210, 180), FONT_C, alpha=160)
+        c.desertize(dust=0.5, abrasion=0.3, bleach=0.4, seams=0.3)
+        c.save(out(pid), outline=0.0, burn=0.3)
+
+
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

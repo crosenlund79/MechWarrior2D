@@ -37,7 +37,8 @@ static func create(defn: Dictionary, tun: Dictionary) -> Dictionary:
 			parts[k] = float(pd[k]["hp"])
 	return {"species": sp, "pos": [p.x, p.y], "heading": deg_to_rad(float(defn.get("heading_deg", 0.0))), "speed": 0.0,
 		"hp": float(ts.get("hp", 20.0)), "parts": parts, "ai": "buried" if sp == "grindback" else "roam",
-		"home": [p.x, p.y], "pack": str(defn.get("pack", "")), "dead_at": -1.0, "harvested": false, "respawn_at": -1.0}
+		"home": [p.x, p.y], "pack": str(defn.get("pack", "")), "dead_at": -1.0, "harvested": false, "respawn_at": -1.0,
+		"route": defn.get("route", []), "lair": defn.get("lair", [p.x, p.y])}
 
 
 static func max_hp(c: Dictionary, tun: Dictionary) -> float:
@@ -300,11 +301,11 @@ static func _rimeback(c: Dictionary, brain: Dictionary, target: Dictionary, ts: 
 	if enraged and not bool(brain.get("enraged", false)):
 		brain["enraged"] = true
 		res["events"].append({"kind": "enrage"})
-	var lair: Vector2 = Content.v2(ts.get("lair", c["home"]))
+	var lair: Vector2 = Content.v2(c.get("lair", ts.get("lair", c["home"])))
 	match str(c["ai"]):
 		"roam":
 			# grazing circuit: walk the route, pause to graze at each waypoint
-			var route: Array = ts.get("route", [])
+			var route: Array = c.get("route", ts.get("route", []))
 			if route.is_empty():
 				res["move"] = _to(c, _roam_point(c, brain, 500.0, rng), float(ts.get("roam_speed", 80.0)))
 			else:
@@ -471,3 +472,38 @@ static func damage(c: Dictionary, part: String, amount: float, ts: Dictionary, d
 		c["parts"][part] = maxf(0.0, float(c["parts"][part]) - amount)
 		broken = float(c["parts"][part]) <= 0.0
 	return {"broken": broken, "dealt": dealt}
+
+
+## Species tuning scaled for a journey tier (tougher, harder-hitting, keener
+## animals toward Stahlheim). Tier 1 = the base values.
+static var _scaled_cache := {}
+
+
+static func scaled(tc: Dictionary, tier: int, econ: Dictionary) -> Dictionary:
+	var key := "%d_%d" % [tier, tc.hash()]
+	if _scaled_cache.has(key):
+		return _scaled_cache[key]
+	var out := tc.duplicate(true)
+	var k := maxf(0.0, float(tier - 1))
+	var hp_m := 1.0 + float(econ.get("tier_hp", 0.3)) * k
+	var dmg_m := 1.0 + float(econ.get("tier_damage", 0.18)) * k
+	var sense_m := 1.0 + float(econ.get("tier_sense", 0.06)) * k
+	for sp in SPECIES:
+		if not (out.get(sp) is Dictionary):
+			continue
+		var ts: Dictionary = out[sp]
+		ts["hp"] = float(ts.get("hp", 20.0)) * hp_m
+		for key2 in ts.keys():
+			var ks := str(key2)
+			if ks.ends_with("_damage") or ks == "damage":
+				ts[ks] = float(ts[ks]) * dmg_m
+			elif ks in ["sight", "hearing", "vibration_range"]:
+				ts[ks] = float(ts[ks]) * sense_m
+		var parts: Dictionary = ts.get("parts", {})
+		for pk in parts:
+			if float(parts[pk].get("hp", 0.0)) > 0.0:
+				parts[pk]["hp"] = float(parts[pk]["hp"]) * hp_m
+		if ts.get("glob") is Dictionary:
+			ts["glob"]["damage"] = float(ts["glob"].get("damage", 5.0)) * dmg_m
+	_scaled_cache[key] = out
+	return out

@@ -1,13 +1,13 @@
 {
 	"_note": "All gameplay balance lives here. Temperatures in °C, rates per second, distances in px (≈42 px per metre). Section 'mech' = the player's CAR (legacy internal name).",
 	"mech": {
-		"max_speed": 460.0,
-		"reverse_speed": 170.0,
-		"accel": 340.0,
-		"brake": 780.0,
+		"max_speed": 560.0,
+		"reverse_speed": 180.0,
+		"accel": 400.0,
+		"brake": 860.0,
 		"coast_drag": 110.0,
-		"turn_rate": 2.9,
-		"turn_rate_full_speed": 1.55,
+		"turn_rate": 2.7,
+		"turn_rate_full_speed": 1.45,
 		"exit_max_speed": 25.0,
 		"collision_radius": 50.0,
 		"enter_radius": 205.0,
@@ -18,9 +18,9 @@
 		"_feel_note": "weight comes from visuals and audio: body squat/dive on accel/brake (feel_squat), body roll in turns (feel_lean), skid marks + tyre squeal when slip > skid_slip",
 		"feel_squat": 0.02,
 		"feel_lean": 0.05,
-		"_note": "The player's car (internal legacy key 'mech'). Top-down car dynamics: see src/sim/drive.gd.",
-		"steer_full_speed": 75.0,
-		"grip": 1250.0,
+		"_note": "The player's car — Eisenwolf Werke 'Wolfshund' (internal legacy key 'mech'). Top-down car dynamics: see src/sim/drive.gd.",
+		"steer_full_speed": 150.0,
+		"grip": 1450.0,
 		"handbrake_grip": 0.22,
 		"handbrake_turn": 1.5,
 		"handbrake_decel": 240.0,
@@ -33,9 +33,12 @@
 		"loot_pickup_radius": 110.0,
 		"loot_pickup_speed": 280.0,
 		"skid_slip": 120.0,
-		"reverse_turn_rate": 1.1,
-		"reverse_turn_rate_full_speed": 0.6,
-		"reverse_steer_full_speed": 110.0
+		"reverse_turn_rate": 1.25,
+		"reverse_turn_rate_full_speed": 0.75,
+		"reverse_steer_full_speed": 120.0,
+		"exit_margin": 380.0,
+		"exit_slow_speed": 170.0,
+		"exit_prompt_cooldown": 6.0
 	},
 	"thermal": {
 		"start_heat": 64.0,
@@ -85,13 +88,13 @@
 	"combat": {
 		"_note": "Projectiles are simulated in Session (not saved). damage = structural; cooling_damage applies when the shot lands inside the target's cooling hit area.",
 		"player_weapon": {
-			"damage": 5.0,
+			"damage": 4.2,
 			"cooling_damage": 0.07,
 			"structural_cooling_damage": 0.01,
-			"speed": 1240.0,
-			"range": 680.0,
-			"cooldown": 0.3,
-			"heat_per_shot": 0.85,
+			"speed": 1900.0,
+			"range": 1000.0,
+			"cooldown": 0.17,
+			"heat_per_shot": 0.48,
 			"spread_deg": 1.5,
 			"radius": 5.0,
 			"muzzles": [
@@ -531,149 +534,280 @@
 		},
 		"harvest_duration": 4.0
 	},
-	"garage": {
-		"_note": "Refuge garage modules. Each level: cost {item: n} + effect values (multipliers end in _mult). Location of the garage bay: location 'garage'.",
-		"repair_scrap_per": 35.0,
+	"shop": {
+		"_note": "Eisenwolf Werke shop: car upgrades bought with Mark (M), unlocked by Jäger rank. Effects: additive integrity/cargo, multiplicative *_mult. No crafting.",
 		"modules": {
-			"armor": {
+			"chassis": {
 				"levels": [
 					{
-						"cost": {
-							"rime_hide": 2,
-							"scrap": 2
-						},
-						"integrity": 25.0
+						"name": "UP_CHASSIS_1",
+						"price": 350,
+						"rank": 2,
+						"integrity": 15.0,
+						"cargo": 4.0
 					},
 					{
-						"cost": {
-							"grind_plate": 2,
-							"scrap": 4
-						},
-						"integrity": 50.0
+						"name": "UP_CHASSIS_2",
+						"price": 1100,
+						"rank": 4,
+						"integrity": 30.0,
+						"cargo": 8.0
 					},
 					{
-						"cost": {
-							"rime_hide": 3,
-							"grind_plate": 3
-						},
-						"integrity": 80.0
+						"name": "UP_CHASSIS_3",
+						"price": 2600,
+						"rank": 6,
+						"integrity": 50.0,
+						"cargo": 12.0
 					}
 				]
 			},
-			"cooling": {
+			"engine": {
 				"levels": [
 					{
-						"cost": {
-							"rime_gland": 1,
-							"scrap": 2
-						},
-						"cooling_mult": 1.15
+						"name": "UP_ENGINE_1",
+						"price": 300,
+						"rank": 1,
+						"speed_mult": 1.05,
+						"accel_mult": 1.08
 					},
 					{
-						"cost": {
-							"radiator_core": 1,
-							"rime_gland": 1,
-							"scrap": 3
-						},
-						"cooling_mult": 1.32
+						"name": "UP_ENGINE_2",
+						"price": 900,
+						"rank": 3,
+						"speed_mult": 1.1,
+						"accel_mult": 1.16
 					},
 					{
-						"cost": {
-							"thawheart": 1,
-							"rime_gland": 1
-						},
-						"cooling_mult": 1.6
+						"name": "UP_ENGINE_3",
+						"price": 2200,
+						"rank": 5,
+						"speed_mult": 1.16,
+						"accel_mult": 1.25
+					},
+					{
+						"name": "UP_ENGINE_4",
+						"price": 4200,
+						"rank": 7,
+						"speed_mult": 1.22,
+						"accel_mult": 1.34
+					}
+				]
+			},
+			"turbo": {
+				"levels": [
+					{
+						"name": "UP_TURBO_1",
+						"price": 500,
+						"rank": 2,
+						"accel_mult": 1.12,
+						"speed_mult": 1.03,
+						"heat_mult": 1.08
+					},
+					{
+						"name": "UP_TURBO_2",
+						"price": 1400,
+						"rank": 4,
+						"accel_mult": 1.24,
+						"speed_mult": 1.06,
+						"heat_mult": 1.14
+					},
+					{
+						"name": "UP_TURBO_3",
+						"price": 3200,
+						"rank": 6,
+						"accel_mult": 1.36,
+						"speed_mult": 1.09,
+						"heat_mult": 1.2
+					}
+				]
+			},
+			"armor": {
+				"levels": [
+					{
+						"name": "UP_ARMOR_1",
+						"price": 250,
+						"rank": 1,
+						"integrity": 20.0
+					},
+					{
+						"name": "UP_ARMOR_2",
+						"price": 800,
+						"rank": 3,
+						"integrity": 45.0
+					},
+					{
+						"name": "UP_ARMOR_3",
+						"price": 2000,
+						"rank": 5,
+						"integrity": 75.0
+					},
+					{
+						"name": "UP_ARMOR_4",
+						"price": 3800,
+						"rank": 7,
+						"integrity": 110.0
 					}
 				]
 			},
 			"tires": {
 				"levels": [
 					{
-						"cost": {
-							"skirr_hide": 3,
-							"scrap": 2
-						},
-						"grip_mult": 1.15,
+						"name": "UP_TIRES_1",
+						"price": 220,
+						"rank": 1,
+						"grip_mult": 1.12,
+						"accel_mult": 1.04
+					},
+					{
+						"name": "UP_TIRES_2",
+						"price": 750,
+						"rank": 3,
+						"grip_mult": 1.25,
 						"accel_mult": 1.08
 					},
 					{
-						"cost": {
-							"skirr_fang": 2,
-							"rime_spine": 1,
-							"scrap": 3
-						},
-						"grip_mult": 1.28,
-						"accel_mult": 1.16,
-						"speed_mult": 1.04
-					},
-					{
-						"cost": {
-							"rime_spine": 2,
-							"grind_plate": 2
-						},
-						"grip_mult": 1.42,
-						"accel_mult": 1.25,
-						"speed_mult": 1.08
+						"name": "UP_TIRES_3",
+						"price": 1900,
+						"rank": 5,
+						"grip_mult": 1.4,
+						"accel_mult": 1.12
 					}
 				]
 			},
-			"weapon": {
+			"cooling": {
 				"levels": [
 					{
-						"cost": {
-							"skirr_fang": 1,
-							"scrap": 3
-						},
+						"name": "UP_COOLING_1",
+						"price": 280,
+						"rank": 1,
+						"cooling_mult": 1.15
+					},
+					{
+						"name": "UP_COOLING_2",
+						"price": 850,
+						"rank": 3,
+						"cooling_mult": 1.32
+					},
+					{
+						"name": "UP_COOLING_3",
+						"price": 2100,
+						"rank": 5,
+						"cooling_mult": 1.52
+					},
+					{
+						"name": "UP_COOLING_4",
+						"price": 4000,
+						"rank": 7,
+						"cooling_mult": 1.75
+					}
+				]
+			},
+			"weapons": {
+				"levels": [
+					{
+						"name": "UP_WEAPONS_1",
+						"price": 400,
+						"rank": 1,
 						"damage_mult": 1.2,
-						"cooldown_mult": 0.93
+						"cooldown_mult": 0.94,
+						"range_mult": 1.05,
+						"bullet_mult": 1.05
 					},
 					{
-						"cost": {
-							"rime_horn": 1,
-							"scrap": 4
-						},
+						"name": "UP_WEAPONS_2",
+						"price": 1200,
+						"rank": 3,
 						"damage_mult": 1.45,
-						"cooldown_mult": 0.86
+						"cooldown_mult": 0.88,
+						"range_mult": 1.1,
+						"bullet_mult": 1.1
 					},
 					{
-						"cost": {
-							"rime_horn": 1,
-							"grind_plate": 2,
-							"scrap": 6
-						},
-						"damage_mult": 1.8,
-						"cooldown_mult": 0.8
+						"name": "UP_WEAPONS_3",
+						"price": 2800,
+						"rank": 5,
+						"damage_mult": 1.75,
+						"cooldown_mult": 0.82,
+						"range_mult": 1.15,
+						"bullet_mult": 1.15
+					},
+					{
+						"name": "UP_WEAPONS_4",
+						"price": 5200,
+						"rank": 7,
+						"damage_mult": 2.1,
+						"cooldown_mult": 0.76,
+						"range_mult": 1.2,
+						"bullet_mult": 1.2
 					}
 				]
 			},
-			"rig": {
+			"cargo": {
 				"levels": [
 					{
-						"cost": {
-							"skirr_hide": 1,
-							"scrap": 2
-						},
+						"name": "UP_CARGO_1",
+						"price": 200,
+						"rank": 1,
 						"cargo": 8.0,
-						"tracker_mult": 1.4
+						"tracker_mult": 1.3
 					},
 					{
-						"cost": {
-							"rime_hide": 2,
-							"scrap": 2
-						},
+						"name": "UP_CARGO_2",
+						"price": 700,
+						"rank": 3,
 						"cargo": 16.0,
-						"tracker_mult": 1.8
+						"tracker_mult": 1.6
 					},
 					{
-						"cost": {
-							"grind_plate": 2,
-							"rime_spine": 1
-						},
+						"name": "UP_CARGO_3",
+						"price": 1800,
+						"rank": 5,
 						"cargo": 26.0,
-						"tracker_mult": 2.3
+						"tracker_mult": 2.0
 					}
 				]
 			}
-		}
+		},
+		"repair_price_per_point": 1.2,
+		"radiator_price_per_pct": 3.0,
+		"fuel_price": 2.0,
+		"sell_rate": 1.0
+	},
+	"economy": {
+		"_note": "Money (Mark, M), fuel and the Jäger rank. Fuel: litres; empty tank = limp mode (never stranded).",
+		"start_money": 250,
+		"fuel_capacity": 100.0,
+		"start_fuel": 100.0,
+		"fuel_per_px": 0.0035,
+		"fuel_idle_per_s": 0.008,
+		"limp_speed_mult": 0.32,
+		"limp_accel_mult": 0.5,
+		"low_fuel_warn": 15.0,
+		"rank_xp": [
+			0,
+			120,
+			300,
+			600,
+			1000,
+			1550,
+			2250,
+			3100,
+			4100,
+			5300
+		],
+		"xp": {
+			"skirr": 12,
+			"grindback": 45,
+			"rimeback": 160,
+			"rival": 40,
+			"discovery": 20,
+			"complete": 120,
+			"sold_per_100": 8,
+			"settlement": 30
+		},
+		"tier_hp": 0.3,
+		"tier_damage": 0.18,
+		"tier_sense": 0.06
 	}
 }
