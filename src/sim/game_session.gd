@@ -66,6 +66,7 @@ var creature_brains := {}
 var creature_moves := {}
 var world_moves_creatures := false   # true while a WorldView moves creature bodies
 var world_owner: Object = null
+var site_serial := 0          # bumped on every map change; views of an older map stop committing
 var _fire_recent := 0.0
 var _impact_cd := 0.0
 var _last_desired := Vector2.ZERO
@@ -140,6 +141,7 @@ func continue_slot(slot_index: int) -> String:
 
 
 func _begin() -> void:
+	site_serial += 1
 	dev = DEV_DEFAULTS.duplicate()
 	time_scale = 1.0
 	turret_brains.clear()
@@ -921,6 +923,8 @@ func hint() -> String:
 			open_wreck = true
 	if open_wreck and not has_part:
 		return "HINT_SALVAGE_WRECK" if md == "mech" else "HINT_SALVAGE_WRECK_FOOT"
+	if md == "mech" and at_garage():
+		return "HINT_GARAGE"           # the workshop repairs everything for money
 	if float(m["radiator"]) < 0.6:
 		if has_part:
 			return "HINT_REPAIR" if md == "foot" else "HINT_EXIT_TO_REPAIR"
@@ -2277,6 +2281,7 @@ func travel_to(node_id: String, force: bool = false, at_start: bool = false) -> 
 	for k in Journey.SITE_KEYS:
 		site[k] = state.get(k)
 	state["sites"][str(state["location"])] = site
+	site_serial += 1
 	_burn_fuel(Journey.edge_fuel(here, node_id))
 	# restore / create the destination
 	loc = dest

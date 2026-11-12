@@ -52,6 +52,11 @@ var _roll := 0.0
 var _cs: CollisionShape2D
 
 
+## The map this view belongs to: after travelling, a view of the old map must
+## never write its stale position into the new one.
+var _site := Session.site_serial
+
+
 func _ready() -> void:
 	collision_layer = 4   # vehicles
 	collision_mask = 1 | 4 | 8
@@ -206,7 +211,7 @@ func sync_from_state() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not Session.running:
+	if not Session.running or _site != Session.site_serial:
 		return
 	var v := Session.mech_velocity(delta)
 	_cs.rotation = float(Session.mech()["heading"])

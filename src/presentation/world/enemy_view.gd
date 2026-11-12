@@ -48,6 +48,11 @@ func setup(enemy_id: String) -> void:
 	name = "Enemy_" + id
 
 
+## The map this view belongs to: after travelling, a view of the old map must
+## never write its stale position into the new one.
+var _site := Session.site_serial
+
+
 func _ready() -> void:
 	collision_layer = 4
 	collision_mask = 1 | 4 | 8 | 16
@@ -240,7 +245,7 @@ func sync_from_state() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not Session.running:
+	if not Session.running or _site != Session.site_serial:
 		return
 	var e := Session.enemy(id)
 	if e.is_empty() or str(e["ai"]) == "wreck":

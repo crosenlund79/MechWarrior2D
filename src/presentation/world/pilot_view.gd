@@ -12,6 +12,11 @@ var _t := 0.0
 var _facing := 0.0
 
 
+## The map this view belongs to: after travelling, a view of the old map must
+## never write its stale position into the new one.
+var _site := Session.site_serial
+
+
 func _ready() -> void:
 	collision_layer = 2
 	collision_mask = 1 | 4 | 16
@@ -55,7 +60,7 @@ func sync_from_state() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not Session.running or Session.mode() != "foot":
+	if not Session.running or _site != Session.site_serial or Session.mode() != "foot":
 		return
 	velocity = Session.pilot_velocity()
 	move_and_slide()

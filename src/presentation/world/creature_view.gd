@@ -47,6 +47,11 @@ func setup(creature_id: String) -> void:
 	name = "Creature_" + id
 
 
+## The map this view belongs to: after travelling, a view of the old map must
+## never write its stale position into the new one.
+var _site := Session.site_serial
+
+
 func _ready() -> void:
 	var c := Session.creature(id)
 	species = str(c.get("species", "skirr"))
@@ -168,7 +173,7 @@ func _rebuild_art() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if not Session.running:
+	if not Session.running or _site != Session.site_serial:
 		return
 	var c := Session.creature(id)
 	if c.is_empty():

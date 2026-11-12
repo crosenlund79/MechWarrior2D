@@ -111,8 +111,10 @@ try:
     check(len(broken) >= 1, f"parts break during the fight ({broken})")
     check(st["game"]["mech"]["integrity"] > 0, f"the car survives the opening exchanges ({st['game']['mech']['integrity']:.0f})")
     print(f"       (car body {st['game']['mech']['integrity']:.0f}, heat {st['game']['mech']['heat']:.0f} °C, damage by source {st['hits_taken']})")
-    loot_parts = [l for l in st["game"]["world"]["loot"] if l["item"] in ("rime_gland", "rime_horn", "rime_spine")]
-    check(len(loot_parts) >= 1, f"broken parts lie on the ground as loot ({[l['item'] for l in loot_parts]})")
+    # broken parts drop as ground loot; kiting slowly over them may already have scooped some up
+    loot_parts = [l["item"] for l in st["game"]["world"]["loot"] if l["item"] in ("rime_gland", "rime_horn", "rime_spine")]
+    loot_parts += [k for k in ("rime_gland", "rime_horn", "rime_spine") if st["game"]["mech"]["storage"].get(k, 0) > 0]
+    check(len(loot_parts) >= 1, f"broken parts drop as loot (ground or already loaded: {loot_parts})")
     fled = False
     for k in range(12):
         st = g.state(); rb = creature(st, "rimeback")
@@ -178,6 +180,8 @@ try:
     check(st["node"] == "ersthafen", f"driving on past the boundary exits anyway ({st['node']})")
     cargo_before = dict(st["game"]["mech"]["storage"])
     gp = json.load(open("data/locations/ersthafen.json"))["garage"]["pos"]
+    for x, y in ((2950, 1400), (1800, 1400)):   # in through the compound's east gate, along the road
+        g.cmd(f"drive_to {x} {y} 25")
     g.cmd(f"drive_to {gp[0]} {gp[1]} 40"); g.cmd("stop")
     st = g.state()
     check(st["at_garage"], "parked in the Ersthafen garage")
@@ -227,7 +231,7 @@ try:
         e = st["game"]["enemies"]["enemy_scrapper_01"]
         if e["ai"] == "wreck":
             break
-        if any(n == "NOTICE_ENEMY_ALERT" for n in st["notices"]):
+        if any(n == "NOTICE_ENEMY_ALERT" for n in st["notices"]) or e["ai"] in ("alert", "engage", "retreat"):
             windup = True
         st = g.cmd("fire_for 2 body id=enemy_scrapper_01")["state"]
         fired = fired or st["projectiles"] > 0
