@@ -471,6 +471,7 @@ T2 = [
  ("KIND_HUB", "Main hub", "Hovedknudepunkt"),
  ("STATE_CURRENT", "You are here", "Du er her"), ("STATE_COMPLETED", "Completed", "Fuldført"),
  ("STATE_VISITED", "Visited", "Besøgt"), ("STATE_DISCOVERED", "Known route, not yet visited", "Kendt rute, ikke besøgt"),
+ ("STATE_UNKNOWN", "Not yet discovered — known only from hearsay", "Endnu ikke opdaget — kendt fra rygter"),
  ("SIDE_N", "north", "nordlige"), ("SIDE_S", "south", "sydlige"), ("SIDE_E", "east", "østlige"), ("SIDE_W", "west", "vestlige"),
  ("ACTION_JOURNEY_MAP", "Continental map", "Kontinentkort"),
  ("GARAGE_EISENWOLF", "EISENWOLF WERKE — GARAGE", "EISENWOLF WERKE — VÆRKSTED"),
