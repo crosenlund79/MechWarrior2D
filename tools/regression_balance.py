@@ -121,6 +121,8 @@ try:
     check(samples[-1] > samples[0], "but it does run warmer — damaged cooling matters")
     g.cmd("stop"); h2 = heat(g)
     check(h2 < CRIT - 15, f"a damaged radiator alone stays well short of critical ({h2:.0f} °C)")
+    # park on ordinary open sand (the faster car's minute of circling can end on the hot salt pan)
+    g.cmd("set_mech 1500 2100 90"); g.cmd("wait 0.2"); h2 = heat(g)
     g.cmd("interact"); g.cmd("wait 12"); h3 = heat(g); g.cmd("interact")
     check(h3 < h2 - 1.5, f"parking with the engine off cools it down ({h2:.0f} → {h3:.0f} °C)")
 
