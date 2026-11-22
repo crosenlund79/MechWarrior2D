@@ -65,6 +65,10 @@ func _build() -> void:
 	_head("Creatures")
 	_row([["Skirr pack (3)", func() -> void: _spawn_c("skirr", 3)], ["Wühler", func() -> void: _spawn_c("grindback", 1)],
 		["Eisback", func() -> void: _spawn_c("rimeback", 1)]])
+	_row([["Aschenläufer (4)", func() -> void: _spawn_c("aschenlaeufer", 4)], ["Dornmaul", func() -> void: _spawn_c("dornmaul", 1)],
+		["Glutkriecher", func() -> void: _spawn_c("glutkriecher", 1)]])
+	_row([["Alter Eisback", func() -> void: _spawn_c("eisback_alt", 1)], ["Dornkönig", func() -> void: _spawn_c("dornkoenig", 1)],
+		["Glutmutter", func() -> void: _spawn_c("glutmutter", 1)], ["Kaltvater", func() -> void: _spawn_c("kaltvater", 1)]])
 	_head("Player / car")
 	_row([["Repair car completely", func() -> void: Session.dev_repair_all()], ["Refill fuel", func() -> void: Session.dev_refuel()],
 		["Refill suit", func() -> void: Session.debug("suit", 100.0)]])

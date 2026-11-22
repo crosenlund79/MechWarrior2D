@@ -2402,141 +2402,71 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "glutfeld_0",
+			"pack": "glutfeld_skirr_0",
 			"spawn": [
-				1994,
+				2204,
 				1495
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "glutfeld_0",
+			"pack": "glutfeld_skirr_0",
 			"spawn": [
-				2064,
-				1555
+				2094,
+				1605
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "glutfeld_0",
+			"pack": "glutfeld_skirr_0",
 			"spawn": [
-				2134,
+				1984,
 				1495
 			]
 		},
 		{
 			"id": "skirr_0_3",
 			"species": "skirr",
-			"pack": "glutfeld_0",
+			"pack": "glutfeld_skirr_0",
 			"spawn": [
-				2204,
-				1555
+				2094,
+				1385
 			]
 		},
 		{
-			"id": "skirr_1_0",
-			"species": "skirr",
-			"pack": "glutfeld_1",
+			"id": "glutkriecher_0",
+			"species": "glutkriecher",
 			"spawn": [
-				705,
+				805,
 				4299
 			]
 		},
 		{
-			"id": "skirr_1_1",
-			"species": "skirr",
-			"pack": "glutfeld_1",
-			"spawn": [
-				775,
-				4359
-			]
-		},
-		{
-			"id": "skirr_1_2",
-			"species": "skirr",
-			"pack": "glutfeld_1",
-			"spawn": [
-				845,
-				4299
-			]
-		},
-		{
-			"id": "skirr_1_3",
-			"species": "skirr",
-			"pack": "glutfeld_1",
-			"spawn": [
-				915,
-				4359
-			]
-		},
-		{
-			"id": "grindback_0",
-			"species": "grindback",
+			"id": "glutkriecher_1",
+			"species": "glutkriecher",
 			"spawn": [
 				554,
 				2886
 			]
 		},
 		{
-			"id": "grindback_1",
-			"species": "grindback",
+			"id": "glutkriecher_2",
+			"species": "glutkriecher",
 			"spawn": [
 				1063,
 				4232
 			]
 		},
 		{
-			"id": "grindback_2",
-			"species": "grindback",
+			"id": "glutmutter",
+			"species": "glutmutter",
 			"spawn": [
-				5895,
-				1994
-			]
-		},
-		{
-			"id": "eisback_0",
-			"species": "rimeback",
-			"spawn": [
-				1488,
-				1557
+				4220,
+				1830
 			],
-			"route": [
-				[
-					1488,
-					1557
-				],
-				[
-					1936,
-					1445
-				],
-				[
-					4220,
-					1830
-				],
-				[
-					3685,
-					3945
-				],
-				[
-					3214,
-					3619
-				],
-				[
-					3185,
-					3559
-				],
-				[
-					2118,
-					3325
-				]
-			],
-			"lair": [
-				4208,
-				2535
-			],
-			"heading_deg": 90
+			"apex": true
 		}
 	],
 	"pois": [
@@ -2544,8 +2474,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				3504,
-				4114
+				3685,
+				3945
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2558,8 +2488,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				3798,
-				4205
+				1488,
+				1557
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2573,8 +2503,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				1721,
-				3034
+				3185,
+				3559
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2587,8 +2517,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				4674,
-				2129
+				3214,
+				3619
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2599,8 +2529,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				3568,
-				3345
+				5583,
+				1850
 			],
 			"name": "POI_LANDMARK_GLUTFELD",
 			"asset": "glut.vent",
@@ -2608,7 +2538,7 @@
 		}
 	],
 	"relief": {
-		"seed": 2341,
+		"seed": 7420,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2643,5 +2573,12 @@
 			"heading_deg": 180
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "glutmutter",
+	"mech_start": {
+		"pos": [
+			3678,
+			2253
+		],
+		"heading_deg": 90
+	}
 }

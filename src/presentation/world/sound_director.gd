@@ -138,14 +138,15 @@ func _creature_ambience(delta: float) -> void:
 		var c: Dictionary = Session.state["creatures"][id]
 		var p := Content.v2(c["pos"])
 		var d := p.distance_to(at)
-		match str(c["species"]):
+		match Creatures.brain(c):
 			"grindback":
 				if str(c["ai"]) == "tunnel" and d < 1100.0:
 					tremor = maxf(tremor, 1.0 - d / 1100.0)
 			"rimeback":
 				if str(c["ai"]) != "dead" and absf(float(c["speed"])) > 20.0 and d < 1500.0 and _rime_t <= 0.0:
 					_rime_t = clampf(90.0 / maxf(absf(float(c["speed"])), 1.0), 0.18, 0.9)
-					Audio.play_at("sfx.rime_step", p, world, -4.0, randf_range(0.8, 0.95))
+					var vk := _voice(str(c["species"]))
+					Audio.play_at("sfx.rime_step", p, world, -4.0 + float(vk[1]), randf_range(0.8, 0.95) * float(vk[0]))
 					if world and world.camera and d < 700.0:
 						world.camera.add_shake(0.08 * (1.0 - d / 700.0), 0.2)
 	if tremor > 0.0:
@@ -270,17 +271,22 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		"collision":
 			Audio.play_at("sfx.crash", pos, world, lerpf(-12.0, 0.0, float(data.get("strength", 0.3))), randf_range(0.8, 1.0), 120)
 		"creature_alert", "creature_tell":
-			var sp := str(data.get("species", ""))
+			var sp0 := str(data.get("species", ""))
+			var sp := Creatures.brain({"species": sp0})
+			var vk2 := _voice(sp0)
+			var pk := float(vk2[0])
+			var vol := float(vk2[1])
 			var tell := str(data.get("tell", ""))
 			if sp == "rimeback":
-				if kind == "creature_alert" or tell == "enrage" or tell == "charge":
-					Audio.play_at("sfx.rime_roar", pos, world, 2.0, randf_range(0.85, 1.0), 600)
+				if kind == "creature_alert" or tell in ["enrage", "charge", "quake"]:
+					# a distant roar carries far — the bigger the animal, the deeper
+					Audio.play_at("sfx.rime_roar", pos, world, 2.0 + vol, randf_range(0.85, 1.0) * pk, 600)
 				else:
-					Audio.play_at("sfx.creature_growl", pos, world, -2.0, 0.7)
+					Audio.play_at("sfx.creature_growl", pos, world, -2.0 + vol, 0.7 * pk)
 			elif sp == "skirr":
-				Audio.play_at("sfx.skirr_hiss", pos, world, -4.0, randf_range(1.0, 1.25), 120)
+				Audio.play_at("sfx.skirr_hiss", pos, world, -4.0 + vol, randf_range(1.0, 1.25) * pk, 120)
 			elif sp == "grindback":
-				Audio.play_at("sfx.creature_growl", pos, world, -2.0, 0.55)
+				Audio.play_at("sfx.creature_growl", pos, world, -2.0 + vol, 0.55 * pk)
 		"creature_attack":
 			match str(data.get("attack", "")):
 				"bite":
@@ -297,9 +303,11 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		"part_broken":
 			Audio.play_at("sfx.part_break", pos, world, 0.0, 0.8)
 		"creature_dead":
-			Audio.play_at("sfx.creature_down", pos, world, 0.0, 0.6 if str(data.get("species", "")) != "skirr" else 1.1)
-			if str(data.get("species", "")) == "rimeback":
-				Audio.play_at("sfx.rime_roar", pos, world, -2.0, 0.6)
+			var dsp := Creatures.brain({"species": str(data.get("species", ""))})
+			var vk3 := _voice(str(data.get("species", "")))
+			Audio.play_at("sfx.creature_down", pos, world, 0.0 + float(vk3[1]), (0.6 if dsp != "skirr" else 1.1) * float(vk3[0]))
+			if dsp == "rimeback":
+				Audio.play_at("sfx.rime_roar", pos, world, -2.0 + float(vk3[1]), 0.6 * float(vk3[0]))
 		"creature_spit":
 			Audio.play_at("sfx.creature_spit", pos, world, -2.0)
 		"creature_surface":
@@ -350,3 +358,19 @@ func _heavy_shot(barrel: int) -> void:
 	if _report_alt:
 		get_tree().create_timer(0.05).timeout.connect(func() -> void:
 			Audio.play("sfx.gun_report", -12.0 - storm * 6.0, _rng.randf_range(0.62, 0.7), 60))
+
+
+## [pitch multiplier, volume offset dB] for a species: apexes are deeper and louder,
+## the Aschenläufer shriller, the Glutkriecher hoarse and low.
+func _voice(species: String) -> Array:
+	var ts: Dictionary = Session.creature_tuning().get(species, {})
+	var sc := float(ts.get("scale", 1.0))
+	var p := 1.0 / sqrt(maxf(sc, 0.3))
+	match species:
+		"aschenlaeufer":
+			p *= 1.18
+		"glutkriecher", "glutmutter":
+			p *= 0.82
+		"dornmaul", "dornkoenig":
+			p *= 0.9
+	return [p, 3.0 if bool(ts.get("apex", false)) else 0.0]

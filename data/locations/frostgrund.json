@@ -921,29 +921,56 @@
 	],
 	"enemies": [
 		{
-			"id": "rival_1",
-			"type": "junker",
+			"id": "rival_0",
+			"type": "scrapper",
 			"spawn": [
-				5134,
-				3540
+				1373,
+				4169
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					5134,
-					3540
+					1373,
+					4169
 				],
 				[
-					5534,
-					3540
+					1773,
+					4169
 				],
 				[
-					5534,
-					3940
+					1773,
+					4569
 				],
 				[
-					5134,
-					3940
+					1373,
+					4569
+				]
+			]
+		},
+		{
+			"id": "rival_1",
+			"type": "junker",
+			"spawn": [
+				4688,
+				2392
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					4688,
+					2392
+				],
+				[
+					5088,
+					2392
+				],
+				[
+					5088,
+					2792
+				],
+				[
+					4688,
+					2792
 				]
 			]
 		}
@@ -1725,135 +1752,127 @@
 	},
 	"creatures": [
 		{
-			"id": "skirr_0_0",
-			"species": "skirr",
-			"pack": "frostgrund_0",
-			"spawn": [
-				3294,
-				1873
-			]
-		},
-		{
-			"id": "skirr_0_1",
-			"species": "skirr",
-			"pack": "frostgrund_0",
-			"spawn": [
-				3364,
-				1933
-			]
-		},
-		{
-			"id": "skirr_0_2",
-			"species": "skirr",
-			"pack": "frostgrund_0",
-			"spawn": [
-				3434,
-				1873
-			]
-		},
-		{
-			"id": "skirr_0_3",
-			"species": "skirr",
-			"pack": "frostgrund_0",
+			"id": "aschenlaeufer_0_0",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
 			"spawn": [
 				3504,
-				1933
+				1873
 			]
 		},
 		{
-			"id": "skirr_1_0",
-			"species": "skirr",
-			"pack": "frostgrund_1",
+			"id": "aschenlaeufer_0_1",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
 			"spawn": [
-				954,
-				1723
+				3449,
+				1968
 			]
 		},
 		{
-			"id": "skirr_1_1",
-			"species": "skirr",
-			"pack": "frostgrund_1",
+			"id": "aschenlaeufer_0_2",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
 			"spawn": [
-				1024,
-				1783
+				3339,
+				1968
 			]
 		},
 		{
-			"id": "skirr_1_2",
-			"species": "skirr",
-			"pack": "frostgrund_1",
+			"id": "aschenlaeufer_0_3",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
 			"spawn": [
-				1094,
-				1723
+				3284,
+				1873
 			]
 		},
 		{
-			"id": "skirr_1_3",
-			"species": "skirr",
-			"pack": "frostgrund_1",
+			"id": "aschenlaeufer_0_4",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
+			"spawn": [
+				3339,
+				1778
+			]
+		},
+		{
+			"id": "aschenlaeufer_0_5",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_0",
+			"spawn": [
+				3449,
+				1778
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_0",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
 			"spawn": [
 				1164,
-				1783
+				1723
 			]
 		},
 		{
-			"id": "skirr_2_0",
-			"species": "skirr",
-			"pack": "frostgrund_2",
+			"id": "aschenlaeufer_1_1",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
 			"spawn": [
-				5551,
+				1109,
+				1818
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_2",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
+			"spawn": [
+				999,
+				1818
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_3",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
+			"spawn": [
+				944,
+				1723
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_4",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
+			"spawn": [
+				999,
+				1628
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_5",
+			"species": "aschenlaeufer",
+			"pack": "frostgrund_aschenlaeufer_1",
+			"spawn": [
+				1109,
+				1628
+			]
+		},
+		{
+			"id": "dornmaul_0",
+			"species": "dornmaul",
+			"spawn": [
+				5651,
 				3964
 			]
 		},
 		{
-			"id": "skirr_2_1",
-			"species": "skirr",
-			"pack": "frostgrund_2",
-			"spawn": [
-				5621,
-				4024
-			]
-		},
-		{
-			"id": "skirr_2_2",
-			"species": "skirr",
-			"pack": "frostgrund_2",
-			"spawn": [
-				5691,
-				3964
-			]
-		},
-		{
-			"id": "skirr_2_3",
-			"species": "skirr",
-			"pack": "frostgrund_2",
-			"spawn": [
-				5761,
-				4024
-			]
-		},
-		{
-			"id": "grindback_0",
-			"species": "grindback",
+			"id": "dornmaul_1",
+			"species": "dornmaul",
 			"spawn": [
 				4358,
 				2843
-			]
-		},
-		{
-			"id": "grindback_1",
-			"species": "grindback",
-			"spawn": [
-				5996,
-				1177
-			]
-		},
-		{
-			"id": "grindback_2",
-			"species": "grindback",
-			"spawn": [
-				1516,
-				3823
 			]
 		},
 		{
@@ -1869,12 +1888,8 @@
 					1733
 				],
 				[
-					2650,
-					1068
-				],
-				[
-					4208,
-					1551
+					5996,
+					1177
 				],
 				[
 					5090,
@@ -1883,6 +1898,10 @@
 				[
 					2408,
 					3799
+				],
+				[
+					1516,
+					3823
 				],
 				[
 					2372,
@@ -1894,8 +1913,8 @@
 				]
 			],
 			"lair": [
-				2526,
-				3351
+				4208,
+				1551
 			],
 			"heading_deg": 90
 		},
@@ -1903,42 +1922,42 @@
 			"id": "eisback_1",
 			"species": "rimeback",
 			"spawn": [
-				3019,
-				2488
+				2650,
+				1068
 			],
 			"route": [
 				[
-					3019,
-					2488
+					2650,
+					1068
+				],
+				[
+					3598,
+					1425
 				],
 				[
 					5691,
 					1448
 				],
 				[
-					4688,
-					2392
+					3019,
+					2488
 				],
 				[
-					1373,
-					4169
-				],
-				[
-					1635,
-					3231
-				],
-				[
-					1379,
-					3236
+					2526,
+					3351
 				],
 				[
 					2160,
 					2903
+				],
+				[
+					1379,
+					3236
 				]
 			],
 			"lair": [
-				3403,
-				2219
+				1635,
+				3231
 			],
 			"heading_deg": 90
 		}
@@ -1948,8 +1967,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				5037,
-				3150
+				3403,
+				2219
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1962,8 +1981,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				2228,
-				3972
+				3060,
+				2164
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1977,8 +1996,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				1470,
-				1380
+				5134,
+				3540
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1991,8 +2010,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				5174,
-				3990
+				5037,
+				3150
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2003,8 +2022,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				4165,
-				3277
+				2228,
+				3972
 			],
 			"name": "POI_LANDMARK_FROSTGRUND",
 			"asset": "prop.solar_wreck",
@@ -2012,7 +2031,7 @@
 		}
 	],
 	"relief": {
-		"seed": 3226,
+		"seed": 8192,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2061,5 +2080,12 @@
 			"heading_deg": 180
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_0",
+	"mech_start": {
+		"pos": [
+			2867,
+			2136
+		],
+		"heading_deg": 90
+	}
 }

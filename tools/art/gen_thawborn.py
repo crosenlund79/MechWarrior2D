@@ -70,6 +70,19 @@ WORLD = {   # complete game: regional props (display size, collision is set by t
     "city.mast": S("city/mast", 150, 150, rot=False, note="resonance transmitter mast (lattice, seen from above)"),
     "glut.vent": S("glut/vent", 220, 220, rot=False, note="geothermal vent: cracked, glowing ground"),
 }
+# complete game species: art derived from the base archetypes (recoloured, reshaped, extra features)
+SPECIES_ART = {   # new id suffix -> base id suffix
+    "aschenlaeufer": "skirr", "aschenlaeufer_dead": "skirr_dead",
+    "dornmaul": "grindback", "dornmaul_dead": "grindback_dead",
+    "glutkriecher": "rimeback", "glutkriecher_head": "rimeback_head", "glutkriecher_tail": "rimeback_tail",
+    "glutkriecher_gland": "rime_gland", "glutkriecher_dead": "rimeback_dead",
+}
+for k, b in SPECIES_ART.items():
+    e = dict(ENTRIES["creature." + b])
+    e["path"] = "creatures/%s/%s" % (k.split("_")[0], k.split("_", 1)[1] if "_" in k else "body")
+    ENTRIES["creature." + k] = e
+for it in ["asche_hide", "dorn_spike", "glut_scale", "glut_gland", "eisback_horn", "dornkrone", "glutkern", "kaltvater_herz"]:
+    ENTRIES["item." + it] = S("items/" + it, 44, 44, rot=False)
 HEIGHTS = {"coast.container": 22, "coast.hull": 40, "city.block_a": 60, "city.block_b": 60, "city.tower": 90, "city.mast": 120, "glut.vent": 0}
 for k, v in WORLD.items():
     v["height"] = HEIGHTS[k]
@@ -818,6 +831,107 @@ def gen_photo_fallbacks():
         c.save(out(pid), outline=0.0, burn=0.3)
 
 
+def _recolor(src, dst, dark, light, stretch=(1.0, 1.0), extra=None):
+    """Maps the base art's luminance onto a new dark→light ramp (alpha kept)."""
+    im = Image.open(src).convert("RGBA")
+    a = np.asarray(im).astype(np.float32) / 255.0
+    lum = (a[..., 0] * 0.3 + a[..., 1] * 0.59 + a[..., 2] * 0.11)[..., None]
+    d = np.array(dark, np.float32)[None, None, :] / 255.0
+    l = np.array(light, np.float32)[None, None, :] / 255.0
+    rgb = d + (l - d) * np.clip(lum * 1.15, 0, 1)
+    outa = np.concatenate([rgb, a[..., 3:4]], axis=2)
+    res = Image.fromarray((outa * 255).astype(np.uint8), "RGBA")
+    if stretch != (1.0, 1.0):
+        w, h = res.size
+        sq = res.resize((int(w * stretch[0]), int(h * stretch[1])), Image.LANCZOS)
+        canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        canvas.alpha_composite(sq.crop((max(0, (sq.width - w) // 2), max(0, (sq.height - h) // 2), max(0, (sq.width - w) // 2) + min(w, sq.width), max(0, (sq.height - h) // 2) + min(h, sq.height))),
+                               (max(0, (w - sq.width) // 2), max(0, (h - sq.height) // 2)))
+        res = canvas
+    if extra:
+        extra(res)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    res.save(dst)
+
+
+def _spikes(im, seed, col=(40, 20, 16), n=26, length=16):
+    """Thorns along the silhouette, pointing outward (Dornmaul)."""
+    rng = np.random.default_rng(seed)
+    a = np.asarray(im)[..., 3]
+    h, w = a.shape
+    cx, cy = w / 2, h / 2
+    dr = ImageDraw.Draw(im)
+    for k in range(n):
+        ang = k / n * math.tau + rng.uniform(-0.1, 0.1)
+        r = min(w, h) / 2
+        while r > 4:
+            x, y = int(cx + math.cos(ang) * r), int(cy + math.sin(ang) * r)
+            if 0 <= x < w and 0 <= y < h and a[y, x] > 128:
+                break
+            r -= 2
+        x, y = cx + math.cos(ang) * r, cy + math.sin(ang) * r
+        tip = (x + math.cos(ang) * length, y + math.sin(ang) * length)
+        side = (math.cos(ang + math.pi / 2) * length * 0.35, math.sin(ang + math.pi / 2) * length * 0.35)
+        dr.polygon([(x + side[0], y + side[1]), tip, (x - side[0], y - side[1])], fill=col + (255,), outline=(20, 12, 10, 255))
+
+
+def _cracks(im, seed, col=(255, 140, 50)):
+    """Glowing magma seams over a basalt hide (Glutkriecher)."""
+    rng = np.random.default_rng(seed)
+    a = np.asarray(im)[..., 3]
+    h, w = a.shape
+    dr = ImageDraw.Draw(im)
+    for k in range(14):
+        x, y = rng.uniform(w * 0.2, w * 0.8), rng.uniform(h * 0.15, h * 0.85)
+        if a[int(y), int(x)] < 128:
+            continue
+        pts = [(x, y)]
+        for t in range(4):
+            x += rng.uniform(-w * 0.06, w * 0.06); y += rng.uniform(-h * 0.05, h * 0.05)
+            if 0 <= int(x) < w and 0 <= int(y) < h and a[int(y), int(x)] > 128:
+                pts.append((x, y))
+        if len(pts) > 1:
+            dr.line(pts, fill=col + (230,), width=max(2, w // 90))
+
+
+def gen_new_species():
+    T = os.path.join(ROOT, "assets/templates")
+    def path(eid):
+        return os.path.join(T, os.path.dirname(ENTRIES[eid]["path"]), "template_" + os.path.basename(ENTRIES[eid]["path"]) + ".png")
+    ramps = {"aschenlaeufer": ((34, 32, 34), (176, 170, 162)), "dornmaul": ((58, 26, 20), (204, 122, 82)), "glutkriecher": ((26, 22, 22), (132, 104, 90))}
+    for k, b in SPECIES_ART.items():
+        sp = k.split("_")[0]
+        dark, light = ramps[sp]
+        stretch = (0.94, 1.12) if sp == "aschenlaeufer" else (1.0, 1.0)
+        extra = None
+        if sp == "dornmaul":
+            extra = lambda im, kk=k: _spikes(im, hash(kk) % 999, n=30, length=max(12, im.width // 14))
+        elif sp == "glutkriecher" and not k.endswith("gland"):
+            extra = lambda im, kk=k: _cracks(im, abs(hash(kk)) % 999)
+        if k == "glutkriecher_gland":
+            dark, light = (110, 36, 10), (255, 196, 90)
+        _recolor(path("creature." + b), path("creature." + k), dark, light, stretch, extra)
+    def icon(it, seed, draw):
+        c = canvas_for("item." + it, seed)
+        draw(c, *ENTRIES["item." + it]["source"])
+        c.desertize(dust=0.25, abrasion=0.15, bleach=0.15, seams=0.4)
+        c.save(out("item." + it))
+    icon("asche_hide", 971, lambda c, W, H: plate(c, blob(W / 2, H / 2, W * 0.38, H * 0.3, 14, 0.25, 5), (110, 106, 102), line=2.2, grime=0.3))
+    icon("dorn_spike", 972, lambda c, W, H: plate(c, [(W * 0.3, H * 0.86), (W * 0.52, H * 0.86), (W * 0.72, H * 0.1)], (150, 64, 44), line=2.4, grime=0.2))
+    icon("glut_scale", 973, lambda c, W, H: (plate(c, [(W * 0.2, H * 0.3), (W * 0.8, H * 0.22), (W * 0.74, H * 0.78), (W * 0.26, H * 0.8)], (52, 44, 42), line=2.4, grime=0.3),
+                                             c.ink([(W * 0.24, H * 0.32), (W * 0.76, H * 0.26)], 3.0, color=(240, 130, 50), alpha=230)))
+    icon("glut_gland", 974, lambda c, W, H: (plate(c, blob(W / 2, H / 2, W * 0.34, H * 0.34, 14, 0.1, 6), (220, 110, 40), line=2.4, grime=0.0),
+                                             c.fill_ellipse((W * 0.42, H * 0.38, W * 0.58, H * 0.54), (255, 220, 140), tex=0.1)))
+    icon("eisback_horn", 975, lambda c, W, H: plate(c, [(W * 0.14, H * 0.88), (W * 0.4, H * 0.88), (W * 0.9, H * 0.08), (W * 0.74, H * 0.06)], (206, 220, 236), line=2.8, grime=0.0))
+    icon("dornkrone", 976, lambda c, W, H: [plate(c, [(W * (0.16 + k * 0.17), H * 0.8), (W * (0.28 + k * 0.17), H * 0.8), (W * (0.22 + k * 0.17), H * (0.16 if k % 2 == 0 else 0.34))],
+                                                   (170, 70, 46), line=2.2, grime=0.1) for k in range(4)])
+    icon("glutkern", 977, lambda c, W, H: (plate(c, blob(W / 2, H / 2, W * 0.38, H * 0.38, 18, 0.12, 7), (60, 30, 20), line=2.6, grime=0.0),
+                                           c.fill_ellipse((W * 0.3, H * 0.3, W * 0.7, H * 0.7), (255, 150, 60), tex=0.1),
+                                           c.fill_ellipse((W * 0.42, H * 0.42, W * 0.58, H * 0.58), (255, 236, 180), tex=0.05)))
+    icon("kaltvater_herz", 978, lambda c, W, H: (plate(c, blob(W / 2, H * 0.54, W * 0.4, H * 0.36, 18, 0.1, 8), (232, 230, 244), line=2.8, grime=0.0),
+                                                 c.fill_ellipse((W * 0.4, H * 0.42, W * 0.6, H * 0.64), (150, 120, 200), tex=0.05)))
+
+
 def gen_world_props():
     """Regional props for the complete game: coast, city, geothermal flats."""
     # container: corrugated steel box
@@ -909,7 +1023,7 @@ def gen_logo_fallback():
     c.save(out("ui.logo"))
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props]
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props, gen_new_species]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

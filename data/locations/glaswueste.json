@@ -1807,124 +1807,86 @@
 	},
 	"creatures": [
 		{
-			"id": "skirr_0_0",
-			"species": "skirr",
-			"pack": "glaswueste_0",
-			"spawn": [
-				3660,
-				3334
-			]
-		},
-		{
-			"id": "skirr_0_1",
-			"species": "skirr",
-			"pack": "glaswueste_0",
-			"spawn": [
-				3730,
-				3394
-			]
-		},
-		{
-			"id": "skirr_0_2",
-			"species": "skirr",
-			"pack": "glaswueste_0",
-			"spawn": [
-				3800,
-				3334
-			]
-		},
-		{
-			"id": "skirr_0_3",
-			"species": "skirr",
-			"pack": "glaswueste_0",
+			"id": "aschenlaeufer_0_0",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
 				3870,
-				3394
+				3334
 			]
 		},
 		{
-			"id": "skirr_1_0",
-			"species": "skirr",
-			"pack": "glaswueste_1",
+			"id": "aschenlaeufer_0_1",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
-				1438,
-				1632
+				3815,
+				3429
 			]
 		},
 		{
-			"id": "skirr_1_1",
-			"species": "skirr",
-			"pack": "glaswueste_1",
+			"id": "aschenlaeufer_0_2",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
-				1508,
-				1692
+				3705,
+				3429
 			]
 		},
 		{
-			"id": "skirr_1_2",
-			"species": "skirr",
-			"pack": "glaswueste_1",
+			"id": "aschenlaeufer_0_3",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
-				1578,
-				1632
+				3650,
+				3334
 			]
 		},
 		{
-			"id": "skirr_1_3",
-			"species": "skirr",
-			"pack": "glaswueste_1",
+			"id": "aschenlaeufer_0_4",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
-				1648,
-				1692
+				3705,
+				3239
 			]
 		},
 		{
-			"id": "skirr_2_0",
-			"species": "skirr",
-			"pack": "glaswueste_2",
+			"id": "aschenlaeufer_0_5",
+			"species": "aschenlaeufer",
+			"pack": "glaswueste_aschenlaeufer_0",
 			"spawn": [
-				908,
-				1299
-			]
-		},
-		{
-			"id": "skirr_2_1",
-			"species": "skirr",
-			"pack": "glaswueste_2",
-			"spawn": [
-				978,
-				1359
-			]
-		},
-		{
-			"id": "skirr_2_2",
-			"species": "skirr",
-			"pack": "glaswueste_2",
-			"spawn": [
-				1048,
-				1299
-			]
-		},
-		{
-			"id": "skirr_2_3",
-			"species": "skirr",
-			"pack": "glaswueste_2",
-			"spawn": [
-				1118,
-				1359
+				3815,
+				3239
 			]
 		},
 		{
 			"id": "grindback_0",
 			"species": "grindback",
 			"spawn": [
-				2720,
-				1201
+				1538,
+				1632
 			]
 		},
 		{
 			"id": "grindback_1",
 			"species": "grindback",
+			"spawn": [
+				1008,
+				1299
+			]
+		},
+		{
+			"id": "glutkriecher_0",
+			"species": "glutkriecher",
+			"spawn": [
+				2720,
+				1201
+			]
+		},
+		{
+			"id": "glutkriecher_1",
+			"species": "glutkriecher",
 			"spawn": [
 				4101,
 				1302
@@ -2043,7 +2005,7 @@
 		}
 	],
 	"relief": {
-		"seed": 2524,
+		"seed": 7973,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2092,5 +2054,12 @@
 			"heading_deg": 0
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_0",
+	"mech_start": {
+		"pos": [
+			3153,
+			2168
+		],
+		"heading_deg": 90
+	}
 }

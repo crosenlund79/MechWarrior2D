@@ -15,7 +15,10 @@ extends CharacterBody2D
 const SHADOW_OFFSET := Vector2(10, 14)
 
 var id := ""
-var species := ""
+var species := ""        # behaviour archetype (brain): skirr / grindback / rimeback
+var art := ""            # art prefix: the species' own sprites
+var _scale := 1.0        # apex silhouettes are bigger
+var _tint := Color.WHITE
 var body: Node2D
 var main: Sprite2D
 var dead_sprite: Sprite2D
@@ -54,8 +57,12 @@ var _site := Session.site_serial
 
 func _ready() -> void:
 	var c := Session.creature(id)
-	species = str(c.get("species", "skirr"))
+	species = Creatures.brain(c)
 	var ts := Session.creature_tun(c)
+	art = str(ts.get("art", species))
+	_scale = float(ts.get("scale", 1.0))
+	var tn: Array = ts.get("tint", [1, 1, 1])
+	_tint = Color(float(tn[0]), float(tn[1]), float(tn[2]))
 	collision_layer = 8
 	collision_mask = 1 | 16
 	motion_mode = CharacterBody2D.MOTION_MODE_FLOATING
@@ -77,11 +84,11 @@ func _ready() -> void:
 	body.material = LightKit.rotating_light_material()
 	match species:
 		"skirr":
-			main = _sprite("creature.skirr", body)
-			dead_sprite = _sprite("creature.skirr_dead", body)
+			main = _sprite("creature." + art, body)
+			dead_sprite = _sprite("creature.%s_dead" % art, body)
 		"grindback":
-			main = _sprite("creature.grindback", body)
-			dead_sprite = _sprite("creature.grindback_dead", body)
+			main = _sprite("creature." + art, body)
+			dead_sprite = _sprite("creature.%s_dead" % art, body)
 			mound_h = Node2D.new()
 			mound_h.top_level = true
 			mound_h.z_index = -4
@@ -97,22 +104,22 @@ func _ready() -> void:
 			var th := Node2D.new()
 			th.position = Vector2(0, 170)
 			body.add_child(th)
-			tail = _sprite("creature.rimeback_tail", th)
-			main = _sprite("creature.rimeback", body)
+			tail = _sprite("creature.%s_tail" % art, th)
+			main = _sprite("creature." + art, body)
 			var hh := Node2D.new()
 			hh.position = Vector2(0, -150)
 			body.add_child(hh)
-			head = _sprite("creature.rimeback_head", hh)
+			head = _sprite("creature.%s_head" % art, hh)
 			for g in ["gland_l", "gland_r"]:
 				var gh := Node2D.new()
 				gh.position = Vector2(-86 if g == "gland_l" else 86, -40)
 				body.add_child(gh)
-				var gs := _sprite("creature.rime_gland", gh)
+				var gs := _sprite("creature.rime_gland" if art == "rimeback" else "creature.%s_gland" % art, gh)
 				glands[g] = gs
-				var gl := LightKit.glow(Color(0.75, 0.9, 1.0), 0.8, 0.0)
+				var gl := LightKit.glow(Color(0.75, 0.9, 1.0) if art == "rimeback" else Color(1.0, 0.55, 0.2), 0.8, 0.0)
 				gh.add_child(gl)
 				gs.set_meta("light", gl)
-			dead_sprite = _sprite("creature.rimeback_dead", body)
+			dead_sprite = _sprite("creature.%s_dead" % art, body)
 	eye = LightKit.glow(Color(1.0, 0.35, 0.2), 0.45, 0.0)
 	eye.position = Vector2(0, -30 if species == "skirr" else -60)
 	body.add_child(eye)
@@ -207,7 +214,7 @@ func _process(delta: float) -> void:
 	_hit += _hit_v * delta
 	body.position = _hit.limit_length(16.0)
 	_flash = move_toward(_flash, 0.0, delta * 3.0)
-	var tint := Color(1, 1, 1).lerp(Color(1.9, 0.6, 0.5), _flash)
+	var tint := _tint.lerp(Color(1.9, 0.6, 0.5), _flash)
 	main.visible = not dead
 	dead_sprite.visible = dead
 	var mh := main.get_parent() as Node2D
@@ -267,7 +274,7 @@ func _process(delta: float) -> void:
 			(gs.get_meta("light") as PointLight2D).energy = 0.15 + swell * 1.4 if alive else 0.0
 		head.visible = true
 		head.modulate = Color(1, 1, 1) if float(c["parts"].get("head", 1.0)) > 0.0 else Color(0.75, 0.65, 0.62)
-	body.modulate = tint if not dead else Color(0.82, 0.78, 0.74)
+	body.modulate = tint if not dead else _tint * Color(0.82, 0.78, 0.74)
 	eye.energy = (0.4 + 1.2 * tell_v) if tell_k in ["crouch", "charge", "roar"] else 0.0
 	# --- telegraphs drawn on the ground
 	var pos := global_position
@@ -296,6 +303,13 @@ func _process(delta: float) -> void:
 		ring.width = 3.0 + 5.0 * tell_v
 		if world_ref() and world_ref().camera and Session.actor_pos().distance_to(pos) < 700.0:
 			world_ref().camera.add_shake(0.05 * tell_v, 0.25)
+	if tell_k == "quake":
+		var qr := float(ts.get("quake_radius", 420.0))
+		ring.points = _circle(pos, qr * (0.35 + 0.65 * tell_v), 48, 10.0 * tell_v)
+		ring.default_color = Color(0.85, 0.3, 0.15, 0.35 + 0.5 * tell_v)
+		ring.width = 4.0 + 8.0 * tell_v
+		if world_ref() and world_ref().camera and Session.actor_pos().distance_to(pos) < 1400.0:
+			world_ref().camera.add_shake(0.08 * tell_v, 0.35)
 	if tell_k == "roar":
 		ring.points = _circle(pos, 160.0 + 260.0 * tell_v, 40, 0.0)
 		ring.default_color = Color(0.95, 0.85, 0.7, 0.35 * (1.0 - tell_v))
@@ -316,8 +330,9 @@ func _process(delta: float) -> void:
 	var wv = get_parent()
 	if wv and wv.get("relief"):
 		hgt = wv.relief.height_at(pos)
-	body.scale = body.scale.lerp(Vector2.ONE * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
-	shadow_h.global_position = pos + SHADOW_OFFSET * (1.4 if species == "rimeback" else 1.0) * (1.0 + hgt * Relief.SHADOW_K)
+	body.scale = body.scale.lerp(Vector2.ONE * _scale * (1.0 + hgt * Relief.SCALE_K), 1.0 - exp(-8.0 * delta))
+	shadow_h.scale = Vector2.ONE * _scale
+	shadow_h.global_position = pos + SHADOW_OFFSET * (1.4 if species == "rimeback" else 1.0) * _scale * (1.0 + hgt * Relief.SHADOW_K)
 	shadow_h.rotation = body.rotation
 	if dead and not _was_dead:
 		var puff := FxKit.puff(Color(0.45, 0.36, 0.28, 0.6), 20)

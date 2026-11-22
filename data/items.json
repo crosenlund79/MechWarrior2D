@@ -102,5 +102,69 @@
 		"bulk": 1,
 		"rarity": "rare",
 		"value": 260
+	},
+	"asche_hide": {
+		"name": "ITEM_ASCHE_HIDE",
+		"asset": "item.asche_hide",
+		"stack": 20,
+		"bulk": 1,
+		"rarity": "common",
+		"value": 38
+	},
+	"dorn_spike": {
+		"name": "ITEM_DORN_SPIKE",
+		"asset": "item.dorn_spike",
+		"stack": 20,
+		"bulk": 1,
+		"rarity": "uncommon",
+		"value": 120
+	},
+	"glut_scale": {
+		"name": "ITEM_GLUT_SCALE",
+		"asset": "item.glut_scale",
+		"stack": 20,
+		"bulk": 1,
+		"rarity": "uncommon",
+		"value": 110
+	},
+	"glut_gland": {
+		"name": "ITEM_GLUT_GLAND",
+		"asset": "item.glut_gland",
+		"stack": 20,
+		"bulk": 2,
+		"rarity": "rare",
+		"value": 280
+	},
+	"eisback_horn": {
+		"name": "ITEM_EISBACK_HORN",
+		"asset": "item.eisback_horn",
+		"stack": 20,
+		"bulk": 2,
+		"rarity": "rare",
+		"value": 900
+	},
+	"dornkrone": {
+		"name": "ITEM_DORNKRONE",
+		"asset": "item.dornkrone",
+		"stack": 20,
+		"bulk": 2,
+		"rarity": "legendary",
+		"value": 1800
+	},
+	"glutkern": {
+		"name": "ITEM_GLUTKERN",
+		"asset": "item.glutkern",
+		"stack": 20,
+		"bulk": 2,
+		"rarity": "legendary",
+		"value": 2400
+	},
+	"kaltvater_herz": {
+		"name": "ITEM_KALTVATER_HERZ",
+		"asset": "item.kaltvater_herz",
+		"stack": 20,
+		"bulk": 2,
+		"rarity": "legendary",
+		"value": 6000
 	}
 }

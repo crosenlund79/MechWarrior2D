@@ -473,7 +473,7 @@ func _update_hunt(delta: float) -> void:
 		cond = "COND_DAZED"
 	elif frac < 0.3:
 		cond = "COND_LIMPING"
-	elif frac < float(ts.get("enrage_hp", 0.55)) and str(c["species"]) == "rimeback":
+	elif frac < float(ts.get("enrage_hp", 0.55)) and Creatures.brain(c) == "rimeback":
 		cond = "COND_ENRAGED"
 	elif frac < 0.75:
 		cond = "COND_WOUNDED"

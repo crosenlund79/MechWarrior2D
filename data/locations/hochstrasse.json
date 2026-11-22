@@ -1072,26 +1072,26 @@
 			"id": "rival_1",
 			"type": "junker",
 			"spawn": [
-				3272,
-				2636
+				637,
+				2894
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					3272,
-					2636
+					637,
+					2894
 				],
 				[
-					3672,
-					2636
+					1037,
+					2894
 				],
 				[
-					3672,
-					3036
+					1037,
+					3294
 				],
 				[
-					3272,
-					3036
+					637,
+					3294
 				]
 			]
 		}
@@ -1955,176 +1955,194 @@
 	},
 	"creatures": [
 		{
-			"id": "skirr_0_0",
-			"species": "skirr",
-			"pack": "hochstrasse_0",
-			"spawn": [
-				1800,
-				2839
-			]
-		},
-		{
-			"id": "skirr_0_1",
-			"species": "skirr",
-			"pack": "hochstrasse_0",
-			"spawn": [
-				1870,
-				2899
-			]
-		},
-		{
-			"id": "skirr_0_2",
-			"species": "skirr",
-			"pack": "hochstrasse_0",
-			"spawn": [
-				1940,
-				2839
-			]
-		},
-		{
-			"id": "skirr_0_3",
-			"species": "skirr",
-			"pack": "hochstrasse_0",
+			"id": "aschenlaeufer_0_0",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
 			"spawn": [
 				2010,
-				2899
+				2839
 			]
 		},
 		{
-			"id": "skirr_1_0",
-			"species": "skirr",
-			"pack": "hochstrasse_1",
+			"id": "aschenlaeufer_0_1",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
 			"spawn": [
-				3725,
-				1123
+				1955,
+				2934
 			]
 		},
 		{
-			"id": "skirr_1_1",
-			"species": "skirr",
-			"pack": "hochstrasse_1",
+			"id": "aschenlaeufer_0_2",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
 			"spawn": [
-				3795,
-				1183
+				1845,
+				2934
 			]
 		},
 		{
-			"id": "skirr_1_2",
-			"species": "skirr",
-			"pack": "hochstrasse_1",
+			"id": "aschenlaeufer_0_3",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
 			"spawn": [
-				3865,
-				1123
+				1790,
+				2839
 			]
 		},
 		{
-			"id": "skirr_1_3",
-			"species": "skirr",
-			"pack": "hochstrasse_1",
+			"id": "aschenlaeufer_0_4",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
+			"spawn": [
+				1845,
+				2744
+			]
+		},
+		{
+			"id": "aschenlaeufer_0_5",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_0",
+			"spawn": [
+				1955,
+				2744
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_0",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
 			"spawn": [
 				3935,
-				1183
+				1123
 			]
 		},
 		{
-			"id": "skirr_2_0",
-			"species": "skirr",
-			"pack": "hochstrasse_2",
+			"id": "aschenlaeufer_1_1",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
 			"spawn": [
-				5861,
-				3104
+				3880,
+				1218
 			]
 		},
 		{
-			"id": "skirr_2_1",
-			"species": "skirr",
-			"pack": "hochstrasse_2",
+			"id": "aschenlaeufer_1_2",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
 			"spawn": [
-				5931,
-				3164
+				3770,
+				1218
 			]
 		},
 		{
-			"id": "skirr_2_2",
-			"species": "skirr",
-			"pack": "hochstrasse_2",
+			"id": "aschenlaeufer_1_3",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
 			"spawn": [
-				6001,
-				3104
+				3715,
+				1123
 			]
 		},
 		{
-			"id": "skirr_2_3",
-			"species": "skirr",
-			"pack": "hochstrasse_2",
+			"id": "aschenlaeufer_1_4",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
+			"spawn": [
+				3770,
+				1028
+			]
+		},
+		{
+			"id": "aschenlaeufer_1_5",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_1",
+			"spawn": [
+				3880,
+				1028
+			]
+		},
+		{
+			"id": "aschenlaeufer_2_0",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
 			"spawn": [
 				6071,
-				3164
+				3104
 			]
 		},
 		{
-			"id": "skirr_3_0",
-			"species": "skirr",
-			"pack": "hochstrasse_3",
+			"id": "aschenlaeufer_2_1",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
 			"spawn": [
-				4751,
+				6016,
+				3199
+			]
+		},
+		{
+			"id": "aschenlaeufer_2_2",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
+			"spawn": [
+				5906,
+				3199
+			]
+		},
+		{
+			"id": "aschenlaeufer_2_3",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
+			"spawn": [
+				5851,
+				3104
+			]
+		},
+		{
+			"id": "aschenlaeufer_2_4",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
+			"spawn": [
+				5906,
+				3009
+			]
+		},
+		{
+			"id": "aschenlaeufer_2_5",
+			"species": "aschenlaeufer",
+			"pack": "hochstrasse_aschenlaeufer_2",
+			"spawn": [
+				6016,
+				3009
+			]
+		},
+		{
+			"id": "dornmaul_0",
+			"species": "dornmaul",
+			"spawn": [
+				4851,
 				1520
 			]
 		},
 		{
-			"id": "skirr_3_1",
-			"species": "skirr",
-			"pack": "hochstrasse_3",
-			"spawn": [
-				4821,
-				1580
-			]
-		},
-		{
-			"id": "skirr_3_2",
-			"species": "skirr",
-			"pack": "hochstrasse_3",
-			"spawn": [
-				4891,
-				1520
-			]
-		},
-		{
-			"id": "skirr_3_3",
-			"species": "skirr",
-			"pack": "hochstrasse_3",
-			"spawn": [
-				4961,
-				1580
-			]
-		},
-		{
-			"id": "grindback_0",
-			"species": "grindback",
+			"id": "dornmaul_1",
+			"species": "dornmaul",
 			"spawn": [
 				1338,
 				2403
 			]
 		},
 		{
-			"id": "grindback_1",
-			"species": "grindback",
-			"spawn": [
-				2810,
-				2153
-			]
-		},
-		{
 			"id": "eisback_0",
 			"species": "rimeback",
 			"spawn": [
-				1107,
-				2453
+				2810,
+				2153
 			],
 			"route": [
 				[
-					1107,
-					2453
+					2810,
+					2153
 				],
 				[
 					4413,
@@ -2152,51 +2170,8 @@
 				]
 			],
 			"lair": [
-				4219,
-				2022
-			],
-			"heading_deg": 90
-		},
-		{
-			"id": "eisback_1",
-			"species": "rimeback",
-			"spawn": [
-				775,
-				947
-			],
-			"route": [
-				[
-					775,
-					947
-				],
-				[
-					3826,
-					986
-				],
-				[
-					4863,
-					1210
-				],
-				[
-					3752,
-					1663
-				],
-				[
-					3800,
-					1722
-				],
-				[
-					637,
-					2894
-				],
-				[
-					1052,
-					2034
-				]
-			],
-			"lair": [
-				6097,
-				2370
+				1107,
+				2453
 			],
 			"heading_deg": 90
 		}
@@ -2206,8 +2181,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				2919,
-				3224
+				4863,
+				1210
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2221,8 +2196,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				749,
-				2461
+				1052,
+				2034
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2235,8 +2210,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				2819,
-				1456
+				5327,
+				3687
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2247,8 +2222,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				4351,
-				1786
+				775,
+				947
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2262,8 +2237,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				3725,
-				1885
+				3617,
+				3693
 			],
 			"name": "POI_LANDMARK_HOCHSTRASSE",
 			"asset": "road.billboard",
@@ -2271,7 +2246,7 @@
 		}
 	],
 	"relief": {
-		"seed": 8981,
+		"seed": 1392,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2306,5 +2281,12 @@
 			"heading_deg": 180
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_0",
+	"mech_start": {
+		"pos": [
+			3461,
+			2659
+		],
+		"heading_deg": 90
+	}
 }

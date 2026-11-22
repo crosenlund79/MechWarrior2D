@@ -1523,73 +1523,73 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "salzpfanne_0",
+			"pack": "salzpfanne_skirr_0",
 			"spawn": [
-				5364,
+				5574,
 				2175
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "salzpfanne_0",
+			"pack": "salzpfanne_skirr_0",
 			"spawn": [
-				5434,
-				2235
+				5464,
+				2285
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "salzpfanne_0",
+			"pack": "salzpfanne_skirr_0",
 			"spawn": [
-				5504,
+				5354,
 				2175
 			]
 		},
 		{
 			"id": "skirr_0_3",
 			"species": "skirr",
-			"pack": "salzpfanne_0",
+			"pack": "salzpfanne_skirr_0",
 			"spawn": [
-				5574,
-				2235
+				5464,
+				2065
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "salzpfanne_1",
+			"pack": "salzpfanne_skirr_1",
 			"spawn": [
-				1154,
+				1364,
 				2668
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "salzpfanne_1",
+			"pack": "salzpfanne_skirr_1",
 			"spawn": [
-				1224,
-				2728
+				1254,
+				2778
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "salzpfanne_1",
+			"pack": "salzpfanne_skirr_1",
 			"spawn": [
-				1294,
+				1144,
 				2668
 			]
 		},
 		{
 			"id": "skirr_1_3",
 			"species": "skirr",
-			"pack": "salzpfanne_1",
+			"pack": "salzpfanne_skirr_1",
 			"spawn": [
-				1364,
-				2728
+				1254,
+				2558
 			]
 		},
 		{
@@ -1617,47 +1617,12 @@
 			]
 		},
 		{
-			"id": "eisback_0",
-			"species": "rimeback",
+			"id": "glutkriecher_0",
+			"species": "glutkriecher",
 			"spawn": [
-				2752,
-				1863
-			],
-			"route": [
-				[
-					2752,
-					1863
-				],
-				[
-					3424,
-					1403
-				],
-				[
-					5574,
-					2825
-				],
-				[
-					2257,
-					2966
-				],
-				[
-					809,
-					3812
-				],
-				[
-					1405,
-					3239
-				],
-				[
-					777,
-					2911
-				]
-			],
-			"lair": [
-				1589,
-				4258
-			],
-			"heading_deg": 90
+				2257,
+				2966
+			]
 		}
 	],
 	"pois": [
@@ -1665,8 +1630,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				2875,
-				3716
+				3424,
+				1403
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1680,8 +1645,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				676,
-				3908
+				1405,
+				3239
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1694,8 +1659,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				4339,
-				3905
+				2752,
+				1863
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1709,8 +1674,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				5648,
-				1354
+				777,
+				2911
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1723,8 +1688,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				5393,
-				1277
+				5574,
+				2825
 			],
 			"name": "POI_LANDMARK_SALZPFANNE",
 			"asset": "wreck.pump_rig",
@@ -1732,7 +1697,7 @@
 		}
 	],
 	"relief": {
-		"seed": 4413,
+		"seed": 8171,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -1767,5 +1732,12 @@
 			"heading_deg": 270
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": null,
+	"mech_start": {
+		"pos": [
+			3618,
+			2722
+		],
+		"heading_deg": 90
+	}
 }

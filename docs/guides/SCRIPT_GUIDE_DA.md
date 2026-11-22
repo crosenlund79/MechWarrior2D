@@ -79,6 +79,9 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `tools/check_script_guides.py` | Kontrollerer/skriver EN- og DA-scriptguiderne. |
 | `src/sim/creatures.gd` | Det optøede økosystem: skirr-flok, sliberyg-graver og rimeryg-bytte — sanser, varslede angreb, brækbare dele, flugt/nedgravning (rene data). |
 | `src/sim/garage.gd` | Bosættelsesværkstedets opgraderingslinjer (chassis, motor, turbo, panser, dæk, køling, våben, last): priser, rang-krav, effekt på bil/varme/våben, migrering af gamle opgraderinger. |
+| `src/sim/arsenal.gd` | Tagmonterede våbenfamilier (data/weapons.json): ejerskab, ammunitionskapacitet og genopfyldningspris, balance med monterede linjer. |
+| `src/sim/vehicles.gd` | Chassiskatalog (data/vehicles.json): Marder, Falke, Bär — køre-/panser-/last-/brændstofkarakter oven på opgraderingerne. |
+| `src/sim/contracts.gd` | Jäger-kontrakter: opslagstavler i bosættelser (skrevne + genererede fra territoriernes indhold), fremskridt fra hændelser, udbetaling. |
 | `src/sim/journey.gd` | Kontinentets rutenet (data/journey.json): knuder, forbindelser, brændstof, ankomst-bogføring, korteste rute og nærmeste sikre zone. |
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal advarselstape i øverste højre hjørne: DANGER / SAFE-ZONE / CLEARED. |
 | `src/presentation/ui/minimap.gd` | Minikort: veje, klipper, bosættelse, porte, blinkende anomalier, opdagede steder, spillerpil. |

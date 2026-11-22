@@ -333,7 +333,9 @@
 				]
 			},
 			"harvest": false,
-			"bounty": 30
+			"bounty": 30,
+			"brain": "skirr",
+			"art": "skirr"
 		},
 		"grindback": {
 			"hp": 110.0,
@@ -408,7 +410,9 @@
 				]
 			},
 			"harvest": true,
-			"bounty": 120
+			"bounty": 120,
+			"brain": "grindback",
+			"art": "grindback"
 		},
 		"rimeback": {
 			"hp": 320.0,
@@ -533,9 +537,755 @@
 				],
 				"item": "thawheart"
 			},
-			"bounty": 420
+			"bounty": 420,
+			"brain": "rimeback",
+			"art": "rimeback"
 		},
-		"harvest_duration": 4.0
+		"harvest_duration": 4.0,
+		"aschenlaeufer": {
+			"hp": 22.0,
+			"collision": 26.0,
+			"parts": {
+				"body": {
+					"offset": [
+						0,
+						0
+					],
+					"radius": 30,
+					"mult": 1.0
+				}
+			},
+			"sight": 300.0,
+			"hearing": 640.0,
+			"heat_sense": 4.0,
+			"roam_radius": 420.0,
+			"roam_speed": 90.0,
+			"run_speed": 440.0,
+			"turn_rate": 6.0,
+			"accel": 1400.0,
+			"circle_radius": 230.0,
+			"lunge_range": 420.0,
+			"tell_time": 0.55,
+			"lunge_speed": 860.0,
+			"lunge_time": 0.42,
+			"bite_radius": 90.0,
+			"bite_damage": 5.5,
+			"bite_cooling": 0.025,
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 2.8,
+			"flee_hp": 0.25,
+			"give_up": 1500.0,
+			"leash": 2400.0,
+			"heal": 0.5,
+			"track_every": 150.0,
+			"loot": {
+				"asche_hide": [
+					1,
+					1,
+					1.0
+				],
+				"skirr_fang": [
+					1,
+					1,
+					0.3
+				]
+			},
+			"harvest": false,
+			"bounty": 45,
+			"brain": "skirr",
+			"art": "aschenlaeufer"
+		},
+		"dornmaul": {
+			"hp": 160.0,
+			"collision": 64.0,
+			"parts": {
+				"plate": {
+					"offset": [
+						0,
+						-48
+					],
+					"radius": 52,
+					"mult": 0.15,
+					"hp": 70.0,
+					"drop": {
+						"dorn_spike": 1
+					}
+				},
+				"vent": {
+					"offset": [
+						0,
+						58
+					],
+					"radius": 28,
+					"mult": 1.8,
+					"dazed_mult": 3.0,
+					"always": true
+				},
+				"body": {
+					"offset": [
+						0,
+						0
+					],
+					"radius": 70,
+					"mult": 0.6,
+					"dazed_mult": 1.2
+				}
+			},
+			"buried_speed": 40.0,
+			"roam_radius": 380.0,
+			"vibration_base": 140.0,
+			"vibration_range": 620.0,
+			"lead_time": 0.8,
+			"tunnel_speed": 420.0,
+			"tell_time": 1.4,
+			"erupt_radius": 135.0,
+			"erupt_damage": 14.0,
+			"paw_time": 0.95,
+			"charge_speed": 540.0,
+			"charge_time": 1.4,
+			"ram_radius": 115.0,
+			"ram_damage": 15.0,
+			"daze_time": 2.0,
+			"max_charges": 4,
+			"flee_hp": 0.35,
+			"give_up": 1000.0,
+			"rest_after_burrow": 9.0,
+			"heal": 0.8,
+			"turn_rate": 2.4,
+			"accel": 900.0,
+			"leash": 1400.0,
+			"track_every": 70.0,
+			"loot": {
+				"dorn_spike": [
+					1,
+					2,
+					1.0
+				],
+				"grind_plate": [
+					1,
+					1,
+					0.5
+				]
+			},
+			"harvest": true,
+			"bounty": 160,
+			"brain": "grindback",
+			"art": "dornmaul",
+			"surface": true,
+			"roam_speed": 70.0,
+			"sight": 340.0,
+			"hearing": 520.0,
+			"heat_sense": 3.0,
+			"rest_time": 7.0
+		},
+		"glutkriecher": {
+			"hp": 220.0,
+			"collision": 90.0,
+			"parts": {
+				"head": {
+					"offset": [
+						0,
+						-162
+					],
+					"radius": 53,
+					"mult": 0.5,
+					"hp": 70.0,
+					"drop": {
+						"glut_scale": 1
+					}
+				},
+				"gland_l": {
+					"offset": [
+						-73,
+						-34
+					],
+					"radius": 31,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"glut_gland": 1
+					}
+				},
+				"gland_r": {
+					"offset": [
+						73,
+						-34
+					],
+					"radius": 31,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"glut_gland": 1
+					}
+				},
+				"tail": {
+					"offset": [
+						0,
+						197
+					],
+					"radius": 41,
+					"mult": 0.9,
+					"hp": 55.0,
+					"drop": {
+						"glut_scale": 1
+					}
+				},
+				"body": {
+					"offset": [
+						0,
+						17
+					],
+					"radius": 106,
+					"mult": 1.0
+				}
+			},
+			"sight": 380.0,
+			"hearing": 700.0,
+			"heat_sense": 6.0,
+			"roam_speed": 60.0,
+			"graze_time": 4.0,
+			"hunt_speed": 140.0,
+			"preferred_range": 520.0,
+			"roar_time": 1.6,
+			"charge_tell": 1.3,
+			"charge_speed": 480.0,
+			"charge_time": 1.25,
+			"ram_radius": 190.0,
+			"charge_damage": 14.0,
+			"broken_horn_mult": 0.55,
+			"sweep_tell": 0.9,
+			"sweep_range": 300.0,
+			"sweep_damage": 9.0,
+			"spit_tell": 1.0,
+			"spit_min": 300.0,
+			"spit_max": 900.0,
+			"glob": {
+				"speed": 360.0,
+				"damage": 4.0,
+				"cooling_damage": 0.06,
+				"structural_cooling_damage": 0.01,
+				"radius": 20.0,
+				"range": 900.0,
+				"spread_deg": 2.0,
+				"heat": 6.0
+			},
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 3.0,
+			"enrage_hp": 0.55,
+			"enrage_cooldown": 0.65,
+			"flee_hp": 0.3,
+			"flee_speed": 230.0,
+			"give_up": 1400.0,
+			"turn_rate": 1.6,
+			"accel": 500.0,
+			"heal": 0.6,
+			"respawn_time": 900.0,
+			"track_every": 90.0,
+			"loot": {
+				"glut_scale": [
+					1,
+					2,
+					1.0
+				]
+			},
+			"harvest": true,
+			"bonus": {},
+			"bounty": 240,
+			"brain": "rimeback",
+			"art": "glutkriecher",
+			"scale": 0.85
+		},
+		"eisback_alt": {
+			"hp": 760.0,
+			"collision": 105.0,
+			"parts": {
+				"head": {
+					"offset": [
+						0,
+						-247
+					],
+					"radius": 81,
+					"mult": 0.5,
+					"hp": 140.0,
+					"drop": {
+						"rime_horn": 1
+					}
+				},
+				"gland_l": {
+					"offset": [
+						-112,
+						-52
+					],
+					"radius": 47,
+					"mult": 1.5,
+					"hp": 80.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"gland_r": {
+					"offset": [
+						112,
+						-52
+					],
+					"radius": 47,
+					"mult": 1.5,
+					"hp": 80.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"tail": {
+					"offset": [
+						0,
+						302
+					],
+					"radius": 62,
+					"mult": 0.9,
+					"hp": 110.0,
+					"drop": {
+						"rime_spine": 1
+					}
+				},
+				"body": {
+					"offset": [
+						0,
+						26
+					],
+					"radius": 162,
+					"mult": 1.0
+				}
+			},
+			"sight": 380.0,
+			"hearing": 700.0,
+			"heat_sense": 6.0,
+			"roam_speed": 80.0,
+			"graze_time": 4.0,
+			"hunt_speed": 170.0,
+			"preferred_range": 430.0,
+			"roar_time": 1.6,
+			"charge_tell": 1.3,
+			"charge_speed": 560.0,
+			"charge_time": 1.25,
+			"ram_radius": 190.0,
+			"charge_damage": 26.0,
+			"broken_horn_mult": 0.55,
+			"sweep_tell": 0.9,
+			"sweep_range": 300.0,
+			"sweep_damage": 15.0,
+			"spit_tell": 1.0,
+			"spit_min": 380.0,
+			"spit_max": 820.0,
+			"glob": {
+				"speed": 330.0,
+				"damage": 5.0,
+				"cooling_damage": 0.06,
+				"structural_cooling_damage": 0.01,
+				"radius": 20.0,
+				"range": 900.0,
+				"spread_deg": 2.0
+			},
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 3.0,
+			"enrage_hp": 0.6,
+			"enrage_cooldown": 0.65,
+			"flee_hp": 0.0,
+			"flee_speed": 230.0,
+			"give_up": 2200.0,
+			"turn_rate": 1.6,
+			"accel": 500.0,
+			"heal": 0.6,
+			"respawn_time": 0.0,
+			"track_every": 90.0,
+			"loot": {
+				"rime_hide": [
+					3,
+					4,
+					1.0
+				],
+				"eisback_horn": [
+					1,
+					1,
+					1.0
+				]
+			},
+			"harvest": true,
+			"bonus": {
+				"requires_broken": [
+					"gland_l",
+					"gland_r"
+				],
+				"item": "thawheart"
+			},
+			"bounty": 1500,
+			"brain": "rimeback",
+			"art": "rimeback",
+			"apex": true,
+			"scale": 1.3,
+			"tint": [
+				0.86,
+				0.92,
+				1.08
+			]
+		},
+		"dornkoenig": {
+			"hp": 900.0,
+			"collision": 95.0,
+			"parts": {
+				"plate": {
+					"offset": [
+						0,
+						-74
+					],
+					"radius": 81,
+					"mult": 0.15,
+					"hp": 260.0,
+					"drop": {
+						"dorn_spike": 1
+					}
+				},
+				"vent": {
+					"offset": [
+						0,
+						90
+					],
+					"radius": 43,
+					"mult": 1.8,
+					"dazed_mult": 3.0,
+					"always": true
+				},
+				"body": {
+					"offset": [
+						0,
+						0
+					],
+					"radius": 108,
+					"mult": 0.6,
+					"dazed_mult": 1.2
+				}
+			},
+			"buried_speed": 40.0,
+			"roam_radius": 380.0,
+			"vibration_base": 140.0,
+			"vibration_range": 620.0,
+			"lead_time": 0.8,
+			"tunnel_speed": 420.0,
+			"tell_time": 1.4,
+			"erupt_radius": 135.0,
+			"erupt_damage": 14.0,
+			"paw_time": 0.95,
+			"charge_speed": 540.0,
+			"charge_time": 1.4,
+			"ram_radius": 115.0,
+			"ram_damage": 24.0,
+			"daze_time": 2.6,
+			"max_charges": 6,
+			"flee_hp": 0.0,
+			"give_up": 1000.0,
+			"rest_after_burrow": 9.0,
+			"heal": 0.8,
+			"turn_rate": 2.4,
+			"accel": 900.0,
+			"leash": 1400.0,
+			"track_every": 70.0,
+			"loot": {
+				"dorn_spike": [
+					3,
+					4,
+					1.0
+				],
+				"dornkrone": [
+					1,
+					1,
+					1.0
+				]
+			},
+			"harvest": true,
+			"bounty": 2600,
+			"brain": "grindback",
+			"art": "dornmaul",
+			"surface": true,
+			"roam_speed": 70.0,
+			"sight": 340.0,
+			"hearing": 520.0,
+			"heat_sense": 3.0,
+			"rest_time": 7.0,
+			"apex": true,
+			"scale": 1.55,
+			"tint": [
+				1.1,
+				0.85,
+				0.8
+			],
+			"respawn_time": 0.0
+		},
+		"glutmutter": {
+			"hp": 1400.0,
+			"collision": 140.0,
+			"parts": {
+				"head": {
+					"offset": [
+						0,
+						-304
+					],
+					"radius": 99,
+					"mult": 0.5,
+					"hp": 70.0,
+					"drop": {
+						"glut_scale": 1
+					}
+				},
+				"gland_l": {
+					"offset": [
+						-138,
+						-64
+					],
+					"radius": 58,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"glut_gland": 1
+					}
+				},
+				"gland_r": {
+					"offset": [
+						138,
+						-64
+					],
+					"radius": 58,
+					"mult": 1.5,
+					"hp": 40.0,
+					"drop": {
+						"glut_gland": 1
+					}
+				},
+				"tail": {
+					"offset": [
+						0,
+						371
+					],
+					"radius": 77,
+					"mult": 0.9,
+					"hp": 55.0,
+					"drop": {
+						"glut_scale": 1
+					}
+				},
+				"body": {
+					"offset": [
+						0,
+						32
+					],
+					"radius": 200,
+					"mult": 1.0
+				}
+			},
+			"sight": 380.0,
+			"hearing": 700.0,
+			"heat_sense": 6.0,
+			"roam_speed": 60.0,
+			"graze_time": 4.0,
+			"hunt_speed": 140.0,
+			"preferred_range": 520.0,
+			"roar_time": 1.6,
+			"charge_tell": 1.3,
+			"charge_speed": 480.0,
+			"charge_time": 1.25,
+			"ram_radius": 190.0,
+			"charge_damage": 24.0,
+			"broken_horn_mult": 0.55,
+			"sweep_tell": 0.9,
+			"sweep_range": 300.0,
+			"sweep_damage": 9.0,
+			"spit_tell": 1.0,
+			"spit_min": 300.0,
+			"spit_max": 900.0,
+			"glob": {
+				"speed": 360.0,
+				"damage": 7.0,
+				"cooling_damage": 0.06,
+				"structural_cooling_damage": 0.01,
+				"radius": 20.0,
+				"range": 900.0,
+				"spread_deg": 2.0,
+				"heat": 9.0
+			},
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 3.0,
+			"enrage_hp": 0.55,
+			"enrage_cooldown": 0.65,
+			"flee_hp": 0.0,
+			"flee_speed": 230.0,
+			"give_up": 1400.0,
+			"turn_rate": 1.6,
+			"accel": 500.0,
+			"heal": 0.6,
+			"respawn_time": 0.0,
+			"track_every": 90.0,
+			"loot": {
+				"glut_scale": [
+					3,
+					5,
+					1.0
+				],
+				"glutkern": [
+					1,
+					1,
+					1.0
+				]
+			},
+			"harvest": true,
+			"bonus": {},
+			"bounty": 3600,
+			"brain": "rimeback",
+			"art": "glutkriecher",
+			"scale": 1.6,
+			"apex": true,
+			"tint": [
+				1.15,
+				0.9,
+				0.8
+			]
+		},
+		"kaltvater": {
+			"hp": 3200.0,
+			"collision": 200.0,
+			"parts": {
+				"head": {
+					"offset": [
+						0,
+						-418
+					],
+					"radius": 136,
+					"mult": 0.5,
+					"hp": 280.0,
+					"drop": {
+						"rime_horn": 1
+					}
+				},
+				"gland_l": {
+					"offset": [
+						-189,
+						-88
+					],
+					"radius": 79,
+					"mult": 1.5,
+					"hp": 160.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"gland_r": {
+					"offset": [
+						189,
+						-88
+					],
+					"radius": 79,
+					"mult": 1.5,
+					"hp": 160.0,
+					"drop": {
+						"rime_gland": 1
+					}
+				},
+				"tail": {
+					"offset": [
+						0,
+						510
+					],
+					"radius": 106,
+					"mult": 0.9,
+					"hp": 220.0,
+					"drop": {
+						"rime_spine": 1
+					}
+				},
+				"body": {
+					"offset": [
+						0,
+						44
+					],
+					"radius": 270,
+					"mult": 1.0
+				}
+			},
+			"sight": 380.0,
+			"hearing": 700.0,
+			"heat_sense": 6.0,
+			"roam_speed": 80.0,
+			"graze_time": 4.0,
+			"hunt_speed": 210.0,
+			"preferred_range": 620.0,
+			"roar_time": 1.6,
+			"charge_tell": 1.3,
+			"charge_speed": 620.0,
+			"charge_time": 1.25,
+			"ram_radius": 300.0,
+			"charge_damage": 34.0,
+			"broken_horn_mult": 0.55,
+			"sweep_tell": 0.9,
+			"sweep_range": 430.0,
+			"sweep_damage": 20.0,
+			"spit_tell": 1.0,
+			"spit_min": 380.0,
+			"spit_max": 820.0,
+			"glob": {
+				"speed": 330.0,
+				"damage": 5.0,
+				"cooling_damage": 0.06,
+				"structural_cooling_damage": 0.01,
+				"radius": 20.0,
+				"range": 900.0,
+				"spread_deg": 2.0
+			},
+			"recover_time": 0.9,
+			"cooldown_min": 1.6,
+			"cooldown_max": 3.0,
+			"enrage_hp": 0.66,
+			"enrage_cooldown": 0.65,
+			"flee_hp": 0.0,
+			"flee_speed": 230.0,
+			"give_up": 99999.0,
+			"turn_rate": 1.6,
+			"accel": 500.0,
+			"heal": 0.6,
+			"respawn_time": 0.0,
+			"track_every": 90.0,
+			"loot": {
+				"rime_hide": [
+					4,
+					6,
+					1.0
+				],
+				"kaltvater_herz": [
+					1,
+					1,
+					1.0
+				]
+			},
+			"harvest": true,
+			"bonus": {},
+			"bounty": 0,
+			"brain": "rimeback",
+			"art": "rimeback",
+			"apex": true,
+			"scale": 2.2,
+			"tint": [
+				1.25,
+				1.22,
+				1.18
+			],
+			"quake": true,
+			"quake_range": 900.0,
+			"quake_radius": 420.0,
+			"quake_tell": 1.6,
+			"quake_damage": 18.0,
+			"summon": "aschenlaeufer",
+			"summon_count": 4
+		}
 	},
 	"shop": {
 		"_note": "Eisenwolf Werke shop: car upgrades bought with Mark (M), unlocked by Jäger rank. Effects: additive integrity/cargo, multiplicative *_mult. No crafting.",
@@ -933,7 +1683,15 @@
 			"discovery": 20,
 			"complete": 120,
 			"sold_per_100": 8,
-			"settlement": 30
+			"settlement": 30,
+			"aschenlaeufer": 16,
+			"dornmaul": 60,
+			"glutkriecher": 110,
+			"eisback_alt": 400,
+			"dornkoenig": 600,
+			"glutmutter": 800,
+			"kaltvater": 1500,
+			"contract": 0
 		},
 		"tier_hp": 0.3,
 		"tier_damage": 0.18,

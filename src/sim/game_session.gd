@@ -1436,6 +1436,8 @@ func _tick_projectiles(dt: float) -> void:
 					var taken: Dictionary = sh.duplicate()
 					taken["damage"] = float(sh["damage"]) * float(car_tun().get("damage_taken", 1.0))
 					Combat.apply_hit(mech(), taken, kind2)
+					if float(sh.get("heat", 0.0)) > 0.0:   # Glutkriecher magma: the engine runs hot
+						mech()["heat"] = minf(float(mech()["heat"]) + float(sh["heat"]), Content.t("thermal", "max_temp", 135.0))
 					var hk := "shot:" + str(sh["owner"]).get_slice(":", 0)
 					hits_taken[hk] = float(hits_taken.get(hk, 0.0)) + (before - float(mech()["integrity"]))
 				combat_event.emit("cooling_hit" if kind2 == "cooling" else "impact", {"pos": sh["pos"], "target": "player"})
@@ -1770,6 +1772,17 @@ func dev_reset() -> void:
 
 # ---------------------------------------------------------------- hunting: creatures
 
+## Field guide progress: species seen / killed (persisted, shown in the guide).
+func _bestiary(species: String, what: String) -> void:
+	if not (state.get("bestiary") is Dictionary):
+		state["bestiary"] = {}
+	if not (state["bestiary"].get(species) is Dictionary):
+		state["bestiary"][species] = {"seen": 0, "killed": 0}
+	state["bestiary"][species][what] = int(state["bestiary"][species].get(what, 0)) + 1
+	if what == "killed" and int(state["bestiary"][species]["seen"]) == 0:
+		state["bestiary"][species]["seen"] = 1
+
+
 func creature(id: String) -> Dictionary:
 	return state.get("creatures", {}).get(id, {})
 
@@ -1849,13 +1862,17 @@ func _creature_event(id: String, c: Dictionary, brain: Dictionary, ev: Dictionar
 	var pos := Content.v2(c["pos"])
 	match str(ev["kind"]):
 		"alert":
-			combat_event.emit("creature_alert", {"id": id, "species": c["species"], "pos": pos})
-			if str(c["species"]) == "rimeback":
-				notice.emit("NOTICE_RIMEBACK_ALERT", [])
-			elif str(c["species"]) == "grindback":
-				notice.emit("NOTICE_TREMOR", [])
-			else:
-				notice.emit("NOTICE_SKIRR_ALERT", [])
+			combat_event.emit("creature_alert", {"id": id, "species": c["species"], "brain": Creatures.brain(c), "pos": pos})
+			match str(c["species"]):
+				"rimeback":
+					notice.emit("NOTICE_RIMEBACK_ALERT", [])
+				"grindback":
+					notice.emit("NOTICE_TREMOR", [])
+				"skirr":
+					notice.emit("NOTICE_SKIRR_ALERT", [])
+				_:
+					notice.emit("NOTICE_%s_ALERT" % str(c["species"]).to_upper(), [])
+			_bestiary(str(c["species"]), "seen")
 			# pack hunters call the rest of the pack
 			if str(c["pack"]) != "":
 				for oid in state["creatures"]:
@@ -1870,13 +1887,27 @@ func _creature_event(id: String, c: Dictionary, brain: Dictionary, ev: Dictionar
 		"spit":
 			var g: Dictionary = creature_tun(c).get("glob", {})
 			for d in ev["dirs"]:
-				projectiles.append(Combat.make_shot("creature:" + id, ev["from"], d, g, _rng))
+				var glob := Combat.make_shot("creature:" + id, ev["from"], d, g, _rng)
+				glob["heat"] = float(g.get("heat", 0.0))
+				projectiles.append(glob)
 			combat_event.emit("creature_spit", {"id": id, "pos": ev["from"]})
 		"enrage":
 			notice.emit("NOTICE_RIMEBACK_ENRAGED", [])
 			combat_event.emit("creature_tell", {"id": id, "species": c["species"], "tell": "enrage", "pos": pos})
+		"summon":
+			# the apex calls its pack (Kaltvater leads the Aschenläufer migration)
+			for k in int(ev.get("count", 3)):
+				var sp := str(ev.get("species", "aschenlaeufer"))
+				var at := pos + Vector2.from_angle(_rng.randf() * TAU) * _rng.randf_range(500.0, 800.0)
+				var sid := "%s_called_%d_%d" % [sp, int(state["playtime"]), k]
+				var nc := Creatures.create({"id": sid, "species": sp, "spawn": [at.x, at.y], "pack": id + "_pack"}, creature_tuning())
+				nc["ai"] = "stalk" if Creatures.brain(nc) == "skirr" else nc["ai"]
+				nc["summoned"] = true
+				state["creatures"][sid] = nc
+				dev_spawned.emit(sid)
+			notice.emit("NOTICE_SUMMON", [])
 		"flee":
-			if str(c["species"]) == "rimeback":
+			if Creatures.brain(c) == "rimeback":
 				notice.emit("NOTICE_RIMEBACK_FLEES", [])
 			combat_event.emit("creature_flee", {"id": id, "pos": pos})
 		"cornered":
@@ -1922,15 +1953,15 @@ func _resolve_creature_attack(id: String, c: Dictionary, ev: Dictionary) -> void
 
 func _lay_tracks(_id: String, c: Dictionary, brain: Dictionary, dt: float) -> void:
 	var ts := creature_tun(c)
-	var sp := str(c["species"])
-	if sp == "grindback" and not (str(c["ai"]) in ["buried", "tunnel"]):
+	var sp := Creatures.brain(c)
+	if sp == "grindback" and not bool(ts.get("surface", false)) and not (str(c["ai"]) in ["buried", "tunnel"]):
 		return
 	brain["trk"] = float(brain.get("trk", 0.0)) + absf(float(c["speed"])) * dt
 	if float(brain["trk"]) < float(ts.get("track_every", 120.0)):
 		return
 	brain["trk"] = 0.0
 	var tr: Array = state["tracks"]
-	tr.append({"s": sp, "p": [float(c["pos"][0]), float(c["pos"][1])], "h": float(c["heading"]), "t": float(state["playtime"]),
+	tr.append({"s": str(c["species"]), "k": sp, "p": [float(c["pos"][0]), float(c["pos"][1])], "h": float(c["heading"]), "t": float(state["playtime"]),
 		"b": bool(brain.get("bleeding", false)) or Creatures.max_hp(c, tun("creatures")) * 0.4 > float(c["hp"])})
 	var cap := int(tun("creatures").get("track_cap", 520))
 	if tr.size() > cap:
@@ -1981,9 +2012,9 @@ func _shot_vs_creatures(sh: Dictionary) -> bool:
 		combat_event.emit("creature_hit", {"id": id, "part": part, "pos": sh["pos"], "dir": (sh["vel"] as Vector2).normalized(),
 			"armoured": mult < 0.4 and not dazed})
 		if str(c["ai"]) == "roam":
-			if str(c["species"]) == "rimeback":
+			if Creatures.brain(c) in ["rimeback", "grindback"]:
 				brain["provoked"] = true
-			elif str(c["species"]) == "skirr":
+			elif Creatures.brain(c) == "skirr":
 				c["ai"] = "stalk"
 				brain["t"] = 0.0
 		if bool(r["broken"]):
@@ -2016,6 +2047,7 @@ func _creature_dies(id: String, c: Dictionary) -> void:
 	state["stats"]["kills"] = int(state["stats"].get("kills", 0)) + 1
 	add_xp(xp_for(str(c["species"])), "kill")
 	contract_event({"type": "kill", "species": str(c["species"]), "creature": id})
+	_bestiary(str(c["species"]), "killed")
 	if id == str(loc.get("quarry", "")) and not bool(c.get("dev", false)):
 		complete_node(current_node())
 	combat_event.emit("creature_dead", {"id": id, "species": c["species"], "pos": Content.v2(c["pos"])})
@@ -2071,12 +2103,14 @@ func _finish_harvest(id: String) -> void:
 func _maybe_respawn(id: String, c: Dictionary, playtime: float) -> void:
 	var ts := creature_tun(c)
 	var wait := float(ts.get("respawn_time", 600.0))
+	if wait <= 0.0 or bool(c.get("summoned", false)):
+		return   # apexes (and called pack members) do not come back
 	if float(c["dead_at"]) < 0.0 or playtime - float(c["dead_at"]) < wait:
 		return
 	var d := creature_def(id)
 	if d.is_empty() or Content.v2(d["spawn"]).distance_to(actor_pos()) < 2600.0 or bool(c.get("dev", false)):
 		return
-	state["creatures"][id] = Creatures.create(d, tun("creatures"))
+	state["creatures"][id] = Creatures.create(d, creature_tuning())
 	creature_brains.erase(id)
 	Log.info("hunt", "respawn", {"id": id})
 
@@ -2880,7 +2914,7 @@ func _finish_search(id: String) -> void:
 
 # ---------------------------------------------------------------- developer: creatures and materials
 
-const DEV_CREATURES := ["skirr", "grindback", "rimeback"]
+const DEV_CREATURES := ["skirr", "grindback", "rimeback", "aschenlaeufer", "dornmaul", "glutkriecher", "eisback_alt", "dornkoenig", "glutmutter", "kaltvater"]
 
 
 func dev_spawn_creature(species: String, count: int = 1) -> int:
@@ -2891,11 +2925,11 @@ func dev_spawn_creature(species: String, count: int = 1) -> int:
 			break
 		_dev_n += 1
 		var id := "dev_%s_%d" % [species, _dev_n]
-		var defn := {"id": id, "species": species, "spawn": [p.x, p.y], "pack": "dev_pack" if species == "skirr" else ""}
-		var c := Creatures.create(defn, tun("creatures"))
+		var defn := {"id": id, "species": species, "spawn": [p.x, p.y], "pack": "dev_pack" if Creatures.brain({"species": species}) == "skirr" else ""}
+		var c := Creatures.create(defn, creature_tuning())
 		c["dev"] = true
 		c["def"] = defn
-		if species == "rimeback":
+		if Creatures.brain(c) == "rimeback":
 			c["ai"] = "roam"
 		state["creatures"][id] = c
 		dev_spawned.emit(id)

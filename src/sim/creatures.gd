@@ -22,7 +22,10 @@ extends RefCounted
 ##   pack, dead_at, harvested, respawn_at}. Brain (runtime): {t, cd, goal, lock,
 ##   dir, tell, roam_t, charges}. AI "dead" is final until respawn.
 
+## Behaviour archetypes ("brains"). Every species in tuning.creatures names one
+## ("brain") plus its art; apexes are species too (apex: true, scale, tint).
 const SPECIES := ["skirr", "grindback", "rimeback"]
+const BRAINS := ["skirr", "grindback", "rimeback"]
 const ATTACK_STATES := ["lunge", "erupt", "charge", "sweep"]
 
 
@@ -35,10 +38,18 @@ static func create(defn: Dictionary, tun: Dictionary) -> Dictionary:
 	for k in pd:
 		if float(pd[k].get("hp", 0.0)) > 0.0:
 			parts[k] = float(pd[k]["hp"])
-	return {"species": sp, "pos": [p.x, p.y], "heading": deg_to_rad(float(defn.get("heading_deg", 0.0))), "speed": 0.0,
-		"hp": float(ts.get("hp", 20.0)), "parts": parts, "ai": "buried" if sp == "grindback" else "roam",
+	var br := str(ts.get("brain", sp))
+	return {"species": sp, "brain": br, "pos": [p.x, p.y], "heading": deg_to_rad(float(defn.get("heading_deg", 0.0))), "speed": 0.0,
+		"hp": float(ts.get("hp", 20.0)), "parts": parts, "ai": "buried" if br == "grindback" and not bool(ts.get("surface", false)) else "roam",
 		"home": [p.x, p.y], "pack": str(defn.get("pack", "")), "dead_at": -1.0, "harvested": false, "respawn_at": -1.0,
 		"route": defn.get("route", []), "lair": defn.get("lair", [p.x, p.y])}
+
+
+## The creature's behaviour archetype (skirr / grindback / rimeback).
+static func brain(c: Dictionary) -> String:
+	if c.has("brain"):
+		return str(c["brain"])
+	return str(Content.tuning.get("creatures", {}).get(str(c.get("species", "skirr")), {}).get("brain", c.get("species", "skirr")))
 
 
 static func max_hp(c: Dictionary, tun: Dictionary) -> float:
@@ -56,7 +67,7 @@ static func targetable(c: Dictionary) -> bool:
 
 ## Does it physically block the car right now?
 static func solid(c: Dictionary) -> bool:
-	return str(c["species"]) != "skirr" and targetable(c)
+	return brain(c) != "skirr" and targetable(c)
 
 
 ## Telegraph strength 0..1 and kind, for views.
@@ -80,7 +91,7 @@ static func step(c: Dictionary, brain: Dictionary, target: Dictionary, tun: Dict
 	brain["cd"] = maxf(0.0, float(brain.get("cd", 0.0)) - dt)
 	brain["tell"] = 0.0
 	brain["tell_kind"] = ""
-	match str(c["species"]):
+	match Creatures.brain(c):
 		"skirr":
 			_skirr(c, brain, target, ts, dt, rng, res)
 		"grindback":
@@ -214,7 +225,22 @@ static func _grindback(c: Dictionary, brain: Dictionary, target: Dictionary, ts:
 	var dist := pos.distance_to(tpos)
 	var home := Content.v2(c["home"])
 	brain["roam_t"] = float(brain.get("roam_t", 0.0)) - dt
+	var surface := bool(ts.get("surface", false))
 	match str(c["ai"]):
+		"roam":
+			# Dornmaul: hunts on the surface — sight and sound, then paw → charge
+			res["move"] = _to(c, _roam_point(c, brain, float(ts.get("roam_radius", 380.0)), rng), float(ts.get("roam_speed", 70.0)))
+			if float(brain["cd"]) <= 0.0 and (_senses(c, target, ts) > 0.0 or bool(brain.get("provoked", false))) and pos.distance_to(home) < float(ts.get("leash", 1400.0)):
+				brain["provoked"] = false
+				brain["charges"] = 0
+				_go(c, brain, "paw")
+				res["events"].append({"kind": "alert"})
+			c["hp"] = minf(float(ts.get("hp", 90.0)), float(c["hp"]) + float(ts.get("heal", 0.8)) * dt * 0.5)
+		"rest":
+			# backs off after a series of charges, then circles back into its range
+			res["move"] = _to(c, brain.get("goal", home), float(ts.get("roam_speed", 70.0)) * 1.5)
+			if float(brain["t"]) >= float(ts.get("rest_time", 7.0)):
+				_go(c, brain, "roam")
 		"buried":
 			res["move"] = _to(c, _roam_point(c, brain, float(ts.get("roam_radius", 380.0)), rng), float(ts.get("buried_speed", 40.0)))
 			# feels vibration: fast cars, running engines, footsteps at close range
@@ -251,6 +277,11 @@ static func _grindback(c: Dictionary, brain: Dictionary, target: Dictionary, ts:
 			brain["tell"] = clampf(float(brain["t"]) / float(ts.get("paw_time", 0.9)), 0.0, 1.0)
 			brain["tell_kind"] = "charge"
 			if _hp_frac(c, ts) < float(ts.get("flee_hp", 0.35)) or int(brain.get("charges", 0)) >= int(ts.get("max_charges", 3)) or dist > float(ts.get("give_up", 1000.0)):
+				if surface:
+					brain["goal"] = home + (home - tpos).normalized() * 300.0
+					brain["cd"] = float(ts.get("rest_time", 7.0)) * 0.6
+					_go(c, brain, "rest")
+					return
 				_go(c, brain, "burrow")
 				res["events"].append({"kind": "burrow"})
 				return
@@ -301,6 +332,8 @@ static func _rimeback(c: Dictionary, brain: Dictionary, target: Dictionary, ts: 
 	if enraged and not bool(brain.get("enraged", false)):
 		brain["enraged"] = true
 		res["events"].append({"kind": "enrage"})
+		if str(ts.get("summon", "")) != "":
+			res["events"].append({"kind": "summon", "species": str(ts["summon"]), "count": int(ts.get("summon_count", 3))})
 	var lair: Vector2 = Content.v2(c.get("lair", ts.get("lair", c["home"])))
 	match str(c["ai"]):
 		"roam":
@@ -347,6 +380,10 @@ static func _rimeback(c: Dictionary, brain: Dictionary, target: Dictionary, ts: 
 			var pref := float(ts.get("preferred_range", 420.0))
 			var side := (pos - tpos).normalized().rotated(0.9 if int(brain.get("side", 1)) > 0 else -0.9)
 			res["move"] = _to(c, tpos + side * pref, float(ts.get("hunt_speed", 170.0)))
+			if float(brain["cd"]) <= 0.0 and bool(ts.get("quake", false)) and dist < float(ts.get("quake_range", 900.0)) and rng.randf() < 0.3:
+				_go(c, brain, "quake_tell")
+				brain["side"] = -int(brain.get("side", 1))
+				return
 			if float(brain["cd"]) <= 0.0:
 				var has_tail := float(c["parts"].get("tail", 0.0)) > 0.0
 				var glands := int(float(c["parts"].get("gland_l", 0.0)) > 0.0) + int(float(c["parts"].get("gland_r", 0.0)) > 0.0)
@@ -391,6 +428,16 @@ static func _rimeback(c: Dictionary, brain: Dictionary, target: Dictionary, ts: 
 					"damage": float(ts.get("sweep_damage", 11.0)), "cooling": 0.02, "push": 460.0})
 		"sweep":
 			if float(brain["t"]) >= 0.35:
+				_go(c, brain, "recover")
+		"quake_tell":
+			# TELL (Kaltvater): rears up; a widening crack ring marks the blast area
+			res["move"] = Vector2.ZERO
+			brain["tell"] = clampf(float(brain["t"]) / float(ts.get("quake_tell", 1.6)), 0.0, 1.0)
+			brain["tell_kind"] = "quake"
+			if float(brain["t"]) >= float(ts.get("quake_tell", 1.6)):
+				res["events"].append({"kind": "tell", "tell": "quake"})
+				res["events"].append({"kind": "attack", "attack": "quake", "pos": pos, "radius": float(ts.get("quake_radius", 420.0)),
+					"damage": float(ts.get("quake_damage", 18.0)), "cooling": 0.04, "push": 600.0})
 				_go(c, brain, "recover")
 		"spit_tell":
 			# TELL: the frost glands swell and glow

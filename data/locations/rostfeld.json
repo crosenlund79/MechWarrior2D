@@ -1812,55 +1812,55 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "rostfeld_0",
+			"pack": "rostfeld_skirr_0",
 			"spawn": [
-				5403,
+				5613,
 				3255
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "rostfeld_0",
+			"pack": "rostfeld_skirr_0",
 			"spawn": [
-				5473,
-				3315
+				5448,
+				3350
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "rostfeld_0",
+			"pack": "rostfeld_skirr_0",
 			"spawn": [
-				5543,
-				3255
+				5448,
+				3160
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "rostfeld_1",
+			"pack": "rostfeld_skirr_1",
 			"spawn": [
-				3594,
+				3804,
 				3229
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "rostfeld_1",
+			"pack": "rostfeld_skirr_1",
 			"spawn": [
-				3664,
-				3289
+				3639,
+				3324
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "rostfeld_1",
+			"pack": "rostfeld_skirr_1",
 			"spawn": [
-				3734,
-				3229
+				3639,
+				3134
 			]
 		},
 		{
@@ -1978,7 +1978,7 @@
 		}
 	],
 	"relief": {
-		"seed": 3598,
+		"seed": 1080,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2027,5 +2027,12 @@
 			"heading_deg": 270
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_0",
+	"mech_start": {
+		"pos": [
+			3575,
+			2782
+		],
+		"heading_deg": 90
+	}
 }

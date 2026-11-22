@@ -614,3 +614,54 @@ POI_LANDMARK_GLUTFELD,The Glutschlund vent,Glutschlund-sprækken
 POI_LANDMARK_HOCHSTRASSE,Last billboard before Stahlheim,Sidste reklameskilt før Stahlheim
 CARGO_KERN7,Kern-7,Kern-7
 CARGO_KERN7_DESC,An Eisenwolf transport case: KERN-7 — NUR FÜR STAHLHEIM.,En Eisenwolf-transportkasse: KERN-7 — NUR FÜR STAHLHEIM.
+SPECIES_ASCHENLAEUFER,Aschenläufer,Aschenläufer
+HINT_HUNT_ASCHENLAEUFER,"ASCHENLÄUFER! A fast pack — keep moving, they run down slow cars.","ASCHENLÄUFER! En hurtig flok — bliv i bevægelse, de indhenter langsomme biler."
+HINT_HUNT_ASCHENLAEUFER_FOOT,Aschenläufer — back to the car!,Aschenläufer — tilbage til bilen!
+HUNT_HINT_ASCHENLAEUFER,Ash-grey runners at speed,Askegrå løbere i fart
+NOTICE_ASCHENLAEUFER_DOWN,ASCHENLÄUFER IS DOWN — harvest it,ASCHENLÄUFER ER NEDLAGT — slagt den
+NOTICE_ASCHENLAEUFER_ALERT,Aschenläufer has noticed you,Aschenläufer har bemærket dig
+SPECIES_DORNMAUL,Dornmaul,Dornmaul
+HINT_HUNT_DORNMAUL,DORNMAUL! Armoured front — get out of the charge lane and hit the rear vent while it is dazed.,"DORNMAUL! Pansret front — kom ud af angrebsbanen og ram den bageste ventil, mens den er fortumlet."
+HINT_HUNT_DORNMAUL_FOOT,Dornmaul — back to the car!,Dornmaul — tilbage til bilen!
+HUNT_HINT_DORNMAUL,Breakable: thorn plate · weak: rear vent,Kan knækkes: tornplade · svag: bageste ventil
+NOTICE_DORNMAUL_DOWN,DORNMAUL IS DOWN — harvest it,DORNMAUL ER NEDLAGT — slagt den
+NOTICE_DORNMAUL_ALERT,Dornmaul has noticed you,Dornmaul har bemærket dig
+SPECIES_GLUTKRIECHER,Glutkriecher,Glutkriecher
+HINT_HUNT_GLUTKRIECHER,"GLUTKRIECHER! Its magma spit overheats the engine — keep your distance short or long, never in between.","GLUTKRIECHER! Dens magmaspyt overopheder motoren — hold afstanden kort eller lang, aldrig midt imellem."
+HINT_HUNT_GLUTKRIECHER_FOOT,Glutkriecher — back to the car!,Glutkriecher — tilbage til bilen!
+HUNT_HINT_GLUTKRIECHER,"Breakable: magma glands, head, tail","Kan knækkes: magmakirtler, hoved, hale"
+NOTICE_GLUTKRIECHER_DOWN,GLUTKRIECHER IS DOWN — harvest it,GLUTKRIECHER ER NEDLAGT — slagt den
+NOTICE_GLUTKRIECHER_ALERT,Glutkriecher has noticed you,Glutkriecher har bemærket dig
+SPECIES_EISBACK_ALT,Alter Eisback,Alter Eisback
+HINT_HUNT_EISBACK_ALT,"THE OLD EISBACK! Bigger, angrier, and it will not run. Break the horn first.","DEN GAMLE EISBACK! Større, vredere, og den flygter ikke. Knæk hornet først."
+HINT_HUNT_EISBACK_ALT_FOOT,Alter Eisback — back to the car!,Alter Eisback — tilbage til bilen!
+HUNT_HINT_EISBACK_ALT,"Apex · breakable: horn, glands, tail","Apex · kan knækkes: horn, kirtler, hale"
+NOTICE_EISBACK_ALT_DOWN,ALTER EISBACK IS DOWN — harvest it,ALTER EISBACK ER NEDLAGT — slagt den
+NOTICE_EISBACK_ALT_ALERT,Alter Eisback has noticed you,Alter Eisback har bemærket dig
+SPECIES_DORNKOENIG,Dornkönig,Dornkönig
+HINT_HUNT_DORNKOENIG,"THE DORNKÖNIG! Six charges, then it tires — be behind it when it does.","DORNKÖNIGEN! Seks angreb, så bliver den træt — vær bag den, når det sker."
+HINT_HUNT_DORNKOENIG_FOOT,Dornkönig — back to the car!,Dornkönig — tilbage til bilen!
+HUNT_HINT_DORNKOENIG,Apex · breakable: crown plate · weak: rear vent,Apex · kan knækkes: kroneplade · svag: bageste ventil
+NOTICE_DORNKOENIG_DOWN,DORNKÖNIG IS DOWN — harvest it,DORNKÖNIG ER NEDLAGT — slagt den
+NOTICE_DORNKOENIG_ALERT,Dornkönig has noticed you,Dornkönig har bemærket dig
+SPECIES_GLUTMUTTER,Glutmutter,Glutmutter
+HINT_HUNT_GLUTMUTTER,"THE GLUTMUTTER! The heat is the real enemy — open the grille, fight from range.","GLUTMUTTEREN! Varmen er den egentlige fjende — åbn gitteret, kæmp på afstand."
+HINT_HUNT_GLUTMUTTER_FOOT,Glutmutter — back to the car!,Glutmutter — tilbage til bilen!
+HUNT_HINT_GLUTMUTTER,"Apex · breakable: glands, head, tail","Apex · kan knækkes: kirtler, hoved, hale"
+NOTICE_GLUTMUTTER_DOWN,GLUTMUTTER IS DOWN — harvest it,GLUTMUTTER ER NEDLAGT — slagt den
+NOTICE_GLUTMUTTER_ALERT,Glutmutter has noticed you,Glutmutter har bemærket dig
+SPECIES_KALTVATER,Kaltvater,Kaltvater
+HINT_HUNT_KALTVATER,KALTVATER! Watch the ground ring — get out before it lands. It calls its runners when wounded.,"KALTVATER! Hold øje med ringen på jorden — kom væk, før den rammer. Den kalder sine løbere, når den er såret."
+HINT_HUNT_KALTVATER_FOOT,Kaltvater — back to the car!,Kaltvater — tilbage til bilen!
+HUNT_HINT_KALTVATER,"Apex · breakable: horn, glands, tail","Apex · kan knækkes: horn, kirtler, hale"
+NOTICE_KALTVATER_DOWN,KALTVATER IS DOWN — harvest it,KALTVATER ER NEDLAGT — slagt den
+NOTICE_KALTVATER_ALERT,Kaltvater has noticed you,Kaltvater har bemærket dig
+ITEM_ASCHE_HIDE,Aschenläufer hide,Aschenläufer-skind
+ITEM_DORN_SPIKE,Dorn spike,Tornpig
+ITEM_GLUT_SCALE,Glut scale,Glutskæl
+ITEM_GLUT_GLAND,magma gland,magmakirtel
+ITEM_EISBACK_HORN,Old Eisback horn,Gammel Eisback-horn
+ITEM_DORNKRONE,Dornkrone (thorn crown),Dornkrone (tornkrone)
+ITEM_GLUTKERN,Glutkern (heart of the fire),Glutkern (ildens hjerte)
+ITEM_KALTVATER_HERZ,Kaltvater's heart,Kaltvaters hjerte
+NOTICE_SUMMON,It calls its pack — runners incoming!,Den kalder sin flok — løbere på vej!

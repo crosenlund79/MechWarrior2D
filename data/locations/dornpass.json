@@ -874,26 +874,26 @@
 			"id": "rival_0",
 			"type": "scrapper",
 			"spawn": [
-				3894,
-				1175
+				5902,
+				4020
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					3894,
-					1175
+					5902,
+					4020
 				],
 				[
-					4294,
-					1175
+					6302,
+					4020
 				],
 				[
-					4294,
-					1575
+					6302,
+					4420
 				],
 				[
-					3894,
-					1575
+					5902,
+					4420
 				]
 			]
 		}
@@ -2745,161 +2745,107 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "dornpass_0",
+			"pack": "dornpass_skirr_0",
 			"spawn": [
-				4421,
+				4631,
 				4023
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "dornpass_0",
+			"pack": "dornpass_skirr_0",
 			"spawn": [
-				4491,
-				4083
+				4521,
+				4133
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "dornpass_0",
+			"pack": "dornpass_skirr_0",
 			"spawn": [
-				4561,
+				4411,
 				4023
 			]
 		},
 		{
 			"id": "skirr_0_3",
 			"species": "skirr",
-			"pack": "dornpass_0",
+			"pack": "dornpass_skirr_0",
 			"spawn": [
-				4631,
-				4083
+				4521,
+				3913
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "dornpass_1",
+			"pack": "dornpass_skirr_1",
 			"spawn": [
-				2860,
+				3070,
 				1255
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "dornpass_1",
+			"pack": "dornpass_skirr_1",
 			"spawn": [
-				2930,
-				1315
+				2960,
+				1365
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "dornpass_1",
+			"pack": "dornpass_skirr_1",
 			"spawn": [
-				3000,
+				2850,
 				1255
 			]
 		},
 		{
 			"id": "skirr_1_3",
 			"species": "skirr",
-			"pack": "dornpass_1",
+			"pack": "dornpass_skirr_1",
 			"spawn": [
-				3070,
-				1315
+				2960,
+				1145
 			]
 		},
 		{
-			"id": "skirr_2_0",
-			"species": "skirr",
-			"pack": "dornpass_2",
+			"id": "dornmaul_0",
+			"species": "dornmaul",
 			"spawn": [
-				4593,
+				4693,
 				3604
 			]
 		},
 		{
-			"id": "skirr_2_1",
-			"species": "skirr",
-			"pack": "dornpass_2",
-			"spawn": [
-				4663,
-				3664
-			]
-		},
-		{
-			"id": "skirr_2_2",
-			"species": "skirr",
-			"pack": "dornpass_2",
-			"spawn": [
-				4733,
-				3604
-			]
-		},
-		{
-			"id": "skirr_2_3",
-			"species": "skirr",
-			"pack": "dornpass_2",
-			"spawn": [
-				4803,
-				3664
-			]
-		},
-		{
-			"id": "grindback_0",
-			"species": "grindback",
+			"id": "dornmaul_1",
+			"species": "dornmaul",
 			"spawn": [
 				1373,
 				2064
 			]
 		},
 		{
-			"id": "eisback_0",
-			"species": "rimeback",
+			"id": "dornmaul_2",
+			"species": "dornmaul",
+			"spawn": [
+				1623,
+				3119
+			]
+		},
+		{
+			"id": "dornkoenig",
+			"species": "dornkoenig",
 			"spawn": [
 				1356,
 				3124
 			],
-			"route": [
-				[
-					1356,
-					3124
-				],
-				[
-					1623,
-					3119
-				],
-				[
-					4301,
-					1211
-				],
-				[
-					5020,
-					3665
-				],
-				[
-					5902,
-					4020
-				],
-				[
-					4869,
-					3710
-				],
-				[
-					2527,
-					3901
-				]
-			],
-			"lair": [
-				1726,
-				2356
-			],
-			"heading_deg": 90
+			"apex": true
 		}
 	],
 	"pois": [
@@ -2907,8 +2853,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				6032,
-				4033
+				2527,
+				3901
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2922,8 +2868,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				1987,
-				3281
+				4869,
+				3710
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2936,8 +2882,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				514,
-				1348
+				4301,
+				1211
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -2951,8 +2897,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				5961,
-				3927
+				1469,
+				2334
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -2965,8 +2911,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				1769,
-				2191
+				5020,
+				3665
 			],
 			"name": "POI_LANDMARK_DORNPASS",
 			"asset": "shelter.roof",
@@ -2974,7 +2920,7 @@
 		}
 	],
 	"relief": {
-		"seed": 2775,
+		"seed": 1163,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -3023,5 +2969,12 @@
 			"heading_deg": 180
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "dornkoenig",
+	"mech_start": {
+		"pos": [
+			3545,
+			2666
+		],
+		"heading_deg": 90
+	}
 }

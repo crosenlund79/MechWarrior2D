@@ -2278,6 +2278,286 @@
 			],
 			"note": "geothermal vent: cracked, glowing ground",
 			"height": 0
+		},
+		"creature.aschenlaeufer": {
+			"path": "creatures/aschenlaeufer/body",
+			"display": [
+				62,
+				92
+			],
+			"source": [
+				124,
+				184
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "small pack hunter (head up)"
+		},
+		"creature.aschenlaeufer_dead": {
+			"path": "creatures/aschenlaeufer/dead",
+			"display": [
+				70,
+				96
+			],
+			"source": [
+				140,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"creature.dornmaul": {
+			"path": "creatures/dornmaul/body",
+			"display": [
+				156,
+				196
+			],
+			"source": [
+				312,
+				392
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "armoured burrower: front shovel plate (top), rear vent (bottom)"
+		},
+		"creature.dornmaul_dead": {
+			"path": "creatures/dornmaul/dead",
+			"display": [
+				170,
+				200
+			],
+			"source": [
+				340,
+				400
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true
+		},
+		"creature.glutkriecher": {
+			"path": "creatures/glutkriecher/body",
+			"display": [
+				300,
+				400
+			],
+			"source": [
+				600,
+				800
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "large quarry body (head and tail are separate parts)"
+		},
+		"creature.glutkriecher_head": {
+			"path": "creatures/glutkriecher/head",
+			"display": [
+				170,
+				170
+			],
+			"source": [
+				340,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.75
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "horned head; pivot = neck"
+		},
+		"creature.glutkriecher_tail": {
+			"path": "creatures/glutkriecher/tail",
+			"display": [
+				110,
+				270
+			],
+			"source": [
+				220,
+				540
+			],
+			"pivot": [
+				0.5,
+				0.08
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "heavy tail; pivot = root"
+		},
+		"creature.glutkriecher_gland": {
+			"path": "creatures/glutkriecher/gland",
+			"display": [
+				66,
+				66
+			],
+			"source": [
+				132,
+				132
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "frost gland (breakable part, glows before the spit)"
+		},
+		"creature.glutkriecher_dead": {
+			"path": "creatures/glutkriecher/dead",
+			"display": [
+				360,
+				620
+			],
+			"source": [
+				720,
+				1240
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "carcass to harvest"
+		},
+		"item.asche_hide": {
+			"path": "items/asche_hide",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.dorn_spike": {
+			"path": "items/dorn_spike",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.glut_scale": {
+			"path": "items/glut_scale",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.glut_gland": {
+			"path": "items/glut_gland",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.eisback_horn": {
+			"path": "items/eisback_horn",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.dornkrone": {
+			"path": "items/dornkrone",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.glutkern": {
+			"path": "items/glutkern",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
+		},
+		"item.kaltvater_herz": {
+			"path": "items/kaltvater_herz",
+			"display": [
+				44,
+				44
+			],
+			"source": [
+				88,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			]
 		}
 	},
 	"tiles": {

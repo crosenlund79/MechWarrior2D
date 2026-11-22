@@ -1798,125 +1798,117 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "weissgrat_0",
+			"pack": "weissgrat_skirr_0",
 			"spawn": [
-				1463,
+				1673,
 				3501
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "weissgrat_0",
+			"pack": "weissgrat_skirr_0",
 			"spawn": [
-				1533,
-				3561
+				1563,
+				3611
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "weissgrat_0",
+			"pack": "weissgrat_skirr_0",
 			"spawn": [
-				1603,
+				1453,
 				3501
 			]
 		},
 		{
 			"id": "skirr_0_3",
 			"species": "skirr",
-			"pack": "weissgrat_0",
+			"pack": "weissgrat_skirr_0",
 			"spawn": [
-				1673,
-				3561
+				1563,
+				3391
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "weissgrat_1",
+			"pack": "weissgrat_skirr_1",
 			"spawn": [
-				932,
+				1142,
 				3074
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "weissgrat_1",
+			"pack": "weissgrat_skirr_1",
 			"spawn": [
-				1002,
-				3134
+				1032,
+				3184
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "weissgrat_1",
+			"pack": "weissgrat_skirr_1",
 			"spawn": [
-				1072,
+				922,
 				3074
 			]
 		},
 		{
 			"id": "skirr_1_3",
 			"species": "skirr",
-			"pack": "weissgrat_1",
+			"pack": "weissgrat_skirr_1",
 			"spawn": [
-				1142,
-				3134
+				1032,
+				2964
 			]
 		},
 		{
 			"id": "skirr_2_0",
 			"species": "skirr",
-			"pack": "weissgrat_2",
+			"pack": "weissgrat_skirr_2",
 			"spawn": [
-				3986,
+				4196,
 				937
 			]
 		},
 		{
 			"id": "skirr_2_1",
 			"species": "skirr",
-			"pack": "weissgrat_2",
+			"pack": "weissgrat_skirr_2",
 			"spawn": [
-				4056,
-				997
+				4086,
+				1047
 			]
 		},
 		{
 			"id": "skirr_2_2",
 			"species": "skirr",
-			"pack": "weissgrat_2",
+			"pack": "weissgrat_skirr_2",
 			"spawn": [
-				4126,
+				3976,
 				937
 			]
 		},
 		{
 			"id": "skirr_2_3",
 			"species": "skirr",
-			"pack": "weissgrat_2",
+			"pack": "weissgrat_skirr_2",
 			"spawn": [
-				4196,
-				997
+				4086,
+				827
 			]
 		},
 		{
-			"id": "grindback_0",
-			"species": "grindback",
+			"id": "dornmaul_0",
+			"species": "dornmaul",
 			"spawn": [
 				3943,
 				2190
-			]
-		},
-		{
-			"id": "grindback_1",
-			"species": "grindback",
-			"spawn": [
-				3941,
-				2542
 			]
 		},
 		{
@@ -2078,7 +2070,7 @@
 		}
 	],
 	"relief": {
-		"seed": 7064,
+		"seed": 1983,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2113,5 +2105,12 @@
 			"heading_deg": 180
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_0",
+	"mech_start": {
+		"pos": [
+			3237,
+			2769
+		],
+		"heading_deg": 90
+	}
 }

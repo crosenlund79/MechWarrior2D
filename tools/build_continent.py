@@ -361,6 +361,31 @@ def city(node, sides):
 
 
 # ----------------------------------------------------------------------------- territories
+# creatures per territory: (species, placement, count). pack = group of 3–5 at one spot,
+# single = spread out, route = a grazing loop (rimeback brain). Apexes are named singles.
+FAUNA = {'wrackkueste': [('skirr', 'pack', 3),
+    ('eisback_alt', 'route', 1)], 'rostfeld': [('skirr', 'pack', 2),
+    ('grindback', 'single', 2),
+    ('rimeback', 'route', 1)], 'schrottgrund': [('skirr', 'pack', 2),
+    ('grindback', 'single', 3),
+    ('dornmaul', 'single', 1)], 'dornpass': [('skirr', 'pack', 2),
+    ('dornmaul', 'single', 3),
+    ('dornkoenig', 'single', 1)], 'weissgrat': [('skirr', 'pack', 3),
+    ('dornmaul', 'single', 1),
+    ('rimeback', 'route', 2)], 'salzpfanne': [('skirr', 'pack', 2),
+    ('grindback', 'single', 3),
+    ('glutkriecher', 'single', 1)], 'glaswueste': [('aschenlaeufer', 'pack', 1),
+    ('grindback', 'single', 2),
+    ('glutkriecher', 'single', 2),
+    ('rimeback', 'route', 1)], 'glutfeld': [('skirr', 'pack', 1),
+    ('glutkriecher', 'single', 3),
+    ('glutmutter', 'single', 1)], 'frostgrund': [('aschenlaeufer', 'pack', 2),
+    ('dornmaul', 'single', 2),
+    ('rimeback', 'route', 2)], 'hochstrasse': [('aschenlaeufer', 'pack', 3),
+    ('dornmaul', 'single', 2),
+    ('rimeback', 'route', 1)]}
+APEX = {"eisback_alt", "dornkoenig", "glutmutter", "kaltvater"}
+
 THEMES = {
     # Region I — Ersthafen coast
     "wrackkueste": {"patch": ("ground.dunes", "dunes"), "patches": 4, "ridges": 6, "packs": 3, "grind": 1, "eis": 1, "rivals": 0, "zone": None,
@@ -490,30 +515,45 @@ def territory(node, sides=None):
         return None
     # creatures (scale with tier through the location tier, see Session)
     cr = L["creatures"]
-    for k in range(th["packs"]):
-        c = free_spot()
-        if c:
-            for i in range(3 + (1 if tier >= 3 else 0)):
-                cr.append({"id": f"skirr_{k}_{i}", "species": "skirr", "pack": f"{node}_{k}", "spawn": [c[0] + i * 70 - 100, c[1] + (i % 2) * 60]})
-    for k in range(th["grind"]):
-        c = free_spot()
-        if c:
-            cr.append({"id": f"grindback_{k}", "species": "grindback", "spawn": c})
     quarry = None
-    for k in range(th["eis"]):
-        route = []
-        for _ in range(7):
-            p = free_spot(330, 200)
-            if p:
-                route.append(p)
-        if len(route) >= 4:
-            # order the route around its centroid so the animal walks a loop
-            mx = sum(p[0] for p in route) / len(route); my = sum(p[1] for p in route) / len(route)
-            route.sort(key=lambda p: math.atan2(p[1] - my, p[0] - mx))
-            lair = free_spot(320, 400) or route[0]
-            cid = f"eisback_{k}"
-            cr.append({"id": cid, "species": "rimeback", "spawn": route[0], "route": route, "lair": lair, "heading_deg": 90})
-            quarry = quarry or cid
+    for species, kind, count in FAUNA[node]:
+        for k in range(count):
+            if kind == "pack":
+                c = free_spot()
+                if c:
+                    n = (5 if species == "aschenlaeufer" else 3) + (1 if tier >= 3 else 0)
+                    for i in range(n):
+                        ang = i / n * math.tau
+                        cr.append({"id": f"{species}_{k}_{i}", "species": species, "pack": f"{node}_{species}_{k}",
+                                   "spawn": [round(c[0] + math.cos(ang) * 110), round(c[1] + math.sin(ang) * 110)]})
+            elif kind == "single":
+                c = free_spot(360 if species in APEX else 300)
+                if c:
+                    d = {"id": f"{species}_{k}", "species": species, "spawn": c}
+                    if species in APEX:
+                        d["apex"] = True
+                        d["id"] = species
+                        quarry = species
+                    cr.append(d)
+            else:
+                route = []
+                for _ in range(7):
+                    p = free_spot(330, 200)
+                    if p:
+                        route.append(p)
+                if len(route) >= 4:
+                    # order the route around its centroid so the animal walks a loop
+                    mx = sum(p[0] for p in route) / len(route); my = sum(p[1] for p in route) / len(route)
+                    route.sort(key=lambda p: math.atan2(p[1] - my, p[0] - mx))
+                    lair = free_spot(320, 400) or route[0]
+                    cid = species if species in APEX else f"eisback_{k}"
+                    d = {"id": cid, "species": species, "spawn": route[0], "route": route, "lair": lair, "heading_deg": 90}
+                    if species in APEX:
+                        d["apex"] = True
+                    cr.append(d)
+                    quarry = quarry if (quarry in APEX) else (quarry or cid)
+                    if species in APEX:
+                        quarry = cid
     L["quarry"] = quarry
     # rival cars (Rostfeld scavengers, Frostgrund raiders)
     for k in range(th["rivals"]):
@@ -535,6 +575,7 @@ def territory(node, sides=None):
         L["pois"].append({"id": "landmark_0", "kind": "landmark", "pos": lm, "name": f"POI_LANDMARK_{node.upper()}",
                           "asset": th.get("landmark", "prop.pylon"), "loot": {}})
     L["teleports"]["hub"] = {"pos": hub, "heading_deg": 90}
+    L["mech_start"] = {"pos": hub, "heading_deg": 90}   # dev travel / recovery lands at the crossroads
     for g in gates:
         L["teleports"][g["id"]] = {"pos": g["entry"], "heading_deg": g["heading_deg"]}
     L["_roads"] = roads

@@ -80,7 +80,7 @@ func _sync_tracks() -> void:
 			n.position = Content.v2(t["p"])
 			n.rotation = float(t["h"])
 			var s := Sprite2D.new()
-			Assets.apply_to_sprite(s, TRACK_ASSET.get(str(t["s"]), "decal.track_skirr"))
+			Assets.apply_to_sprite(s, TRACK_ASSET.get(str(t.get("k", t["s"])), "decal.track_skirr"))
 			n.add_child(s)
 			if bool(t.get("b", false)):
 				var b := Sprite2D.new()

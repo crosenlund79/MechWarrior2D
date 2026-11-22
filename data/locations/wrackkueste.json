@@ -1672,95 +1672,87 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "wrackkueste_0",
+			"pack": "wrackkueste_skirr_0",
 			"spawn": [
-				2921,
+				3131,
 				3436
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "wrackkueste_0",
+			"pack": "wrackkueste_skirr_0",
 			"spawn": [
-				2991,
-				3496
+				2966,
+				3531
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "wrackkueste_0",
+			"pack": "wrackkueste_skirr_0",
 			"spawn": [
-				3061,
-				3436
+				2966,
+				3341
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "wrackkueste_1",
+			"pack": "wrackkueste_skirr_1",
 			"spawn": [
-				1053,
+				1263,
 				2692
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "wrackkueste_1",
+			"pack": "wrackkueste_skirr_1",
 			"spawn": [
-				1123,
-				2752
+				1098,
+				2787
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "wrackkueste_1",
+			"pack": "wrackkueste_skirr_1",
 			"spawn": [
-				1193,
-				2692
+				1098,
+				2597
 			]
 		},
 		{
 			"id": "skirr_2_0",
 			"species": "skirr",
-			"pack": "wrackkueste_2",
+			"pack": "wrackkueste_skirr_2",
 			"spawn": [
-				2192,
+				2402,
 				1706
 			]
 		},
 		{
 			"id": "skirr_2_1",
 			"species": "skirr",
-			"pack": "wrackkueste_2",
+			"pack": "wrackkueste_skirr_2",
 			"spawn": [
-				2262,
-				1766
+				2237,
+				1801
 			]
 		},
 		{
 			"id": "skirr_2_2",
 			"species": "skirr",
-			"pack": "wrackkueste_2",
+			"pack": "wrackkueste_skirr_2",
 			"spawn": [
-				2332,
-				1706
+				2237,
+				1611
 			]
 		},
 		{
-			"id": "grindback_0",
-			"species": "grindback",
-			"spawn": [
-				2290,
-				960
-			]
-		},
-		{
-			"id": "eisback_0",
-			"species": "rimeback",
+			"id": "eisback_alt",
+			"species": "eisback_alt",
 			"spawn": [
 				1564,
 				746
@@ -1771,8 +1763,8 @@
 					746
 				],
 				[
-					2175,
-					778
+					2290,
+					960
 				],
 				[
 					1957,
@@ -1796,10 +1788,11 @@
 				]
 			],
 			"lair": [
-				2285,
-				1605
+				4666,
+				4162
 			],
-			"heading_deg": 90
+			"heading_deg": 90,
+			"apex": true
 		}
 	],
 	"pois": [
@@ -1807,8 +1800,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				4873,
-				1038
+				2175,
+				778
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1821,8 +1814,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				2556,
-				1392
+				2285,
+				1605
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1833,8 +1826,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				2084,
-				1012
+				4873,
+				1038
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1848,8 +1841,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				4886,
-				2168
+				2556,
+				1392
 			],
 			"name": "POI_LANDMARK_WRACKKUESTE",
 			"asset": "coast.hull",
@@ -1857,7 +1850,7 @@
 		}
 	],
 	"relief": {
-		"seed": 3077,
+		"seed": 3380,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -1906,5 +1899,12 @@
 			"heading_deg": 270
 		}
 	],
-	"quarry": "eisback_0"
+	"quarry": "eisback_alt",
+	"mech_start": {
+		"pos": [
+			3080,
+			2543
+		],
+		"heading_deg": 90
+	}
 }

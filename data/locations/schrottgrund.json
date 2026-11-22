@@ -1277,33 +1277,6 @@
 			"id": "rival_0",
 			"type": "scrapper",
 			"spawn": [
-				686,
-				3501
-			],
-			"heading_deg": 90,
-			"patrol": [
-				[
-					686,
-					3501
-				],
-				[
-					1086,
-					3501
-				],
-				[
-					1086,
-					3901
-				],
-				[
-					686,
-					3901
-				]
-			]
-		},
-		{
-			"id": "rival_1",
-			"type": "junker",
-			"spawn": [
 				3426,
 				2112
 			],
@@ -1328,8 +1301,8 @@
 			]
 		},
 		{
-			"id": "rival_2",
-			"type": "scrapper",
+			"id": "rival_1",
+			"type": "junker",
 			"spawn": [
 				1836,
 				2515
@@ -1351,6 +1324,33 @@
 				[
 					1836,
 					2915
+				]
+			]
+		},
+		{
+			"id": "rival_3",
+			"type": "junker",
+			"spawn": [
+				2644,
+				3139
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					2644,
+					3139
+				],
+				[
+					3044,
+					3139
+				],
+				[
+					3044,
+					3539
+				],
+				[
+					2644,
+					3539
 				]
 			]
 		}
@@ -1860,55 +1860,55 @@
 		{
 			"id": "skirr_0_0",
 			"species": "skirr",
-			"pack": "schrottgrund_0",
+			"pack": "schrottgrund_skirr_0",
 			"spawn": [
-				4324,
+				4534,
 				2996
 			]
 		},
 		{
 			"id": "skirr_0_1",
 			"species": "skirr",
-			"pack": "schrottgrund_0",
+			"pack": "schrottgrund_skirr_0",
 			"spawn": [
-				4394,
-				3056
+				4369,
+				3091
 			]
 		},
 		{
 			"id": "skirr_0_2",
 			"species": "skirr",
-			"pack": "schrottgrund_0",
+			"pack": "schrottgrund_skirr_0",
 			"spawn": [
-				4464,
-				2996
+				4369,
+				2901
 			]
 		},
 		{
 			"id": "skirr_1_0",
 			"species": "skirr",
-			"pack": "schrottgrund_1",
+			"pack": "schrottgrund_skirr_1",
 			"spawn": [
-				1528,
+				1738,
 				3373
 			]
 		},
 		{
 			"id": "skirr_1_1",
 			"species": "skirr",
-			"pack": "schrottgrund_1",
+			"pack": "schrottgrund_skirr_1",
 			"spawn": [
-				1598,
-				3433
+				1573,
+				3468
 			]
 		},
 		{
 			"id": "skirr_1_2",
 			"species": "skirr",
-			"pack": "schrottgrund_1",
+			"pack": "schrottgrund_skirr_1",
 			"spawn": [
-				1668,
-				3373
+				1573,
+				3278
 			]
 		},
 		{
@@ -1934,6 +1934,14 @@
 				4600,
 				1865
 			]
+		},
+		{
+			"id": "dornmaul_0",
+			"species": "dornmaul",
+			"spawn": [
+				686,
+				3501
+			]
 		}
 	],
 	"pois": [
@@ -1941,8 +1949,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				2644,
-				3139
+				995,
+				4122
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1953,8 +1961,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				995,
-				4122
+				855,
+				3575
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1968,8 +1976,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				855,
-				3575
+				629,
+				1488
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1982,8 +1990,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				629,
-				1488
+				4212,
+				3051
 			],
 			"name": "POI_LANDMARK_SCHROTTGRUND",
 			"asset": "junker.workshop",
@@ -1991,7 +1999,7 @@
 		}
 	],
 	"relief": {
-		"seed": 8931,
+		"seed": 2769,
 		"amp": 1.0,
 		"scale": 900.0
 	},
@@ -2026,5 +2034,12 @@
 			"heading_deg": 270
 		}
 	],
-	"quarry": null
+	"quarry": null,
+	"mech_start": {
+		"pos": [
+			3509,
+			2161
+		],
+		"heading_deg": 90
+	}
 }

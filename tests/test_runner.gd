@@ -1916,3 +1916,87 @@ func test_cg_continent_regions_and_locations() -> void:
 	var stahl := Content.location("stahlheim")
 	check(stahl["props"].size() > 60 and stahl["bounds"][2] > 5000, "Stahlheim is a big, dense city (%d props)" % stahl["props"].size())
 	check(not Content.location("messstation")["garage"]["services"].has("upgrade"), "the Messstation is an outpost without upgrades")
+
+
+# ---------------------------------------------------------------- complete game: stage E (creatures)
+
+func test_cg_every_placed_species_is_defined_with_art() -> void:
+	var tc: Dictionary = Content.tuning["creatures"]
+	for id in Journey.nodes():
+		var loc := Content.location(str(Journey.node(str(id))["location"]))
+		for d in loc.get("creatures", []):
+			var sp := str(d["species"])
+			check(tc.has(sp) and str(tc[sp].get("brain", sp)) in Creatures.BRAINS, "%s: %s has tuning and a brain" % [id, sp])
+			var art := str(tc[sp].get("art", sp))
+			check(not AssetCatalog.entry("creature." + art).is_empty() and ResourceLoader.exists(AssetCatalog.template_paths("creature." + art)[0]), "%s has art (%s)" % [sp, art])
+	for sp in ["aschenlaeufer", "dornmaul", "glutkriecher", "eisback_alt", "dornkoenig", "glutmutter", "kaltvater"]:
+		check(tc.has(sp), "%s exists" % sp)
+		for item in tc[sp].get("loot", {}):
+			check(Content.is_item(str(item)), "%s drops a real item (%s)" % [sp, item])
+
+
+func test_cg_dornmaul_hunts_on_the_surface() -> void:
+	var tc: Dictionary = Creatures.scaled(Content.tuning["creatures"], 3, Content.tuning["economy"])
+	var c := Creatures.create({"id": "d", "species": "dornmaul", "spawn": [0, 0]}, tc)
+	check(str(c["ai"]) == "roam" and Creatures.targetable(c), "a Dornmaul is never buried")
+	var brain := {"t": 0.0, "cd": 0.0}
+	var rng := RandomNumberGenerator.new()
+	var target := {"valid": true, "pos": Vector2(250, 0), "vel": Vector2.ZERO, "noise": 0.6, "heat": 70.0, "vis": 1.0}
+	var states := {}
+	for i in 400:
+		var res := Creatures.step(c, brain, target, tc, 0.05, rng)
+		c["pos"] = [float(c["pos"][0]) + res["move"].x * 0.05, float(c["pos"][1]) + res["move"].y * 0.05]
+		states[str(c["ai"])] = true
+	check(states.has("paw") and states.has("charge") and states.has("dazed"), "it paws (tell), charges and is dazed (%s)" % [states.keys()])
+	check(states.has("rest") and not states.has("buried") and not states.has("tunnel"), "after its charges it backs off instead of burrowing")
+
+
+func test_cg_kaltvater_quake_and_summon() -> void:
+	var s := _fresh_session()
+	var tc := Session.creature_tuning()
+	var c := Creatures.create({"id": "kaltvater", "species": "kaltvater", "spawn": [400, 400]}, tc)
+	s["creatures"]["kaltvater"] = c
+	var brain := {"t": 0.0, "cd": 5.0}
+	Session.creature_brains["kaltvater"] = brain
+	c["ai"] = "quake_tell"
+	var target := {"valid": true, "pos": Vector2(600, 400), "vel": Vector2.ZERO, "noise": 0.5, "heat": 70.0, "vis": 1.0}
+	var got := {}
+	for i in 60:
+		var res := Creatures.step(c, brain, target, tc, 0.05, RandomNumberGenerator.new())
+		for ev in res["events"]:
+			if str(ev["kind"]) == "attack":
+				got = ev
+	check(str(got.get("attack", "")) == "quake" and float(got.get("radius", 0.0)) >= 400.0, "the telegraphed quake lands over a wide ring")
+	c["ai"] = "hunt"
+	c["hp"] = float(tc["kaltvater"]["hp"]) * 0.5
+	var n0: int = s["creatures"].size()
+	var res2 := Creatures.step(c, brain, target, tc, 0.05, RandomNumberGenerator.new())
+	for ev in res2["events"]:
+		Session._creature_event("kaltvater", c, brain, ev)
+	check(s["creatures"].size() >= n0 + 3, "wounded, it calls its Aschenläufer (%d → %d)" % [n0, s["creatures"].size()])
+	Session.running = false
+
+
+func test_cg_glut_spit_heats_the_engine() -> void:
+	var s := _fresh_session()
+	var heat0 := float(s["mech"]["heat"])
+	var g: Dictionary = Session.creature_tuning()["glutkriecher"]["glob"]
+	var mp := Session.mech_pos()
+	var shot := Combat.make_shot("creature:x", mp + Vector2(0, -60), Vector2(0, 1), g, RandomNumberGenerator.new())
+	shot["heat"] = float(g["heat"])
+	Session.projectiles = [shot]
+	for i in 5:
+		Session._tick_projectiles(0.05)
+	check(float(s["mech"]["heat"]) > heat0 + 3.0, "magma spit runs the engine hot (%d → %d °C)" % [int(heat0), int(float(s["mech"]["heat"]))])
+	Session.running = false
+
+
+func test_cg_apex_does_not_respawn() -> void:
+	var s := _fresh_session()
+	var c := Creatures.create({"id": "dornkoenig", "species": "dornkoenig", "spawn": [0, 0]}, Session.creature_tuning())
+	c["ai"] = "dead"
+	c["dead_at"] = 0.0
+	s["creatures"]["dornkoenig"] = c
+	Session._maybe_respawn("dornkoenig", c, 1.0e7)
+	check(str(s["creatures"]["dornkoenig"]["ai"]) == "dead", "a slain apex stays dead")
+	Session.running = false

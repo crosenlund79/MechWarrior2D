@@ -79,6 +79,9 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `tools/check_script_guides.py` | Checks/rewrites EN + DA script guides. |
 | `src/sim/creatures.gd` | The thawed-out ecosystem: skirr pack, grindback burrower and rimeback quarry — senses, telegraphed attacks, breakable parts, flee/burrow (pure data). |
 | `src/sim/garage.gd` | Settlement workshop upgrade lines (chassis, engine, turbo, armour, tyres, cooling, weapons, cargo): prices, rank unlocks, effects on car/heat/gun tuning, legacy upgrade migration. |
+| `src/sim/arsenal.gd` | Roof-mount weapon families (data/weapons.json): ownership, ammunition capacity and restock cost, tuning with fitted lines. |
+| `src/sim/vehicles.gd` | Chassis catalogue (data/vehicles.json): Marder, Falke, Bär — handling/armour/cargo/fuel character applied on top of the upgrades. |
+| `src/sim/contracts.gd` | Jäger contracts: settlement job boards (authored + generated from real territory content), progress from game events, turn-in. |
 | `src/sim/journey.gd` | Continental route network (data/journey.json): nodes, edges, fuel costs, arrival bookkeeping, shortest route and nearest safe zone. |
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal hazard tape in the top-right corner: DANGER / SAFE-ZONE / CLEARED. |
 | `src/presentation/ui/minimap.gd` | Minimap: roads, rock, settlement, gates, blinking anomalies, discovered sites, player arrow. |
