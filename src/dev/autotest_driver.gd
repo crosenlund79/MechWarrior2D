@@ -282,6 +282,38 @@ func _run(line: String) -> void:
 					ok = Session.dev_complete_node(a[1])
 				"clear":
 					Session.dev_clear_creatures()
+		"weapon":  # weapon <id>: mount an owned family
+			ok = Session.select_weapon(a[0])
+			Session._swap_t = 0.0
+			Session._fire_cd = 0.0
+		"buy_weapon":
+			ok = Session.buy_weapon(a[0])
+			if not ok:
+				err = Session.weapon_check(a[0])
+		"buy_chassis":
+			ok = Session.buy_chassis(a[0])
+			if not ok:
+				err = Session.chassis_check(a[0])
+		"restock":
+			ok = Session.restock_ammo() > 0
+		"contract":  # contract accept <id|kind[:species]> | contract turn_in
+			if a[0] == "accept":
+				var want := a[1]
+				var found := ""
+				for c in Session.contract_board():
+					var key := str(c["kind"]) + (":" + str(c.get("species", "")) if str(c.get("species", "")) != "" else "")
+					if str(c["id"]) == want or key == want or str(c["kind"]) == want:
+						found = str(c["id"])
+						break
+				err = Session.accept_contract(found) if found != "" else "no such offer"
+				ok = err == ""
+			else:
+				ok = Session.turn_in_contracts() > 0
+		"recovery":
+			ok = Session.call_recovery()
+			await _wait(0.5)
+		"difficulty":
+			Session.state["difficulty"] = a[0]
 		"set_fuel":
 			Session.mech()["fuel"] = float(a[0])
 		"map":  # map on|off|select <node>|course
@@ -528,6 +560,12 @@ func _state() -> Dictionary:
 		st["limp"] = Session.limp_mode()
 		st["rank"] = Session.state.get("rank", {}).duplicate()
 		st["journey"] = Session.journey().duplicate(true)
+		st["weapon"] = Session.weapon_id() if Session.running else ""
+		st["ammo"] = Session.mech().get("ammo", {}).duplicate() if Session.running else {}
+		st["chassis"] = Session.chassis_id() if Session.running else ""
+		st["contracts"] = Session.contracts().duplicate(true) if Session.running else {}
+		st["board"] = Session.contract_board() if Session.running else []
+		st["difficulty"] = Session.difficulty_id() if Session.running else ""
 		st["services"] = Session.garage_services() if Session.loc.has("garage") else []
 		st["objective"] = Session.nearest_objective()
 		var ps: Array = []

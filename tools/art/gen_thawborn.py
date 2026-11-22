@@ -26,6 +26,8 @@ def S(path, w, h, pivot=(0.5, 0.5), note="", rot=True):
 
 ENTRIES = {
     "car.body": S("vehicles/player/body", 132, 240, note="the player's car (nose up). Wheels are separate (car.wheel) so the front pair can steer; the roof gun ring sits at the centre"),
+    "car.body_falke": S("vehicles/player/body_falke", 132, 240, note="Krähe Falke chassis (light scout), same layout as car.body"),
+    "car.body_baer": S("vehicles/player/body_baer", 132, 240, note="Eisenwolf Bär chassis (heavy hunter), same layout as car.body"),
     "car.wheel": S("vehicles/player/wheel", 28, 48, note="one tyre seen from above; the game places four and steers the front pair"),
     "car.gun_ring": S("vehicles/player/gun_ring", 76, 76, note="rotating roof mount; turns toward the mouse"),
     "car.twin_gun": S("vehicles/player/twin_gun", 24, 70, pivot=(0.5, 0.7), note="one of the two roof guns (left; the right is mirrored). Pivot = bracket"),
@@ -98,8 +100,8 @@ TAR = (44, 38, 33)
 
 
 # ======================================================================= PLAYER CAR
-def gen_car_body():
-    c = canvas_for("car.body", 901)
+def _car_body(eid, seed, pal, maker="EISENWOLF", extra=None):
+    c = canvas_for(eid, seed)
     W, H = 264, 480
     cx = W / 2
     # chassis tub
@@ -109,9 +111,9 @@ def gen_car_body():
     c.ink_poly(hull, 3.0)
     # bonnet (front, faded industrial yellow) with the engine bulge
     bonnet = [(cx - 86, 40), (cx + 86, 40), (cx + 98, 150), (cx - 98, 150)]
-    plate(c, bonnet, G.PAINT_Y, line=2.8, grime=0.5, hatch_alpha=70)
+    plate(c, bonnet, pal["bonnet"], line=2.8, grime=0.5, hatch_alpha=70)
     bulge = [(cx - 34, 52), (cx + 34, 52), (cx + 38, 140), (cx - 38, 140)]
-    plate(c, bulge, (186, 148, 66), line=2.0, grime=0.3, hatch_alpha=60)
+    plate(c, bulge, pal["bulge"], line=2.0, grime=0.3, hatch_alpha=60)
     for y in range(64, 136, 12):   # bonnet louvres
         c.ink([(cx - 26, y), (cx - 6, y)], 2.0, wobble=0.3); c.ink([(cx + 6, y), (cx + 26, y)], 2.0, wobble=0.3)
     # radiator grille + bull bar at the nose (the cooling hit area)
@@ -127,7 +129,7 @@ def gen_car_body():
         c.ink_ellipse((cx + sx * 80 - 9, 22, cx + sx * 80 + 9, 38), 1.4)
     # cab + roof (faded utility green), gun ring bearing at the centre
     cab = [(cx - 88, 156), (cx + 88, 156), (cx + 92, 300), (cx - 92, 300)]
-    plate(c, cab, G.PAINT_G, line=2.8, grime=0.45, hatch_alpha=75)
+    plate(c, cab, pal["cab"], line=2.8, grime=0.45, hatch_alpha=75)
     wind = [(cx - 76, 156), (cx + 76, 156), (cx + 70, 178), (cx - 70, 178)]
     c.fill(wind, (64, 70, 72), tex=0.2)
     c.ink([(cx - 50, 162), (cx - 10, 160)], 2.0, alpha=150, color=(230, 226, 210))
@@ -140,7 +142,7 @@ def gen_car_body():
         c.ink([(cx + sx * 84, 182), (cx + sx * 84, 296)], 4.0, wobble=0.3, color=G.STEEL_D, alpha=255)
     # flatbed with strapped cargo
     bed = [(cx - 98, 306), (cx + 98, 306), (cx + 100, 454), (cx - 100, 454)]
-    plate(c, bed, G.RUST, line=2.6, grime=0.6, hatch_alpha=70)
+    plate(c, bed, pal["bed"], line=2.6, grime=0.6, hatch_alpha=70)
     for y in range(322, 452, 18):
         c.ink([(cx - 92, y), (cx + 92, y)], 1.4, wobble=0.3, alpha=140)
     crate = [(cx - 72, 330), (cx - 6, 330), (cx - 6, 396), (cx - 72, 396)]
@@ -157,14 +159,53 @@ def gen_car_body():
         c.ink_ellipse((cx + sx * 108 - 8, 300, cx + sx * 108 + 8, 316), 1.6)
     for i in range(7):
         x = cx - 96 + i * 28
-        c.fill([(x, 456), (x + 14, 456), (x + 10, 466), (x - 4, 466)], (40, 36, 30) if i % 2 else G.PAINT_Y, tex=0.1)
+        c.fill([(x, 456), (x + 14, 456), (x + 10, 466), (x - 4, 466)], (40, 36, 30) if i % 2 else pal["stripe"], tex=0.1)
     bolts_along(c, [(cx - 98, 306), (cx + 98, 306), (cx + 100, 454), (cx - 100, 454)], 26, 6)
     badge = [(cx - 40, 160), (cx + 40, 160), (cx + 40, 172), (cx - 40, 172)]   # Eisenwolf Werke maker's plate on the cowl
     c.fill(badge, (176, 164, 132), tex=0.1)
     c.ink_poly(badge, 1.2)
-    _text(c, (cx, 166), "EISENWOLF", 10, (50, 36, 26))
+    _text(c, (cx, 166), maker, 10, (50, 36, 26))
+    if extra:
+        extra(c, cx)
     c.desertize(dust=0.5, abrasion=0.45, bleach=0.35, seams=0.6, heat=[(cx, 40, 50, 0.4), (cx - 108, 308, 24, 0.7), (cx + 108, 308, 24, 0.7)])
-    c.save(out("car.body"))
+    c.save(out(eid))
+
+
+def _baer_armour(c, cx):
+    """Eisenwolf Bär: bolted side skirts, a heavy push bar and a spare wheel."""
+    for sx in (-1, 1):
+        skirt = [(cx + sx * 112, 130), (cx + sx * 124, 140), (cx + sx * 124, 400), (cx + sx * 112, 414)]
+        plate(c, skirt, (92, 96, 88), line=2.4, grime=0.5, hatch_alpha=60)
+        c.rivets([(cx + sx * 118, y) for y in range(150, 400, 30)], 1.8)
+    c.ink([(cx - 112, 4), (cx + 112, 4)], 11.0, wobble=0.2, color=(70, 72, 68), alpha=255)
+    c.ink([(cx - 112, 4), (cx + 112, 4)], 2.4, wobble=0.2)
+    c.fill_ellipse((cx + 30, 380, cx + 86, 436), (42, 38, 34), tex=0.3)
+    c.ink_ellipse((cx + 30, 380, cx + 86, 436), 2.0)
+
+
+def _falke_stripes(c, cx):
+    """Krähe Falke: twin red racing stripes over bonnet and roof."""
+    for sx in (-1, 1):
+        c.ink([(cx + sx * 18, 42), (cx + sx * 18, 150)], 7.0, wobble=0.2, color=(150, 40, 32), alpha=230)
+        c.ink([(cx + sx * 56, 160), (cx + sx * 56, 296)], 6.0, wobble=0.2, color=(150, 40, 32), alpha=200)
+
+
+def gen_car_body():
+    _car_body("car.body", 901, {"bonnet": G.PAINT_Y, "bulge": (186, 148, 66), "cab": G.PAINT_G, "bed": G.RUST, "stripe": G.PAINT_Y})
+    _car_body("car.body_falke", 911, {"bonnet": (58, 56, 54), "bulge": (74, 70, 66), "cab": (50, 50, 52), "bed": (96, 60, 46), "stripe": (150, 40, 32)},
+              "KRÄHE", _falke_stripes)
+    # the Falke is a narrower car: squash horizontally inside the same box
+    from PIL import Image
+    pth = out("car.body_falke")
+    im = Image.open(pth).convert("RGBA")
+    w, h = im.size
+    nw = int(w * 0.84)
+    sq = im.resize((nw, h), Image.LANCZOS)
+    canvas = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    canvas.alpha_composite(sq, ((w - nw) // 2, 0))
+    canvas.save(pth)
+    _car_body("car.body_baer", 921, {"bonnet": (104, 110, 92), "bulge": (120, 124, 104), "cab": (84, 92, 80), "bed": (88, 80, 70), "stripe": (176, 60, 40)},
+              "EISENWOLF BÄR", _baer_armour)
 
 
 def gen_car_wheel():

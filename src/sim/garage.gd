@@ -13,7 +13,7 @@ extends RefCounted
 ##   weapons → ×damage, ×cooldown, ×range, ×bullet speed
 ##   cargo   → +cargo, ×tracker range
 
-const MODULES := ["chassis", "engine", "turbo", "armor", "tires", "cooling", "weapons", "cargo"]
+const MODULES := ["chassis", "engine", "turbo", "armor", "tires", "suspension", "cooling", "weapons", "mounts", "ammo", "cargo", "tracker", "fuel"]
 ## Fitted levels from before the economy rework map onto the new lines.
 const LEGACY := {"weapon": "weapons", "rig": "cargo"}
 

@@ -112,11 +112,15 @@ func tun(section: String) -> Dictionary:
 
 # ---------------------------------------------------------------- lifecycle
 
-func start_new(slot_index: int) -> void:
+func start_new(slot_index: int, difficulty_preset: String = "") -> void:
 	Content.ensure()
 	loc = Content.location(str(Journey.node(str(Journey.data().get("start", "ersthafen"))).get("location", Content.DEFAULT_LOCATION)))
 	slot = slot_index
 	state = GameState.create(loc, slot)
+	if difficulty_preset != "" and tun("difficulty").has(difficulty_preset):
+		state["difficulty"] = difficulty_preset
+	state["money"] = int(difficulty().get("start_money", state["money"]))
+	state = GameState.sanitize(state, loc)
 	recovered_from_backup = false
 	_begin()
 	Log.info("session", "new_game", {"slot": slot, "id": state["id"]})
@@ -308,12 +312,15 @@ func enemy_tun(e: Dictionary) -> Dictionary:
 		var ec := tun("economy")
 		t["integrity"] = float(t.get("integrity", 55.0)) * (1.0 + float(ec.get("tier_hp", 0.3)) * k2)
 		t["damage_mult"] = float(t.get("damage_mult", 1.0)) * (1.0 + float(ec.get("tier_damage", 0.18)) * k2)
+	t["damage_mult"] = float(t.get("damage_mult", 1.0)) * diff("enemy_damage")
 	return t
 
 
 ## The player's car tuning with fitted garage modules applied.
 func car_tun() -> Dictionary:
 	var t := Garage.car_tuning(tun("mech"), tun("shop"), upgrades())
+	if not state.is_empty():
+		t = Vehicles.apply(t, str(mech().get("chassis", Vehicles.start_id())))
 	if not state.is_empty() and limp_mode():
 		# out of fuel: the engine runs on fumes and reserve — slow, but never stranded
 		t["max_speed"] = float(t["max_speed"]) * float(tun("economy").get("limp_speed_mult", 0.32))
@@ -322,11 +329,59 @@ func car_tun() -> Dictionary:
 
 
 func car_thermal() -> Dictionary:
-	return Garage.thermal_tuning(tun("thermal"), tun("shop"), upgrades())
+	var t := Garage.thermal_tuning(tun("thermal"), tun("shop"), upgrades())
+	t["move_heat"] = float(t.get("move_heat", 1.0)) * diff("heat")
+	return t
 
 
+## The mounted roof weapon's tuning (family + fitted lines); see Arsenal.
 func player_weapon() -> Dictionary:
-	return Garage.weapon_tuning(tun("combat")["player_weapon"], tun("shop"), upgrades())
+	if state.is_empty():
+		return Garage.weapon_tuning(tun("combat")["player_weapon"], tun("shop"), upgrades())
+	return Arsenal.tuning(weapon_id(), tun("shop"), upgrades(), tun("combat")["player_weapon"])
+
+
+func weapon_id() -> String:
+	return str(mech().get("weapon", Arsenal.start_id()))
+
+
+func ammo(id: String = "") -> int:
+	if id == "":
+		id = weapon_id()
+	return int(mech().get("ammo", {}).get(id, 0))
+
+
+func ammo_capacity(id: String = "") -> int:
+	return Arsenal.capacity(id if id != "" else weapon_id(), tun("shop"), upgrades())
+
+
+func owned_weapons() -> Array:
+	var out: Array = []
+	for id in Arsenal.order():
+		if mech().get("owned_weapons", {}).has(id):
+			out.append(id)
+	return out
+
+
+var _swap_t := 0.0
+## Mounts another owned weapon family (takes the mount's swap time).
+func select_weapon(id: String) -> bool:
+	if not mech().get("owned_weapons", {}).has(id) or id == weapon_id():
+		return false
+	mech()["weapon"] = id
+	_swap_t = Arsenal.swap_time(tun("shop"), upgrades())
+	_fire_cd = maxf(_fire_cd, _swap_t)
+	notice.emit("NOTICE_WEAPON", [Arsenal.def(id).get("name", id)])
+	combat_event.emit("weapon_swap", {"weapon": id})
+	return true
+
+
+func cycle_weapon(step: int = 1) -> bool:
+	var ow := owned_weapons()
+	if ow.size() < 2:
+		return false
+	var i := ow.find(weapon_id())
+	return select_weapon(str(ow[(i + step + ow.size()) % ow.size()]))
 
 
 func upgrades() -> Dictionary:
@@ -342,7 +397,10 @@ func max_integrity() -> float:
 
 
 func cargo_capacity() -> int:
-	return Garage.cargo_capacity(int(tun("mech").get("cargo_bulk", 14)), tun("shop"), upgrades())
+	var c := Garage.cargo_capacity(int(tun("mech").get("cargo_bulk", 14)), tun("shop"), upgrades())
+	if not state.is_empty():
+		c += int(Vehicles.def(str(mech().get("chassis", ""))).get("cargo", 0))
+	return maxi(4, c)
 
 
 func cargo_bulk() -> int:
@@ -429,6 +487,8 @@ func tick(dt: float) -> void:
 	_tick_projectiles(dt)
 	_tick_loot_pickup()
 	_tick_pois()
+	if mode() == "mech" and _any_contract_ready() and at_garage():
+		turn_in_contracts()   # driving home with the job done pays out at the garage
 	if engine_on() and mode() == "mech":
 		_burn_fuel(float(tun("economy").get("fuel_idle_per_s", 0.008)) * dt)
 	var here_loc := str(state.get("location", ""))
@@ -530,7 +590,12 @@ func mech_velocity(dt: float) -> Vector2:
 	var ef := edge_speed_factor()
 	if ef < 1.0:
 		ct["max_speed"] = float(ct["max_speed"]) * ef
-	_last_desired = Drive.step(mech(), drive_throttle, drive_turn, can_drive(), ct, car_thermal(), mech_zone, dt, drive_handbrake and can_drive())
+	var zone := mech_zone
+	if float(zone.get("drag", 1.0)) < 1.0:
+		# suspension upgrades soften soft-sand drag
+		zone = zone.duplicate()
+		zone["drag"] = 1.0 - (1.0 - float(zone["drag"])) * Garage.total(tun("shop"), upgrades(), "rough_mult")
+	_last_desired = Drive.step(mech(), drive_throttle, drive_turn, can_drive(), ct, car_thermal(), zone, dt, drive_handbrake and can_drive())
 	return _last_desired
 
 
@@ -559,6 +624,7 @@ func commit_mech(pos: Vector2, real_velocity: Vector2) -> void:
 	if lost > float(tm.get("impact_threshold", 170.0)) and _impact_cd <= 0.0:
 		_impact_cd = 0.35
 		var dmg := minf((lost - float(tm.get("impact_threshold", 170.0))) * float(tm.get("impact_damage", 0.045)), float(tm.get("impact_max", 14.0)))
+		dmg *= Garage.total(tun("shop"), upgrades(), "impact_mult")
 		if not bool(dev["invulnerable"]):
 			m["integrity"] = maxf(0.0, float(m["integrity"]) - dmg)
 		combat_event.emit("collision", {"pos": pos, "strength": clampf(lost / 600.0, 0.0, 1.0), "damage": dmg})
@@ -1157,16 +1223,26 @@ func _tick_player_weapon(dt: float) -> void:
 			want = atan2(to.x, -to.y)
 		# Heavy but responsive: eases in over the last ~0.3 rad, capped turn rate.
 		var err := wrapf(want - housing_angle, -PI, PI)
-		var rate := float(tun("mech").get("housing_turn_rate", 5.5))
+		var rate := float(tun("mech").get("housing_turn_rate", 5.5)) * Garage.total(tun("shop"), upgrades(), "turn_mult")
 		var stepv := clampf(err * 10.0 * dt, -rate * dt, rate * dt)
 		housing_angle = wrapf(housing_angle + stepv, -PI, PI)
 	housing_speed = absf(wrapf(housing_angle - before, -PI, PI)) / maxf(dt, 0.0001)
 	gun_angle = housing_angle
+	_swap_t = maxf(0.0, _swap_t - dt)
 	if not fire_held or _fire_cd > 0.0 or not can_fire():
 		return
 	if absf(wrapf(want - housing_angle, -PI, PI)) > deg_to_rad(float(w.get("fire_cone_deg", 25.0))):
 		return   # housing still swinging toward the target
 	_fire_cd = float(w["cooldown"])
+	var wid := str(w.get("id", "mg"))
+	if not bool(dev.get("infinite_ammo", false)):
+		var have := ammo(wid)
+		if have <= 0:
+			_fire_cd = 0.6
+			notice.emit("NOTICE_NO_AMMO", [Arsenal.def(wid).get("name", wid)])
+			combat_event.emit("dry_fire", {"weapon": wid})
+			return
+		mech()["ammo"][wid] = have - 1
 	var i := _muzzle_i
 	_muzzle_i = (_muzzle_i + 1) % 2
 	var origin := muzzle_pos(i)
@@ -1177,10 +1253,16 @@ func _tick_player_weapon(dt: float) -> void:
 		# Converge on the real target point, also at close range; never shoot backwards.
 		if to2.length() >= float(w.get("min_aim_distance", 50.0)) and to2.normalized().dot(fwd) > 0.2:
 			dir = to2.normalized()
-	projectiles.append(Combat.make_shot("player", origin, dir, w, _rng))
-	_fire_recent = minf(1.0, _fire_recent + 0.25)
+	for _p in maxi(1, int(w.get("pellets", 1))):
+		var shot := Combat.make_shot("player", origin, dir, w, _rng)
+		shot["part_mult"] = float(w.get("part_mult", 1.0))
+		shot["explosive"] = float(w.get("explosive", 0.0))
+		shot["weapon"] = wid
+		projectiles.append(shot)
+	_fire_recent = minf(1.0, _fire_recent + 0.25 * maxf(1.0, float(w.get("recoil", 1.0))))
 	mech()["heat"] = minf(float(mech()["heat"]) + float(w["heat_per_shot"]), Content.t("thermal", "max_temp", 135.0))
-	combat_event.emit("muzzle", {"owner": "player", "pos": origin, "angle": atan2(dir.x, -dir.y), "barrel": i})
+	combat_event.emit("muzzle", {"owner": "player", "pos": origin, "angle": atan2(dir.x, -dir.y), "barrel": i,
+		"weapon": wid, "recoil": float(w.get("recoil", 1.0))})
 
 
 # ---------------------------------------------------------------- combat: enemies
@@ -1343,7 +1425,9 @@ func _tick_projectiles(dt: float) -> void:
 				hit = true
 				var before := float(mech()["integrity"])
 				if not bool(dev["invulnerable"]):
-					Combat.apply_hit(mech(), sh, kind2)
+					var taken: Dictionary = sh.duplicate()
+					taken["damage"] = float(sh["damage"]) * float(car_tun().get("damage_taken", 1.0))
+					Combat.apply_hit(mech(), taken, kind2)
 					var hk := "shot:" + str(sh["owner"]).get_slice(":", 0)
 					hits_taken[hk] = float(hits_taken.get(hk, 0.0)) + (before - float(mech()["integrity"]))
 				combat_event.emit("cooling_hit" if kind2 == "cooling" else "impact", {"pos": sh["pos"], "target": "player"})
@@ -1360,7 +1444,40 @@ func _tick_projectiles(dt: float) -> void:
 			keep.append(sh)
 		elif not hit:
 			combat_event.emit("impact", {"pos": sh["pos"], "target": "ground", "owner": str(sh["owner"])})
+		if float(sh.get("explosive", 0.0)) > 0.0 and (hit or float(sh["travelled"]) >= float(sh["range"])):
+			_explode(sh["pos"], float(sh["explosive"]), float(sh["damage"]), sh)
 	projectiles = keep
+
+
+## Blast from the launcher: falls off with distance, hits every creature body,
+## rival car and turret in the radius (never the player's own car).
+func _explode(at: Vector2, radius: float, damage: float, sh: Dictionary) -> void:
+	combat_event.emit("explosion", {"pos": at, "radius": radius})
+	for id in state.get("creatures", {}).keys():
+		var c: Dictionary = state["creatures"][id]
+		if not Creatures.targetable(c):
+			continue
+		var d := Content.v2(c["pos"]).distance_to(at)
+		var ts := creature_tun(c)
+		if d > radius + float(ts.get("collision", 40.0)):
+			continue
+		var f := clampf(1.0 - d / (radius + float(ts.get("collision", 40.0))), 0.25, 1.0)
+		Creatures.damage(c, "body", damage * f * 0.7, ts, str(c["ai"]) == "dazed")
+		if str(c["ai"]) == "roam":
+			creature_brains.get(id, {})["provoked"] = true
+		if float(c["hp"]) <= 0.0:
+			_creature_dies(id, c)
+	for id in state.get("enemies", {}):
+		var e: Dictionary = state["enemies"][id]
+		if str(e["ai"]) == "wreck":
+			continue
+		var d2 := Content.v2(e["pos"]).distance_to(at)
+		if d2 > radius + 80.0:
+			continue
+		var blast: Dictionary = sh.duplicate()
+		blast["damage"] = damage * clampf(1.0 - d2 / (radius + 80.0), 0.25, 1.0) * 0.7
+		Combat.apply_hit(e, blast, "structure")
+		_check_enemy_disabled(id, e, enemy_thermal())
 
 
 # ---------------------------------------------------------------- wreck salvage and hull repair
@@ -1650,7 +1767,24 @@ func creature(id: String) -> Dictionary:
 
 
 func creature_tuning() -> Dictionary:
-	return Creatures.scaled(tun("creatures"), int(loc.get("tier", 1)), tun("economy"))
+	return Creatures.scaled(tun("creatures"), int(loc.get("tier", 1)), tun("economy"), difficulty())
+
+
+# ---------------------------------------------------------------- difficulty
+
+## The run's difficulty preset (Wanderer / Jäger / Veteran), chosen at new game.
+func difficulty_id() -> String:
+	var dt := tun("difficulty")
+	var id := str(state.get("difficulty", dt.get("default", "jaeger")))
+	return id if dt.has(id) else str(dt.get("default", "jaeger"))
+
+
+func difficulty() -> Dictionary:
+	return tun("difficulty").get(difficulty_id(), {})
+
+
+func diff(key: String, default_value: float = 1.0) -> float:
+	return float(difficulty().get(key, default_value))
 
 
 func creature_tun(c: Dictionary) -> Dictionary:
@@ -1752,7 +1886,7 @@ func _resolve_creature_attack(id: String, c: Dictionary, ev: Dictionary) -> void
 	combat_event.emit("creature_attack", {"id": id, "attack": ev.get("attack", ""), "pos": at, "radius": float(ev["radius"])})
 	if at.distance_to(victim) > reach or bool(dev["invulnerable"]):
 		return
-	var dmg := float(ev["damage"])
+	var dmg := float(ev["damage"]) * (1.0 if foot else float(car_tun().get("damage_taken", 1.0)))
 	if foot:
 		pilot()["suit"] = maxf(0.0, float(pilot()["suit"]) - dmg * 2.5)
 		notice.emit("NOTICE_PILOT_HIT", [])
@@ -1833,7 +1967,8 @@ func _shot_vs_creatures(sh: Dictionary) -> bool:
 			continue
 		var brain: Dictionary = creature_brains.get(id, {})
 		var dazed := str(c["ai"]) == "dazed"
-		var r := Creatures.damage(c, part, float(sh["damage"]), ts, dazed)
+		var dmg := float(sh["damage"]) * (float(sh.get("part_mult", 1.0)) if part != "body" else 1.0)
+		var r := Creatures.damage(c, part, dmg, ts, dazed)
 		var mult := float(ts.get("parts", {}).get(part, {}).get("mult", 1.0))
 		combat_event.emit("creature_hit", {"id": id, "part": part, "pos": sh["pos"], "dir": (sh["vel"] as Vector2).normalized(),
 			"armoured": mult < 0.4 and not dazed})
@@ -1872,6 +2007,7 @@ func _creature_dies(id: String, c: Dictionary) -> void:
 	creature_moves[id] = Vector2.ZERO
 	state["stats"]["kills"] = int(state["stats"].get("kills", 0)) + 1
 	add_xp(xp_for(str(c["species"])), "kill")
+	contract_event({"type": "kill", "species": str(c["species"]), "creature": id})
 	if id == str(loc.get("quarry", "")) and not bool(c.get("dev", false)):
 		complete_node(current_node())
 	combat_event.emit("creature_dead", {"id": id, "species": c["species"], "pos": Content.v2(c["pos"])})
@@ -2100,7 +2236,7 @@ func garage_repair_cost() -> int:
 	var tsh := tun("shop")
 	var body := (max_integrity() - float(mech()["integrity"])) * float(tsh.get("repair_price_per_point", 1.2))
 	var rad := (1.0 - float(mech()["radiator"])) * 100.0 * float(tsh.get("radiator_price_per_pct", 3.0))
-	return int(ceil(maxf(0.0, body + rad)))
+	return int(ceil(maxf(0.0, body + rad) * diff("repair")))
 
 
 ## Repairs as much as the money allows (all of it when affordable).
@@ -2128,6 +2264,254 @@ func garage_repair() -> bool:
 	return true
 
 
+# ---------------------------------------------------------------- arsenal and chassis (settlement shop)
+
+func restock_cost() -> int:
+	return Arsenal.restock_cost(mech(), tun("shop"), upgrades(), float(tun("shop").get("ammo_price_mult", 1.0)) * diff("ammo_price"))
+
+
+## Fills every owned weapon family's ammunition as far as the money allows.
+func restock_ammo() -> int:
+	if not has_service("repair"):
+		return 0
+	var cost := restock_cost()
+	if cost <= 0:
+		return 0
+	var pay := mini(cost, money())
+	if pay <= 0:
+		notice.emit("NOTICE_NO_MONEY", [])
+		return 0
+	var frac := float(pay) / float(cost)
+	var bought := 0
+	for id in mech()["owned_weapons"]:
+		var cap := ammo_capacity(str(id))
+		var have := int(mech()["ammo"].get(id, 0))
+		var add := int(floor((cap - have) * frac)) if frac < 1.0 else cap - have
+		if add > 0:
+			mech()["ammo"][id] = have + add
+			bought += add
+	add_money(-pay)
+	notice.emit("NOTICE_RESTOCKED", [bought])
+	combat_event.emit("restock", {})
+	save_now("restock")
+	return bought
+
+
+func weapon_check(id: String) -> String:
+	var d := Arsenal.def(id)
+	if d.is_empty():
+		return "GARAGE_MAXED"
+	if mech()["owned_weapons"].has(id):
+		return "SHOP_OWNED"
+	if not has_service("upgrade") or not (current_node() in d.get("sold", [])):
+		return "SHOP_NOT_HERE"
+	if rank_level() < int(d.get("rank", 1)):
+		return "GARAGE_RANK_LOCKED"
+	if money() < int(d.get("price", 0)):
+		return "GARAGE_NO_MONEY"
+	return ""
+
+
+func buy_weapon(id: String) -> bool:
+	if weapon_check(id) != "":
+		return false
+	var d := Arsenal.def(id)
+	add_money(-int(d.get("price", 0)))
+	mech()["owned_weapons"][id] = true
+	mech()["ammo"][id] = ammo_capacity(id)
+	select_weapon(id)
+	_swap_t = 0.0
+	_fire_cd = 0.0
+	notice.emit("NOTICE_WEAPON_BOUGHT", [d.get("name", id)])
+	combat_event.emit("upgrade_fitted", {"module": "weapon:" + id})
+	save_now("buy_weapon")
+	return true
+
+
+func chassis_id() -> String:
+	return str(mech().get("chassis", Vehicles.start_id()))
+
+
+func chassis_check(id: String) -> String:
+	var d := Vehicles.def(id)
+	if not Vehicles.defs().has(id):
+		return "GARAGE_MAXED"
+	if mech()["owned_chassis"].has(id):
+		return "SHOP_OWNED"
+	if not has_service("upgrade") or not (current_node() in d.get("sold", [])):
+		return "SHOP_NOT_HERE"
+	if rank_level() < int(d.get("rank", 1)):
+		return "GARAGE_RANK_LOCKED"
+	if money() < int(d.get("price", 0)):
+		return "GARAGE_NO_MONEY"
+	return ""
+
+
+func buy_chassis(id: String) -> bool:
+	if chassis_check(id) != "":
+		return false
+	add_money(-int(Vehicles.def(id).get("price", 0)))
+	mech()["owned_chassis"][id] = true
+	notice.emit("NOTICE_CHASSIS_BOUGHT", [Vehicles.def(id).get("name", id)])
+	switch_chassis(id)
+	return true
+
+
+## Swaps to another owned chassis at a garage. Condition carries over as a
+## fraction; cargo moves across (anything over the new capacity goes to storage).
+func switch_chassis(id: String) -> bool:
+	if not mech()["owned_chassis"].has(id) or id == chassis_id() or not at_garage():
+		return false
+	var m := mech()
+	var frac := float(m["integrity"]) / maxf(1.0, max_integrity())
+	var fuel_frac := fuel() / maxf(1.0, fuel_capacity())
+	m["chassis"] = id
+	m["integrity"] = max_integrity() * frac
+	m["fuel"] = fuel_capacity() * fuel_frac
+	while cargo_bulk() > cargo_capacity() and not m["storage"].is_empty():
+		var item := str(m["storage"].keys()[0])
+		GameState.add(garage_storage(), item, 1)
+		GameState.add(m["storage"], item, -1)
+	notice.emit("NOTICE_CHASSIS", [Vehicles.def(id).get("name", id)])
+	mech_event.emit("chassis")
+	save_now("chassis")
+	return true
+
+
+# ---------------------------------------------------------------- contracts
+
+func contracts() -> Dictionary:
+	if not (state.get("contracts") is Dictionary):
+		state["contracts"] = Contracts.create()
+	return state["contracts"]
+
+
+func story_flags() -> Dictionary:
+	return state.get("story", {}).get("flags", {})
+
+
+## Offers on this settlement's job board ([] outside settlements).
+func contract_board() -> Array:
+	if not has_service("sell"):
+		return []
+	return Contracts.board(contracts(), current_node(), story_flags(), rank_level(), tier())
+
+
+func accept_contract(id: String) -> String:
+	for c in contract_board():
+		if str(c["id"]) == id:
+			var err := Contracts.accept(contracts(), c, current_node())
+			if err == "":
+				notice.emit("NOTICE_CONTRACT_TAKEN", [c.get("title", "")])
+				combat_event.emit("contract", {"id": id})
+				save_now("contract")
+			return err
+	return "CT_UNKNOWN"
+
+
+func abandon_contract(id: String) -> bool:
+	return Contracts.abandon(contracts(), id)
+
+
+## Progress from game events (kills, discoveries, searches, story flags).
+func _any_contract_ready() -> bool:
+	for c in contracts()["active"]:
+		if str(c.get("status", "")) == "ready":
+			return true
+	return false
+
+
+func contract_event(ev: Dictionary) -> void:
+	if not ev.has("node"):
+		ev["node"] = current_node()
+	for c in Contracts.on_event(contracts(), ev):
+		notice.emit("NOTICE_CONTRACT_READY", [c.get("title", "")])
+		combat_event.emit("contract_ready", {"id": c["id"]})
+
+
+## Pays out every finished contract (at any settlement garage).
+func turn_in_contracts() -> int:
+	if not has_service("sell"):
+		return 0
+	var paid := Contracts.turn_in(contracts())
+	var total := 0
+	for p in paid:
+		add_money(int(p["reward"]))
+		add_xp(int(p["xp"]), "contract")
+		total += int(p["reward"])
+		if str(p["flag"]) != "":
+			set_flag(str(p["flag"]))
+		notice.emit("NOTICE_CONTRACT_PAID", [p.get("title", ""), int(p["reward"])])
+	if not paid.is_empty():
+		combat_event.emit("contract_paid", {"total": total})
+		save_now("contract_paid")
+	return total
+
+
+func set_flag(flag: String) -> void:
+	if not (state.get("story") is Dictionary):
+		state["story"] = {"flags": {}}
+	if not (state["story"].get("flags") is Dictionary):
+		state["story"]["flags"] = {}
+	if bool(state["story"]["flags"].get(flag, false)):
+		return
+	state["story"]["flags"][flag] = true
+	contract_event({"type": "flag", "flag": flag})
+	flag_set.emit(flag)
+
+
+signal flag_set(flag: String)
+
+
+# ---------------------------------------------------------------- recovery (failure)
+
+## The settlement a recovery truck tows the car back to.
+func last_safe() -> String:
+	var ls := str(journey().get("last_safe", ""))
+	return ls if Journey.node(ls).size() > 0 else str(Journey.data().get("start", "ersthafen"))
+
+
+## Breakdown, empty tank or simply in over your head: an Eisenwolf recovery truck
+## tows the car to the last settlement. Costs a fee and part of the carried
+## cargo (difficulty); never the Kern-7 case, never story progress.
+func can_call_recovery() -> bool:
+	return running and not is_safe_zone() and mode() != "collapsed"
+
+
+func recovery_cost() -> Dictionary:
+	return {"fee": mini(money(), int(diff("tow_fee", 200.0))), "loss": diff("cargo_loss", 0.35), "to": last_safe()}
+
+
+func call_recovery() -> bool:
+	if not can_call_recovery():
+		return false
+	var rc := recovery_cost()
+	add_money(-int(rc["fee"]))
+	var lost := 0
+	for inv in [mech()["storage"], pilot()["pack"]]:
+		for item in inv.keys():
+			var n := int(floor(int(inv[item]) * float(rc["loss"])))
+			if n > 0:
+				GameState.add(inv, str(item), -n)
+				lost += n
+	var m := mech()
+	state["mode"] = "mech"
+	task = {}
+	travel_to(str(rc["to"]), true, true)
+	m = mech()
+	m["integrity"] = maxf(float(m["integrity"]), max_integrity() * 0.35)
+	m["radiator"] = maxf(float(m["radiator"]), 0.5)
+	m["fuel"] = maxf(fuel(), fuel_capacity() * 0.3)
+	m["heat"] = minf(float(m["heat"]), 70.0)
+	m["engine"] = "running"
+	pilot()["suit"] = maxf(float(pilot()["suit"]), 60.0)
+	state["stats"]["recoveries"] = int(state["stats"].get("recoveries", 0)) + 1
+	notice.emit("NOTICE_RECOVERED", [int(rc["fee"]), lost])
+	combat_event.emit("recovered", {"fee": rc["fee"], "lost": lost})
+	save_now("recovery")
+	return true
+
+
 # ---------------------------------------------------------------- fuel
 
 func fuel() -> float:
@@ -2135,14 +2519,17 @@ func fuel() -> float:
 
 
 func fuel_capacity() -> float:
-	return float(tun("economy").get("fuel_capacity", 100.0))
+	var cap := float(tun("economy").get("fuel_capacity", 100.0)) + Garage.total(tun("shop"), upgrades(), "fuel_cap")
+	if not state.is_empty():
+		cap *= float(Vehicles.def(str(mech().get("chassis", ""))).get("fuel_cap", 1.0))
+	return cap
 
 
 ## Fills the tank as far as the money allows. Returns litres bought.
 func refuel() -> float:
 	if not has_service("fuel"):
 		return 0.0
-	var price := float(tun("shop").get("fuel_price", 2.0))
+	var price := float(tun("shop").get("fuel_price", 2.0)) * diff("fuel_price")
 	var want := fuel_capacity() - fuel()
 	if want < 0.5:
 		return 0.0
@@ -2163,12 +2550,13 @@ func refuel_cost() -> int:
 	var missing := fuel_capacity() - fuel()
 	if missing < 0.5:
 		return 0
-	return int(ceil(missing * float(tun("shop").get("fuel_price", 2.0))))
+	return int(ceil(missing * float(tun("shop").get("fuel_price", 2.0)) * diff("fuel_price")))
 
 
 func _burn_fuel(litres: float) -> void:
 	if litres <= 0.0 or bool(dev.get("infinite_fuel", false)):
 		return
+	litres *= diff("fuel") * float(Vehicles.def(str(mech().get("chassis", ""))).get("fuel", 1.0))
 	var m := mech()
 	var before := float(m.get("fuel", 0.0))
 	m["fuel"] = maxf(0.0, before - litres)
@@ -2186,7 +2574,7 @@ func limp_mode() -> bool:
 # ---------------------------------------------------------------- market
 
 func item_value(item: String) -> int:
-	return int(round(float(Content.items.get(item, {}).get("value", 0)) * float(tun("shop").get("sell_rate", 1.0))))
+	return int(round(float(Content.items.get(item, {}).get("value", 0)) * float(tun("shop").get("sell_rate", 1.0)) * diff("sell")))
 
 
 ## Sells n of an item from the car, the pack, then the garage store.
@@ -2309,6 +2697,8 @@ func travel_to(node_id: String, force: bool = false, at_start: bool = false) -> 
 	pilot()["pos"] = [p.x, p.y]
 	state = GameState.sanitize(state, loc)
 	var evs := Journey.arrive(journey(), node_id)
+	if Journey.is_safe(node_id):
+		journey()["last_safe"] = node_id
 	for ev in evs:
 		if str(ev) == "first_visit" and Journey.is_safe(node_id):
 			add_xp(xp_for("settlement"), "settlement")
@@ -2443,9 +2833,10 @@ func _tick_pois() -> void:
 		var ps := poi_state(str(p["id"]))
 		if bool(ps["discovered"]):
 			continue
-		if at.distance_to(Content.v2(p["pos"])) < float(tun("economy").get("discover_radius", 420.0)):
+		if at.distance_to(Content.v2(p["pos"])) < float(tun("economy").get("discover_radius", 420.0)) * Garage.total(tun("shop"), upgrades(), "scan_mult"):
 			ps["discovered"] = true
 			add_xp(xp_for("discovery"), "discovery")
+			contract_event({"type": "discover", "poi": str(p["id"])})
 			notice.emit("NOTICE_DISCOVERED", [str(p.get("name", "POI_EXPEDITION"))])
 			combat_event.emit("discovered", {"id": p["id"], "pos": Content.v2(p["pos"])})
 			Log.info("poi", "discovered", {"id": p["id"]})
@@ -2466,6 +2857,7 @@ func _finish_search(id: String) -> void:
 		return
 	ps["searched"] = true
 	ps["discovered"] = true
+	contract_event({"type": "search", "poi": id})
 	var drops: Dictionary = p.get("loot", {})
 	if drops.is_empty():
 		notice.emit("NOTICE_SEARCH_EMPTY", [])
@@ -2515,6 +2907,21 @@ func dev_give_materials() -> void:
 
 func _dev_mark() -> void:
 	state["stats"]["dev_actions"] = int(state["stats"].get("dev_actions", 0)) + 1
+
+
+func dev_grant_weapons() -> void:
+	for id in Arsenal.order():
+		mech()["owned_weapons"][id] = true
+		mech()["ammo"][id] = ammo_capacity(str(id))
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_WEAPONS_GRANTED"])
+
+
+func dev_grant_chassis() -> void:
+	for id in Vehicles.order():
+		mech()["owned_chassis"][id] = true
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_CHASSIS_GRANTED"])
 
 
 func dev_refuel() -> void:

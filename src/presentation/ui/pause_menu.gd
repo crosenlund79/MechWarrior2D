@@ -1,6 +1,6 @@
 class_name PauseMenu
 extends UiRoot
-## Pause: Resume / Save / Settings / Quit to menu / Quit game.
+## Pause: Resume / Save / Call recovery (outside settlements) / Settings / Quit to menu / Quit game.
 
 signal resume
 signal open_settings
@@ -31,6 +31,14 @@ func _ready() -> void:
 	r.call_deferred("grab_focus")
 	v.add_child(UiTheme.btn(tr("PAUSE_SAVE"), func() -> void:
 		_status.text = tr("PAUSE_SAVED") if Session.save_now("manual") else Session.save_status))
+	if Session.can_call_recovery():
+		var rc := Session.recovery_cost()
+		var rb := UiTheme.btn(tr("PAUSE_RECOVERY") % [int(rc["fee"]), int(round(float(rc["loss"]) * 100.0)),
+			tr(str(Journey.node(str(rc["to"])).get("name", "")))], func() -> void:
+			resume.emit()
+			Session.call_recovery())
+		rb.name = "Recovery"
+		v.add_child(rb)
 	v.add_child(UiTheme.btn(tr("MENU_SETTINGS"), func() -> void: open_settings.emit()))
 	v.add_child(UiTheme.btn(tr("PAUSE_TO_MENU"), func() -> void: to_menu.emit()))
 	v.add_child(UiTheme.btn(tr("MENU_QUIT"), func() -> void:

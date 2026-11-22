@@ -1,0 +1,16 @@
+{
+	"_note": "Chassis (the car itself). Multipliers apply on top of tuning.mech and every fitted upgrade line (upgrades move with you onto a new chassis). 'armor' scales damage taken (lower = tougher); 'fuel' scales consumption. Bought at the listed settlements; owned chassis wait in any Eisenwolf garage.",
+	"start": "marder",
+	"order": ["marder", "falke", "baer"],
+	"chassis": {
+		"marder": {"name": "CAR_MARDER", "maker": "Eisenwolf Werke", "desc": "CAR_MARDER_DESC", "price": 0, "rank": 1, "sold": [],
+			"speed": 1.0, "accel": 1.0, "turn": 1.0, "grip": 1.0, "integrity": 1.0, "armor": 1.0, "cargo": 0, "fuel": 1.0, "fuel_cap": 1.0,
+			"body": "car.body"},
+		"falke": {"name": "CAR_FALKE", "maker": "Krähe Motorwerk", "desc": "CAR_FALKE_DESC", "price": 5200, "rank": 3, "sold": ["grauwacht", "eisenfurt", "stahlheim"],
+			"speed": 1.13, "accel": 1.25, "turn": 1.12, "grip": 1.06, "integrity": 0.8, "armor": 1.15, "cargo": -4, "fuel": 0.85, "fuel_cap": 0.9,
+			"body": "car.body_falke"},
+		"baer": {"name": "CAR_BAER", "maker": "Eisenwolf Werke", "desc": "CAR_BAER_DESC", "price": 8800, "rank": 5, "sold": ["eisenfurt", "stahlheim"],
+			"speed": 0.92, "accel": 0.86, "turn": 0.86, "grip": 1.02, "integrity": 1.45, "armor": 0.78, "cargo": 8, "fuel": 1.25, "fuel_cap": 1.4,
+			"body": "car.body_baer"}
+	}
+}

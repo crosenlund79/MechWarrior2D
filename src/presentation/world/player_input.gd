@@ -47,6 +47,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("interact") and not Session.exit_prompt.is_empty():
 		Session.confirm_exit()
+	elif event.is_action_pressed("weapon_next"):
+		Session.cycle_weapon(1)
+	elif _weapon_key(event) >= 0:
+		var ow := Session.owned_weapons()
+		var k := _weapon_key(event)
+		if k < ow.size():
+			Session.select_weapon(str(ow[k]))
 	elif event.is_action_pressed("journey_map"):
 		if screen and screen.hud:
 			screen.hud.open_map()
@@ -62,3 +69,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("quick_save"):
 		Session.save_now("quicksave")
 		Session.notice.emit("NOTICE_SAVED", [])
+
+
+func _weapon_key(event: InputEvent) -> int:
+	for i in 5:
+		if event.is_action_pressed("weapon_%d" % (i + 1)):
+			return i
+	return -1

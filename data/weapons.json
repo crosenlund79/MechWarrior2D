@@ -1,0 +1,27 @@
+{
+	"_note": "Roof-mount weapon families. One is mounted at a time (keys 1-5 / Q cycles; swapping takes swap_time s). Ammo per family, bought in settlements; capacity grows with the 'ammo' upgrade line. 'part_mult' multiplies damage on breakable parts (not the body). 'explosive' = blast radius (px). Prices in Mark.",
+	"start": "mg",
+	"order": ["mg", "flak", "autocannon", "rifle", "launcher"],
+	"weapons": {
+		"mg": {"name": "WPN_MG", "desc": "WPN_MG_DESC", "price": 0, "rank": 1, "sold": [],
+			"damage": 4.2, "cooling_damage": 0.07, "structural_cooling_damage": 0.01, "speed": 1900.0, "range": 1000.0,
+			"cooldown": 0.17, "heat_per_shot": 0.48, "spread_deg": 1.5, "radius": 5.0, "pellets": 1, "part_mult": 1.0,
+			"recoil": 1.0, "ammo": 900, "ammo_price": 0.12, "sound": "mg"},
+		"flak": {"name": "WPN_FLAK", "desc": "WPN_FLAK_DESC", "price": 900, "rank": 2, "sold": ["ersthafen", "grauwacht", "eisenfurt", "stahlheim"],
+			"damage": 3.4, "cooling_damage": 0.05, "structural_cooling_damage": 0.0, "speed": 1700.0, "range": 520.0,
+			"cooldown": 0.72, "heat_per_shot": 1.6, "spread_deg": 10.0, "radius": 7.0, "pellets": 8, "part_mult": 0.8,
+			"recoil": 2.2, "ammo": 60, "ammo_price": 2.0, "sound": "flak"},
+		"autocannon": {"name": "WPN_AUTOCANNON", "desc": "WPN_AUTOCANNON_DESC", "price": 2400, "rank": 3, "sold": ["grauwacht", "eisenfurt", "stahlheim"],
+			"damage": 17.0, "cooling_damage": 0.2, "structural_cooling_damage": 0.03, "speed": 1550.0, "range": 1150.0,
+			"cooldown": 0.5, "heat_per_shot": 2.4, "spread_deg": 0.9, "radius": 8.0, "pellets": 1, "part_mult": 1.25,
+			"recoil": 2.8, "ammo": 90, "ammo_price": 3.0, "sound": "cannon"},
+		"rifle": {"name": "WPN_RIFLE", "desc": "WPN_RIFLE_DESC", "price": 3200, "rank": 4, "sold": ["eisenfurt", "stahlheim"],
+			"damage": 38.0, "cooling_damage": 0.3, "structural_cooling_damage": 0.05, "speed": 3200.0, "range": 1750.0,
+			"cooldown": 1.5, "heat_per_shot": 3.0, "spread_deg": 0.1, "radius": 4.0, "pellets": 1, "part_mult": 1.8,
+			"recoil": 2.4, "ammo": 30, "ammo_price": 6.0, "sound": "rifle"},
+		"launcher": {"name": "WPN_LAUNCHER", "desc": "WPN_LAUNCHER_DESC", "price": 4800, "rank": 5, "sold": ["eisenfurt", "stahlheim"],
+			"damage": 60.0, "cooling_damage": 0.4, "structural_cooling_damage": 0.1, "speed": 950.0, "range": 950.0,
+			"cooldown": 2.2, "heat_per_shot": 4.5, "spread_deg": 0.5, "radius": 10.0, "pellets": 1, "part_mult": 1.0,
+			"explosive": 150.0, "recoil": 3.4, "ammo": 6, "ammo_price": 45.0, "sound": "launcher"}
+	}
+}

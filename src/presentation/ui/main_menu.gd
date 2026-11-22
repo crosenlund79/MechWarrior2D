@@ -242,10 +242,31 @@ func _show_slots() -> void:
 	_layout()
 
 
+## After the slot: pick a difficulty (Wanderer / Jäger / Veteran) on the same card.
 func _new_in(slot: int) -> void:
+	for c in _slots.get_children():
+		c.queue_free()
+	_slots.add_child(_ink(tr("MENU_PICK_DIFFICULTY"), 15))
+	var dt: Dictionary = Content.tuning.get("difficulty", {})
+	for id in dt.get("order", ["wanderer", "jaeger", "veteran"]):
+		var did := str(id)
+		var b := _menu_btn(tr("DIFF_" + did.to_upper()), func() -> void: _start(slot, did))
+		b.name = "Diff_" + did
+		b.add_theme_font_size_override("font_size", 16)
+		_slots.add_child(b)
+		var d := _ink(tr("DIFF_" + did.to_upper() + "_DESC"), 11)
+		d.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_slots.add_child(d)
+		if did == str(dt.get("default", "jaeger")):
+			b.call_deferred("grab_focus")
+	_slots.add_child(_menu_btn(tr("MENU_BACK"), _show_slots))
+	_layout()
+
+
+func _start(slot: int, difficulty: String) -> void:
 	if Saves.has_save(slot):
 		Saves.delete_slot(slot)
-	Session.start_new(slot)
+	Session.start_new(slot, difficulty)
 
 
 func _continue(slot: int) -> void:

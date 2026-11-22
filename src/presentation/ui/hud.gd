@@ -42,6 +42,8 @@ var garage: GarageMenu
 var map_screen: JourneyMap
 var fuel_bar: ProgressBar
 var fuel_label: Label
+var ammo_label: Label
+var contract_label: Label
 var money_label: Label
 var ribbon: HazardRibbon
 var minimap: Minimap
@@ -156,6 +158,9 @@ func _build() -> void:
 	fuel_label = UiTheme.label("", 12, UiTheme.DIM)
 	v.add_child(fuel_label)
 	fuel_bar = _bar(v, UiTheme.STRAW)
+	ammo_label = UiTheme.label("", 13, UiTheme.PAPER)
+	ammo_label.name = "Ammo"
+	v.add_child(ammo_label)
 	cool_label = UiTheme.label("", 13, UiTheme.PAPER)
 	v.add_child(cool_label)
 	status_label = UiTheme.label("", 13, UiTheme.PAPER)
@@ -203,6 +208,10 @@ func _build() -> void:
 	cp.add_child(cv)
 	money_label = UiTheme.label("", 15, UiTheme.STRAW)
 	cv.add_child(money_label)
+	contract_label = UiTheme.label("", 12, UiTheme.COOLANT)
+	contract_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	contract_label.custom_minimum_size = Vector2(340, 0)
+	cv.add_child(contract_label)
 	cargo_label = UiTheme.label("", 14)
 	cv.add_child(cargo_label)
 	zone_label = UiTheme.label("", 13, UiTheme.DIM)
@@ -356,6 +365,11 @@ func _process(delta: float) -> void:
 	fuel_bar.value = Session.fuel() / maxf(fc, 1.0)
 	fuel_label.text = tr("HUD_FUEL") % [int(round(Session.fuel())), int(round(fc))] + ("  ·  " + tr("HUD_LIMP") if Session.limp_mode() else "")
 	fuel_label.add_theme_color_override("font_color", UiTheme.DANGER if Session.fuel() < float(Session.tun("economy").get("low_fuel_warn", 15.0)) else UiTheme.DIM)
+	var wid := Session.weapon_id()
+	var am := Session.ammo(wid)
+	ammo_label.text = tr("HUD_AMMO") % [tr(str(Arsenal.def(wid).get("name", wid))), am, Session.ammo_capacity(wid)]
+	ammo_label.add_theme_color_override("font_color", UiTheme.DANGER if am <= Session.ammo_capacity(wid) * 0.15 else UiTheme.PAPER)
+	contract_label.text = _contract_line()
 	var rk: Dictionary = Session.state.get("rank", {})
 	money_label.text = tr("HUD_MONEY") % [Session.money(), int(rk.get("level", 1)), tr("RANK_%d" % int(rk.get("level", 1)))]
 	exit_panel.visible = not Session.exit_prompt.is_empty()
@@ -493,3 +507,14 @@ func _on_notice(key: String, args: Array) -> void:
 	tw.tween_interval(3.2)
 	tw.tween_property(l, "modulate:a", 0.0, 0.8)
 	tw.tween_callback(l.queue_free)
+
+
+## One line per active contract (progress, or "return to a settlement").
+func _contract_line() -> String:
+	var lines: PackedStringArray = []
+	for c in Session.contracts().get("active", []):
+		if str(c.get("status", "")) == "ready":
+			lines.append(tr("HUD_CONTRACT_READY") % tr(str(c.get("title", ""))))
+		else:
+			lines.append(tr("HUD_CONTRACT") % [tr(str(c.get("title", ""))), int(c.get("progress", 0)), int(c.get("count", 1))])
+	return "\n".join(lines)

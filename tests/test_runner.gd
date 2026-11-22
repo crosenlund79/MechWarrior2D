@@ -1699,3 +1699,182 @@ func test_cj_menu_uses_creator_logo_and_prints() -> void:
 	check(menu.logo_source() == "bundled", "the logo comes from the creator's file (%s)" % menu.logo_source())
 	check(menu.print_sources() == ["bundled", "bundled"], "both creator prints are on the table (%s)" % [menu.print_sources()])
 	menu.queue_free()
+
+
+# ---------------------------------------------------------------- complete game: stage B
+
+func test_cg_weapons_ammo_pellets_and_restock() -> void:
+	var s := _fresh_session()
+	check(Session.weapon_id() == "mg" and Session.ammo() == Session.ammo_capacity("mg") and Session.ammo() > 0, "a new car carries the twin MG with full belts")
+	s["mech"]["engine"] = "running"
+	Session.housing_angle = 0.0
+	Session.aim_point = Session.mech_pos() + Vector2(0, -400)
+	var a0 := Session.ammo()
+	Session.fire_held = true
+	for i in 20:
+		Session.tick(0.05)
+	Session.fire_held = false
+	check(Session.ammo() < a0, "firing uses ammunition (%d → %d)" % [a0, Session.ammo()])
+	s["mech"]["ammo"]["mg"] = 0
+	Session.projectiles.clear()
+	Session._fire_cd = 0.0
+	Session.fire_held = true
+	for i in 10:
+		Session.tick(0.05)
+	Session.fire_held = false
+	check(Session.projectiles.is_empty(), "an empty weapon does not fire")
+	s["mech"]["owned_weapons"]["flak"] = true
+	s["mech"]["ammo"]["flak"] = 10
+	check(Session.select_weapon("flak"), "swap to the flak gun")
+	Session._fire_cd = 0.0
+	Session._swap_t = 0.0
+	Session.projectiles.clear()
+	Session.fire_held = true
+	Session.tick(0.05)
+	Session.fire_held = false
+	check(Session.projectiles.size() == int(Arsenal.def("flak")["pellets"]), "one flak shell = %d pellets (%d)" % [int(Arsenal.def("flak")["pellets"]), Session.projectiles.size()])
+	_at_settlement(s)
+	s["money"] = 5000
+	var cost := Session.restock_cost()
+	check(cost > 0 and Session.restock_ammo() > 0, "restocking costs money (%d M) and fills the racks" % cost)
+	check(Session.ammo("mg") == Session.ammo_capacity("mg") and Session.ammo("flak") == Session.ammo_capacity("flak"), "every owned family is full")
+	Session.running = false
+
+
+func test_cg_buy_weapon_requires_shop_rank_money() -> void:
+	var s := _fresh_session()
+	s["money"] = 100000
+	check(Session.weapon_check("flak") == "SHOP_NOT_HERE", "weapons are only sold in settlements that stock them")
+	_at_settlement(s)
+	check(Session.weapon_check("rifle") in ["SHOP_NOT_HERE", "GARAGE_RANK_LOCKED"], "Ersthafen does not sell the precision cannon to a novice")
+	s["rank"] = {"xp": 400, "level": 3}
+	check(Session.weapon_check("flak") == "" and Session.buy_weapon("flak"), "buy the flak gun in Ersthafen")
+	check(Session.weapon_id() == "flak" and Session.ammo("flak") == Session.ammo_capacity("flak"), "it comes mounted with full ammunition")
+	check(Session.weapon_check("flak") == "SHOP_OWNED", "cannot buy it twice")
+	Session.running = false
+
+
+func test_cg_chassis_character_and_switch() -> void:
+	var s := _fresh_session()
+	var base := Session.car_tun()
+	s["mech"]["owned_chassis"]["falke"] = true
+	s["mech"]["owned_chassis"]["baer"] = true
+	s["mech"]["chassis"] = "falke"
+	var f := Session.car_tun()
+	s["mech"]["chassis"] = "baer"
+	var b := Session.car_tun()
+	check(float(f["max_speed"]) > float(base["max_speed"]) and float(f["accel"]) > float(base["accel"]), "the Falke is faster and quicker")
+	check(float(b["integrity"]) > float(base["integrity"]) and float(b["damage_taken"]) < 1.0, "the Bär is tougher")
+	check(float(b["max_speed"]) < float(base["max_speed"]), "the Bär is slower")
+	s["mech"]["chassis"] = "marder"
+	var cap0 := Session.cargo_capacity()
+	_at_settlement(s)
+	s["mech"]["integrity"] = Session.max_integrity() * 0.5
+	check(Session.switch_chassis("baer"), "switch chassis at a garage")
+	check(Session.cargo_capacity() > cap0, "the Bär's bed is bigger")
+	check(absf(float(s["mech"]["integrity"]) / Session.max_integrity() - 0.5) < 0.01, "condition carries over as a fraction")
+	Session.running = false
+
+
+func test_cg_new_upgrade_lines() -> void:
+	var s := _fresh_session()
+	var cap := Session.fuel_capacity()
+	var am := Session.ammo_capacity("mg")
+	s["mech"]["upgrades"]["fuel"] = 2
+	s["mech"]["upgrades"]["ammo"] = 1
+	check(Session.fuel_capacity() > cap, "auxiliary tanks raise the fuel capacity (%d → %d)" % [int(cap), int(Session.fuel_capacity())])
+	check(Session.ammo_capacity("mg") > am, "ammunition racks raise capacity")
+	for line in ["suspension", "mounts", "ammo", "tracker", "fuel"]:
+		check(line in Garage.MODULES and Garage.max_level(Session.tun("shop"), line) >= 3, "%s line exists with 3 levels" % line)
+	Session.running = false
+
+
+func test_cg_contracts_board_progress_turn_in() -> void:
+	var s := _fresh_session()
+	_at_settlement(s)
+	var board := Session.contract_board()
+	check(board.size() >= 2, "Ersthafen posts contracts (%d)" % board.size())
+	var picked := {}
+	for c in board:
+		if str(c["kind"]) == "hunt" and str(c.get("species", "")) == "skirr":
+			picked = c
+			break
+	check(not picked.is_empty(), "a skirr bounty is offered")
+	check(Session.accept_contract(str(picked["id"])) == "", "take it")
+	for i in int(picked["count"]):
+		Session.contract_event({"type": "kill", "species": "skirr", "node": str(picked["node"])})
+	var a: Dictionary = Session.contracts()["active"][0]
+	check(str(a["status"]) == "ready", "kills in the right territory complete it")
+	var m0 := Session.money()
+	check(Session.turn_in_contracts() == int(picked["reward"]) and Session.money() == m0 + int(picked["reward"]), "payment at the settlement")
+	check(Session.contracts()["active"].is_empty(), "the contract is closed")
+	Session.running = false
+
+
+func test_cg_generated_contracts_are_possible() -> void:
+	var cs := Contracts.create()
+	for node in Journey.nodes():
+		if not Journey.is_safe(str(node)):
+			continue
+		for c in Contracts.generate(cs, str(node), 1):
+			var loc := Content.location(str(Journey.node(str(c["node"])).get("location", "")))
+			var ok := false
+			match str(c["kind"]):
+				"hunt":
+					for d in loc.get("creatures", []):
+						ok = ok or str(d.get("species", "")) == str(c["species"])
+				"cull":
+					ok = loc.get("creatures", []).size() >= int(c["count"])
+				"recover":
+					for p in loc.get("pois", []):
+						ok = ok or str(p["id"]) == str(c["poi"])
+			check(ok, "%s from %s: %s in %s is possible" % [c["kind"], node, c.get("species", c.get("poi", "")), c["node"]])
+
+
+func test_cg_recovery_tows_home_with_losses() -> void:
+	var s := _fresh_session()
+	_at_settlement(s)
+	s["journey"]["last_safe"] = "ersthafen"
+	check(Session.travel_to("taubecken") == "", "drive out")
+	Session.mech()["integrity"] = 0.0
+	Session.mech()["storage"] = {"rime_hide": 4, "scrap": 2}
+	Session.state["money"] = 1000
+	var case_before: bool = Session.journey()["cargo_intact"]
+	check(Session.can_call_recovery(), "recovery can be called from a territory")
+	check(Session.call_recovery(), "call the recovery truck")
+	check(Session.current_node() == "ersthafen" and Session.is_safe_zone(), "towed to the last settlement")
+	check(Session.money() == 1000 - int(Session.diff("tow_fee", 200.0)), "the tow fee is paid")
+	check(int(Session.mech()["storage"].get("rime_hide", 0)) < 4, "part of the cargo is lost")
+	check(float(Session.mech()["integrity"]) > 0.0 and Session.fuel() > 0.0, "the car is drivable again")
+	check(Session.journey()["cargo_intact"] == case_before, "the sealed case is never lost")
+	Session.running = false
+
+
+func test_cg_difficulty_presets_change_the_hunt() -> void:
+	var s := _fresh_session()
+	s["difficulty"] = "wanderer"
+	var w: Dictionary = Session.creature_tuning()["rimeback"]
+	s["difficulty"] = "veteran"
+	var v: Dictionary = Session.creature_tuning()["rimeback"]
+	check(float(w["hp"]) < float(v["hp"]), "Veteran creatures are tougher")
+	var dmg_keys := 0
+	for k in w:
+		if str(k).ends_with("_damage") and float(w[k]) < float(v[k]):
+			dmg_keys += 1
+	check(dmg_keys > 0, "and hit harder")
+	s["difficulty"] = "wanderer"
+	var sw := Session.item_value("rime_hide")
+	s["difficulty"] = "veteran"
+	check(Session.item_value("rime_hide") < sw, "loot sells for less on Veteran")
+	Session.running = false
+
+
+func test_cg_launcher_blast_hurts_nearby_creatures() -> void:
+	var s := _fresh_session()
+	var ids: Array = s["creatures"].keys()
+	var c: Dictionary = s["creatures"][ids[0]]
+	c["ai"] = "roam"
+	var hp0 := float(c["hp"])
+	Session._explode(Content.v2(c["pos"]) + Vector2(60, 0), 150.0, 60.0, {"damage": 60.0, "owner": "player"})
+	check(float(c["hp"]) < hp0, "a launcher blast damages a creature 60 px away")
+	Session.running = false

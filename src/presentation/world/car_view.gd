@@ -81,7 +81,7 @@ func _ready() -> void:
 	body.add_child(chassis)
 	for i in 4:
 		wheels.append(_part("car.wheel", WHEELS[i], chassis))
-	hull = _part("car.body", Vector2.ZERO, chassis)
+	hull = _part(Vehicles.body_asset(Session.chassis_id()) if not Session.state.is_empty() else "car.body", Vector2.ZERO, chassis)
 	for sx in [-1.0, 1.0]:
 		var hl := LightKit.glow(Color(1.0, 0.82, 0.5), 0.9, 0.0)
 		hl.position = Vector2(sx * 40.0, -150.0)
@@ -313,13 +313,18 @@ func _on_mech_event(ev: String) -> void:
 			_shake = 1.0
 		"repaired":
 			_shake = 0.3
+		"chassis":
+			var bid := Vehicles.body_asset(Session.chassis_id())
+			hull.set_meta("asset", bid)
+			Assets.apply_to_sprite(hull, bid)
+			_build_shadow()
 
 
-func _fire_kick(i: int) -> void:
+func _fire_kick(i: int, k: float = 1.0) -> void:
 	var rc: Dictionary = Session.tun("combat").get("recoil", {})
-	_gun_vel[i] += float(rc.get("gun_kick", 22.0)) * 10.0
-	_h_vel += float(rc.get("housing_kick", 7.0)) * 10.0
-	_h_rot_vel += (-1.0 if i == 0 else 1.0) * float(rc.get("housing_rock", 0.05)) * 14.0
+	_gun_vel[i] += float(rc.get("gun_kick", 22.0)) * 10.0 * k
+	_h_vel += float(rc.get("housing_kick", 7.0)) * 10.0 * k
+	_h_rot_vel += (-1.0 if i == 0 else 1.0) * float(rc.get("housing_rock", 0.05)) * 14.0 * k
 	flashes[i].visible = true
 	flashes[i].modulate.a = 1.0
 	flashes[i].rotation = randf_range(-0.25, 0.25)
@@ -378,9 +383,13 @@ func on_combat(kind: String, data: Dictionary) -> void:
 			sp.global_position = global_position + Drive.forward(body.rotation) * 110.0
 			sp.emitting = true
 			sp.finished.connect(sp.queue_free)
+		"explosion":
+			var near := clampf(1.0 - global_position.distance_to(data.get("pos", global_position)) / 900.0, 0.0, 1.0)
+			if near > 0.0 and world_ref and world_ref.camera:
+				world_ref.camera.add_shake(0.25 + near * 0.6, 0.9)
 		"muzzle":
 			if str(data.get("owner", "")) == "player":
-				_fire_kick(int(data.get("barrel", 0)) % 2)
+				_fire_kick(int(data.get("barrel", 0)) % 2, float(data.get("recoil", 1.0)))
 				if world_ref and world_ref.camera:
 					var rc: Dictionary = Session.tun("combat").get("recoil", {})
 					world_ref.camera.add_shake(float(rc.get("shake", 0.16)) * 0.8, float(rc.get("shake_max", 0.45)))

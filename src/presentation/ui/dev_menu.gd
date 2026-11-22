@@ -75,6 +75,8 @@ func _build() -> void:
 	_pick_row(_upgrade_pick, "Grant upgrade level", func() -> void:
 		if not Session.dev_grant_upgrade(Garage.MODULES[_upgrade_pick.selected]):
 			Session.notice.emit("NOTICE_DEV", ["GARAGE_MAXED"]))
+	_row([["All weapons + full ammo", func() -> void: Session.dev_grant_weapons()], ["All chassis", func() -> void: Session.dev_grant_chassis()]])
+	_toggle("inf_ammo", "Infinite ammunition", func() -> void: Session.dev["infinite_ammo"] = not bool(Session.dev.get("infinite_ammo", false)))
 	_head("Journey")
 	_node_pick = OptionButton.new()
 	for id in Journey.nodes():
@@ -175,6 +177,7 @@ func _process(_delta: float) -> void:
 	(_labels["dyn"][0] as Button).text = "%s: %s" % [_labels["dyn"][1], on.call(d["dynamic_weather"])]
 	(_labels["aggro"][0] as Button).text = "%s: %s" % [_labels["aggro"][1], on.call(d["aggression"])]
 	(_labels["invuln"][0] as Button).text = "%s: %s" % [_labels["invuln"][1], on.call(d["invulnerable"])]
+	(_labels["inf_ammo"][0] as Button).text = "%s: %s" % [_labels["inf_ammo"][1], on.call(bool(d.get("infinite_ammo", false)))]
 	var w := Session.weather()
 	var n_dev := 0
 	for id in Session.state.get("enemies", {}):

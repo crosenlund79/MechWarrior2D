@@ -11,7 +11,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 	Content.ensure()
 	var start: Dictionary = loc.get("mech_start", {})
 	var p := Content.v2(start.get("pos", [800, 1250]))
-	return {
+	var s := {
 		"id": "run_%d_%d" % [int(Time.get_unix_time_from_system()), randi() % 100000],
 		"slot": slot,
 		"created_unix": int(Time.get_unix_time_from_system()),
@@ -53,7 +53,13 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 		"rank": {"xp": 0, "level": 1},
 		"weather": Weather.create(Content.tuning.get("weather", {})),
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0, "kills": 0, "harvests": 0, "upgrades": 0},
+		"difficulty": str(Content.tuning.get("difficulty", {}).get("default", "jaeger")),
+		"contracts": Contracts.create(),
+		"story": {"flags": {}, "seen": {}, "act": 1},
 	}
+	Vehicles.ensure(s["mech"])
+	Arsenal.ensure(s["mech"], Content.tuning.get("shop", {}), s["mech"]["upgrades"])
+	return s
 
 
 static func create_world() -> Dictionary:
@@ -284,7 +290,16 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	s["rank"]["level"] = rank_for_xp(int(s["rank"]["xp"]))
 	if not (s.get("sites") is Dictionary):
 		s["sites"] = {}
-	m["fuel"] = clampf(float(m.get("fuel", Content.t("economy", "start_fuel", 100.0))), 0.0, Content.t("economy", "fuel_capacity", 100.0))
+	# (the real capacity depends on chassis + fuel upgrades; Session clamps on use)
+	m["fuel"] = clampf(float(m.get("fuel", Content.t("economy", "start_fuel", 100.0))), 0.0, 1000.0)
+	Vehicles.ensure(m)
+	Arsenal.ensure(m, Content.tuning.get("shop", {}), m["upgrades"])
+	for wk in m["ammo"].keys():
+		m["ammo"][wk] = maxi(0, int(m["ammo"][wk]))
+	var dtun: Dictionary = Content.tuning.get("difficulty", {})
+	if not dtun.has(str(s.get("difficulty", ""))) or str(s.get("difficulty", "")).begins_with("_"):
+		s["difficulty"] = str(dtun.get("default", "jaeger"))
+	s["contracts"] = Contracts.sanitize(s.get("contracts"))
 	if not (s["world"].get("pois") is Dictionary):
 		s["world"]["pois"] = {}
 	if not (s.get("garage") is Dictionary):

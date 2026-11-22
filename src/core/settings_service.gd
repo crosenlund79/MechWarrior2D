@@ -25,9 +25,15 @@ const ACTIONS := {
 	"garage": [KEY_G],
 	"help": [KEY_H],
 	"journey_map": [KEY_M],
+	"weapon_next": [KEY_Q],
+	"weapon_1": [KEY_1],
+	"weapon_2": [KEY_2],
+	"weapon_3": [KEY_3],
+	"weapon_4": [KEY_4],
+	"weapon_5": [KEY_5],
 	"dev_menu": [KEY_F10],
 }
-const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "handbrake", "interact", "service", "garage", "fire", "help", "journey_map", "zoom_in", "zoom_out"]
+const REMAPPABLE := ["move_up", "move_down", "move_left", "move_right", "handbrake", "interact", "service", "garage", "fire", "help", "journey_map", "weapon_next", "zoom_in", "zoom_out"]
 
 var values := {
 	"volume_Master": 0.8, "volume_Music": 0.55, "volume_Ambience": 0.8, "volume_SFX": 0.85, "volume_UI": 0.7,

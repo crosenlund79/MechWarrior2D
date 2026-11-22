@@ -12,6 +12,7 @@ static var tuning: Dictionary = {}
 static var items: Dictionary = {}
 static var _locations: Dictionary = {}
 static var problems: Array[String] = []
+static var _data: Dictionary = {}
 
 
 static func ensure() -> void:
@@ -21,6 +22,7 @@ static func ensure() -> void:
 
 static func reload() -> void:
 	problems.clear()
+	_data.clear()
 	_locations.clear()
 	_terrain_cache.clear()
 	var t = SafeFile.read_json(TUNING)
@@ -47,6 +49,18 @@ static func location(id: String = DEFAULT_LOCATION) -> Dictionary:
 			d = {}
 		_locations[id] = d
 	return _locations[id]
+
+
+## Any other data file: res://data/<name>.json (weapons, vehicles, contracts, story,
+## journey…), loaded once.
+static func data(name: String) -> Dictionary:
+	if not _data.has(name):
+		var d = SafeFile.read_json("res://data/%s.json" % name)
+		if d is String:
+			problems.append("%s: %s" % [name, d])
+			d = {}
+		_data[name] = d
+	return _data[name]
 
 
 static func is_item(id: String) -> bool:

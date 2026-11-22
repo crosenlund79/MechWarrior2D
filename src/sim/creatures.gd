@@ -479,17 +479,17 @@ static func damage(c: Dictionary, part: String, amount: float, ts: Dictionary, d
 static var _scaled_cache := {}
 
 
-static func scaled(tc: Dictionary, tier: int, econ: Dictionary) -> Dictionary:
-	var key := "%d_%d" % [tier, tc.hash()]
+static func scaled(tc: Dictionary, tier: int, econ: Dictionary, diff: Dictionary = {}) -> Dictionary:
+	var key := "%d_%d_%d" % [tier, tc.hash(), diff.hash()]
 	if _scaled_cache.has(key):
 		return _scaled_cache[key]
 	var out := tc.duplicate(true)
 	var k := maxf(0.0, float(tier - 1))
-	var hp_m := 1.0 + float(econ.get("tier_hp", 0.3)) * k
-	var dmg_m := 1.0 + float(econ.get("tier_damage", 0.18)) * k
+	var hp_m := (1.0 + float(econ.get("tier_hp", 0.3)) * k) * float(diff.get("creature_hp", 1.0))
+	var dmg_m := (1.0 + float(econ.get("tier_damage", 0.18)) * k) * float(diff.get("creature_damage", 1.0))
 	var sense_m := 1.0 + float(econ.get("tier_sense", 0.06)) * k
-	for sp in SPECIES:
-		if not (out.get(sp) is Dictionary):
+	for sp in out.keys():
+		if not (out.get(sp) is Dictionary) or not out[sp].has("hp"):
 			continue
 		var ts: Dictionary = out[sp]
 		ts["hp"] = float(ts.get("hp", 20.0)) * hp_m

@@ -78,6 +78,27 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 				var tw := fl.create_tween()
 				tw.tween_property(fl, "energy", 0.0, 0.18)
 				tw.tween_callback(fl.queue_free)
+		"explosion":
+			# launcher round: ground blast, fireball light, debris ring
+			var r := float(data.get("radius", 150.0))
+			var gb := FxKit.ground_blast()
+			gb.scale_amount_max = 3.0 + r / 60.0
+			_fx(gb, pos)
+			var big := FxKit.puff(Color(0.32, 0.26, 0.2, 0.85), 30)
+			big.scale_amount_max = 4.0 + r / 50.0
+			big.initial_velocity_max = r * 1.2
+			_fx(big, pos)
+			var spx := FxKit.sparks()
+			spx.amount = 40
+			spx.initial_velocity_max = r * 3.0
+			_fx(spx, pos)
+			_fx(FxKit.debris(Color(0.4, 0.32, 0.24)), pos)
+			var fb := LightKit.glow(Color(1.0, 0.62, 0.3), 2.2, 3.5)
+			add_child(fb)
+			fb.global_position = pos
+			var tw2 := fb.create_tween()
+			tw2.tween_property(fb, "energy", 0.0, 0.45)
+			tw2.tween_callback(fb.queue_free)
 		"cooling_hit":
 			_fx(FxKit.sparks(), pos)
 			_fx(FxKit.puff(Color(0.4, 0.8, 0.75, 0.75), 14), pos)

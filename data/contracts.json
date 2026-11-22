@@ -1,0 +1,7 @@
+{
+	"_note": "Authored Jäger contracts (story and fixed). Fields: kind (hunt|cull|apex|investigate|recover), node (territory), species/creature/poi, count, reward (Mark), xp, boards (settlements that post it; empty = any), requires/until (story flags), on_complete (flag set when paid), story (cannot be abandoned), repeat.",
+	"contracts": {
+		"ct_skirr_pests": {"kind": "hunt", "title": "CT_SKIRR_PESTS", "desc": "CT_SKIRR_PESTS_DESC", "node": "taubecken", "species": "skirr", "count": 3,
+			"reward": 180, "xp": 40, "boards": ["ersthafen"]}
+	}
+}

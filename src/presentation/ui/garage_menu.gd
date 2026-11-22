@@ -17,13 +17,16 @@ var _head: Label
 var _tab := "workshop"
 var _tabs: HBoxContainer
 
-const TABS := ["workshop", "market", "upgrades", "storage"]
-const TAB_SERVICE := {"workshop": "repair", "market": "sell", "upgrades": "upgrade", "storage": "storage"}
+const TABS := ["workshop", "market", "contracts", "upgrades", "arsenal", "storage"]
+const TAB_SERVICE := {"workshop": "repair", "market": "sell", "contracts": "sell", "upgrades": "upgrade", "arsenal": "repair", "storage": "storage"}
 const EFFECT_KEYS := {
 	"integrity": "GARAGE_FX_INTEGRITY", "cooling_mult": "GARAGE_FX_COOLING", "grip_mult": "GARAGE_FX_GRIP",
 	"accel_mult": "GARAGE_FX_ACCEL", "speed_mult": "GARAGE_FX_SPEED", "damage_mult": "GARAGE_FX_DAMAGE",
 	"cooldown_mult": "GARAGE_FX_RATE", "cargo": "GARAGE_FX_CARGO", "tracker_mult": "GARAGE_FX_TRACKER",
 	"range_mult": "GARAGE_FX_RANGE", "bullet_mult": "GARAGE_FX_BULLET", "heat_mult": "GARAGE_FX_HEAT",
+	"rough_mult": "GARAGE_FX_ROUGH", "impact_mult": "GARAGE_FX_IMPACT", "turn_mult": "GARAGE_FX_SLEW",
+	"swap_mult": "GARAGE_FX_SWAP", "recoil_mult": "GARAGE_FX_RECOIL", "ammo_mult": "GARAGE_FX_AMMO",
+	"scan_mult": "GARAGE_FX_SCAN", "fuel_cap": "GARAGE_FX_FUEL",
 }
 
 
@@ -115,6 +118,10 @@ func _refresh() -> void:
 			_upgrades()
 		"storage":
 			_storage()
+		"contracts":
+			_contracts()
+		"arsenal":
+			_arsenal()
 
 
 func _row(text: String, size_px: int = 16, color: Color = UiTheme.PAPER) -> HBoxContainer:
@@ -151,6 +158,11 @@ func _workshop() -> void:
 			_status.text = tr("NOTICE_NO_MONEY"))
 	if not Session.has_service("fuel"):
 		_row(tr("GARAGE_NO_FUEL_HERE"), 13, UiTheme.DIM)
+	var ac := Session.restock_cost()
+	var h3 := _row(tr("GARAGE_AMMO") % ac if ac > 0 else tr("GARAGE_AMMO_FULL"))
+	_button(h3, "Restock", tr("GARAGE_RESTOCK_BTN"), ac > 0 and Session.money() > 0, func() -> void:
+		if Session.restock_ammo() <= 0:
+			_status.text = tr("NOTICE_NO_MONEY"))
 	_row(tr("GARAGE_CARGO_OBJECTIVE") % tr(str(Journey.data().get("cargo", {}).get("name", ""))), 13, UiTheme.DIM)
 
 
@@ -211,6 +223,109 @@ func _upgrades() -> void:
 				_status.text = tr(Session.garage_check(module)))
 		if reason != "":
 			b.tooltip_text = tr(reason)
+
+
+## Jäger contracts: active ones (progress, turn in) and this board's offers.
+func _contracts() -> void:
+	var cs := Session.contracts()
+	_row(tr("CT_ACTIVE") % [cs["active"].size(), Contracts.MAX_ACTIVE], 16, UiTheme.STRAW)
+	var ready := 0
+	for c in cs["active"]:
+		var done := str(c.get("status", "")) == "ready"
+		if done:
+			ready += 1
+		var h := _row("%s %s — %s  [%d/%d]  %d M" % ["✔" if done else "•", _ct_title(c), _ct_goal(c), int(c["progress"]), int(c["count"]), int(c.get("reward", 0))],
+			15, UiTheme.COOLANT if done else UiTheme.PAPER)
+		if not bool(c.get("story", false)) and not done:
+			var cid := str(c["id"])
+			_button(h, "Abandon_" + cid, tr("CT_ABANDON"), true, func() -> void: Session.abandon_contract(cid))
+	if cs["active"].is_empty():
+		_row(tr("CT_NONE"), 14, UiTheme.DIM)
+	if ready > 0:
+		var h2 := _row(tr("CT_READY") % ready, 15, UiTheme.STRAW)
+		_button(h2, "TurnIn", tr("CT_TURN_IN"), true, func() -> void:
+			var m := Session.turn_in_contracts()
+			_status.text = tr("CT_PAID") % m)
+	_body.add_child(HSeparator.new())
+	_row(tr("CT_BOARD") % tr(str(Journey.node(Session.current_node()).get("name", ""))), 16, UiTheme.STRAW)
+	var offers := Session.contract_board()
+	if offers.is_empty():
+		_row(tr("CT_BOARD_EMPTY"), 14, UiTheme.DIM)
+	for c in offers:
+		var cid2 := str(c["id"])
+		var h3 := _row("%s%s — %s · %s\n%d M · %d XP" % ["★ " if bool(c.get("story", false)) else "", _ct_title(c), _ct_goal(c),
+			tr(str(Journey.node(str(c.get("node", ""))).get("name", ""))) if str(c.get("node", "")) != "" else "", int(c.get("reward", 0)), int(c.get("xp", 0))], 14)
+		if str(c.get("desc", "")) != "":
+			_row("   " + tr(str(c["desc"])), 12, UiTheme.DIM)
+		_button(h3, "Accept_" + cid2, tr("CT_ACCEPT"), cs["active"].size() < Contracts.MAX_ACTIVE, func() -> void:
+			var err := Session.accept_contract(cid2)
+			_status.text = tr(err) if err != "" else tr("CT_TAKEN_OK"))
+
+
+func _ct_title(c: Dictionary) -> String:
+	return tr(str(c.get("title", "CT_HUNT")))
+
+
+func _ct_goal(c: Dictionary) -> String:
+	match str(c.get("kind", "")):
+		"hunt":
+			return tr("CTG_HUNT") % [int(c.get("count", 1)), tr("SPECIES_" + str(c.get("species", "")).to_upper())]
+		"cull":
+			return tr("CTG_CULL") % int(c.get("count", 1))
+		"apex":
+			return tr("CTG_APEX") % tr(str(c.get("target_name", "APEX")))
+		"investigate":
+			return tr("CTG_INVESTIGATE")
+		"recover":
+			return tr("CTG_RECOVER")
+	return ""
+
+
+## Weapons (mounted, owned, for sale) and chassis (owned, for sale).
+func _arsenal() -> void:
+	_row(tr("ARS_WEAPONS"), 16, UiTheme.STRAW)
+	for id in Session.owned_weapons():
+		var d := Arsenal.def(str(id))
+		var mounted := str(id) == Session.weapon_id()
+		var h := _row("%s %s — %s  %d/%d" % ["▶" if mounted else " ", tr(str(d.get("name", id))), tr("ARS_AMMO"), Session.ammo(str(id)), Session.ammo_capacity(str(id))],
+			15, UiTheme.COOLANT if mounted else UiTheme.PAPER)
+		var wid := str(id)
+		_button(h, "Mount_" + wid, tr("ARS_MOUNT"), not mounted, func() -> void: Session.select_weapon(wid))
+	for id in Arsenal.for_sale(Session.current_node(), Session.mech()):
+		var d2 := Arsenal.def(str(id))
+		var reason := Session.weapon_check(str(id))
+		var h2 := _row("%s — %s\n   %s" % [tr(str(d2.get("name", id))), tr("ARS_PRICE") % [int(d2.get("price", 0)), int(d2.get("rank", 1))], tr(str(d2.get("desc", "")))],
+			14, UiTheme.PAPER if reason == "" else UiTheme.WARNING)
+		var wid2 := str(id)
+		var b := _button(h2, "BuyWeapon_" + wid2, tr("GARAGE_BUY") % int(d2.get("price", 0)), reason == "", func() -> void:
+			if Session.buy_weapon(wid2):
+				_status.text = tr("NOTICE_WEAPON_BOUGHT") % tr(str(d2.get("name", wid2)))
+			else:
+				_status.text = tr(Session.weapon_check(wid2)))
+		if reason != "":
+			b.tooltip_text = tr(reason)
+	_body.add_child(HSeparator.new())
+	_row(tr("ARS_CHASSIS"), 16, UiTheme.STRAW)
+	for id in Vehicles.order():
+		var cd := Vehicles.def(str(id))
+		var owned: bool = Session.mech()["owned_chassis"].has(id)
+		var driving := str(id) == Session.chassis_id()
+		var sold: bool = Session.current_node() in cd.get("sold", [])
+		if not owned and not sold:
+			continue
+		var line := "%s %s (%s)\n   %s" % ["▶" if driving else " ", tr(str(cd.get("name", id))), str(cd.get("maker", "")), tr(str(cd.get("desc", "")))]
+		var cid := str(id)
+		if owned:
+			var h3 := _row(line, 14, UiTheme.COOLANT if driving else UiTheme.PAPER)
+			_button(h3, "Drive_" + cid, tr("ARS_DRIVE"), not driving and Session.at_garage(), func() -> void: Session.switch_chassis(cid))
+		else:
+			var reason2 := Session.chassis_check(cid)
+			var h4 := _row(line + "\n   " + tr("ARS_PRICE") % [int(cd.get("price", 0)), int(cd.get("rank", 1))], 14, UiTheme.PAPER if reason2 == "" else UiTheme.WARNING)
+			var b2 := _button(h4, "BuyChassis_" + cid, tr("GARAGE_BUY") % int(cd.get("price", 0)), reason2 == "", func() -> void:
+				if not Session.buy_chassis(cid):
+					_status.text = tr(Session.chassis_check(cid)))
+			if reason2 != "":
+				b2.tooltip_text = tr(reason2)
 
 
 func _storage() -> void:

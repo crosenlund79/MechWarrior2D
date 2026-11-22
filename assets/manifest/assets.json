@@ -2075,6 +2075,42 @@
 			],
 			"note": "main-menu title; the creator's 'assets/Illustrations/Thawborn Logo.png' is used when present",
 			"creator": "res://assets/Illustrations/Thawborn Logo.png"
+		},
+		"car.body_falke": {
+			"path": "vehicles/player/body_falke",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "Krähe Falke chassis (light scout), same layout as car.body"
+		},
+		"car.body_baer": {
+			"path": "vehicles/player/body_baer",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "Eisenwolf Bär chassis (heavy hunter), same layout as car.body"
 		}
 	},
 	"tiles": {

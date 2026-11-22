@@ -221,7 +221,7 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		"muzzle":
 			var owner := str(data.get("owner", ""))
 			if owner == "player":
-				_heavy_shot(int(data.get("barrel", 0)))
+				_weapon_shot(str(data.get("weapon", "mg")), int(data.get("barrel", 0)))
 			elif owner == "turret":
 				Audio.play_at("sfx.turret_fire", pos, world, -2.0, randf_range(0.7, 0.78))
 			else:
@@ -234,6 +234,13 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 		"player_hit":
 			if str(data.get("kind", "")) == "structure":
 				Audio.play("sfx.armor_break", -4.0, randf_range(0.9, 1.05), 150)
+		"explosion":
+			Audio.play_at("sfx.wreck", pos, world, 3.0, _rng.randf_range(0.62, 0.7))
+			Audio.play_at("sfx.impact", pos, world, 0.0, _rng.randf_range(0.45, 0.5))
+		"dry_fire":
+			Audio.play("sfx.gun_cycle", -8.0, 1.3, 300)
+		"weapon_swap":
+			Audio.play("sfx.gun_cycle", -6.0, 0.8, 200)
 		"cooling_hit":
 			Audio.play_at("sfx.cooling_hit", pos, world, -3.0)
 		"enemy_windup":
@@ -311,6 +318,29 @@ func _on_combat(kind: String, data: Dictionary) -> void:
 ## limited, so alternating barrels never pile up into distortion):
 ##   blast (pitched-down shot) → bolt cycling (delayed clack) → metallic ring of
 ##   the housing → a low, distant report on every other shot.
+## Each roof-weapon family has its own voice, layered from the gun clips.
+func _weapon_shot(weapon: String, barrel: int) -> void:
+	match weapon:
+		"flak":
+			Audio.play("sfx.gun_fire", 1.0, _rng.randf_range(0.48, 0.54), 25)
+			Audio.play("sfx.gun_report", -4.0, _rng.randf_range(0.45, 0.5), 25)
+			Audio.play("sfx.impact", -10.0, _rng.randf_range(0.6, 0.7), 25)
+		"autocannon":
+			Audio.play("sfx.gun_fire_b", 2.0, _rng.randf_range(0.42, 0.46), 25)
+			Audio.play("sfx.gun_ring", -8.0, _rng.randf_range(0.3, 0.34), 25)
+			get_tree().create_timer(0.12).timeout.connect(func() -> void:
+				Audio.play("sfx.gun_cycle", -6.0, _rng.randf_range(0.5, 0.56), 25))
+		"rifle":
+			Audio.play("sfx.gun_report", 2.0, _rng.randf_range(0.95, 1.02), 25)
+			Audio.play("sfx.gun_ring", -6.0, _rng.randf_range(0.62, 0.68), 25)
+			Audio.play("sfx.gun_fire", -6.0, _rng.randf_range(0.36, 0.4), 25)
+		"launcher":
+			Audio.play("sfx.steam", -2.0, _rng.randf_range(0.6, 0.66), 25)
+			Audio.play("sfx.gun_fire_b", -6.0, _rng.randf_range(0.34, 0.38), 25)
+		_:
+			_heavy_shot(barrel)
+
+
 func _heavy_shot(barrel: int) -> void:
 	Audio.play("sfx.gun_fire" if barrel == 0 else "sfx.gun_fire_b", -2.0, _rng.randf_range(0.7, 0.78), 25)
 	Audio.play("sfx.gun_ring", -15.0, _rng.randf_range(0.42, 0.5), 25)
