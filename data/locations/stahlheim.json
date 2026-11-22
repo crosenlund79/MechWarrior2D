@@ -7,8 +7,8 @@
 	"bounds": [
 		0,
 		0,
-		4400,
-		3400
+		6400,
+		5000
 	],
 	"default_zone": {
 		"ambient": 65.5,
@@ -126,94 +126,372 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
 		{
-			"id": "yard",
+			"id": "city_ground",
 			"tile": "ground.junker_dirt",
 			"polygon": [
 				[
-					730.0,
-					630.0
+					500,
+					500
 				],
 				[
-					3670.0,
-					630.0
+					5900,
+					500
 				],
 				[
-					3670.0,
-					2770.0
+					5900,
+					4500
 				],
 				[
-					730.0,
-					2770.0
+					500,
+					4500
 				]
 			]
 		},
 		{
-			"id": "road_0",
+			"id": "street_0",
 			"tile": "ground.asphalt",
-			"width": 150,
+			"width": 170,
 			"path": [
 				[
-					2200,
+					3200,
+					5000
+				],
+				[
+					3200,
+					4500
+				],
+				[
+					3200,
+					2500
+				],
+				[
+					3200,
+					2500
+				]
+			]
+		},
+		{
+			"id": "street_1",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					650,
+					1600
+				],
+				[
+					5750,
+					1600
+				]
+			]
+		},
+		{
+			"id": "street_2",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					650,
 					3400
 				],
 				[
-					2226,
-					3250
+					5750,
+					3400
+				]
+			]
+		},
+		{
+			"id": "street_3",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					1700,
+					650
 				],
 				[
-					2106,
-					3100
+					1700,
+					4350
+				]
+			]
+		},
+		{
+			"id": "street_4",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					4700,
+					650
 				],
 				[
-					2159,
-					2950
+					4700,
+					4350
+				]
+			]
+		},
+		{
+			"id": "street_5",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					650,
+					2500
 				],
 				[
-					2200,
-					2800.0
+					5750,
+					2500
+				]
+			]
+		},
+		{
+			"id": "street_6",
+			"tile": "ground.asphalt",
+			"width": 170,
+			"path": [
+				[
+					3200,
+					650
 				],
 				[
-					2200,
-					1700
+					3200,
+					4350
 				]
 			]
 		}
 	],
 	"zones": [
 		{
-			"id": "compound",
+			"id": "city",
 			"type": "settlement",
 			"polygon": [
 				[
-					700.0,
-					600.0
+					500,
+					500
 				],
 				[
-					3700.0,
-					600.0
+					5900,
+					500
 				],
 				[
-					3700.0,
-					2800.0
+					5900,
+					4500
 				],
 				[
-					700.0,
-					2800.0
+					500,
+					4500
 				]
 			]
 		}
 	],
 	"props": [
 		{
+			"id": "wall_tower_0",
+			"asset": "junker.turret_base",
+			"pos": [
+				500,
+				500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_0",
+			"asset": "junker.turret_gun",
+			"pos": [
+				500,
+				500
+			],
+			"layer": "high",
+			"rot": 334
+		},
+		{
+			"id": "wall_tower_1",
+			"asset": "junker.turret_base",
+			"pos": [
+				5900,
+				500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_1",
+			"asset": "junker.turret_gun",
+			"pos": [
+				5900,
+				500
+			],
+			"layer": "high",
+			"rot": 54
+		},
+		{
+			"id": "wall_tower_2",
+			"asset": "junker.turret_base",
+			"pos": [
+				500,
+				4500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_2",
+			"asset": "junker.turret_gun",
+			"pos": [
+				500,
+				4500
+			],
+			"layer": "high",
+			"rot": 24
+		},
+		{
+			"id": "wall_tower_3",
+			"asset": "junker.turret_base",
+			"pos": [
+				5900,
+				4500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_3",
+			"asset": "junker.turret_gun",
+			"pos": [
+				5900,
+				4500
+			],
+			"layer": "high",
+			"rot": 132
+		},
+		{
+			"id": "wall_tower_4",
+			"asset": "junker.turret_base",
+			"pos": [
+				2100,
+				4500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_4",
+			"asset": "junker.turret_gun",
+			"pos": [
+				2100,
+				4500
+			],
+			"layer": "high",
+			"rot": 117
+		},
+		{
+			"id": "wall_tower_5",
+			"asset": "junker.turret_base",
+			"pos": [
+				4300,
+				4500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_5",
+			"asset": "junker.turret_gun",
+			"pos": [
+				4300,
+				4500
+			],
+			"layer": "high",
+			"rot": 297
+		},
+		{
+			"id": "wall_tower_6",
+			"asset": "junker.turret_base",
+			"pos": [
+				500,
+				2500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_6",
+			"asset": "junker.turret_gun",
+			"pos": [
+				500,
+				2500
+			],
+			"layer": "high",
+			"rot": 246
+		},
+		{
+			"id": "wall_tower_7",
+			"asset": "junker.turret_base",
+			"pos": [
+				5900,
+				2500
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 60
+			}
+		},
+		{
+			"id": "wall_gun_7",
+			"asset": "junker.turret_gun",
+			"pos": [
+				5900,
+				2500
+			],
+			"layer": "high",
+			"rot": 266
+		},
+		{
 			"id": "werkstatt_floor",
 			"asset": "refuge.workshop_floor",
 			"pos": [
-				1940,
-				1380
+				3620,
+				3980
 			],
 			"layer": "floor"
 		},
@@ -221,8 +499,8 @@
 			"id": "werkstatt_roof",
 			"asset": "refuge.workshop_roof",
 			"pos": [
-				1940,
-				1380
+				3620,
+				3980
 			],
 			"layer": "overhead",
 			"occlude": true
@@ -231,133 +509,14 @@
 			"id": "werkstatt_sign",
 			"asset": "sign.eisenwolf",
 			"pos": [
-				1940,
-				1210
+				3620,
+				3810
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
 					250,
 					30
-				]
-			}
-		},
-		{
-			"id": "werkstatt_lamp_a",
-			"asset": "junker.lamp",
-			"pos": [
-				1765,
-				1490
-			],
-			"layer": "low",
-			"collision": {
-				"circle": 12
-			},
-			"light": true,
-			"light_color": [
-				1.0,
-				0.7,
-				0.35
-			],
-			"light_energy": 0.45,
-			"light_scale": 1.8
-		},
-		{
-			"id": "werkstatt_lamp_b",
-			"asset": "junker.lamp",
-			"pos": [
-				2115,
-				1490
-			],
-			"layer": "low",
-			"collision": {
-				"circle": 12
-			},
-			"light": true,
-			"light_color": [
-				1.0,
-				0.7,
-				0.35
-			],
-			"light_energy": 0.45,
-			"light_scale": 1.8
-		},
-		{
-			"id": "tank_canopy",
-			"asset": "road.canopy",
-			"pos": [
-				2620,
-				1400
-			],
-			"layer": "overhead",
-			"occlude": true
-		},
-		{
-			"id": "tank_pump_a",
-			"asset": "road.pump",
-			"pos": [
-				2540,
-				1400
-			],
-			"layer": "low",
-			"collision": {
-				"circle": 16
-			}
-		},
-		{
-			"id": "tank_pump_b",
-			"asset": "road.pump",
-			"pos": [
-				2700,
-				1400
-			],
-			"layer": "low",
-			"collision": {
-				"circle": 16
-			}
-		},
-		{
-			"id": "tank_sign",
-			"asset": "sign.tankstelle",
-			"pos": [
-				2620,
-				1210
-			],
-			"layer": "low",
-			"collision": {
-				"rect": [
-					210,
-					28
-				]
-			}
-		},
-		{
-			"id": "handel_kiosk",
-			"asset": "road.kiosk",
-			"pos": [
-				1820,
-				2060
-			],
-			"layer": "low",
-			"collision": {
-				"rect": [
-					230,
-					150
-				]
-			}
-		},
-		{
-			"id": "handel_sign",
-			"asset": "sign.handelsposten",
-			"pos": [
-				1820,
-				1930
-			],
-			"layer": "low",
-			"collision": {
-				"rect": [
-					230,
-					28
 				]
 			}
 		},
@@ -365,8 +524,8 @@
 			"id": "town_sign",
 			"asset": "sign.stahlheim",
 			"pos": [
-				2320,
-				1820
+				3500,
+				4420
 			],
 			"layer": "low",
 			"collision": {
@@ -377,170 +536,72 @@
 			}
 		},
 		{
-			"id": "parked_0",
-			"asset": "road.car",
+			"id": "block_0",
+			"asset": "city.block_a",
 			"pos": [
-				2580,
-				2080
-			],
-			"layer": "low",
-			"rot": 10,
-			"collision": {
-				"rect": [
-					170,
-					86
-				]
-			}
-		},
-		{
-			"id": "parked_1",
-			"asset": "road.car",
-			"pos": [
-				2820,
-				2120
-			],
-			"layer": "low",
-			"rot": -8,
-			"collision": {
-				"rect": [
-					170,
-					86
-				]
-			}
-		},
-		{
-			"id": "parked_2",
-			"asset": "road.car",
-			"pos": [
-				1440,
-				2000
-			],
-			"layer": "low",
-			"rot": 92,
-			"collision": {
-				"rect": [
-					170,
-					86
-				]
-			}
-		},
-		{
-			"id": "tent_0",
-			"asset": "shelter.awning",
-			"pos": [
-				960,
-				850
-			],
-			"layer": "overhead",
-			"occlude": true
-		},
-		{
-			"id": "crates_0",
-			"asset": "refuge.crates",
-			"pos": [
-				1090,
-				910
+				851,
+				812
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
-					90,
-					80
+					360,
+					300
 				]
 			}
 		},
 		{
-			"id": "tent_1",
-			"asset": "shelter.awning",
+			"id": "block_1",
+			"asset": "city.block_b",
 			"pos": [
-				3400,
-				2540
-			],
-			"layer": "overhead",
-			"occlude": true
-		},
-		{
-			"id": "crates_1",
-			"asset": "refuge.crates",
-			"pos": [
-				3530,
-				2600
+				815,
+				1220
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
-					90,
-					80
+					360,
+					300
 				]
 			}
 		},
 		{
-			"id": "tent_2",
-			"asset": "shelter.awning",
+			"id": "block_2",
+			"asset": "city.block_a",
 			"pos": [
-				980,
-				2520
+				805,
+				1941
 			],
-			"layer": "overhead",
-			"occlude": true
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
 		},
 		{
-			"id": "crates_2",
-			"asset": "refuge.crates",
+			"id": "block_3",
+			"asset": "city.block_a",
 			"pos": [
-				1110,
-				2580
+				852,
+				3897
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
-					90,
-					80
+					360,
+					300
 				]
 			}
 		},
 		{
-			"id": "flag",
-			"asset": "shelter.flag",
-			"pos": [
-				2240,
-				1660
-			],
-			"layer": "low"
-		},
-		{
-			"id": "generator",
-			"asset": "junker.generator",
-			"pos": [
-				3480,
-				760
-			],
-			"layer": "low",
-			"collision": {
-				"rect": [
-					150,
-					100
-				]
-			}
-		},
-		{
-			"id": "barrels",
-			"asset": "shelter.barrels",
-			"pos": [
-				870,
-				770
-			],
-			"layer": "low",
-			"collision": {
-				"circle": 44
-			}
-		},
-		{
-			"id": "hub_tower_a",
+			"id": "cooling_4",
 			"asset": "cs.cooling_tower",
 			"pos": [
-				3320,
-				2440
+				1238,
+				846
 			],
 			"layer": "low",
 			"collision": {
@@ -548,115 +609,568 @@
 			}
 		},
 		{
-			"id": "hub_tank_a",
-			"asset": "cs.tank",
+			"id": "cooling_5",
+			"asset": "cs.cooling_tower",
 			"pos": [
-				1080,
-				960
+				1278,
+				1234
 			],
 			"layer": "low",
 			"collision": {
-				"circle": 70
+				"circle": 150
 			}
 		},
 		{
-			"id": "hub_works",
-			"asset": "junker.workshop",
+			"id": "tower_6",
+			"asset": "city.tower",
 			"pos": [
-				2900,
-				2220
+				1259,
+				1955
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 120
+			}
+		},
+		{
+			"id": "block_7",
+			"asset": "city.block_b",
+			"pos": [
+				1278,
+				3112
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
-					520,
-					350
+					360,
+					300
 				]
 			}
 		},
 		{
-			"id": "hub_billboard",
-			"asset": "road.billboard",
+			"id": "block_8",
+			"asset": "city.block_a",
 			"pos": [
-				1440,
-				2400
+				1252,
+				3864
 			],
 			"layer": "low",
 			"collision": {
 				"rect": [
-					290,
-					40
+					360,
+					300
 				]
 			}
 		},
 		{
-			"id": "rock_6",
-			"asset": "prop.rock_large_b",
+			"id": "cooling_9",
+			"asset": "cs.cooling_tower",
 			"pos": [
-				560,
-				244
+				2062,
+				809
 			],
 			"layer": "low",
-			"rot": 178,
 			"collision": {
-				"circle": 50
+				"circle": 150
 			}
+		},
+		{
+			"id": "tower_10",
+			"asset": "city.tower",
+			"pos": [
+				2115,
+				1181
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 120
+			}
+		},
+		{
+			"id": "block_11",
+			"asset": "city.block_b",
+			"pos": [
+				2081,
+				1957
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "tower_12",
+			"asset": "city.tower",
+			"pos": [
+				2115,
+				3117
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 120
+			}
+		},
+		{
+			"id": "block_13",
+			"asset": "city.block_a",
+			"pos": [
+				2116,
+				3886
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_14",
+			"asset": "city.block_b",
+			"pos": [
+				2529,
+				820
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_15",
+			"asset": "city.block_b",
+			"pos": [
+				2489,
+				1197
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_16",
+			"asset": "city.block_b",
+			"pos": [
+				2487,
+				1955
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_17",
+			"asset": "city.block_b",
+			"pos": [
+				2495,
+				3120
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_18",
+			"asset": "city.block_a",
+			"pos": [
+				2511,
+				3869
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_19",
+			"asset": "city.block_b",
+			"pos": [
+				2902,
+				808
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_20",
+			"asset": "city.block_b",
+			"pos": [
+				2917,
+				1969
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_21",
+			"asset": "city.block_b",
+			"pos": [
+				3767,
+				814
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_22",
+			"asset": "city.block_a",
+			"pos": [
+				3758,
+				1206
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_23",
+			"asset": "city.block_b",
+			"pos": [
+				3742,
+				1945
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_24",
+			"asset": "city.block_a",
+			"pos": [
+				3751,
+				3086
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "cooling_25",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				4216,
+				813
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			}
+		},
+		{
+			"id": "block_26",
+			"asset": "city.block_a",
+			"pos": [
+				4161,
+				1206
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_27",
+			"asset": "city.block_b",
+			"pos": [
+				4210,
+				1994
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_28",
+			"asset": "city.block_a",
+			"pos": [
+				4215,
+				3085
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "cooling_29",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				5002,
+				818
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			}
+		},
+		{
+			"id": "block_30",
+			"asset": "city.block_b",
+			"pos": [
+				5041,
+				1217
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "cooling_31",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				5027,
+				1956
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			}
+		},
+		{
+			"id": "block_32",
+			"asset": "city.block_b",
+			"pos": [
+				5046,
+				3883
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_33",
+			"asset": "city.block_b",
+			"pos": [
+				5464,
+				823
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_34",
+			"asset": "city.block_b",
+			"pos": [
+				5456,
+				1205
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_35",
+			"asset": "city.block_a",
+			"pos": [
+				5474,
+				1966
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "block_36",
+			"asset": "city.block_b",
+			"pos": [
+				5427,
+				3121
+			],
+			"layer": "low",
+			"rot": 180,
+			"collision": {
+				"rect": [
+					360,
+					300
+				]
+			}
+		},
+		{
+			"id": "cooling_37",
+			"asset": "cs.cooling_tower",
+			"pos": [
+				5462,
+				3890
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 150
+			}
+		},
+		{
+			"id": "transmitter_0",
+			"asset": "city.mast",
+			"pos": [
+				2300,
+				1000
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "transmitter_1",
+			"asset": "city.mast",
+			"pos": [
+				4900,
+				2200
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "transmitter_2",
+			"asset": "city.mast",
+			"pos": [
+				1000,
+				3100
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "lamp_2",
+			"asset": "refuge.light_post",
+			"pos": [
+				1560,
+				1788
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.8,
+				0.5
+			],
+			"light_energy": 0.45,
+			"light_scale": 2.0
 		}
 	],
 	"scatter": [
 		{
-			"seed": 596,
-			"count": 70,
+			"seed": 373,
+			"count": 50,
 			"area": [
 				0,
 				0,
-				4400,
-				3400
+				6400,
+				5000
 			],
-			"spacing": 90,
+			"spacing": 100,
 			"assets": [
 				"prop.rock_small_a",
-				"prop.stones",
-				"prop.rock_small_b"
+				"prop.stones"
 			]
 		}
 	],
 	"scatter_avoid": [
 		[
-			600.0,
-			500.0,
-			3200,
-			2400
-		],
-		[
-			2080,
-			3130,
-			266,
-			390
-		],
-		[
-			1986,
-			2980,
-			360,
-			390
-		],
-		[
-			1986,
-			2830,
-			293,
-			390
-		],
-		[
-			2039,
-			2680.0,
-			281,
-			390.0
-		],
-		[
-			2080,
-			1580,
-			240,
-			1340.0
+			400,
+			400,
+			5600,
+			4200
 		]
 	],
 	"enemies": [],
@@ -666,58 +1180,58 @@
 		"covers": [],
 		"walls": [
 			{
-				"id": "compound_wall",
+				"id": "city_wall",
 				"tile": "junker.wall_strip",
-				"width": 30,
+				"width": 44,
 				"segments": [
 					[
 						[
-							700,
-							600
+							500,
+							500
 						],
 						[
-							3700,
-							600
+							5900,
+							500
 						]
 					],
 					[
 						[
-							700,
-							2800
+							500,
+							4500
 						],
 						[
-							2020,
-							2800
+							2980,
+							4500
 						]
 					],
 					[
 						[
-							2380,
-							2800
+							3420,
+							4500
 						],
 						[
-							3700,
-							2800
+							5900,
+							4500
 						]
 					],
 					[
 						[
-							700,
-							600
+							500,
+							500
 						],
 						[
-							700,
-							2800
+							500,
+							4500
 						]
 					],
 					[
 						[
-							3700,
-							600
+							5900,
+							500
 						],
 						[
-							3700,
-							2800
+							5900,
+							4500
 						]
 					]
 				]
@@ -732,20 +1246,20 @@
 			"name": "NODE_STAHLHEIM",
 			"polygon": [
 				[
-					700.0,
-					600.0
+					500,
+					500
 				],
 				[
-					3700.0,
-					600.0
+					5900,
+					500
 				],
 				[
-					3700.0,
-					2800.0
+					5900,
+					4500
 				],
 				[
-					700.0,
-					2800.0
+					500,
+					4500
 				]
 			]
 		}
@@ -753,8 +1267,8 @@
 	"teleports": {
 		"garage": {
 			"pos": [
-				1940,
-				1380
+				3620,
+				3980
 			],
 			"heading_deg": 180
 		}
@@ -762,31 +1276,31 @@
 	"creatures": [],
 	"pois": [],
 	"relief": {
-		"seed": 5703,
-		"amp": 0.5,
+		"seed": 9721,
+		"amp": 0.25,
 		"scale": 900.0
 	},
 	"weather_mult": 2.25,
 	"gates": [
 		{
-			"id": "gate_frostgrund",
-			"to": "frostgrund",
+			"id": "gate_hochstrasse",
+			"to": "hochstrasse",
 			"side": "s",
 			"pos": [
-				2200,
-				3400
+				3200,
+				5000
 			],
 			"entry": [
-				2200,
-				2980
+				3200,
+				4580
 			],
 			"heading_deg": 0
 		}
 	],
 	"garage": {
 		"pos": [
-			1940,
-			1380
+			3620,
+			3980
 		],
 		"radius": 260.0,
 		"services": [
@@ -796,12 +1310,12 @@
 			"upgrade",
 			"storage"
 		],
-		"name": "GARAGE_EISENWOLF"
+		"name": "GARAGE_STAHLHEIM"
 	},
 	"mech_start": {
 		"pos": [
-			1940,
-			1380
+			3620,
+			3980
 		],
 		"heading_deg": 180
 	}

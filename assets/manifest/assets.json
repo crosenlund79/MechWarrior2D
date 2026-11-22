@@ -2111,6 +2111,173 @@
 			"facing": "up",
 			"rotates": true,
 			"note": "Eisenwolf Bär chassis (heavy hunter), same layout as car.body"
+		},
+		"sign.grauwacht": {
+			"path": "signs/grauwacht",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.eisenfurt": {
+			"path": "signs/eisenfurt",
+			"display": [
+				230,
+				44
+			],
+			"source": [
+				460,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"sign.messstation": {
+			"path": "signs/messstation",
+			"display": [
+				260,
+				44
+			],
+			"source": [
+				520,
+				88
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "painted settlement plate (Thawborn frontier German)"
+		},
+		"coast.container": {
+			"path": "coast/container",
+			"display": [
+				220,
+				96
+			],
+			"source": [
+				440,
+				192
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "rusted shipping container from the old arrival harbour",
+			"height": 22
+		},
+		"coast.hull": {
+			"path": "coast/hull",
+			"display": [
+				400,
+				170
+			],
+			"source": [
+				800,
+				340
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "beached ship hull, seen from above",
+			"height": 40
+		},
+		"city.block_a": {
+			"path": "city/block_a",
+			"display": [
+				380,
+				320
+			],
+			"source": [
+				760,
+				640
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "Stahlheim industrial block roof (sheds, vents, skylights)",
+			"height": 60
+		},
+		"city.block_b": {
+			"path": "city/block_b",
+			"display": [
+				380,
+				320
+			],
+			"source": [
+				760,
+				640
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "Stahlheim works hall roof",
+			"height": 60
+		},
+		"city.tower": {
+			"path": "city/tower",
+			"display": [
+				260,
+				260
+			],
+			"source": [
+				520,
+				520
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "Stahlheim round tower / silo top",
+			"height": 90
+		},
+		"city.mast": {
+			"path": "city/mast",
+			"display": [
+				150,
+				150
+			],
+			"source": [
+				300,
+				300
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "resonance transmitter mast (lattice, seen from above)",
+			"height": 120
+		},
+		"glut.vent": {
+			"path": "glut/vent",
+			"display": [
+				220,
+				220
+			],
+			"source": [
+				440,
+				440
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "geothermal vent: cracked, glowing ground",
+			"height": 0
 		}
 	},
 	"tiles": {

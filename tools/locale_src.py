@@ -578,8 +578,32 @@ T3 = [
  ("ACTION_WEAPON_NEXT", "Next weapon", "Næste våben"),
  ("DEV_WEAPONS_GRANTED", "all weapons + full ammunition", "alle våben + fuld ammunition"), ("DEV_CHASSIS_GRANTED", "all chassis owned", "alle chassis ejet"),
 ]
+
+# ---- complete game: stage C (continent: regions, nodes, zones, landmarks)
+T4 = [
+ ("REGION_KUESTE", "ERSTHAFENER KÜSTE", "ERSTHAFENER KYST"), ("REGION_ROSTMARK", "ROSTMARK", "ROSTMARK"),
+ ("REGION_DORNPASS", "DORNPASS", "DORNPASS"), ("REGION_GLASWUESTE", "GLASWÜSTE", "GLASWÜSTE"), ("REGION_ANFLUG", "STAHLHEIM-ANFLUG", "STAHLHEIM-TILKØRSLEN"),
+ ("NODE_ERSTHAFEN_DESC", "The battered harbour town where the first engineers came ashore. Basic repairs, basic gear — and people who know your name.", "Den medtagne havneby, hvor de første ingeniører gik i land. Enkle reparationer, enkelt udstyr — og folk, der kender dit navn."),
+ ("NODE_WRACKKUESTE", "Wrackküste", "Wrackküste"), ("NODE_WRACKKUESTE_DESC", "The old arrival coast: beached hulls, spilled containers and skirr nesting in the dunes.", "Den gamle ankomstkyst: strandede skrog, væltede containere og skirr, der yngler i klitterne."),
+ ("NODE_SCHROTTGRUND", "Schrottgrund", "Schrottgrund"), ("NODE_SCHROTTGRUND_DESC", "A vehicle graveyard the Southern Junkers call home. Wühler hunt under the scrap.", "En bilkirkegård, som Sydskrotterne kalder hjem. Wühlere jager under skrottet."),
+ ("NODE_GRAUWACHT", "Grauwacht", "Grauwacht"), ("NODE_GRAUWACHT_DESC", "A rough trading post around an old checkpoint and repair yard. Everything has a price, including questions.", "En rå handelsstation omkring et gammelt kontrolpunkt og reparationsværft. Alt har en pris, også spørgsmål."),
+ ("NODE_DORNPASS", "Dornpass", "Dornpass"), ("NODE_DORNPASS_DESC", "Narrow canyon roads through the thorn ridges. Ambush country.", "Smalle kløftveje gennem tornekammene. Bagholdsland."),
+ ("NODE_EISENFURT", "Eisenfurt", "Eisenfurt"), ("NODE_EISENFURT_DESC", "A fortified crossing town with the best mechanics west of Stahlheim — and prices to match.", "En befæstet vadested-by med de bedste mekanikere vest for Stahlheim — og priser derefter."),
+ ("NODE_MESSSTATION", "Messstation Vier", "Messstation Vier"), ("NODE_MESSSTATION_DESC", "A research outpost on the glass flats: fuel, repairs, a store room. No upgrades.", "En forskningspost på glassletten: brændstof, reparationer, et lagerrum. Ingen opgraderinger."),
+ ("NODE_GLASWUESTE", "Glaswüste", "Glaswüste"), ("NODE_GLASWUESTE_DESC", "Glassy mineral flats under a white sky. Blinding heat, abandoned research stations.", "Glasagtige mineralsletter under en hvid himmel. Blændende hede, forladte forskningsstationer."),
+ ("NODE_GLUTFELD", "Glutfeld", "Glutfeld"), ("NODE_GLUTFELD_DESC", "Geothermal ground: glowing vents scorch anything that parks on them.", "Geotermisk grund: glødende sprækker svider alt, der parkerer på dem."),
+ ("NODE_HOCHSTRASSE", "Hochstraße", "Hochstraße"), ("NODE_HOCHSTRASSE_DESC", "The collapsed Stahlheim highway. The last road — storms, wrecks and the migration.", "Den sammenstyrtede Stahlheim-motorvej. Den sidste vej — storme, vrag og vandringen."),
+ ("NODE_STAHLHEIM_DESC", "The industrial metropolis at the end of the road. Towers, works halls, transmitter masts.", "Industrimetropolen for enden af vejen. Tårne, fabrikshaller, sendermaster."),
+ ("ZONE_GLASS", "Glass flats (blinding, slick)", "Glasslette (blændende, glat)"), ("ZONE_VENT", "Geothermal vent — move!", "Geotermisk sprække — flyt dig!"),
+ ("GARAGE_OUTPOST", "MESSSTATION VIER — SERVICE BAY (repair · fuel · trade · storage)", "MESSSTATION VIER — SERVICEPLADS (reparation · brændstof · handel · lager)"),
+ ("GARAGE_STAHLHEIM", "EISENWOLF WERKE STAHLHEIM — MAIN WORKS", "EISENWOLF WERKE STAHLHEIM — HOVEDVÆRK"),
+ ("POI_LANDMARK_WRACKKUESTE", "The beached freighter", "Den strandede fragter"), ("POI_LANDMARK_SCHROTTGRUND", "Junker scrap hall", "Skrotternes hal"),
+ ("POI_LANDMARK_DORNPASS", "Old hunting camp", "Gammel jagtlejr"), ("POI_LANDMARK_GLASWUESTE", "Abandoned measuring hut", "Forladt målehytte"),
+ ("POI_LANDMARK_GLUTFELD", "The Glutschlund vent", "Glutschlund-sprækken"), ("POI_LANDMARK_HOCHSTRASSE", "Last billboard before Stahlheim", "Sidste reklameskilt før Stahlheim"),
+ ("CARGO_KERN7", "Kern-7", "Kern-7"), ("CARGO_KERN7_DESC", "An Eisenwolf transport case: KERN-7 — NUR FÜR STAHLHEIM.", "En Eisenwolf-transportkasse: KERN-7 — NUR FÜR STAHLHEIM."),
+]
 _k = {r[0]: i for i, r in enumerate(S)}
-for r in T2 + T3:
+for r in T2 + T3 + T4:
     if r[0] in _k:
         S[_k[r[0]]] = r
     else:

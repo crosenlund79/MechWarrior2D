@@ -1,0 +1,2647 @@
+{
+	"id": "glutfeld",
+	"name": "NODE_GLUTFELD",
+	"node": "glutfeld",
+	"kind": "territory",
+	"tier": 4,
+	"bounds": [
+		0,
+		0,
+		6600,
+		4800
+	],
+	"default_zone": {
+		"ambient": 66.0,
+		"solar": 1.35,
+		"abrasion": 1.0,
+		"drag": 1.0,
+		"suit": 1.4,
+		"label": "ZONE_SCORCH",
+		"storm_exposure": 1.0,
+		"grip": 0.95
+	},
+	"zone_types": {
+		"shade": {
+			"ambient": 44.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.35,
+			"label": "ZONE_SHADE",
+			"storm_exposure": 0.6,
+			"grip": 1.0
+		},
+		"dunes": {
+			"ambient": 60.0,
+			"solar": 1.0,
+			"abrasion": 22.0,
+			"drag": 0.62,
+			"suit": 1.1,
+			"label": "ZONE_DUNES",
+			"storm_exposure": 1.0,
+			"grip": 0.7
+		},
+		"salt": {
+			"ambient": 63.0,
+			"solar": 1.3,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"suit": 1.25,
+			"label": "ZONE_SALT",
+			"storm_exposure": 1.0,
+			"grip": 1.0
+		},
+		"canyon": {
+			"ambient": 50.0,
+			"solar": 0.45,
+			"abrasion": 0.3,
+			"drag": 1.0,
+			"suit": 0.6,
+			"cooling": 1.1,
+			"label": "ZONE_CANYON",
+			"storm_exposure": 0.45,
+			"grip": 1.0
+		},
+		"refuge": {
+			"ambient": 34.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.12,
+			"cooling": 1.3,
+			"sheltered": true,
+			"label": "ZONE_REFUGE",
+			"storm_exposure": 0.08,
+			"grip": 1.05
+		},
+		"ravine": {
+			"ambient": 52.0,
+			"solar": 0.5,
+			"abrasion": 0.5,
+			"drag": 1.0,
+			"suit": 0.65,
+			"cooling": 1.05,
+			"storm_exposure": 0.45,
+			"label": "ZONE_RAVINE",
+			"grip": 1.0
+		},
+		"junker": {
+			"ambient": 60.0,
+			"solar": 1.05,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"suit": 1.05,
+			"storm_exposure": 0.95,
+			"label": "ZONE_JUNKER",
+			"grip": 0.95
+		},
+		"settlement": {
+			"ambient": 46.0,
+			"solar": 0.55,
+			"abrasion": 0.2,
+			"drag": 1.0,
+			"grip": 1.05,
+			"suit": 0.35,
+			"cooling": 1.25,
+			"label": "ZONE_SETTLEMENT",
+			"storm_exposure": 0.35,
+			"safe": true
+		},
+		"frost": {
+			"ambient": 49.0,
+			"solar": 1.15,
+			"abrasion": 0.5,
+			"drag": 0.95,
+			"grip": 0.8,
+			"suit": 1.2,
+			"label": "ZONE_FROST",
+			"storm_exposure": 1.0
+		},
+		"scorch": {
+			"ambient": 66.0,
+			"solar": 1.35,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"grip": 0.95,
+			"suit": 1.4,
+			"label": "ZONE_SCORCH",
+			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
+		}
+	},
+	"patches": [
+		{
+			"id": "track_0",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					3300,
+					0
+				],
+				[
+					3400,
+					314
+				],
+				[
+					3118,
+					692
+				],
+				[
+					3194,
+					1011
+				],
+				[
+					3506,
+					1289
+				],
+				[
+					3519,
+					1618
+				],
+				[
+					3560,
+					1942
+				],
+				[
+					3678,
+					2253
+				]
+			]
+		},
+		{
+			"id": "track_1",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					1650,
+					0
+				],
+				[
+					2043,
+					229
+				],
+				[
+					2089,
+					770
+				],
+				[
+					2731,
+					775
+				],
+				[
+					2810,
+					1286
+				],
+				[
+					2959,
+					1735
+				],
+				[
+					3483,
+					1846
+				],
+				[
+					3678,
+					2253
+				]
+			]
+		},
+		{
+			"id": "patch_0",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					4263,
+					2779
+				],
+				[
+					4065,
+					2976
+				],
+				[
+					3792,
+					3107
+				],
+				[
+					3449,
+					3309
+				],
+				[
+					3080,
+					3075
+				],
+				[
+					3030,
+					2779
+				],
+				[
+					3152,
+					2446
+				],
+				[
+					3437,
+					2270
+				],
+				[
+					3759,
+					2421
+				],
+				[
+					4099,
+					2466
+				]
+			],
+			"zone": "vent"
+		},
+		{
+			"id": "patch_1",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					2589,
+					2275
+				],
+				[
+					2403,
+					2639
+				],
+				[
+					2244,
+					2711
+				],
+				[
+					1798,
+					2719
+				],
+				[
+					1431,
+					2554
+				],
+				[
+					1440,
+					2275
+				],
+				[
+					1550,
+					1979
+				],
+				[
+					1804,
+					1658
+				],
+				[
+					2171,
+					1703
+				],
+				[
+					2567,
+					1966
+				]
+			],
+			"zone": "vent"
+		},
+		{
+			"id": "patch_2",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					1928,
+					3012
+				],
+				[
+					1945,
+					3300
+				],
+				[
+					1716,
+					3402
+				],
+				[
+					1465,
+					3376
+				],
+				[
+					1304,
+					3314
+				],
+				[
+					1149,
+					3012
+				],
+				[
+					1254,
+					2739
+				],
+				[
+					1448,
+					2736
+				],
+				[
+					1737,
+					2623
+				],
+				[
+					1900,
+					2729
+				]
+			],
+			"zone": "vent"
+		},
+		{
+			"id": "patch_3",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					5096,
+					2221
+				],
+				[
+					4974,
+					2464
+				],
+				[
+					4758,
+					2486
+				],
+				[
+					4528,
+					2659
+				],
+				[
+					4331,
+					2445
+				],
+				[
+					4317,
+					2221
+				],
+				[
+					4369,
+					2030
+				],
+				[
+					4531,
+					1875
+				],
+				[
+					4734,
+					1907
+				],
+				[
+					5019,
+					2034
+				]
+			],
+			"zone": "vent"
+		},
+		{
+			"id": "patch_4",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					5991,
+					1406
+				],
+				[
+					5955,
+					1666
+				],
+				[
+					5679,
+					1786
+				],
+				[
+					5428,
+					1877
+				],
+				[
+					5182,
+					1676
+				],
+				[
+					5156,
+					1406
+				],
+				[
+					5185,
+					1171
+				],
+				[
+					5415,
+					959
+				],
+				[
+					5716,
+					1066
+				],
+				[
+					5829,
+					1157
+				]
+			],
+			"zone": "vent"
+		},
+		{
+			"id": "patch_5",
+			"tile": "ground.saltpan",
+			"polygon": [
+				[
+					1621,
+					4198
+				],
+				[
+					1332,
+					4487
+				],
+				[
+					972,
+					4915
+				],
+				[
+					633,
+					4693
+				],
+				[
+					278,
+					4658
+				],
+				[
+					71,
+					4198
+				],
+				[
+					147,
+					3919
+				],
+				[
+					623,
+					3602
+				],
+				[
+					1064,
+					3728
+				],
+				[
+					1338,
+					3799
+				]
+			],
+			"zone": "vent"
+		}
+	],
+	"zones": [
+		{
+			"id": "vent_0",
+			"type": "vent",
+			"polygon": [
+				[
+					6170,
+					1912
+				],
+				[
+					6121,
+					2032
+				],
+				[
+					6000,
+					2082
+				],
+				[
+					5880,
+					2032
+				],
+				[
+					5830,
+					1912
+				],
+				[
+					5880,
+					1792
+				],
+				[
+					6000,
+					1742
+				],
+				[
+					6121,
+					1792
+				]
+			]
+		},
+		{
+			"id": "vent_1",
+			"type": "vent",
+			"polygon": [
+				[
+					1564,
+					2869
+				],
+				[
+					1514,
+					2989
+				],
+				[
+					1394,
+					3039
+				],
+				[
+					1274,
+					2989
+				],
+				[
+					1224,
+					2869
+				],
+				[
+					1274,
+					2748
+				],
+				[
+					1394,
+					2699
+				],
+				[
+					1514,
+					2748
+				]
+			]
+		},
+		{
+			"id": "vent_2",
+			"type": "vent",
+			"polygon": [
+				[
+					4837,
+					3175
+				],
+				[
+					4787,
+					3295
+				],
+				[
+					4667,
+					3345
+				],
+				[
+					4547,
+					3295
+				],
+				[
+					4497,
+					3175
+				],
+				[
+					4547,
+					3055
+				],
+				[
+					4667,
+					3005
+				],
+				[
+					4787,
+					3055
+				]
+			]
+		},
+		{
+			"id": "vent_3",
+			"type": "vent",
+			"polygon": [
+				[
+					4062,
+					3475
+				],
+				[
+					4013,
+					3595
+				],
+				[
+					3892,
+					3645
+				],
+				[
+					3772,
+					3595
+				],
+				[
+					3722,
+					3475
+				],
+				[
+					3772,
+					3355
+				],
+				[
+					3892,
+					3305
+				],
+				[
+					4013,
+					3355
+				]
+			]
+		},
+		{
+			"id": "vent_4",
+			"type": "vent",
+			"polygon": [
+				[
+					2485,
+					3888
+				],
+				[
+					2435,
+					4008
+				],
+				[
+					2315,
+					4058
+				],
+				[
+					2195,
+					4008
+				],
+				[
+					2145,
+					3888
+				],
+				[
+					2195,
+					3768
+				],
+				[
+					2315,
+					3718
+				],
+				[
+					2435,
+					3768
+				]
+			]
+		},
+		{
+			"id": "vent_5",
+			"type": "vent",
+			"polygon": [
+				[
+					661,
+					1196
+				],
+				[
+					611,
+					1317
+				],
+				[
+					491,
+					1366
+				],
+				[
+					371,
+					1317
+				],
+				[
+					321,
+					1196
+				],
+				[
+					371,
+					1076
+				],
+				[
+					491,
+					1026
+				],
+				[
+					611,
+					1076
+				]
+			]
+		},
+		{
+			"id": "vent_6",
+			"type": "vent",
+			"polygon": [
+				[
+					4398,
+					4110
+				],
+				[
+					4348,
+					4230
+				],
+				[
+					4228,
+					4280
+				],
+				[
+					4108,
+					4230
+				],
+				[
+					4058,
+					4110
+				],
+				[
+					4108,
+					3990
+				],
+				[
+					4228,
+					3940
+				],
+				[
+					4348,
+					3990
+				]
+			]
+		},
+		{
+			"id": "vent_7",
+			"type": "vent",
+			"polygon": [
+				[
+					5055,
+					898
+				],
+				[
+					5005,
+					1018
+				],
+				[
+					4885,
+					1068
+				],
+				[
+					4765,
+					1018
+				],
+				[
+					4715,
+					898
+				],
+				[
+					4765,
+					778
+				],
+				[
+					4885,
+					728
+				],
+				[
+					5005,
+					778
+				]
+			]
+		},
+		{
+			"id": "vent_8",
+			"type": "vent",
+			"polygon": [
+				[
+					5658,
+					2989
+				],
+				[
+					5608,
+					3109
+				],
+				[
+					5488,
+					3159
+				],
+				[
+					5367,
+					3109
+				],
+				[
+					5318,
+					2989
+				],
+				[
+					5367,
+					2869
+				],
+				[
+					5488,
+					2819
+				],
+				[
+					5608,
+					2869
+				]
+			]
+		},
+		{
+			"id": "vent_9",
+			"type": "vent",
+			"polygon": [
+				[
+					1175,
+					2713
+				],
+				[
+					1125,
+					2833
+				],
+				[
+					1005,
+					2883
+				],
+				[
+					885,
+					2833
+				],
+				[
+					835,
+					2713
+				],
+				[
+					885,
+					2593
+				],
+				[
+					1005,
+					2543
+				],
+				[
+					1125,
+					2593
+				]
+			]
+		},
+		{
+			"id": "vent_10",
+			"type": "vent",
+			"polygon": [
+				[
+					4070,
+					3808
+				],
+				[
+					4020,
+					3929
+				],
+				[
+					3900,
+					3978
+				],
+				[
+					3779,
+					3929
+				],
+				[
+					3730,
+					3808
+				],
+				[
+					3779,
+					3688
+				],
+				[
+					3900,
+					3638
+				],
+				[
+					4020,
+					3688
+				]
+			]
+		},
+		{
+			"id": "vent_11",
+			"type": "vent",
+			"polygon": [
+				[
+					5358,
+					1551
+				],
+				[
+					5308,
+					1671
+				],
+				[
+					5188,
+					1721
+				],
+				[
+					5067,
+					1671
+				],
+				[
+					5018,
+					1551
+				],
+				[
+					5067,
+					1431
+				],
+				[
+					5188,
+					1381
+				],
+				[
+					5308,
+					1431
+				]
+			]
+		}
+	],
+	"props": [
+		{
+			"id": "rock_0",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2423,
+				1422
+			],
+			"layer": "low",
+			"rot": 224,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_1",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				1334,
+				1816
+			],
+			"layer": "low",
+			"rot": 282,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_2",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				1178,
+				1557
+			],
+			"layer": "low",
+			"rot": 211,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_3",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4646,
+				1440
+			],
+			"layer": "low",
+			"rot": 72,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_4",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4789,
+				1126
+			],
+			"layer": "low",
+			"rot": 165,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_5",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				3578,
+				810
+			],
+			"layer": "low",
+			"rot": 355,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_8",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				475,
+				1698
+			],
+			"layer": "low",
+			"rot": 184,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_10",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4386,
+				3349
+			],
+			"layer": "low",
+			"rot": 130,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_11",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5537,
+				368
+			],
+			"layer": "low",
+			"rot": 204,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_13",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5372,
+				3741
+			],
+			"layer": "low",
+			"rot": 159,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_14",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				650,
+				2468
+			],
+			"layer": "low",
+			"rot": 7,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_15",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				953,
+				2375
+			],
+			"layer": "low",
+			"rot": 147,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_16",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				5353,
+				2158
+			],
+			"layer": "low",
+			"rot": 125,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_17",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4086,
+				3159
+			],
+			"layer": "low",
+			"rot": 45,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_19",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5910,
+				1217
+			],
+			"layer": "low",
+			"rot": 8,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_20",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4223,
+				2953
+			],
+			"layer": "low",
+			"rot": 103,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_21",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5710,
+				4206
+			],
+			"layer": "low",
+			"rot": 295,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_22",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4714,
+				2436
+			],
+			"layer": "low",
+			"rot": 253,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_23",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				3979,
+				3065
+			],
+			"layer": "low",
+			"rot": 268,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_24",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				3792,
+				1415
+			],
+			"layer": "low",
+			"rot": 306,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_25",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4770,
+				1787
+			],
+			"layer": "low",
+			"rot": 153,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "vent_0",
+			"asset": "glut.vent",
+			"pos": [
+				6000,
+				1912
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_1",
+			"asset": "glut.vent",
+			"pos": [
+				1394,
+				2869
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_2",
+			"asset": "glut.vent",
+			"pos": [
+				4667,
+				3175
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_3",
+			"asset": "glut.vent",
+			"pos": [
+				3892,
+				3475
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_4",
+			"asset": "glut.vent",
+			"pos": [
+				2315,
+				3888
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_5",
+			"asset": "glut.vent",
+			"pos": [
+				491,
+				1196
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_6",
+			"asset": "glut.vent",
+			"pos": [
+				4228,
+				4110
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_7",
+			"asset": "glut.vent",
+			"pos": [
+				4885,
+				898
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_8",
+			"asset": "glut.vent",
+			"pos": [
+				5488,
+				2989
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_9",
+			"asset": "glut.vent",
+			"pos": [
+				1005,
+				2713
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_10",
+			"asset": "glut.vent",
+			"pos": [
+				3900,
+				3808
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "vent_11",
+			"asset": "glut.vent",
+			"pos": [
+				5188,
+				1551
+			],
+			"layer": "floor",
+			"light": true,
+			"light_color": [
+				1.0,
+				0.45,
+				0.2
+			],
+			"light_energy": 0.55,
+			"light_scale": 1.6
+		},
+		{
+			"id": "mineral_a_0",
+			"asset": "prop.mineral_a",
+			"pos": [
+				5687,
+				3413
+			],
+			"layer": "low",
+			"rot": 77,
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "mineral_a_1",
+			"asset": "prop.mineral_a",
+			"pos": [
+				3660,
+				2911
+			],
+			"layer": "low",
+			"rot": 212,
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "mineral_a_2",
+			"asset": "prop.mineral_a",
+			"pos": [
+				1123,
+				3180
+			],
+			"layer": "low",
+			"rot": 1,
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "mineral_a_3",
+			"asset": "prop.mineral_a",
+			"pos": [
+				4073,
+				441
+			],
+			"layer": "low",
+			"rot": 6,
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "mineral_a_4",
+			"asset": "prop.mineral_a",
+			"pos": [
+				1212,
+				2198
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 40
+			}
+		},
+		{
+			"id": "mineral_a_5",
+			"asset": "prop.mineral_a",
+			"pos": [
+				6192,
+				2901
+			],
+			"layer": "low",
+			"rot": 323,
+			"collision": {
+				"circle": 40
+			}
+		}
+	],
+	"scatter": [
+		{
+			"seed": 616,
+			"count": 160,
+			"area": [
+				0,
+				0,
+				6600,
+				4800
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.rock_small_b",
+				"prop.stones",
+				"prop.stones"
+			]
+		}
+	],
+	"scatter_avoid": [
+		[
+			3210,
+			-90,
+			280,
+			494
+		],
+		[
+			3028,
+			224,
+			462,
+			558
+		],
+		[
+			3028,
+			602,
+			256,
+			499
+		],
+		[
+			3104,
+			921,
+			492,
+			458
+		],
+		[
+			3416,
+			1199,
+			193,
+			509
+		],
+		[
+			3429,
+			1528,
+			221,
+			504
+		],
+		[
+			3470,
+			1852,
+			298,
+			491
+		],
+		[
+			1560,
+			-90,
+			573,
+			409
+		],
+		[
+			1953,
+			139,
+			226,
+			721
+		],
+		[
+			1999,
+			680,
+			822,
+			185
+		],
+		[
+			2641,
+			685,
+			259,
+			691
+		],
+		[
+			2720,
+			1196,
+			329,
+			629
+		],
+		[
+			2869,
+			1645,
+			704,
+			291
+		],
+		[
+			3393,
+			1756,
+			375,
+			587
+		]
+	],
+	"enemies": [],
+	"salvage": [],
+	"terrain": {
+		"masses": [
+			{
+				"id": "ridge_1",
+				"tile": "ground.rock_top",
+				"height": 63,
+				"rough": 22,
+				"seed": 1,
+				"polygon": [
+					[
+						5741,
+						566
+					],
+					[
+						5633,
+						631
+					],
+					[
+						5535,
+						709
+					],
+					[
+						5432,
+						780
+					],
+					[
+						5330,
+						853
+					],
+					[
+						5248,
+						947
+					],
+					[
+						5151,
+						1025
+					],
+					[
+						5079,
+						1131
+					],
+					[
+						4999,
+						1228
+					],
+					[
+						4919,
+						1324
+					],
+					[
+						4958,
+						1367
+					],
+					[
+						5067,
+						1302
+					],
+					[
+						5166,
+						1225
+					],
+					[
+						5263,
+						1147
+					],
+					[
+						5369,
+						1079
+					],
+					[
+						5462,
+						997
+					],
+					[
+						5552,
+						912
+					],
+					[
+						5625,
+						807
+					],
+					[
+						5710,
+						716
+					],
+					[
+						5783,
+						612
+					]
+				]
+			},
+			{
+				"id": "ridge_2",
+				"tile": "ground.rock_top",
+				"height": 62,
+				"rough": 22,
+				"seed": 2,
+				"polygon": [
+					[
+						2819,
+						3791
+					],
+					[
+						2743,
+						3845
+					],
+					[
+						2652,
+						3886
+					],
+					[
+						2584,
+						3948
+					],
+					[
+						2520,
+						4013
+					],
+					[
+						2434,
+						4059
+					],
+					[
+						2379,
+						4133
+					],
+					[
+						2348,
+						4229
+					],
+					[
+						2304,
+						4314
+					],
+					[
+						2260,
+						4398
+					],
+					[
+						2332,
+						4466
+					],
+					[
+						2421,
+						4423
+					],
+					[
+						2505,
+						4376
+					],
+					[
+						2588,
+						4329
+					],
+					[
+						2643,
+						4255
+					],
+					[
+						2720,
+						4200
+					],
+					[
+						2764,
+						4116
+					],
+					[
+						2806,
+						4030
+					],
+					[
+						2851,
+						3946
+					],
+					[
+						2890,
+						3857
+					]
+				]
+			},
+			{
+				"id": "ridge_3",
+				"tile": "ground.rock_top",
+				"height": 56,
+				"rough": 22,
+				"seed": 3,
+				"polygon": [
+					[
+						5245,
+						3128
+					],
+					[
+						5133,
+						3217
+					],
+					[
+						5008,
+						3294
+					],
+					[
+						4915,
+						3398
+					],
+					[
+						4799,
+						3484
+					],
+					[
+						4705,
+						3586
+					],
+					[
+						4631,
+						3706
+					],
+					[
+						4582,
+						3845
+					],
+					[
+						4523,
+						3977
+					],
+					[
+						4452,
+						4098
+					],
+					[
+						4550,
+						4178
+					],
+					[
+						4662,
+						4090
+					],
+					[
+						4776,
+						4003
+					],
+					[
+						4867,
+						3897
+					],
+					[
+						4999,
+						3825
+					],
+					[
+						5082,
+						3713
+					],
+					[
+						5130,
+						3573
+					],
+					[
+						5222,
+						3469
+					],
+					[
+						5275,
+						3332
+					],
+					[
+						5335,
+						3202
+					]
+				]
+			},
+			{
+				"id": "ridge_4",
+				"tile": "ground.rock_top",
+				"height": 70,
+				"rough": 22,
+				"seed": 4,
+				"polygon": [
+					[
+						42,
+						3383
+					],
+					[
+						172,
+						3422
+					],
+					[
+						302,
+						3463
+					],
+					[
+						433,
+						3498
+					],
+					[
+						568,
+						3505
+					],
+					[
+						701,
+						3522
+					],
+					[
+						833,
+						3546
+					],
+					[
+						967,
+						3558
+					],
+					[
+						1105,
+						3542
+					],
+					[
+						1241,
+						3536
+					],
+					[
+						1251,
+						3460
+					],
+					[
+						1119,
+						3431
+					],
+					[
+						991,
+						3380
+					],
+					[
+						860,
+						3341
+					],
+					[
+						727,
+						3324
+					],
+					[
+						592,
+						3322
+					],
+					[
+						459,
+						3305
+					],
+					[
+						324,
+						3298
+					],
+					[
+						188,
+						3300
+					],
+					[
+						52,
+						3309
+					]
+				]
+			},
+			{
+				"id": "ridge_5",
+				"tile": "ground.rock_top",
+				"height": 43,
+				"rough": 22,
+				"seed": 5,
+				"polygon": [
+					[
+						1140,
+						3576
+					],
+					[
+						1223,
+						3638
+					],
+					[
+						1304,
+						3703
+					],
+					[
+						1384,
+						3770
+					],
+					[
+						1475,
+						3814
+					],
+					[
+						1564,
+						3863
+					],
+					[
+						1654,
+						3908
+					],
+					[
+						1754,
+						3934
+					],
+					[
+						1858,
+						3950
+					],
+					[
+						1964,
+						3961
+					],
+					[
+						1999,
+						3887
+					],
+					[
+						1920,
+						3818
+					],
+					[
+						1838,
+						3756
+					],
+					[
+						1744,
+						3717
+					],
+					[
+						1656,
+						3666
+					],
+					[
+						1571,
+						3611
+					],
+					[
+						1472,
+						3583
+					],
+					[
+						1382,
+						3538
+					],
+					[
+						1275,
+						3528
+					],
+					[
+						1177,
+						3499
+					]
+				]
+			},
+			{
+				"id": "ridge_6",
+				"tile": "ground.rock_top",
+				"height": 58,
+				"rough": 22,
+				"seed": 6,
+				"polygon": [
+					[
+						1946,
+						1924
+					],
+					[
+						1900,
+						2045
+					],
+					[
+						1887,
+						2163
+					],
+					[
+						1857,
+						2282
+					],
+					[
+						1895,
+						2396
+					],
+					[
+						1872,
+						2515
+					],
+					[
+						1885,
+						2631
+					],
+					[
+						1928,
+						2744
+					],
+					[
+						1988,
+						2857
+					],
+					[
+						2028,
+						2971
+					],
+					[
+						2137,
+						2962
+					],
+					[
+						2153,
+						2844
+					],
+					[
+						2167,
+						2726
+					],
+					[
+						2204,
+						2606
+					],
+					[
+						2188,
+						2490
+					],
+					[
+						2181,
+						2374
+					],
+					[
+						2187,
+						2256
+					],
+					[
+						2117,
+						2145
+					],
+					[
+						2106,
+						2028
+					],
+					[
+						2045,
+						1916
+					]
+				]
+			},
+			{
+				"id": "ridge_7",
+				"tile": "ground.rock_top",
+				"height": 64,
+				"rough": 22,
+				"seed": 7,
+				"polygon": [
+					[
+						5566,
+						2202
+					],
+					[
+						5567,
+						2287
+					],
+					[
+						5587,
+						2364
+					],
+					[
+						5573,
+						2455
+					],
+					[
+						5626,
+						2518
+					],
+					[
+						5651,
+						2592
+					],
+					[
+						5688,
+						2662
+					],
+					[
+						5726,
+						2731
+					],
+					[
+						5773,
+						2796
+					],
+					[
+						5842,
+						2852
+					],
+					[
+						5921,
+						2819
+					],
+					[
+						5919,
+						2734
+					],
+					[
+						5918,
+						2649
+					],
+					[
+						5885,
+						2578
+					],
+					[
+						5895,
+						2489
+					],
+					[
+						5851,
+						2422
+					],
+					[
+						5815,
+						2353
+					],
+					[
+						5762,
+						2290
+					],
+					[
+						5696,
+						2233
+					],
+					[
+						5646,
+						2168
+					]
+				]
+			},
+			{
+				"id": "ridge_8",
+				"tile": "ground.rock_top",
+				"height": 46,
+				"rough": 22,
+				"seed": 8,
+				"polygon": [
+					[
+						2516,
+						2413
+					],
+					[
+						2596,
+						2512
+					],
+					[
+						2677,
+						2611
+					],
+					[
+						2761,
+						2705
+					],
+					[
+						2847,
+						2796
+					],
+					[
+						2950,
+						2867
+					],
+					[
+						3070,
+						2915
+					],
+					[
+						3162,
+						3000
+					],
+					[
+						3280,
+						3051
+					],
+					[
+						3402,
+						3097
+					],
+					[
+						3457,
+						3026
+					],
+					[
+						3378,
+						2927
+					],
+					[
+						3295,
+						2831
+					],
+					[
+						3207,
+						2741
+					],
+					[
+						3128,
+						2641
+					],
+					[
+						3008,
+						2591
+					],
+					[
+						2912,
+						2513
+					],
+					[
+						2808,
+						2444
+					],
+					[
+						2693,
+						2389
+					],
+					[
+						2573,
+						2340
+					]
+				]
+			}
+		],
+		"covers": [],
+		"walls": [],
+		"cables": []
+	},
+	"turrets": [],
+	"areas": [
+		{
+			"id": "area_glutfeld",
+			"name": "NODE_GLUTFELD",
+			"polygon": [
+				[
+					0,
+					0
+				],
+				[
+					6600,
+					0
+				],
+				[
+					6600,
+					4800
+				],
+				[
+					0,
+					4800
+				]
+			]
+		}
+	],
+	"teleports": {
+		"hub": {
+			"pos": [
+				3678,
+				2253
+			],
+			"heading_deg": 90
+		},
+		"gate_glaswueste": {
+			"pos": [
+				3300,
+				420
+			],
+			"heading_deg": 180
+		},
+		"gate_frostgrund": {
+			"pos": [
+				1650,
+				420
+			],
+			"heading_deg": 180
+		}
+	},
+	"creatures": [
+		{
+			"id": "skirr_0_0",
+			"species": "skirr",
+			"pack": "glutfeld_0",
+			"spawn": [
+				1994,
+				1495
+			]
+		},
+		{
+			"id": "skirr_0_1",
+			"species": "skirr",
+			"pack": "glutfeld_0",
+			"spawn": [
+				2064,
+				1555
+			]
+		},
+		{
+			"id": "skirr_0_2",
+			"species": "skirr",
+			"pack": "glutfeld_0",
+			"spawn": [
+				2134,
+				1495
+			]
+		},
+		{
+			"id": "skirr_0_3",
+			"species": "skirr",
+			"pack": "glutfeld_0",
+			"spawn": [
+				2204,
+				1555
+			]
+		},
+		{
+			"id": "skirr_1_0",
+			"species": "skirr",
+			"pack": "glutfeld_1",
+			"spawn": [
+				705,
+				4299
+			]
+		},
+		{
+			"id": "skirr_1_1",
+			"species": "skirr",
+			"pack": "glutfeld_1",
+			"spawn": [
+				775,
+				4359
+			]
+		},
+		{
+			"id": "skirr_1_2",
+			"species": "skirr",
+			"pack": "glutfeld_1",
+			"spawn": [
+				845,
+				4299
+			]
+		},
+		{
+			"id": "skirr_1_3",
+			"species": "skirr",
+			"pack": "glutfeld_1",
+			"spawn": [
+				915,
+				4359
+			]
+		},
+		{
+			"id": "grindback_0",
+			"species": "grindback",
+			"spawn": [
+				554,
+				2886
+			]
+		},
+		{
+			"id": "grindback_1",
+			"species": "grindback",
+			"spawn": [
+				1063,
+				4232
+			]
+		},
+		{
+			"id": "grindback_2",
+			"species": "grindback",
+			"spawn": [
+				5895,
+				1994
+			]
+		},
+		{
+			"id": "eisback_0",
+			"species": "rimeback",
+			"spawn": [
+				1488,
+				1557
+			],
+			"route": [
+				[
+					1488,
+					1557
+				],
+				[
+					1936,
+					1445
+				],
+				[
+					4220,
+					1830
+				],
+				[
+					3685,
+					3945
+				],
+				[
+					3214,
+					3619
+				],
+				[
+					3185,
+					3559
+				],
+				[
+					2118,
+					3325
+				]
+			],
+			"lair": [
+				4208,
+				2535
+			],
+			"heading_deg": 90
+		}
+	],
+	"pois": [
+		{
+			"id": "exp_0",
+			"kind": "expedition",
+			"pos": [
+				3504,
+				4114
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {
+				"salvaged_parts": 1
+			}
+		},
+		{
+			"id": "exp_1",
+			"kind": "expedition",
+			"pos": [
+				3798,
+				4205
+			],
+			"name": "POI_EXPEDITION",
+			"burning": false,
+			"wreck": "rival.wreck",
+			"loot": {
+				"salvaged_parts": 2,
+				"logbook": 1
+			}
+		},
+		{
+			"id": "exp_2",
+			"kind": "expedition",
+			"pos": [
+				1721,
+				3034
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {
+				"instrument": 1
+			}
+		},
+		{
+			"id": "exp_3",
+			"kind": "expedition",
+			"pos": [
+				4674,
+				2129
+			],
+			"name": "POI_EXPEDITION",
+			"burning": false,
+			"wreck": "rival.wreck",
+			"loot": {}
+		},
+		{
+			"id": "landmark_0",
+			"kind": "landmark",
+			"pos": [
+				3568,
+				3345
+			],
+			"name": "POI_LANDMARK_GLUTFELD",
+			"asset": "glut.vent",
+			"loot": {}
+		}
+	],
+	"relief": {
+		"seed": 2341,
+		"amp": 1.0,
+		"scale": 900.0
+	},
+	"weather_mult": 1.68,
+	"gates": [
+		{
+			"id": "gate_glaswueste",
+			"to": "glaswueste",
+			"side": "n",
+			"pos": [
+				3300,
+				0
+			],
+			"entry": [
+				3300,
+				420
+			],
+			"heading_deg": 180
+		},
+		{
+			"id": "gate_frostgrund",
+			"to": "frostgrund",
+			"side": "n",
+			"pos": [
+				1650,
+				0
+			],
+			"entry": [
+				1650,
+				420
+			],
+			"heading_deg": 180
+		}
+	],
+	"quarry": "eisback_0"
+}

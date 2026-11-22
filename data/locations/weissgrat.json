@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -566,11 +586,76 @@
 			"collision": {
 				"circle": 50
 			}
+		},
+		{
+			"id": "pylon_0",
+			"asset": "prop.pylon",
+			"pos": [
+				4427,
+				3177
+			],
+			"layer": "low",
+			"rot": 86,
+			"collision": {
+				"circle": 30
+			}
+		},
+		{
+			"id": "pylon_1",
+			"asset": "prop.pylon",
+			"pos": [
+				859,
+				1223
+			],
+			"layer": "low",
+			"rot": 350,
+			"collision": {
+				"circle": 30
+			}
+		},
+		{
+			"id": "pylon_2",
+			"asset": "prop.pylon",
+			"pos": [
+				4570,
+				3399
+			],
+			"layer": "low",
+			"rot": 98,
+			"collision": {
+				"circle": 30
+			}
+		},
+		{
+			"id": "pylon_3",
+			"asset": "prop.pylon",
+			"pos": [
+				549,
+				1315
+			],
+			"layer": "low",
+			"rot": 359,
+			"collision": {
+				"circle": 30
+			}
+		},
+		{
+			"id": "pylon_4",
+			"asset": "prop.pylon",
+			"pos": [
+				4318,
+				3423
+			],
+			"layer": "low",
+			"rot": 309,
+			"collision": {
+				"circle": 30
+			}
 		}
 	],
 	"scatter": [
 		{
-			"seed": 711,
+			"seed": 877,
 			"count": 160,
 			"area": [
 				0,
@@ -1701,7 +1786,7 @@
 			],
 			"heading_deg": 90
 		},
-		"gate_frostgrund": {
+		"gate_eisenfurt": {
 			"pos": [
 				3300,
 				420
@@ -1715,8 +1800,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_0",
 			"spawn": [
-				4239,
-				719
+				1463,
+				3501
 			]
 		},
 		{
@@ -1724,8 +1809,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_0",
 			"spawn": [
-				4309,
-				779
+				1533,
+				3561
 			]
 		},
 		{
@@ -1733,8 +1818,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_0",
 			"spawn": [
-				4379,
-				719
+				1603,
+				3501
 			]
 		},
 		{
@@ -1742,8 +1827,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_0",
 			"spawn": [
-				4449,
-				779
+				1673,
+				3561
 			]
 		},
 		{
@@ -1751,8 +1836,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_1",
 			"spawn": [
-				1301,
-				597
+				932,
+				3074
 			]
 		},
 		{
@@ -1760,8 +1845,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_1",
 			"spawn": [
-				1371,
-				657
+				1002,
+				3134
 			]
 		},
 		{
@@ -1769,8 +1854,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_1",
 			"spawn": [
-				1441,
-				597
+				1072,
+				3074
 			]
 		},
 		{
@@ -1778,8 +1863,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_1",
 			"spawn": [
-				1511,
-				657
+				1142,
+				3134
 			]
 		},
 		{
@@ -1787,8 +1872,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_2",
 			"spawn": [
-				3982,
-				2131
+				3986,
+				937
 			]
 		},
 		{
@@ -1796,8 +1881,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_2",
 			"spawn": [
-				4052,
-				2191
+				4056,
+				997
 			]
 		},
 		{
@@ -1805,8 +1890,8 @@
 			"species": "skirr",
 			"pack": "weissgrat_2",
 			"spawn": [
-				4122,
-				2131
+				4126,
+				937
 			]
 		},
 		{
@@ -1814,66 +1899,66 @@
 			"species": "skirr",
 			"pack": "weissgrat_2",
 			"spawn": [
-				4192,
-				2191
+				4196,
+				997
 			]
 		},
 		{
 			"id": "grindback_0",
 			"species": "grindback",
 			"spawn": [
-				4637,
-				3753
+				3943,
+				2190
 			]
 		},
 		{
 			"id": "grindback_1",
 			"species": "grindback",
 			"spawn": [
-				5052,
-				3979
+				3941,
+				2542
 			]
 		},
 		{
 			"id": "eisback_0",
 			"species": "rimeback",
 			"spawn": [
-				1043,
-				1097
+				3876,
+				1490
 			],
 			"route": [
 				[
-					1043,
-					1097
+					3876,
+					1490
 				],
 				[
-					891,
-					533
+					2169,
+					3412
 				],
 				[
-					1876,
-					826
+					1765,
+					3738
 				],
 				[
-					5803,
-					1389
+					1729,
+					3479
 				],
 				[
-					6029,
-					1983
+					1303,
+					3993
 				],
 				[
-					4060,
-					1681
+					1264,
+					3606
 				],
 				[
-					1154,
-					3093
+					567,
+					3553
 				]
 			],
 			"lair": [
-				666,
-				1477
+				1446,
+				3424
 			],
 			"heading_deg": 90
 		},
@@ -1881,42 +1966,42 @@
 			"id": "eisback_1",
 			"species": "rimeback",
 			"spawn": [
-				3972,
-				1556
+				1296,
+				2990
 			],
 			"route": [
 				[
-					3972,
-					1556
+					1296,
+					2990
 				],
 				[
-					5083,
-					1743
+					2677,
+					1155
 				],
 				[
-					4497,
-					3742
+					3675,
+					2272
 				],
 				[
-					4832,
-					4024
+					4675,
+					4070
 				],
 				[
-					4292,
-					4233
+					4296,
+					4181
 				],
 				[
-					2277,
-					3416
+					1683,
+					4271
 				],
 				[
-					1432,
-					3280
+					1489,
+					3250
 				]
 			],
 			"lair": [
-				2833,
-				2252
+				2766,
+				1120
 			],
 			"heading_deg": 90
 		}
@@ -1926,8 +2011,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				2056,
-				886
+				5107,
+				2773
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1941,8 +2026,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				3963,
-				1827
+				5071,
+				1792
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1955,8 +2040,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				4440,
-				3216
+				1932,
+				4108
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1970,8 +2055,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				2109,
-				3363
+				4297,
+				751
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1984,8 +2069,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				3580,
-				2682
+				1292,
+				3761
 			],
 			"name": "POI_LANDMARK_WEISSGRAT",
 			"asset": "prop.pylon",
@@ -1993,11 +2078,11 @@
 		}
 	],
 	"relief": {
-		"seed": 5257,
+		"seed": 7064,
 		"amp": 1.0,
 		"scale": 900.0
 	},
-	"weather_mult": 1.75,
+	"weather_mult": 1.56,
 	"gates": [
 		{
 			"id": "gate_rostfeld",
@@ -2014,8 +2099,8 @@
 			"heading_deg": 90
 		},
 		{
-			"id": "gate_frostgrund",
-			"to": "frostgrund",
+			"id": "gate_eisenfurt",
+			"to": "eisenfurt",
 			"side": "n",
 			"pos": [
 				3300,

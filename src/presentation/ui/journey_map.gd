@@ -103,6 +103,18 @@ func _draw_map() -> void:
 		_map.draw_rect(Rect2(off, Vector2(1000, 700) * s), Color("#cdb68c"))
 	var font := _map.get_theme_default_font()
 	var j := Session.journey()
+	# region names, stencilled faintly where the player has been or can see
+	for rid in Journey.data().get("regions", {}):
+		var rg: Dictionary = Journey.data()["regions"][rid]
+		var seen := false
+		for nid in Journey.nodes():
+			if Journey.region(str(nid)) == str(rid) and bool(j["discovered"].get(nid, false)):
+				seen = true
+		if seen:
+			var rl := tr(str(rg.get("name", rid)))
+			var rp: Vector2 = off + Content.v2(rg.get("pos", [0, 0])) * s
+			var rw := font.get_string_size(rl, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
+			_map.draw_string(font, rp - Vector2(rw * 0.5, 0), rl, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color(0.3, 0.18, 0.1, 0.45))
 	for e in Journey.data().get("edges", []):
 		var a := str(e[0])
 		var b := str(e[1])

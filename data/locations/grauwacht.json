@@ -1,9 +1,9 @@
 {
-	"id": "eisenhalt",
-	"name": "NODE_EISENHALT",
-	"node": "eisenhalt",
+	"id": "grauwacht",
+	"name": "NODE_GRAUWACHT",
+	"node": "grauwacht",
 	"kind": "settlement",
-	"tier": 3,
+	"tier": 2,
 	"bounds": [
 		0,
 		0,
@@ -11,8 +11,8 @@
 		2800
 	],
 	"default_zone": {
-		"ambient": 62.5,
-		"solar": 1.12,
+		"ambient": 61.0,
+		"solar": 1.08,
 		"abrasion": 1.0,
 		"drag": 1.0,
 		"suit": 1.0,
@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -158,23 +178,23 @@
 			"path": [
 				[
 					1800,
-					0
+					2800
 				],
 				[
-					1740,
-					138
+					1802,
+					2662
 				],
 				[
-					1908,
-					275
+					1851,
+					2525
 				],
 				[
-					1812,
-					412
+					1778,
+					2388
 				],
 				[
 					1800,
-					550.0
+					2250.0
 				],
 				[
 					1800,
@@ -188,24 +208,24 @@
 			"width": 150,
 			"path": [
 				[
-					0,
-					1400
+					1800,
+					0
 				],
 				[
-					162,
-					1377
+					1723,
+					138
 				],
 				[
-					325,
-					1514
+					1867,
+					275
 				],
 				[
-					488,
-					1346
+					1732,
+					412
 				],
 				[
-					650.0,
-					1400
+					1800,
+					550.0
 				],
 				[
 					1800,
@@ -219,24 +239,24 @@
 			"width": 150,
 			"path": [
 				[
-					3600,
-					1400
+					900,
+					0
 				],
 				[
-					3438,
-					1458
+					888,
+					138
 				],
 				[
-					3275,
-					1511
+					861,
+					275
 				],
 				[
-					3112,
-					1368
+					930,
+					412
 				],
 				[
-					2950.0,
-					1400
+					900,
+					550.0
 				],
 				[
 					1800,
@@ -425,7 +445,7 @@
 		},
 		{
 			"id": "town_sign",
-			"asset": "sign.eisenhalt",
+			"asset": "sign.grauwacht",
 			"pos": [
 				1920,
 				1520
@@ -571,6 +591,122 @@
 			"layer": "low"
 		},
 		{
+			"id": "scrapstack_0",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				2730,
+				810
+			],
+			"layer": "low",
+			"rot": 321,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "tires_0",
+			"asset": "prop.tire_stack",
+			"pos": [
+				2840,
+				850
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "scrapstack_1",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				2690,
+				1950
+			],
+			"layer": "low",
+			"rot": 13,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "tires_1",
+			"asset": "prop.tire_stack",
+			"pos": [
+				2800,
+				1990
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "scrapstack_2",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				910,
+				1070
+			],
+			"layer": "low",
+			"rot": 110,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "tires_2",
+			"asset": "prop.tire_stack",
+			"pos": [
+				1020,
+				1110
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "scrapstack_3",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				950,
+				1730
+			],
+			"layer": "low",
+			"rot": 172,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "tires_3",
+			"asset": "prop.tire_stack",
+			"pos": [
+				1060,
+				1770
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "wreck_hauler",
+			"asset": "wreck.hauler",
+			"pos": [
+				2320,
+				770
+			],
+			"layer": "low",
+			"rot": 4,
+			"collision": {
+				"rect": [
+					300,
+					120
+				]
+			}
+		},
+		{
 			"id": "generator",
 			"asset": "junker.generator",
 			"pos": [
@@ -598,14 +734,53 @@
 			}
 		},
 		{
+			"id": "rock_0",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				355,
+				615
+			],
+			"layer": "low",
+			"rot": 200,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
 			"id": "rock_1",
 			"asset": "prop.rock_large_a",
 			"pos": [
-				3325,
-				1174
+				455,
+				2573
 			],
 			"layer": "low",
-			"rot": 84,
+			"rot": 302,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_2",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				3094,
+				221
+			],
+			"layer": "low",
+			"rot": 290,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_5",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				3282,
+				1763
+			],
+			"layer": "low",
+			"rot": 266,
 			"collision": {
 				"circle": 50
 			}
@@ -613,7 +788,7 @@
 	],
 	"scatter": [
 		{
-			"seed": 5,
+			"seed": 557,
 			"count": 70,
 			"area": [
 				0,
@@ -637,27 +812,57 @@
 			1900
 		],
 		[
-			1620,
-			-120,
-			300,
+			1680,
+			2542,
+			242,
 			378
 		],
 		[
-			1620,
-			18,
-			408,
+			1682,
+			2405,
+			289,
 			377
 		],
 		[
-			1692,
-			155,
-			336,
+			1658,
+			2268,
+			313,
 			377
+		],
+		[
+			1658,
+			2130.0,
+			262,
+			378.0
 		],
 		[
 			1680,
+			1280,
+			240,
+			1090.0
+		],
+		[
+			1603,
+			-120,
+			317,
+			378
+		],
+		[
+			1603,
+			18,
+			384,
+			377
+		],
+		[
+			1612,
+			155,
+			375,
+			377
+		],
+		[
+			1612,
 			292,
-			252,
+			308,
 			378.0
 		],
 		[
@@ -667,64 +872,34 @@
 			1090.0
 		],
 		[
+			768,
 			-120,
-			1257,
-			402,
-			263
+			252,
+			378
 		],
 		[
-			42,
-			1257,
-			403,
+			741,
+			18,
+			267,
 			377
 		],
 		[
-			205,
-			1226,
-			403,
-			408
+			741,
+			155,
+			309,
+			377
 		],
 		[
-			368,
-			1226,
-			402.0,
-			294
+			780,
+			292,
+			270,
+			378.0
 		],
 		[
-			530.0,
-			1280,
-			1390.0,
-			240
-		],
-		[
-			3318,
-			1280,
-			402,
-			298
-		],
-		[
-			3155,
-			1338,
-			403,
-			293
-		],
-		[
-			2992,
-			1248,
-			403,
-			383
-		],
-		[
-			2830.0,
-			1248,
-			402.0,
-			272
-		],
-		[
-			1680,
-			1280,
-			1390.0,
-			240
+			780,
+			430.0,
+			1140,
+			1090.0
 		]
 	],
 	"enemies": [],
@@ -741,6 +916,16 @@
 					[
 						[
 							650,
+							550
+						],
+						[
+							720,
+							550
+						]
+					],
+					[
+						[
+							1080,
 							550
 						],
 						[
@@ -764,6 +949,16 @@
 							2250
 						],
 						[
+							1620,
+							2250
+						]
+					],
+					[
+						[
+							1980,
+							2250
+						],
+						[
 							2950,
 							2250
 						]
@@ -775,16 +970,6 @@
 						],
 						[
 							650,
-							1220
-						]
-					],
-					[
-						[
-							650,
-							1580
-						],
-						[
-							650,
 							2250
 						]
 					],
@@ -792,16 +977,6 @@
 						[
 							2950,
 							550
-						],
-						[
-							2950,
-							1220
-						]
-					],
-					[
-						[
-							2950,
-							1580
 						],
 						[
 							2950,
@@ -816,8 +991,8 @@
 	"turrets": [],
 	"areas": [
 		{
-			"id": "area_eisenhalt",
-			"name": "NODE_EISENHALT",
+			"id": "area_grauwacht",
+			"name": "NODE_GRAUWACHT",
 			"polygon": [
 				[
 					650.0,
@@ -850,15 +1025,29 @@
 	"creatures": [],
 	"pois": [],
 	"relief": {
-		"seed": 38,
+		"seed": 6662,
 		"amp": 0.5,
 		"scale": 900.0
 	},
-	"weather_mult": 1.75,
+	"weather_mult": 1.5,
 	"gates": [
 		{
-			"id": "gate_salzpfanne",
-			"to": "salzpfanne",
+			"id": "gate_rostfeld",
+			"to": "rostfeld",
+			"side": "s",
+			"pos": [
+				1800,
+				2800
+			],
+			"entry": [
+				1800,
+				2380
+			],
+			"heading_deg": 0
+		},
+		{
+			"id": "gate_schrottgrund",
+			"to": "schrottgrund",
 			"side": "n",
 			"pos": [
 				1800,
@@ -871,32 +1060,18 @@
 			"heading_deg": 180
 		},
 		{
-			"id": "gate_rostfeld",
-			"to": "rostfeld",
-			"side": "w",
+			"id": "gate_dornpass",
+			"to": "dornpass",
+			"side": "n",
 			"pos": [
-				0,
-				1400
+				900,
+				0
 			],
 			"entry": [
-				420,
-				1400
+				900,
+				420
 			],
-			"heading_deg": 90
-		},
-		{
-			"id": "gate_frostgrund",
-			"to": "frostgrund",
-			"side": "e",
-			"pos": [
-				3600,
-				1400
-			],
-			"entry": [
-				3180,
-				1400
-			],
-			"heading_deg": 270
+			"heading_deg": 180
 		}
 	],
 	"garage": {

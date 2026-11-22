@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -666,11 +686,215 @@
 			"collision": {
 				"circle": 50
 			}
+		},
+		{
+			"id": "hauler_0",
+			"asset": "wreck.hauler",
+			"pos": [
+				2343,
+				2995
+			],
+			"layer": "low",
+			"rot": 345,
+			"collision": {
+				"rect": [
+					300,
+					120
+				]
+			}
+		},
+		{
+			"id": "hauler_1",
+			"asset": "wreck.hauler",
+			"pos": [
+				4936,
+				473
+			],
+			"layer": "low",
+			"rot": 144,
+			"collision": {
+				"rect": [
+					300,
+					120
+				]
+			}
+		},
+		{
+			"id": "hauler_2",
+			"asset": "wreck.hauler",
+			"pos": [
+				4403,
+				3955
+			],
+			"layer": "low",
+			"rot": 43,
+			"collision": {
+				"rect": [
+					300,
+					120
+				]
+			}
+		},
+		{
+			"id": "engine_block_0",
+			"asset": "prop.engine_block",
+			"pos": [
+				6156,
+				1342
+			],
+			"layer": "low",
+			"rot": 65,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "engine_block_1",
+			"asset": "prop.engine_block",
+			"pos": [
+				2591,
+				4089
+			],
+			"layer": "low",
+			"rot": 330,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "engine_block_2",
+			"asset": "prop.engine_block",
+			"pos": [
+				2013,
+				2571
+			],
+			"layer": "low",
+			"rot": 154,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "engine_block_3",
+			"asset": "prop.engine_block",
+			"pos": [
+				5410,
+				602
+			],
+			"layer": "low",
+			"rot": 82,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "engine_block_4",
+			"asset": "prop.engine_block",
+			"pos": [
+				5770,
+				3482
+			],
+			"layer": "low",
+			"rot": 304,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "engine_block_5",
+			"asset": "prop.engine_block",
+			"pos": [
+				1345,
+				879
+			],
+			"layer": "low",
+			"rot": 156,
+			"collision": {
+				"circle": 36
+			}
+		},
+		{
+			"id": "tire_stack_0",
+			"asset": "prop.tire_stack",
+			"pos": [
+				3908,
+				865
+			],
+			"layer": "low",
+			"rot": 43,
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "tire_stack_1",
+			"asset": "prop.tire_stack",
+			"pos": [
+				6033,
+				1593
+			],
+			"layer": "low",
+			"rot": 67,
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "tire_stack_2",
+			"asset": "prop.tire_stack",
+			"pos": [
+				2020,
+				1633
+			],
+			"layer": "low",
+			"rot": 100,
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "tire_stack_3",
+			"asset": "prop.tire_stack",
+			"pos": [
+				3400,
+				4270
+			],
+			"layer": "low",
+			"rot": 118,
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "tire_stack_4",
+			"asset": "prop.tire_stack",
+			"pos": [
+				4681,
+				461
+			],
+			"layer": "low",
+			"rot": 75,
+			"collision": {
+				"circle": 34
+			}
+		},
+		{
+			"id": "tire_stack_5",
+			"asset": "prop.tire_stack",
+			"pos": [
+				6042,
+				1028
+			],
+			"layer": "low",
+			"rot": 124,
+			"collision": {
+				"circle": 34
+			}
 		}
 	],
 	"scatter": [
 		{
-			"seed": 344,
+			"seed": 448,
 			"count": 160,
 			"area": [
 				0,
@@ -820,26 +1044,26 @@
 			"id": "rival_0",
 			"type": "scrapper",
 			"spawn": [
-				5338,
-				692
+				5423,
+				1284
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					5338,
-					692
+					5423,
+					1284
 				],
 				[
-					5738,
-					692
+					5823,
+					1284
 				],
 				[
-					5738,
-					1092
+					5823,
+					1684
 				],
 				[
-					5338,
-					1092
+					5423,
+					1684
 				]
 			]
 		},
@@ -847,26 +1071,26 @@
 			"id": "rival_1",
 			"type": "junker",
 			"spawn": [
-				1401,
-				3658
+				3611,
+				1208
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					1401,
-					3658
+					3611,
+					1208
 				],
 				[
-					1801,
-					3658
+					4011,
+					1208
 				],
 				[
-					1801,
-					4058
+					4011,
+					1608
 				],
 				[
-					1401,
-					4058
+					3611,
+					1608
 				]
 			]
 		},
@@ -874,26 +1098,26 @@
 			"id": "rival_2",
 			"type": "scrapper",
 			"spawn": [
-				3657,
-				4275
+				3719,
+				4245
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					3657,
-					4275
+					3719,
+					4245
 				],
 				[
-					4057,
-					4275
+					4119,
+					4245
 				],
 				[
-					4057,
-					4675
+					4119,
+					4645
 				],
 				[
-					3657,
-					4675
+					3719,
+					4645
 				]
 			]
 		}
@@ -1569,7 +1793,7 @@
 			],
 			"heading_deg": 90
 		},
-		"gate_eisenhalt": {
+		"gate_grauwacht": {
 			"pos": [
 				3300,
 				420
@@ -1590,8 +1814,8 @@
 			"species": "skirr",
 			"pack": "rostfeld_0",
 			"spawn": [
-				4780,
-				569
+				5403,
+				3255
 			]
 		},
 		{
@@ -1599,8 +1823,8 @@
 			"species": "skirr",
 			"pack": "rostfeld_0",
 			"spawn": [
-				4850,
-				629
+				5473,
+				3315
 			]
 		},
 		{
@@ -1608,8 +1832,8 @@
 			"species": "skirr",
 			"pack": "rostfeld_0",
 			"spawn": [
-				4920,
-				569
+				5543,
+				3255
 			]
 		},
 		{
@@ -1617,8 +1841,8 @@
 			"species": "skirr",
 			"pack": "rostfeld_1",
 			"spawn": [
-				1975,
-				3009
+				3594,
+				3229
 			]
 		},
 		{
@@ -1626,8 +1850,8 @@
 			"species": "skirr",
 			"pack": "rostfeld_1",
 			"spawn": [
-				2045,
-				3069
+				3664,
+				3289
 			]
 		},
 		{
@@ -1635,66 +1859,66 @@
 			"species": "skirr",
 			"pack": "rostfeld_1",
 			"spawn": [
-				2115,
-				3009
+				3734,
+				3229
 			]
 		},
 		{
 			"id": "grindback_0",
 			"species": "grindback",
 			"spawn": [
-				1632,
-				4271
+				5560,
+				1612
 			]
 		},
 		{
 			"id": "grindback_1",
 			"species": "grindback",
 			"spawn": [
-				1819,
-				989
+				3273,
+				3192
 			]
 		},
 		{
 			"id": "eisback_0",
 			"species": "rimeback",
 			"spawn": [
-				2514,
-				2000
+				1799,
+				3539
 			],
 			"route": [
 				[
-					2514,
-					2000
+					1799,
+					3539
 				],
 				[
-					1881,
-					1557
+					1613,
+					3293
 				],
 				[
-					3041,
-					1656
+					2051,
+					3392
 				],
 				[
-					6079,
-					620
+					2065,
+					3149
 				],
 				[
-					5276,
-					2931
+					3701,
+					3525
 				],
 				[
-					5504,
-					3515
+					2038,
+					4078
 				],
 				[
-					3852,
-					4141
+					1381,
+					3853
 				]
 			],
 			"lair": [
-				3539,
-				3472
+				2714,
+				2104
 			],
 			"heading_deg": 90
 		}
@@ -1704,8 +1928,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				4820,
-				1119
+				1728,
+				4274
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1716,8 +1940,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				2018,
-				2498
+				2903,
+				1605
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1731,8 +1955,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				5177,
-				2869
+				2476,
+				3629
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1745,8 +1969,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				1327,
-				3555
+				5259,
+				1442
 			],
 			"name": "POI_LANDMARK_ROSTFELD",
 			"asset": "wreck.hauler",
@@ -1754,11 +1978,11 @@
 		}
 	],
 	"relief": {
-		"seed": 7401,
+		"seed": 3598,
 		"amp": 1.0,
 		"scale": 900.0
 	},
-	"weather_mult": 1.5,
+	"weather_mult": 1.32,
 	"gates": [
 		{
 			"id": "gate_taubecken",
@@ -1775,8 +1999,8 @@
 			"heading_deg": 90
 		},
 		{
-			"id": "gate_eisenhalt",
-			"to": "eisenhalt",
+			"id": "gate_grauwacht",
+			"to": "grauwacht",
 			"side": "n",
 			"pos": [
 				3300,

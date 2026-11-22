@@ -53,6 +53,16 @@ static func node_for_location(loc_id: String) -> String:
 	return ""
 
 
+## Retired node ids (Kaltbrunn → Grauwacht, Eisenhalt → Eisenfurt) map onto
+## their successors so older saves keep their place on the continent.
+static func renamed(id: String) -> String:
+	return str(data().get("renamed", {}).get(id, id))
+
+
+static func region(id: String) -> String:
+	return str(node(id).get("region", ""))
+
+
 static func is_safe(id: String) -> bool:
 	return str(node(id).get("kind", "")) in ["settlement", "hub"]
 
@@ -97,13 +107,17 @@ static func sanitize(j) -> Dictionary:
 	for k in fresh:
 		if not j.has(k) or typeof(j[k]) != typeof(fresh[k]):
 			j[k] = fresh[k]
+	for key in ["node", "from", "course", "last_safe"]:
+		if j.has(key):
+			j[key] = renamed(str(j[key]))
 	if not nodes().has(str(j["node"])):
 		j["node"] = fresh["node"]
 	for key in ["visited", "discovered", "completed"]:
 		var clean := {}
 		for n in j[key]:
-			if nodes().has(str(n)) and bool(j[key][n]):
-				clean[str(n)] = true
+			var nn := renamed(str(n))
+			if nodes().has(nn) and bool(j[key][n]):
+				clean[nn] = true
 		j[key] = clean
 	j["visited"][str(j["node"])] = true
 	j["discovered"][str(j["node"])] = true

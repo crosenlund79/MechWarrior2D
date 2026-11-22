@@ -1,0 +1,2030 @@
+{
+	"id": "schrottgrund",
+	"name": "NODE_SCHROTTGRUND",
+	"node": "schrottgrund",
+	"kind": "territory",
+	"tier": 2,
+	"bounds": [
+		0,
+		0,
+		6600,
+		4800
+	],
+	"default_zone": {
+		"ambient": 61.0,
+		"solar": 1.08,
+		"abrasion": 1.0,
+		"drag": 1.0,
+		"suit": 1.0,
+		"label": "ZONE_OPEN_SAND",
+		"storm_exposure": 1.0,
+		"grip": 0.92
+	},
+	"zone_types": {
+		"shade": {
+			"ambient": 44.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.35,
+			"label": "ZONE_SHADE",
+			"storm_exposure": 0.6,
+			"grip": 1.0
+		},
+		"dunes": {
+			"ambient": 60.0,
+			"solar": 1.0,
+			"abrasion": 22.0,
+			"drag": 0.62,
+			"suit": 1.1,
+			"label": "ZONE_DUNES",
+			"storm_exposure": 1.0,
+			"grip": 0.7
+		},
+		"salt": {
+			"ambient": 63.0,
+			"solar": 1.3,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"suit": 1.25,
+			"label": "ZONE_SALT",
+			"storm_exposure": 1.0,
+			"grip": 1.0
+		},
+		"canyon": {
+			"ambient": 50.0,
+			"solar": 0.45,
+			"abrasion": 0.3,
+			"drag": 1.0,
+			"suit": 0.6,
+			"cooling": 1.1,
+			"label": "ZONE_CANYON",
+			"storm_exposure": 0.45,
+			"grip": 1.0
+		},
+		"refuge": {
+			"ambient": 34.0,
+			"solar": 0.0,
+			"abrasion": 0.0,
+			"drag": 1.0,
+			"suit": 0.12,
+			"cooling": 1.3,
+			"sheltered": true,
+			"label": "ZONE_REFUGE",
+			"storm_exposure": 0.08,
+			"grip": 1.05
+		},
+		"ravine": {
+			"ambient": 52.0,
+			"solar": 0.5,
+			"abrasion": 0.5,
+			"drag": 1.0,
+			"suit": 0.65,
+			"cooling": 1.05,
+			"storm_exposure": 0.45,
+			"label": "ZONE_RAVINE",
+			"grip": 1.0
+		},
+		"junker": {
+			"ambient": 60.0,
+			"solar": 1.05,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"suit": 1.05,
+			"storm_exposure": 0.95,
+			"label": "ZONE_JUNKER",
+			"grip": 0.95
+		},
+		"settlement": {
+			"ambient": 46.0,
+			"solar": 0.55,
+			"abrasion": 0.2,
+			"drag": 1.0,
+			"grip": 1.05,
+			"suit": 0.35,
+			"cooling": 1.25,
+			"label": "ZONE_SETTLEMENT",
+			"storm_exposure": 0.35,
+			"safe": true
+		},
+		"frost": {
+			"ambient": 49.0,
+			"solar": 1.15,
+			"abrasion": 0.5,
+			"drag": 0.95,
+			"grip": 0.8,
+			"suit": 1.2,
+			"label": "ZONE_FROST",
+			"storm_exposure": 1.0
+		},
+		"scorch": {
+			"ambient": 66.0,
+			"solar": 1.35,
+			"abrasion": 1.0,
+			"drag": 1.0,
+			"grip": 0.95,
+			"suit": 1.4,
+			"label": "ZONE_SCORCH",
+			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
+		}
+	},
+	"patches": [
+		{
+			"id": "track_0",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					0,
+					2400
+				],
+				[
+					500,
+					2351
+				],
+				[
+					995,
+					2213
+				],
+				[
+					1506,
+					2332
+				],
+				[
+					1985,
+					1965
+				],
+				[
+					2514,
+					2337
+				],
+				[
+					3011,
+					2250
+				],
+				[
+					3509,
+					2161
+				]
+			]
+		},
+		{
+			"id": "track_1",
+			"tile": "ground.track",
+			"width": 110,
+			"path": [
+				[
+					6600,
+					2400
+				],
+				[
+					6160,
+					2339
+				],
+				[
+					5706,
+					2478
+				],
+				[
+					5250,
+					2630
+				],
+				[
+					4842,
+					2150
+				],
+				[
+					4377,
+					2428
+				],
+				[
+					3960,
+					2070
+				],
+				[
+					3509,
+					2161
+				]
+			]
+		},
+		{
+			"id": "patch_0",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					3006,
+					3851
+				],
+				[
+					2888,
+					4059
+				],
+				[
+					2647,
+					4261
+				],
+				[
+					2354,
+					4205
+				],
+				[
+					2241,
+					4030
+				],
+				[
+					2189,
+					3851
+				],
+				[
+					2182,
+					3665
+				],
+				[
+					2352,
+					3426
+				],
+				[
+					2618,
+					3401
+				],
+				[
+					2863,
+					3686
+				]
+			]
+		},
+		{
+			"id": "patch_1",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					6489,
+					3354
+				],
+				[
+					6502,
+					3847
+				],
+				[
+					6068,
+					4053
+				],
+				[
+					5502,
+					4157
+				],
+				[
+					5029,
+					3761
+				],
+				[
+					4958,
+					3354
+				],
+				[
+					5301,
+					2977
+				],
+				[
+					5588,
+					2828
+				],
+				[
+					5992,
+					2520
+				],
+				[
+					6407,
+					2902
+				]
+			]
+		},
+		{
+			"id": "patch_2",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					3869,
+					4052
+				],
+				[
+					3821,
+					4336
+				],
+				[
+					3502,
+					4336
+				],
+				[
+					3201,
+					4559
+				],
+				[
+					3032,
+					4270
+				],
+				[
+					2929,
+					4052
+				],
+				[
+					2964,
+					3795
+				],
+				[
+					3236,
+					3579
+				],
+				[
+					3486,
+					3551
+				],
+				[
+					3824,
+					3817
+				]
+			]
+		},
+		{
+			"id": "patch_3",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					2215,
+					979
+				],
+				[
+					2088,
+					1173
+				],
+				[
+					1734,
+					1528
+				],
+				[
+					1444,
+					1549
+				],
+				[
+					1065,
+					1213
+				],
+				[
+					1057,
+					979
+				],
+				[
+					1161,
+					683
+				],
+				[
+					1397,
+					418
+				],
+				[
+					1746,
+					420
+				],
+				[
+					1936,
+					681
+				]
+			]
+		},
+		{
+			"id": "patch_4",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					3924,
+					2215
+				],
+				[
+					3715,
+					2687
+				],
+				[
+					3438,
+					3005
+				],
+				[
+					2988,
+					2789
+				],
+				[
+					2718,
+					2493
+				],
+				[
+					2339,
+					2215
+				],
+				[
+					2622,
+					1831
+				],
+				[
+					2927,
+					1696
+				],
+				[
+					3393,
+					1430
+				],
+				[
+					3806,
+					1868
+				]
+			]
+		},
+		{
+			"id": "patch_5",
+			"tile": "ground.junker_dirt",
+			"polygon": [
+				[
+					2267,
+					1584
+				],
+				[
+					1976,
+					1906
+				],
+				[
+					1750,
+					2110
+				],
+				[
+					1411,
+					2066
+				],
+				[
+					1050,
+					1817
+				],
+				[
+					978,
+					1584
+				],
+				[
+					1185,
+					1356
+				],
+				[
+					1438,
+					1009
+				],
+				[
+					1736,
+					1168
+				],
+				[
+					1976,
+					1223
+				]
+			]
+		}
+	],
+	"zones": [],
+	"props": [
+		{
+			"id": "rock_1",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4156,
+				1406
+			],
+			"layer": "low",
+			"rot": 152,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_2",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				1857,
+				3760
+			],
+			"layer": "low",
+			"rot": 167,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_3",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2306,
+				3031
+			],
+			"layer": "low",
+			"rot": 319,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_5",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				941,
+				1797
+			],
+			"layer": "low",
+			"rot": 78,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_6",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2221,
+				3868
+			],
+			"layer": "low",
+			"rot": 264,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_7",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				4494,
+				3646
+			],
+			"layer": "low",
+			"rot": 245,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_8",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2625,
+				2635
+			],
+			"layer": "low",
+			"rot": 214,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_12",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2779,
+				2556
+			],
+			"layer": "low",
+			"rot": 351,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_13",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2511,
+				3508
+			],
+			"layer": "low",
+			"rot": 301,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_14",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				5638,
+				734
+			],
+			"layer": "low",
+			"rot": 155,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_15",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5065,
+				3391
+			],
+			"layer": "low",
+			"rot": 305,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_16",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				4723,
+				2787
+			],
+			"layer": "low",
+			"rot": 72,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_17",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				1380,
+				3640
+			],
+			"layer": "low",
+			"rot": 19,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_18",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				896,
+				3273
+			],
+			"layer": "low",
+			"rot": 77,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_19",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				2272,
+				1734
+			],
+			"layer": "low",
+			"rot": 221,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_21",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				566,
+				3073
+			],
+			"layer": "low",
+			"rot": 215,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_22",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				1961,
+				2816
+			],
+			"layer": "low",
+			"rot": 44,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_23",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				5787,
+				1711
+			],
+			"layer": "low",
+			"rot": 317,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_24",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				2108,
+				3695
+			],
+			"layer": "low",
+			"rot": 267,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_25",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				464,
+				4223
+			],
+			"layer": "low",
+			"rot": 155,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "scrap_stack_0",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				6191,
+				3624
+			],
+			"layer": "low",
+			"rot": 163,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_1",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				5294,
+				3197
+			],
+			"layer": "low",
+			"rot": 169,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_2",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				1536,
+				3948
+			],
+			"layer": "low",
+			"rot": 257,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_3",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				640,
+				1093
+			],
+			"layer": "low",
+			"rot": 325,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_4",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				3719,
+				973
+			],
+			"layer": "low",
+			"rot": 198,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_5",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				5476,
+				4136
+			],
+			"layer": "low",
+			"rot": 22,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_6",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				3527,
+				4052
+			],
+			"layer": "low",
+			"rot": 142,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_7",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				3825,
+				1411
+			],
+			"layer": "low",
+			"rot": 250,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_8",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				624,
+				688
+			],
+			"layer": "low",
+			"rot": 12,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "scrap_stack_9",
+			"asset": "junker.scrap_stack",
+			"pos": [
+				2123,
+				2586
+			],
+			"layer": "low",
+			"rot": 352,
+			"collision": {
+				"circle": 70
+			}
+		},
+		{
+			"id": "car_0",
+			"asset": "road.car",
+			"pos": [
+				3075,
+				3606
+			],
+			"layer": "low",
+			"rot": 252,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_1",
+			"asset": "road.car",
+			"pos": [
+				1292,
+				759
+			],
+			"layer": "low",
+			"rot": 336,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_2",
+			"asset": "road.car",
+			"pos": [
+				2980,
+				3253
+			],
+			"layer": "low",
+			"rot": 262,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_3",
+			"asset": "road.car",
+			"pos": [
+				696,
+				3815
+			],
+			"layer": "low",
+			"rot": 260,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_4",
+			"asset": "road.car",
+			"pos": [
+				3299,
+				1691
+			],
+			"layer": "low",
+			"rot": 46,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_5",
+			"asset": "road.car",
+			"pos": [
+				3045,
+				2825
+			],
+			"layer": "low",
+			"rot": 24,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_6",
+			"asset": "road.car",
+			"pos": [
+				4918,
+				3846
+			],
+			"layer": "low",
+			"rot": 259,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_7",
+			"asset": "road.car",
+			"pos": [
+				3636,
+				1205
+			],
+			"layer": "low",
+			"rot": 18,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_8",
+			"asset": "road.car",
+			"pos": [
+				5055,
+				4170
+			],
+			"layer": "low",
+			"rot": 23,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_9",
+			"asset": "road.car",
+			"pos": [
+				5601,
+				4374
+			],
+			"layer": "low",
+			"rot": 202,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_10",
+			"asset": "road.car",
+			"pos": [
+				3124,
+				700
+			],
+			"layer": "low",
+			"rot": 313,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "car_11",
+			"asset": "road.car",
+			"pos": [
+				5207,
+				3972
+			],
+			"layer": "low",
+			"rot": 20,
+			"collision": {
+				"rect": [
+					170,
+					86
+				]
+			}
+		},
+		{
+			"id": "burn_barrel_0",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				4158,
+				3431
+			],
+			"layer": "low",
+			"rot": 87,
+			"collision": {
+				"circle": 18
+			}
+		},
+		{
+			"id": "burn_barrel_1",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				3229,
+				2496
+			],
+			"layer": "low",
+			"rot": 143,
+			"collision": {
+				"circle": 18
+			}
+		},
+		{
+			"id": "burn_barrel_2",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				1571,
+				1373
+			],
+			"layer": "low",
+			"rot": 358,
+			"collision": {
+				"circle": 18
+			}
+		},
+		{
+			"id": "burn_barrel_3",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				1865,
+				1031
+			],
+			"layer": "low",
+			"rot": 112,
+			"collision": {
+				"circle": 18
+			}
+		},
+		{
+			"id": "burn_barrel_4",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				2740,
+				1818
+			],
+			"layer": "low",
+			"rot": 150,
+			"collision": {
+				"circle": 18
+			}
+		},
+		{
+			"id": "burn_barrel_5",
+			"asset": "junker.burn_barrel",
+			"pos": [
+				707,
+				4288
+			],
+			"layer": "low",
+			"rot": 8,
+			"collision": {
+				"circle": 18
+			}
+		}
+	],
+	"scatter": [
+		{
+			"seed": 432,
+			"count": 160,
+			"area": [
+				0,
+				0,
+				6600,
+				4800
+			],
+			"spacing": 90,
+			"assets": [
+				"prop.rock_small_a",
+				"prop.rock_small_b",
+				"prop.stones",
+				"prop.stones"
+			]
+		}
+	],
+	"scatter_avoid": [
+		[
+			-90,
+			2261,
+			680,
+			229
+		],
+		[
+			410,
+			2123,
+			675,
+			318
+		],
+		[
+			905,
+			2123,
+			691,
+			299
+		],
+		[
+			1416,
+			1875,
+			659,
+			547
+		],
+		[
+			1895,
+			1875,
+			709,
+			552
+		],
+		[
+			2424,
+			2160,
+			677,
+			267
+		],
+		[
+			2921,
+			2071,
+			678,
+			269
+		],
+		[
+			6070,
+			2249,
+			620,
+			241
+		],
+		[
+			5616,
+			2249,
+			634,
+			319
+		],
+		[
+			5160,
+			2388,
+			636,
+			332
+		],
+		[
+			4752,
+			2060,
+			588,
+			660
+		],
+		[
+			4287,
+			2060,
+			645,
+			458
+		],
+		[
+			3870,
+			1980,
+			597,
+			538
+		],
+		[
+			3419,
+			1980,
+			631,
+			271
+		]
+	],
+	"enemies": [
+		{
+			"id": "rival_0",
+			"type": "scrapper",
+			"spawn": [
+				686,
+				3501
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					686,
+					3501
+				],
+				[
+					1086,
+					3501
+				],
+				[
+					1086,
+					3901
+				],
+				[
+					686,
+					3901
+				]
+			]
+		},
+		{
+			"id": "rival_1",
+			"type": "junker",
+			"spawn": [
+				3426,
+				2112
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					3426,
+					2112
+				],
+				[
+					3826,
+					2112
+				],
+				[
+					3826,
+					2512
+				],
+				[
+					3426,
+					2512
+				]
+			]
+		},
+		{
+			"id": "rival_2",
+			"type": "scrapper",
+			"spawn": [
+				1836,
+				2515
+			],
+			"heading_deg": 90,
+			"patrol": [
+				[
+					1836,
+					2515
+				],
+				[
+					2236,
+					2515
+				],
+				[
+					2236,
+					2915
+				],
+				[
+					1836,
+					2915
+				]
+			]
+		}
+	],
+	"salvage": [],
+	"terrain": {
+		"masses": [
+			{
+				"id": "ridge_1",
+				"tile": "ground.rock_top",
+				"height": 49,
+				"rough": 22,
+				"seed": 1,
+				"polygon": [
+					[
+						5148,
+						1111
+					],
+					[
+						5309,
+						1152
+					],
+					[
+						5468,
+						1207
+					],
+					[
+						5627,
+						1263
+					],
+					[
+						5791,
+						1285
+					],
+					[
+						5956,
+						1301
+					],
+					[
+						6119,
+						1335
+					],
+					[
+						6287,
+						1333
+					],
+					[
+						6451,
+						1357
+					],
+					[
+						6620,
+						1352
+					],
+					[
+						6631,
+						1286
+					],
+					[
+						6471,
+						1241
+					],
+					[
+						6311,
+						1193
+					],
+					[
+						6153,
+						1134
+					],
+					[
+						5987,
+						1119
+					],
+					[
+						5825,
+						1082
+					],
+					[
+						5662,
+						1056
+					],
+					[
+						5494,
+						1053
+					],
+					[
+						5327,
+						1049
+					],
+					[
+						5161,
+						1035
+					]
+				]
+			},
+			{
+				"id": "ridge_2",
+				"tile": "ground.rock_top",
+				"height": 56,
+				"rough": 22,
+				"seed": 2,
+				"polygon": [
+					[
+						2864,
+						3693
+					],
+					[
+						2717,
+						3769
+					],
+					[
+						2572,
+						3848
+					],
+					[
+						2427,
+						3927
+					],
+					[
+						2300,
+						4030
+					],
+					[
+						2151,
+						4103
+					],
+					[
+						2038,
+						4225
+					],
+					[
+						1909,
+						4325
+					],
+					[
+						1792,
+						4443
+					],
+					[
+						1673,
+						4557
+					],
+					[
+						1726,
+						4629
+					],
+					[
+						1865,
+						4542
+					],
+					[
+						2010,
+						4463
+					],
+					[
+						2161,
+						4393
+					],
+					[
+						2303,
+						4311
+					],
+					[
+						2424,
+						4199
+					],
+					[
+						2552,
+						4097
+					],
+					[
+						2683,
+						3999
+					],
+					[
+						2796,
+						3877
+					],
+					[
+						2913,
+						3760
+					]
+				]
+			},
+			{
+				"id": "ridge_3",
+				"tile": "ground.rock_top",
+				"height": 67,
+				"rough": 22,
+				"seed": 3,
+				"polygon": [
+					[
+						5781,
+						3696
+					],
+					[
+						5796,
+						3787
+					],
+					[
+						5801,
+						3884
+					],
+					[
+						5852,
+						3957
+					],
+					[
+						5858,
+						4052
+					],
+					[
+						5895,
+						4132
+					],
+					[
+						5968,
+						4194
+					],
+					[
+						6002,
+						4276
+					],
+					[
+						6081,
+						4334
+					],
+					[
+						6142,
+						4402
+					],
+					[
+						6223,
+						4361
+					],
+					[
+						6212,
+						4268
+					],
+					[
+						6195,
+						4178
+					],
+					[
+						6185,
+						4085
+					],
+					[
+						6126,
+						4016
+					],
+					[
+						6111,
+						3925
+					],
+					[
+						6068,
+						3848
+					],
+					[
+						5994,
+						3786
+					],
+					[
+						5937,
+						3717
+					],
+					[
+						5872,
+						3650
+					]
+				]
+			},
+			{
+				"id": "ridge_4",
+				"tile": "ground.rock_top",
+				"height": 53,
+				"rough": 22,
+				"seed": 4,
+				"polygon": [
+					[
+						4739,
+						4070
+					],
+					[
+						4653,
+						4078
+					],
+					[
+						4559,
+						4062
+					],
+					[
+						4473,
+						4070
+					],
+					[
+						4394,
+						4100
+					],
+					[
+						4315,
+						4131
+					],
+					[
+						4234,
+						4157
+					],
+					[
+						4158,
+						4197
+					],
+					[
+						4082,
+						4238
+					],
+					[
+						4010,
+						4292
+					],
+					[
+						4038,
+						4384
+					],
+					[
+						4125,
+						4378
+					],
+					[
+						4218,
+						4394
+					],
+					[
+						4299,
+						4368
+					],
+					[
+						4388,
+						4371
+					],
+					[
+						4471,
+						4351
+					],
+					[
+						4548,
+						4316
+					],
+					[
+						4620,
+						4261
+					],
+					[
+						4696,
+						4219
+					],
+					[
+						4768,
+						4166
+					]
+				]
+			},
+			{
+				"id": "ridge_5",
+				"tile": "ground.rock_top",
+				"height": 61,
+				"rough": 22,
+				"seed": 5,
+				"polygon": [
+					[
+						1991,
+						592
+					],
+					[
+						2103,
+						716
+					],
+					[
+						2214,
+						840
+					],
+					[
+						2342,
+						944
+					],
+					[
+						2458,
+						1062
+					],
+					[
+						2585,
+						1167
+					],
+					[
+						2721,
+						1261
+					],
+					[
+						2857,
+						1355
+					],
+					[
+						3002,
+						1439
+					],
+					[
+						3138,
+						1533
+					],
+					[
+						3183,
+						1477
+					],
+					[
+						3076,
+						1349
+					],
+					[
+						2953,
+						1239
+					],
+					[
+						2842,
+						1114
+					],
+					[
+						2720,
+						1003
+					],
+					[
+						2583,
+						910
+					],
+					[
+						2461,
+						799
+					],
+					[
+						2317,
+						714
+					],
+					[
+						2174,
+						628
+					],
+					[
+						2039,
+						534
+					]
+				]
+			}
+		],
+		"covers": [],
+		"walls": [],
+		"cables": []
+	},
+	"turrets": [],
+	"areas": [
+		{
+			"id": "area_schrottgrund",
+			"name": "NODE_SCHROTTGRUND",
+			"polygon": [
+				[
+					0,
+					0
+				],
+				[
+					6600,
+					0
+				],
+				[
+					6600,
+					4800
+				],
+				[
+					0,
+					4800
+				]
+			]
+		}
+	],
+	"teleports": {
+		"hub": {
+			"pos": [
+				3509,
+				2161
+			],
+			"heading_deg": 90
+		},
+		"gate_wrackkueste": {
+			"pos": [
+				420,
+				2400
+			],
+			"heading_deg": 90
+		},
+		"gate_grauwacht": {
+			"pos": [
+				6180,
+				2400
+			],
+			"heading_deg": 270
+		}
+	},
+	"creatures": [
+		{
+			"id": "skirr_0_0",
+			"species": "skirr",
+			"pack": "schrottgrund_0",
+			"spawn": [
+				4324,
+				2996
+			]
+		},
+		{
+			"id": "skirr_0_1",
+			"species": "skirr",
+			"pack": "schrottgrund_0",
+			"spawn": [
+				4394,
+				3056
+			]
+		},
+		{
+			"id": "skirr_0_2",
+			"species": "skirr",
+			"pack": "schrottgrund_0",
+			"spawn": [
+				4464,
+				2996
+			]
+		},
+		{
+			"id": "skirr_1_0",
+			"species": "skirr",
+			"pack": "schrottgrund_1",
+			"spawn": [
+				1528,
+				3373
+			]
+		},
+		{
+			"id": "skirr_1_1",
+			"species": "skirr",
+			"pack": "schrottgrund_1",
+			"spawn": [
+				1598,
+				3433
+			]
+		},
+		{
+			"id": "skirr_1_2",
+			"species": "skirr",
+			"pack": "schrottgrund_1",
+			"spawn": [
+				1668,
+				3373
+			]
+		},
+		{
+			"id": "grindback_0",
+			"species": "grindback",
+			"spawn": [
+				1257,
+				4134
+			]
+		},
+		{
+			"id": "grindback_1",
+			"species": "grindback",
+			"spawn": [
+				4711,
+				1366
+			]
+		},
+		{
+			"id": "grindback_2",
+			"species": "grindback",
+			"spawn": [
+				4600,
+				1865
+			]
+		}
+	],
+	"pois": [
+		{
+			"id": "exp_0",
+			"kind": "expedition",
+			"pos": [
+				2644,
+				3139
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {}
+		},
+		{
+			"id": "exp_1",
+			"kind": "expedition",
+			"pos": [
+				995,
+				4122
+			],
+			"name": "POI_EXPEDITION",
+			"burning": false,
+			"wreck": "rival.wreck",
+			"loot": {
+				"scrap": 6,
+				"radiator_core": 1
+			}
+		},
+		{
+			"id": "exp_2",
+			"kind": "expedition",
+			"pos": [
+				855,
+				3575
+			],
+			"name": "POI_EXPEDITION",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {
+				"salvaged_parts": 1
+			}
+		},
+		{
+			"id": "landmark_0",
+			"kind": "landmark",
+			"pos": [
+				629,
+				1488
+			],
+			"name": "POI_LANDMARK_SCHROTTGRUND",
+			"asset": "junker.workshop",
+			"loot": {}
+		}
+	],
+	"relief": {
+		"seed": 8931,
+		"amp": 1.0,
+		"scale": 900.0
+	},
+	"weather_mult": 1.32,
+	"gates": [
+		{
+			"id": "gate_wrackkueste",
+			"to": "wrackkueste",
+			"side": "w",
+			"pos": [
+				0,
+				2400
+			],
+			"entry": [
+				420,
+				2400
+			],
+			"heading_deg": 90
+		},
+		{
+			"id": "gate_grauwacht",
+			"to": "grauwacht",
+			"side": "e",
+			"pos": [
+				6600,
+				2400
+			],
+			"entry": [
+				6180,
+				2400
+			],
+			"heading_deg": 270
+		}
+	],
+	"quarry": null
+}

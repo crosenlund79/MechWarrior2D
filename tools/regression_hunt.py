@@ -276,9 +276,9 @@ try:
     st = leave_by(g, "e", None, (350, 0))
     if st["exit_prompt"]:
         st = g.cmd("exit yes")["state"]
-    check(st["node"] == "kaltbrunn" and st["zone_status"] == "safe", f"onward to Kaltbrunn ({st['node']})")
-    check(st["journey"]["completed"].get("kaltbrunn") and st["journey"]["discovered"].get("salzpfanne"), "arriving completes the settlement and reveals the next route")
-    for n in ("salzpfanne", "eisenhalt", "frostgrund", "stahlheim"):
+    check(st["node"] == "wrackkueste" and st["zone_status"] == "danger", f"onward to the Wrackküste ({st['node']})")
+    check(st["journey"]["discovered"].get("schrottgrund"), "arriving reveals the next route")
+    for n in ("schrottgrund", "grauwacht", "dornpass", "eisenfurt", "glaswueste", "glutfeld", "frostgrund", "hochstrasse", "stahlheim"):
         st = g.cmd(f"travel {n}")["state"]
     check(st["node"] == "stahlheim" and st["zone_status"] == "cleared", f"Stahlheim reached with the cargo: CLEARED ({st['zone_status']})")
     check(st["journey"]["delivered"], "the sealed case is delivered")

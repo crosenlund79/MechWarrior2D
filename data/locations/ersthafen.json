@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -175,6 +195,37 @@
 				[
 					2950.0,
 					1400
+				],
+				[
+					1800,
+					1400
+				]
+			]
+		},
+		{
+			"id": "road_1",
+			"tile": "ground.track",
+			"width": 150,
+			"path": [
+				[
+					1800,
+					0
+				],
+				[
+					1806,
+					138
+				],
+				[
+					1846,
+					275
+				],
+				[
+					1857,
+					412
+				],
+				[
+					1800,
+					550.0
 				],
 				[
 					1800,
@@ -509,6 +560,38 @@
 			"layer": "low"
 		},
 		{
+			"id": "container_3",
+			"asset": "coast.container",
+			"pos": [
+				890,
+				1520
+			],
+			"layer": "low",
+			"rot": 90,
+			"collision": {
+				"rect": [
+					210,
+					90
+				]
+			}
+		},
+		{
+			"id": "hull",
+			"asset": "coast.hull",
+			"pos": [
+				1070,
+				850
+			],
+			"layer": "low",
+			"rot": 12,
+			"collision": {
+				"rect": [
+					380,
+					150
+				]
+			}
+		},
+		{
 			"id": "generator",
 			"asset": "junker.generator",
 			"pos": [
@@ -536,14 +619,27 @@
 			}
 		},
 		{
-			"id": "rock_4",
+			"id": "rock_2",
 			"asset": "prop.rock_large_b",
 			"pos": [
-				202,
-				962
+				1098,
+				202
 			],
 			"layer": "low",
-			"rot": 184,
+			"rot": 162,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_8",
+			"asset": "prop.rock_large_b",
+			"pos": [
+				339,
+				290
+			],
+			"layer": "low",
+			"rot": 262,
 			"collision": {
 				"circle": 50
 			}
@@ -551,7 +647,7 @@
 	],
 	"scatter": [
 		{
-			"seed": 474,
+			"seed": 269,
 			"count": 70,
 			"area": [
 				0,
@@ -603,6 +699,36 @@
 			1280,
 			1390.0,
 			240
+		],
+		[
+			1680,
+			-120,
+			246,
+			378
+		],
+		[
+			1686,
+			18,
+			280,
+			377
+		],
+		[
+			1726,
+			155,
+			251,
+			377
+		],
+		[
+			1680,
+			292,
+			297,
+			378.0
+		],
+		[
+			1680,
+			430.0,
+			240,
+			1090.0
 		]
 	],
 	"enemies": [],
@@ -619,6 +745,16 @@
 					[
 						[
 							650,
+							550
+						],
+						[
+							1620,
+							550
+						]
+					],
+					[
+						[
+							1980,
 							550
 						],
 						[
@@ -708,7 +844,7 @@
 	"creatures": [],
 	"pois": [],
 	"relief": {
-		"seed": 944,
+		"seed": 3603,
 		"amp": 0.5,
 		"scale": 900.0
 	},
@@ -727,6 +863,20 @@
 				1400
 			],
 			"heading_deg": 270
+		},
+		{
+			"id": "gate_wrackkueste",
+			"to": "wrackkueste",
+			"side": "n",
+			"pos": [
+				1800,
+				0
+			],
+			"entry": [
+				1800,
+				420
+			],
+			"heading_deg": 180
 		}
 	],
 	"garage": {

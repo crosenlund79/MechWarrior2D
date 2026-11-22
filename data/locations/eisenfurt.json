@@ -1,9 +1,9 @@
 {
-	"id": "kaltbrunn",
-	"name": "NODE_KALTBRUNN",
-	"node": "kaltbrunn",
+	"id": "eisenfurt",
+	"name": "NODE_EISENFURT",
+	"node": "eisenfurt",
 	"kind": "settlement",
-	"tier": 1,
+	"tier": 3,
 	"bounds": [
 		0,
 		0,
@@ -11,8 +11,8 @@
 		2800
 	],
 	"default_zone": {
-		"ambient": 59.5,
-		"solar": 1.04,
+		"ambient": 62.5,
+		"solar": 1.12,
 		"abrasion": 1.0,
 		"drag": 1.0,
 		"suit": 1.0,
@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -157,24 +177,24 @@
 			"width": 150,
 			"path": [
 				[
-					0,
-					1400
+					1800,
+					0
 				],
 				[
-					162,
-					1472
+					1872,
+					138
 				],
 				[
-					325,
-					1490
+					1765,
+					275
 				],
 				[
-					488,
-					1403
+					1815,
+					412
 				],
 				[
-					650.0,
-					1400
+					1800,
+					550.0
 				],
 				[
 					1800,
@@ -188,20 +208,51 @@
 			"width": 150,
 			"path": [
 				[
+					1800,
+					2800
+				],
+				[
+					1864,
+					2662
+				],
+				[
+					1729,
+					2525
+				],
+				[
+					1838,
+					2388
+				],
+				[
+					1800,
+					2250.0
+				],
+				[
+					1800,
+					1400
+				]
+			]
+		},
+		{
+			"id": "road_2",
+			"tile": "ground.track",
+			"width": 150,
+			"path": [
+				[
 					3600,
 					1400
 				],
 				[
 					3438,
-					1365
+					1427
 				],
 				[
 					3275,
-					1513
+					1428
 				],
 				[
 					3112,
-					1365
+					1460
 				],
 				[
 					2950.0,
@@ -394,7 +445,7 @@
 		},
 		{
 			"id": "town_sign",
-			"asset": "sign.kaltbrunn",
+			"asset": "sign.eisenfurt",
 			"pos": [
 				1920,
 				1520
@@ -540,6 +591,204 @@
 			"layer": "low"
 		},
 		{
+			"id": "emplacement_0",
+			"asset": "junker.turret_base",
+			"pos": [
+				800,
+				700
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "emplacement_gun_0",
+			"asset": "junker.turret_gun",
+			"pos": [
+				800,
+				700
+			],
+			"layer": "high",
+			"rot": 256
+		},
+		{
+			"id": "flood_0",
+			"asset": "refuge.light_post",
+			"pos": [
+				860,
+				760
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.85,
+				0.6
+			],
+			"light_energy": 0.5,
+			"light_scale": 2.2
+		},
+		{
+			"id": "emplacement_1",
+			"asset": "junker.turret_base",
+			"pos": [
+				2800,
+				700
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "emplacement_gun_1",
+			"asset": "junker.turret_gun",
+			"pos": [
+				2800,
+				700
+			],
+			"layer": "high",
+			"rot": 181
+		},
+		{
+			"id": "flood_1",
+			"asset": "refuge.light_post",
+			"pos": [
+				2740,
+				760
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.85,
+				0.6
+			],
+			"light_energy": 0.5,
+			"light_scale": 2.2
+		},
+		{
+			"id": "emplacement_2",
+			"asset": "junker.turret_base",
+			"pos": [
+				800,
+				2100
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "emplacement_gun_2",
+			"asset": "junker.turret_gun",
+			"pos": [
+				800,
+				2100
+			],
+			"layer": "high",
+			"rot": 337
+		},
+		{
+			"id": "flood_2",
+			"asset": "refuge.light_post",
+			"pos": [
+				860,
+				2040
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.85,
+				0.6
+			],
+			"light_energy": 0.5,
+			"light_scale": 2.2
+		},
+		{
+			"id": "emplacement_3",
+			"asset": "junker.turret_base",
+			"pos": [
+				2800,
+				2100
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "emplacement_gun_3",
+			"asset": "junker.turret_gun",
+			"pos": [
+				2800,
+				2100
+			],
+			"layer": "high",
+			"rot": 42
+		},
+		{
+			"id": "flood_3",
+			"asset": "refuge.light_post",
+			"pos": [
+				2740,
+				2040
+			],
+			"layer": "low",
+			"collision": {
+				"circle": 12
+			},
+			"light": true,
+			"light_color": [
+				1.0,
+				0.85,
+				0.6
+			],
+			"light_energy": 0.5,
+			"light_scale": 2.2
+		},
+		{
+			"id": "mechanics_shed",
+			"asset": "junker.workshop",
+			"pos": [
+				2440,
+				1820
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					520,
+					350
+				]
+			}
+		},
+		{
+			"id": "radiator_bank",
+			"asset": "cs.radiator_bank",
+			"pos": [
+				1080,
+				1020
+			],
+			"layer": "low",
+			"collision": {
+				"rect": [
+					220,
+					110
+				]
+			}
+		},
+		{
 			"id": "generator",
 			"asset": "junker.generator",
 			"pos": [
@@ -567,14 +816,27 @@
 			}
 		},
 		{
-			"id": "rock_0",
-			"asset": "prop.rock_large_b",
+			"id": "rock_5",
+			"asset": "prop.rock_large_a",
 			"pos": [
-				1276,
-				214
+				3204,
+				2236
 			],
 			"layer": "low",
-			"rot": 103,
+			"rot": 294,
+			"collision": {
+				"circle": 50
+			}
+		},
+		{
+			"id": "rock_9",
+			"asset": "prop.rock_large_a",
+			"pos": [
+				925,
+				264
+			],
+			"layer": "low",
+			"rot": 260,
 			"collision": {
 				"circle": 50
 			}
@@ -582,7 +844,7 @@
 	],
 	"scatter": [
 		{
-			"seed": 177,
+			"seed": 481,
 			"count": 70,
 			"area": [
 				0,
@@ -606,58 +868,88 @@
 			1900
 		],
 		[
+			1680,
 			-120,
+			312,
+			378
+		],
+		[
+			1645,
+			18,
+			347,
+			377
+		],
+		[
+			1645,
+			155,
+			290,
+			377
+		],
+		[
+			1680,
+			292,
+			255,
+			378.0
+		],
+		[
+			1680,
+			430.0,
+			240,
+			1090.0
+		],
+		[
+			1680,
+			2542,
+			304,
+			378
+		],
+		[
+			1609,
+			2405,
+			375,
+			377
+		],
+		[
+			1609,
+			2268,
+			349,
+			377
+		],
+		[
+			1680,
+			2130.0,
+			278,
+			378.0
+		],
+		[
+			1680,
 			1280,
-			402,
-			312
-		],
-		[
-			42,
-			1352,
-			403,
-			258
-		],
-		[
-			205,
-			1283,
-			403,
-			327
-		],
-		[
-			368,
-			1280,
-			402.0,
-			243
-		],
-		[
-			530.0,
-			1280,
-			1390.0,
-			240
+			240,
+			1090.0
 		],
 		[
 			3318,
-			1245,
+			1280,
 			402,
-			275
+			267
 		],
 		[
 			3155,
-			1245,
+			1307,
 			403,
-			388
+			241
 		],
 		[
 			2992,
-			1245,
+			1308,
 			403,
-			388
+			272
 		],
 		[
 			2830.0,
-			1245,
+			1280,
 			402.0,
-			275
+			300
 		],
 		[
 			1680,
@@ -683,6 +975,16 @@
 							550
 						],
 						[
+							1620,
+							550
+						]
+					],
+					[
+						[
+							1980,
+							550
+						],
+						[
 							2950,
 							550
 						]
@@ -690,6 +992,16 @@
 					[
 						[
 							650,
+							2250
+						],
+						[
+							1620,
+							2250
+						]
+					],
+					[
+						[
+							1980,
 							2250
 						],
 						[
@@ -701,16 +1013,6 @@
 						[
 							650,
 							550
-						],
-						[
-							650,
-							1220
-						]
-					],
-					[
-						[
-							650,
-							1580
 						],
 						[
 							650,
@@ -745,8 +1047,8 @@
 	"turrets": [],
 	"areas": [
 		{
-			"id": "area_kaltbrunn",
-			"name": "NODE_KALTBRUNN",
+			"id": "area_eisenfurt",
+			"name": "NODE_EISENFURT",
 			"polygon": [
 				[
 					650.0,
@@ -779,29 +1081,43 @@
 	"creatures": [],
 	"pois": [],
 	"relief": {
-		"seed": 6001,
+		"seed": 5633,
 		"amp": 0.5,
 		"scale": 900.0
 	},
-	"weather_mult": 1.25,
+	"weather_mult": 1.75,
 	"gates": [
 		{
-			"id": "gate_taubecken",
-			"to": "taubecken",
-			"side": "w",
+			"id": "gate_dornpass",
+			"to": "dornpass",
+			"side": "n",
 			"pos": [
-				0,
-				1400
+				1800,
+				0
 			],
 			"entry": [
-				420,
-				1400
+				1800,
+				420
 			],
-			"heading_deg": 90
+			"heading_deg": 180
 		},
 		{
-			"id": "gate_salzpfanne",
-			"to": "salzpfanne",
+			"id": "gate_weissgrat",
+			"to": "weissgrat",
+			"side": "s",
+			"pos": [
+				1800,
+				2800
+			],
+			"entry": [
+				1800,
+				2380
+			],
+			"heading_deg": 0
+		},
+		{
+			"id": "gate_glaswueste",
+			"to": "glaswueste",
 			"side": "e",
 			"pos": [
 				3600,

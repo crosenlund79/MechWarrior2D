@@ -136,6 +136,14 @@ func continue_slot(slot_index: int) -> String:
 	loc = Content.location(str(res["state"].get("location", Content.DEFAULT_LOCATION)))
 	slot = slot_index
 	state = GameState.sanitize(res["state"], loc)
+	if bool(state.get("_relocate", false)):
+		# the map was rebuilt since this save: park the car at the garage
+		var ms: Dictionary = loc.get("mech_start", {})
+		state["mech"]["pos"] = ms.get("pos", state["mech"]["pos"]).duplicate()
+		state["mech"]["heading"] = deg_to_rad(float(ms.get("heading_deg", 0.0)))
+		state["pilot"]["pos"] = state["mech"]["pos"].duplicate()
+		state["mode"] = "mech"
+		state.erase("_relocate")
 	recovered_from_backup = bool(res.get("recovered", false))
 	_begin()
 	Log.info("session", "continued", {"slot": slot, "recovered": recovered_from_backup})

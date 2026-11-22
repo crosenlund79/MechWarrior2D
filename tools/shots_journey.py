@@ -25,7 +25,7 @@ try:
     g.cmd("click_garage Tab_upgrades"); g.cmd("wait 0.3")
     shot("j03_eisenwolf_workshop_upgrades")
     g.cmd("ui garage off")
-    g.cmd("map on"); g.cmd("map select kaltbrunn"); g.cmd("wait 0.3")
+    g.cmd("map on"); g.cmd("map select grauwacht"); g.cmd("wait 0.3")
     shot("j04_continental_map")
     g.cmd("map off")
     g.cmd("travel taubecken force"); g.cmd("wait 1.0")

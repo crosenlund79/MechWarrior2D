@@ -11,7 +11,7 @@ extends RefCounted
 const FORMAT := "thawborn_save"
 ## Saves written by Heat Signature (the project before the Thawborn conversion).
 const LEGACY_FORMATS := ["heat_signature_save"]
-const VERSION := 7
+const VERSION := 8
 
 ## from_version -> Callable(Dictionary envelope) -> Dictionary envelope (version+1)
 static var MIGRATIONS := {
@@ -22,6 +22,7 @@ static var MIGRATIONS := {
 	4: _migrate_4_to_5,
 	5: _migrate_5_to_6,
 	6: _migrate_6_to_7,
+	7: _migrate_7_to_8,
 }
 
 
@@ -174,6 +175,32 @@ static func _migrate_6_to_7(env: Dictionary) -> Dictionary:
 	if s.get("world") is Dictionary and not s["world"].has("pois"):
 		s["world"]["pois"] = {}
 	env["version"] = 7
+	return env
+
+
+## v7 → v8 (complete game): Kaltbrunn → Grauwacht and Eisenhalt → Eisenfurt (the
+## maps were rebuilt: a car parked there is moved to the garage), a difficulty
+## (Jäger), and the story: a save already carrying the sealed case has received
+## Kern-7. Weapons, ammo, chassis and contracts are added by GameState.sanitize.
+const _RENAMED_LOCATIONS := {"kaltbrunn": "grauwacht", "eisenhalt": "eisenfurt"}
+
+
+static func _migrate_7_to_8(env: Dictionary) -> Dictionary:
+	var s: Dictionary = env.get("state", {})
+	var here := str(s.get("location", ""))
+	if _RENAMED_LOCATIONS.has(here):
+		s["location"] = _RENAMED_LOCATIONS[here]
+		s["_relocate"] = true
+	if s.get("sites") is Dictionary:
+		for old in _RENAMED_LOCATIONS:
+			if s["sites"].has(old):
+				s["sites"][_RENAMED_LOCATIONS[old]] = s["sites"][old]
+				s["sites"].erase(old)
+	if not s.has("difficulty"):
+		s["difficulty"] = "jaeger"
+	if not (s.get("story") is Dictionary):
+		s["story"] = {"flags": {"kern7_received": true, "legacy_save": true}, "seen": {}, "act": 1}
+	env["version"] = 8
 	return env
 
 

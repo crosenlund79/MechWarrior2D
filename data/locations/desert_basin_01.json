@@ -123,6 +123,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"mech_start": {
@@ -4834,8 +4854,8 @@
 			"heading_deg": 90
 		},
 		{
-			"id": "gate_kaltbrunn",
-			"to": "kaltbrunn",
+			"id": "gate_wrackkueste",
+			"to": "wrackkueste",
 			"side": "e",
 			"pos": [
 				6800,

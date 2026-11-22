@@ -54,11 +54,26 @@ ENTRIES = {
 }
 SIGNS = {"sign.ersthafen": ("ERSTHAFEN", "GEGR. ALS LANDFALL"), "sign.kaltbrunn": ("KALTBRUNN", "WASSER · DIESEL"),
          "sign.eisenhalt": ("EISENHALT", "HALTEPUNKT 3"), "sign.stahlheim": ("STAHLHEIM", "ENDSTATION"),
+         "sign.grauwacht": ("GRAUWACHT", "KONTROLLPUNKT · SCHROTT"), "sign.eisenfurt": ("EISENFURT", "FURT · WERKSTÄTTEN"),
+         "sign.messstation": ("MESSSTATION 4", "AUSSENPOSTEN"),
          "sign.eisenwolf": ("EISENWOLF WERKE", "WERKSTATT · TEILE"), "sign.tankstelle": ("TANKSTELLE", "DIESEL · KÜHLMITTEL"),
          "sign.handelsposten": ("HANDELSPOSTEN", "ANKAUF · VERKAUF")}
 for sid, (t1, _t2) in SIGNS.items():
     ENTRIES[sid] = S("signs/" + sid.split(".")[1], 260 if len(t1) > 10 else 230, 44, rot=False, note="painted settlement plate (Thawborn frontier German)")
 ENTRIES["poi.corpse"] = S("poi/corpse", 64, 90, note="dead expedition driver in a heat suit")
+WORLD = {   # complete game: regional props (display size, collision is set by the location builder)
+    "coast.container": S("coast/container", 220, 96, rot=False, note="rusted shipping container from the old arrival harbour"),
+    "coast.hull": S("coast/hull", 400, 170, rot=False, note="beached ship hull, seen from above"),
+    "city.block_a": S("city/block_a", 380, 320, rot=False, note="Stahlheim industrial block roof (sheds, vents, skylights)"),
+    "city.block_b": S("city/block_b", 380, 320, rot=False, note="Stahlheim works hall roof"),
+    "city.tower": S("city/tower", 260, 260, rot=False, note="Stahlheim round tower / silo top"),
+    "city.mast": S("city/mast", 150, 150, rot=False, note="resonance transmitter mast (lattice, seen from above)"),
+    "glut.vent": S("glut/vent", 220, 220, rot=False, note="geothermal vent: cracked, glowing ground"),
+}
+HEIGHTS = {"coast.container": 22, "coast.hull": 40, "city.block_a": 60, "city.block_b": 60, "city.tower": 90, "city.mast": 120, "glut.vent": 0}
+for k, v in WORLD.items():
+    v["height"] = HEIGHTS[k]
+    ENTRIES[k] = v
 ENTRIES["poi.papers"] = S("poi/papers", 70, 60, rot=False)
 ENTRIES["ui.continent_map"] = S("ui/continent_map", 1000, 700, rot=False, note="Eisenwolf survey chart of the thawed continent (journey map background)")
 ENTRIES["ui.menu_table"] = S("ui/menu_table", 1920, 1080, rot=False, note="weathered workbench in an Ersthafen garage (main menu); the creator's photographs are laid on it by the game")
@@ -663,7 +678,16 @@ def gen_continent():
     c = canvas_for("ui.continent_map", 990)
     W, H = ENTRIES["ui.continent_map"]["source"]
     c.fill([(0, 0), (W, 0), (W, H), (0, H)], (206, 186, 146), tex=0.5, cell=40)
-    land = blob(W * 0.52, H * 0.52, W * 0.44, H * 0.42, 40, 0.12, 31)
+    # the landmass encloses every node of data/journey.json (chart space 1000×700 → source px)
+    jn = json.load(open(os.path.join(ROOT, "data/journey.json")))["nodes"]
+    pts = [(n["pos"][0] * W / 1000.0, n["pos"][1] * H / 700.0) for n in jn.values()]
+    mx = sum(p[0] for p in pts) / len(pts); my = sum(p[1] for p in pts) / len(pts)
+    land = []
+    for k in range(48):
+        ang = k / 48 * math.tau
+        reach = max(((p[0] - mx) * math.cos(ang) + (p[1] - my) * math.sin(ang)) for p in pts)
+        r = max(reach, 120) + 130 + 40 * math.sin(k * 1.7) + 25 * math.sin(k * 4.3)
+        land.append((min(W - 20, max(20, mx + math.cos(ang) * r)), min(H - 20, max(20, my + math.sin(ang) * r))))
     c.fill(land, (190, 160, 112), tex=0.45, cell=30)
     c.ink_poly(land, 4.0)
     rim = [(x + (W * 0.52 - x) * 0.03, y + (H * 0.52 - y) * 0.03) for x, y in land]
@@ -676,18 +700,18 @@ def gen_continent():
     for k in range(9):   # dune / salt flats
         x = W * c.rng.uniform(0.2, 0.85); y = H * c.rng.uniform(0.2, 0.85)
         c.fill_ellipse((x - 60, y - 26, x + 60, y + 26), (222, 206, 170), tex=0.3)
-    # compass rose (bottom-left) and title block (bottom-right)
-    cx, cy = W * 0.1, H * 0.84
+    # compass rose and title block (top-left: the open sea west of the coast)
+    cx, cy = W * 0.07, H * 0.3
     for a in range(8):
         r = 60 if a % 2 == 0 else 30
         ang = a * math.pi / 4 - math.pi / 2
         c.ink([(cx, cy), (cx + math.cos(ang) * r, cy + math.sin(ang) * r)], 2.4 if a % 2 == 0 else 1.4)
     _text(c, (cx, cy - 78), "N", 26, (40, 30, 24))
-    tb = [(W * 0.66, H * 0.86), (W * 0.97, H * 0.86), (W * 0.97, H * 0.97), (W * 0.66, H * 0.97)]
+    tb = [(W * 0.02, H * 0.03), (W * 0.33, H * 0.03), (W * 0.33, H * 0.14), (W * 0.02, H * 0.14)]
     c.fill(tb, (222, 206, 172), tex=0.2)
     c.ink_poly(tb, 2.0)
-    _text(c, (W * 0.815, H * 0.9), "EISENWOLF WERKE · VERMESSUNG", 28, (50, 36, 26))
-    _text(c, (W * 0.815, H * 0.94), "KONTINENTALKARTE  BLATT 1  —  ERSTHAFEN–STAHLHEIM", 16, (60, 44, 32), FONT_M)
+    _text(c, (W * 0.175, H * 0.07), "EISENWOLF WERKE · VERMESSUNG", 28, (50, 36, 26))
+    _text(c, (W * 0.175, H * 0.11), "KONTINENTALKARTE  BLATT 2  —  ERSTHAFEN–STAHLHEIM", 16, (60, 44, 32), FONT_M)
     c.desertize(dust=0.4, abrasion=0.3, bleach=0.3, seams=0.4)
     c.save(out("ui.continent_map"), outline=0.0, burn=0.25)
 
@@ -794,6 +818,84 @@ def gen_photo_fallbacks():
         c.save(out(pid), outline=0.0, burn=0.3)
 
 
+def gen_world_props():
+    """Regional props for the complete game: coast, city, geothermal flats."""
+    # container: corrugated steel box
+    for eid, seed, col in (("coast.container", 1301, (150, 70, 46)),):
+        c = canvas_for(eid, seed); W, H = ENTRIES[eid]["source"]
+        box = [(8, 8), (W - 8, 8), (W - 8, H - 8), (8, H - 8)]
+        plate(c, box, col, line=3.0, grime=0.7, hatch_alpha=60)
+        for x in range(30, int(W - 20), 22):
+            c.ink([(x, 14), (x, H - 14)], 1.6, wobble=0.2, alpha=150)
+        _text(c, (W / 2, H / 2), "EISENWOLF · KÜSTE", 22, (226, 210, 180), FONT_M, alpha=150)
+        c.desertize(dust=0.6, abrasion=0.6, bleach=0.4, seams=0.6)
+        c.save(out(eid))
+    # beached hull: long pointed shape, rusted deck, broken superstructure
+    c = canvas_for("coast.hull", 1302); W, H = ENTRIES["coast.hull"]["source"]
+    hull = [(30, H / 2), (160, 30), (W - 60, 40), (W - 20, H / 2), (W - 60, H - 40), (160, H - 30)]
+    plate(c, hull, (110, 66, 48), line=3.4, grime=0.8, hatch_alpha=70)
+    deck = [(180, 70), (W - 120, 76), (W - 120, H - 76), (180, H - 70)]
+    plate(c, deck, (90, 84, 76), line=2.2, grime=0.6)
+    sup = [(W - 320, 100), (W - 180, 100), (W - 180, H - 100), (W - 320, H - 100)]
+    plate(c, sup, (176, 170, 150), line=2.6, grime=0.6)
+    for x in range(220, int(W - 340), 70):
+        c.fill([(x, H / 2 - 30), (x + 46, H / 2 - 30), (x + 46, H / 2 + 30), (x, H / 2 + 30)], (40, 34, 30), tex=0.2)
+    c.desertize(dust=0.7, abrasion=0.6, bleach=0.5, seams=0.7)
+    c.save(out("coast.hull"))
+    # city blocks: flat industrial roofs with vents, skylights, pipes
+    for eid, seed, col in (("city.block_a", 1311, (104, 100, 92)), ("city.block_b", 1312, (120, 92, 70))):
+        c = canvas_for(eid, seed); W, H = ENTRIES[eid]["source"]
+        roof = [(10, 10), (W - 10, 10), (W - 10, H - 10), (10, H - 10)]
+        plate(c, roof, col, line=3.4, grime=0.6, hatch_alpha=60)
+        rng = np.random.default_rng(seed)
+        for k in range(5):
+            x = 60 + k * (W - 120) / 5
+            c.fill([(x, 60), (x + 70, 60), (x + 70, H - 60), (x, H - 60)], (150, 160, 166) if eid.endswith("a") else (90, 70, 56), tex=0.3)
+            c.ink_poly([(x, 60), (x + 70, 60), (x + 70, H - 60), (x, H - 60)], 1.6)
+        for k in range(4):
+            vx, vy = rng.uniform(80, W - 80), rng.uniform(80, H - 80)
+            c.fill_ellipse((vx - 24, vy - 24, vx + 24, vy + 24), (60, 58, 54), tex=0.2)
+            c.ink_ellipse((vx - 24, vy - 24, vx + 24, vy + 24), 1.8)
+        c.ink([(20, H - 40), (W - 20, H - 40)], 6.0, wobble=0.2, color=(80, 76, 70), alpha=255)
+        _text(c, (W / 2, 36), "STAHLHEIM WERK " + ("III" if eid.endswith("a") else "VII"), 22, (230, 220, 196), FONT_M, alpha=170)
+        c.desertize(dust=0.5, abrasion=0.4, bleach=0.3, seams=0.6)
+        c.save(out(eid))
+    # tower: round silo top with a ladder ring
+    c = canvas_for("city.tower", 1313); W, H = ENTRIES["city.tower"]["source"]
+    c.fill_ellipse((20, 20, W - 20, H - 20), (128, 122, 112), tex=0.4)
+    c.ink_ellipse((20, 20, W - 20, H - 20), 3.4)
+    c.fill_ellipse((W / 2 - 80, H / 2 - 80, W / 2 + 80, H / 2 + 80), (100, 96, 88), tex=0.3)
+    c.ink_ellipse((W / 2 - 80, H / 2 - 80, W / 2 + 80, H / 2 + 80), 2.0)
+    c.rivets([(W / 2 + math.cos(a) * (W / 2 - 40), H / 2 + math.sin(a) * (H / 2 - 40)) for a in np.linspace(0, math.tau, 20, endpoint=False)], 2.0)
+    c.desertize(dust=0.5, abrasion=0.4, bleach=0.3, seams=0.5)
+    c.save(out("city.tower"))
+    # transmitter mast: lattice square with diagonal bracing and a red warning lamp
+    c = canvas_for("city.mast", 1314); W, H = ENTRIES["city.mast"]["source"]
+    sq = [(40, 40), (W - 40, 40), (W - 40, H - 40), (40, H - 40)]
+    c.ink_poly(sq, 5.0)
+    c.ink([(40, 40), (W - 40, H - 40)], 3.0, wobble=0.1); c.ink([(W - 40, 40), (40, H - 40)], 3.0, wobble=0.1)
+    c.ink([(W / 2, 40), (W / 2, H - 40)], 2.0, wobble=0.1, alpha=180); c.ink([(40, H / 2), (W - 40, H / 2)], 2.0, wobble=0.1, alpha=180)
+    for q in ((W / 2 - 80, H / 2 - 80, W / 2 + 80, H / 2 + 80),):
+        c.ink_ellipse(q, 3.0)
+    c.fill_ellipse((W / 2 - 20, H / 2 - 20, W / 2 + 20, H / 2 + 20), (190, 50, 36), tex=0.1)
+    c.ink_ellipse((W / 2 - 20, H / 2 - 20, W / 2 + 20, H / 2 + 20), 1.6)
+    c.save(out("city.mast"))
+    # geothermal vent: cracked dark crust with glowing fissures
+    c = canvas_for("glut.vent", 1315); W, H = ENTRIES["glut.vent"]["source"]
+    crust = blob(W / 2, H / 2, W * 0.42, H * 0.4, 16, 0.25, 7)
+    c.fill(crust, (62, 48, 40), tex=0.6)
+    rng = np.random.default_rng(1315)
+    for k in range(9):
+        a = rng.uniform(0, math.tau); r = rng.uniform(40, W * 0.38)
+        pts = [(W / 2, H / 2)]
+        for t in range(1, 5):
+            pts.append((W / 2 + math.cos(a + rng.uniform(-0.3, 0.3)) * r * t / 4, H / 2 + math.sin(a + rng.uniform(-0.3, 0.3)) * r * t / 4))
+        c.ink(pts, 7.0, wobble=0.6, color=(240, 120, 40), alpha=230)
+        c.ink(pts, 2.4, wobble=0.6, color=(255, 214, 120), alpha=255)
+    c.fill_ellipse((W / 2 - 40, H / 2 - 40, W / 2 + 40, H / 2 + 40), (250, 150, 60), tex=0.3)
+    c.save(out("glut.vent"))
+
+
 def gen_logo_fallback():
     """Fallback title plate (riveted sign on a transparent ground), used only if the creator's logo is missing."""
     c = canvas_for("ui.logo", 431)
@@ -807,7 +909,7 @@ def gen_logo_fallback():
     c.save(out("ui.logo"))
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback]
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

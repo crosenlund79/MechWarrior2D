@@ -1,29 +1,348 @@
 {
-	"_note": "Continental route network (Ersthafen → Stahlheim). Node pos = position on the continental map (0..1000 × 0..700). kind: settlement | territory | hub. location = data/locations/<id>.json. Edges are two-way; fuel = litres the transit costs. Generated maps come from tools/build_continent.py.",
+	"_note": "Continental route network (Ersthafen → Stahlheim), 5 regions / 16 nodes. Node pos = position on the continental map (0..1000 × 0..700). kind: settlement | territory | hub (outpost = settlement with limited services). location = data/locations/<id>.json. Edges are two-way; fuel = litres the transit costs. 'renamed' maps retired node ids onto their successors (save migration). Generated maps come from tools/build_continent.py.",
 	"start": "ersthafen",
 	"goal": "stahlheim",
-	"cargo": {"id": "sealed_case", "name": "CARGO_SEALED_CASE", "desc": "CARGO_SEALED_CASE_DESC"},
+	"cargo": {
+		"id": "kern7",
+		"name": "CARGO_KERN7",
+		"desc": "CARGO_KERN7_DESC"
+	},
 	"nodes": {
-		"ersthafen": {"kind": "settlement", "location": "ersthafen", "tier": 0, "pos": [120, 560], "name": "NODE_ERSTHAFEN", "desc": "NODE_ERSTHAFEN_DESC"},
-		"taubecken": {"kind": "territory", "location": "desert_basin_01", "tier": 1, "pos": [280, 470], "name": "NODE_TAUBECKEN", "desc": "NODE_TAUBECKEN_DESC"},
-		"kaltbrunn": {"kind": "settlement", "location": "kaltbrunn", "tier": 1, "pos": [380, 300], "name": "NODE_KALTBRUNN", "desc": "NODE_KALTBRUNN_DESC"},
-		"salzpfanne": {"kind": "territory", "location": "salzpfanne", "tier": 2, "pos": [540, 230], "name": "NODE_SALZPFANNE", "desc": "NODE_SALZPFANNE_DESC"},
-		"rostfeld": {"kind": "territory", "location": "rostfeld", "tier": 2, "pos": [470, 520], "name": "NODE_ROSTFELD", "desc": "NODE_ROSTFELD_DESC"},
-		"eisenhalt": {"kind": "settlement", "location": "eisenhalt", "tier": 3, "pos": [640, 400], "name": "NODE_EISENHALT", "desc": "NODE_EISENHALT_DESC"},
-		"weissgrat": {"kind": "territory", "location": "weissgrat", "tier": 3, "pos": [700, 590], "name": "NODE_WEISSGRAT", "desc": "NODE_WEISSGRAT_DESC"},
-		"frostgrund": {"kind": "territory", "location": "frostgrund", "tier": 4, "pos": [800, 300], "name": "NODE_FROSTGRUND", "desc": "NODE_FROSTGRUND_DESC"},
-		"stahlheim": {"kind": "hub", "location": "stahlheim", "tier": 5, "pos": [910, 150], "name": "NODE_STAHLHEIM", "desc": "NODE_STAHLHEIM_DESC"}
+		"ersthafen": {
+			"kind": "settlement",
+			"location": "ersthafen",
+			"tier": 0,
+			"pos": [
+				80,
+				610
+			],
+			"region": "kueste",
+			"name": "NODE_ERSTHAFEN",
+			"desc": "NODE_ERSTHAFEN_DESC"
+		},
+		"taubecken": {
+			"kind": "territory",
+			"location": "desert_basin_01",
+			"tier": 1,
+			"pos": [
+				230,
+				570
+			],
+			"region": "kueste",
+			"name": "NODE_TAUBECKEN",
+			"desc": "NODE_TAUBECKEN_DESC"
+		},
+		"wrackkueste": {
+			"kind": "territory",
+			"location": "wrackkueste",
+			"tier": 1,
+			"pos": [
+				200,
+				430
+			],
+			"region": "kueste",
+			"name": "NODE_WRACKKUESTE",
+			"desc": "NODE_WRACKKUESTE_DESC"
+		},
+		"rostfeld": {
+			"kind": "territory",
+			"location": "rostfeld",
+			"tier": 2,
+			"pos": [
+				380,
+				600
+			],
+			"region": "rostmark",
+			"name": "NODE_ROSTFELD",
+			"desc": "NODE_ROSTFELD_DESC"
+		},
+		"schrottgrund": {
+			"kind": "territory",
+			"location": "schrottgrund",
+			"tier": 2,
+			"pos": [
+				330,
+				360
+			],
+			"region": "rostmark",
+			"name": "NODE_SCHROTTGRUND",
+			"desc": "NODE_SCHROTTGRUND_DESC"
+		},
+		"grauwacht": {
+			"kind": "settlement",
+			"location": "grauwacht",
+			"tier": 2,
+			"pos": [
+				450,
+				480
+			],
+			"region": "rostmark",
+			"name": "NODE_GRAUWACHT",
+			"desc": "NODE_GRAUWACHT_DESC"
+		},
+		"dornpass": {
+			"kind": "territory",
+			"location": "dornpass",
+			"tier": 3,
+			"pos": [
+				545,
+				340
+			],
+			"region": "dornpass",
+			"name": "NODE_DORNPASS",
+			"desc": "NODE_DORNPASS_DESC"
+		},
+		"weissgrat": {
+			"kind": "territory",
+			"location": "weissgrat",
+			"tier": 3,
+			"pos": [
+				560,
+				610
+			],
+			"region": "dornpass",
+			"name": "NODE_WEISSGRAT",
+			"desc": "NODE_WEISSGRAT_DESC"
+		},
+		"eisenfurt": {
+			"kind": "settlement",
+			"location": "eisenfurt",
+			"tier": 3,
+			"pos": [
+				640,
+				480
+			],
+			"region": "dornpass",
+			"name": "NODE_EISENFURT",
+			"desc": "NODE_EISENFURT_DESC"
+		},
+		"salzpfanne": {
+			"kind": "territory",
+			"location": "salzpfanne",
+			"tier": 3,
+			"pos": [
+				620,
+				215
+			],
+			"region": "glaswueste",
+			"name": "NODE_SALZPFANNE",
+			"desc": "NODE_SALZPFANNE_DESC"
+		},
+		"messstation": {
+			"kind": "settlement",
+			"location": "messstation",
+			"tier": 4,
+			"pos": [
+				740,
+				280
+			],
+			"region": "glaswueste",
+			"name": "NODE_MESSSTATION",
+			"desc": "NODE_MESSSTATION_DESC",
+			"outpost": true
+		},
+		"glaswueste": {
+			"kind": "territory",
+			"location": "glaswueste",
+			"tier": 4,
+			"pos": [
+				750,
+				440
+			],
+			"region": "glaswueste",
+			"name": "NODE_GLASWUESTE",
+			"desc": "NODE_GLASWUESTE_DESC"
+		},
+		"glutfeld": {
+			"kind": "territory",
+			"location": "glutfeld",
+			"tier": 4,
+			"pos": [
+				830,
+				590
+			],
+			"region": "glaswueste",
+			"name": "NODE_GLUTFELD",
+			"desc": "NODE_GLUTFELD_DESC"
+		},
+		"frostgrund": {
+			"kind": "territory",
+			"location": "frostgrund",
+			"tier": 4,
+			"pos": [
+				860,
+				340
+			],
+			"region": "anflug",
+			"name": "NODE_FROSTGRUND",
+			"desc": "NODE_FROSTGRUND_DESC"
+		},
+		"hochstrasse": {
+			"kind": "territory",
+			"location": "hochstrasse",
+			"tier": 5,
+			"pos": [
+				890,
+				200
+			],
+			"region": "anflug",
+			"name": "NODE_HOCHSTRASSE",
+			"desc": "NODE_HOCHSTRASSE_DESC"
+		},
+		"stahlheim": {
+			"kind": "hub",
+			"location": "stahlheim",
+			"tier": 5,
+			"pos": [
+				945,
+				75
+			],
+			"region": "anflug",
+			"name": "NODE_STAHLHEIM",
+			"desc": "NODE_STAHLHEIM_DESC"
+		}
 	},
 	"edges": [
-		["ersthafen", "taubecken", 6],
-		["taubecken", "kaltbrunn", 8],
-		["taubecken", "rostfeld", 8],
-		["kaltbrunn", "salzpfanne", 7],
-		["salzpfanne", "eisenhalt", 8],
-		["rostfeld", "eisenhalt", 8],
-		["rostfeld", "weissgrat", 10],
-		["eisenhalt", "frostgrund", 9],
-		["weissgrat", "frostgrund", 10],
-		["frostgrund", "stahlheim", 10]
-	]
+		[
+			"ersthafen",
+			"taubecken",
+			6
+		],
+		[
+			"ersthafen",
+			"wrackkueste",
+			6
+		],
+		[
+			"taubecken",
+			"wrackkueste",
+			5
+		],
+		[
+			"taubecken",
+			"rostfeld",
+			8
+		],
+		[
+			"wrackkueste",
+			"schrottgrund",
+			8
+		],
+		[
+			"rostfeld",
+			"grauwacht",
+			6
+		],
+		[
+			"schrottgrund",
+			"grauwacht",
+			6
+		],
+		[
+			"grauwacht",
+			"dornpass",
+			8
+		],
+		[
+			"rostfeld",
+			"weissgrat",
+			10
+		],
+		[
+			"dornpass",
+			"eisenfurt",
+			7
+		],
+		[
+			"weissgrat",
+			"eisenfurt",
+			7
+		],
+		[
+			"dornpass",
+			"salzpfanne",
+			8
+		],
+		[
+			"eisenfurt",
+			"glaswueste",
+			9
+		],
+		[
+			"salzpfanne",
+			"messstation",
+			7
+		],
+		[
+			"glaswueste",
+			"messstation",
+			8
+		],
+		[
+			"glaswueste",
+			"glutfeld",
+			8
+		],
+		[
+			"messstation",
+			"frostgrund",
+			9
+		],
+		[
+			"glutfeld",
+			"frostgrund",
+			9
+		],
+		[
+			"frostgrund",
+			"hochstrasse",
+			9
+		],
+		[
+			"hochstrasse",
+			"stahlheim",
+			8
+		]
+	],
+	"regions": {
+		"kueste": {
+			"name": "REGION_KUESTE",
+			"pos": [
+				175,
+				325
+			]
+		},
+		"rostmark": {
+			"name": "REGION_ROSTMARK",
+			"pos": [
+				410,
+				270
+			]
+		},
+		"dornpass": {
+			"name": "REGION_DORNPASS",
+			"pos": [
+				560,
+				420
+			]
+		},
+		"glaswueste": {
+			"name": "REGION_GLASWUESTE",
+			"pos": [
+				700,
+				370
+			]
+		},
+		"anflug": {
+			"name": "REGION_ANFLUG",
+			"pos": [
+				780,
+				110
+			]
+		}
+	},
+	"renamed": {
+		"kaltbrunn": "grauwacht",
+		"eisenhalt": "eisenfurt"
+	}
 }

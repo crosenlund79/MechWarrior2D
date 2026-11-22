@@ -126,6 +126,26 @@
 			"suit": 1.4,
 			"label": "ZONE_SCORCH",
 			"storm_exposure": 1.0
+		},
+		"glass": {
+			"ambient": 70.0,
+			"solar": 1.5,
+			"abrasion": 0.6,
+			"drag": 1.0,
+			"grip": 0.82,
+			"suit": 1.5,
+			"label": "ZONE_GLASS",
+			"storm_exposure": 1.0
+		},
+		"vent": {
+			"ambient": 84.0,
+			"solar": 1.4,
+			"abrasion": 0.8,
+			"drag": 0.92,
+			"grip": 0.9,
+			"suit": 1.9,
+			"label": "ZONE_VENT",
+			"storm_exposure": 1.0
 		}
 	},
 	"patches": [
@@ -686,11 +706,75 @@
 			"collision": {
 				"circle": 50
 			}
+		},
+		{
+			"id": "solar_wreck_0",
+			"asset": "prop.solar_wreck",
+			"pos": [
+				4227,
+				747
+			],
+			"layer": "low",
+			"rot": 174,
+			"collision": {
+				"rect": [
+					200,
+					120
+				]
+			}
+		},
+		{
+			"id": "solar_wreck_1",
+			"asset": "prop.solar_wreck",
+			"pos": [
+				4423,
+				2362
+			],
+			"layer": "low",
+			"rot": 229,
+			"collision": {
+				"rect": [
+					200,
+					120
+				]
+			}
+		},
+		{
+			"id": "solar_wreck_2",
+			"asset": "prop.solar_wreck",
+			"pos": [
+				4862,
+				3823
+			],
+			"layer": "low",
+			"rot": 97,
+			"collision": {
+				"rect": [
+					200,
+					120
+				]
+			}
+		},
+		{
+			"id": "solar_wreck_3",
+			"asset": "prop.solar_wreck",
+			"pos": [
+				3040,
+				1161
+			],
+			"layer": "low",
+			"rot": 48,
+			"collision": {
+				"rect": [
+					200,
+					120
+				]
+			}
 		}
 	],
 	"scatter": [
 		{
-			"seed": 87,
+			"seed": 150,
 			"count": 160,
 			"area": [
 				0,
@@ -837,29 +921,29 @@
 	],
 	"enemies": [
 		{
-			"id": "rival_0",
-			"type": "scrapper",
+			"id": "rival_1",
+			"type": "junker",
 			"spawn": [
-				4558,
-				2209
+				5134,
+				3540
 			],
 			"heading_deg": 90,
 			"patrol": [
 				[
-					4558,
-					2209
+					5134,
+					3540
 				],
 				[
-					4958,
-					2209
+					5534,
+					3540
 				],
 				[
-					4958,
-					2609
+					5534,
+					3940
 				],
 				[
-					4558,
-					2609
+					5134,
+					3940
 				]
 			]
 		}
@@ -1617,21 +1701,21 @@
 			],
 			"heading_deg": 90
 		},
-		"gate_eisenhalt": {
+		"gate_messstation": {
 			"pos": [
 				420,
 				2400
 			],
 			"heading_deg": 90
 		},
-		"gate_weissgrat": {
+		"gate_glutfeld": {
 			"pos": [
 				3300,
 				4380
 			],
 			"heading_deg": 0
 		},
-		"gate_stahlheim": {
+		"gate_hochstrasse": {
 			"pos": [
 				3300,
 				420
@@ -1645,8 +1729,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_0",
 			"spawn": [
-				5119,
-				2230
+				3294,
+				1873
 			]
 		},
 		{
@@ -1654,8 +1738,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_0",
 			"spawn": [
-				5189,
-				2290
+				3364,
+				1933
 			]
 		},
 		{
@@ -1663,8 +1747,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_0",
 			"spawn": [
-				5259,
-				2230
+				3434,
+				1873
 			]
 		},
 		{
@@ -1672,8 +1756,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_0",
 			"spawn": [
-				5329,
-				2290
+				3504,
+				1933
 			]
 		},
 		{
@@ -1681,8 +1765,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_1",
 			"spawn": [
-				1466,
-				3724
+				954,
+				1723
 			]
 		},
 		{
@@ -1690,8 +1774,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_1",
 			"spawn": [
-				1536,
-				3784
+				1024,
+				1783
 			]
 		},
 		{
@@ -1699,8 +1783,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_1",
 			"spawn": [
-				1606,
-				3724
+				1094,
+				1723
 			]
 		},
 		{
@@ -1708,8 +1792,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_1",
 			"spawn": [
-				1676,
-				3784
+				1164,
+				1783
 			]
 		},
 		{
@@ -1717,8 +1801,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_2",
 			"spawn": [
-				5919,
-				2581
+				5551,
+				3964
 			]
 		},
 		{
@@ -1726,8 +1810,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_2",
 			"spawn": [
-				5989,
-				2641
+				5621,
+				4024
 			]
 		},
 		{
@@ -1735,8 +1819,8 @@
 			"species": "skirr",
 			"pack": "frostgrund_2",
 			"spawn": [
-				6059,
-				2581
+				5691,
+				3964
 			]
 		},
 		{
@@ -1744,74 +1828,74 @@
 			"species": "skirr",
 			"pack": "frostgrund_2",
 			"spawn": [
-				6129,
-				2641
+				5761,
+				4024
 			]
 		},
 		{
 			"id": "grindback_0",
 			"species": "grindback",
 			"spawn": [
-				3210,
-				2464
+				4358,
+				2843
 			]
 		},
 		{
 			"id": "grindback_1",
 			"species": "grindback",
 			"spawn": [
-				4294,
-				2651
+				5996,
+				1177
 			]
 		},
 		{
 			"id": "grindback_2",
 			"species": "grindback",
 			"spawn": [
-				525,
-				1172
+				1516,
+				3823
 			]
 		},
 		{
 			"id": "eisback_0",
 			"species": "rimeback",
 			"spawn": [
-				3084,
-				2129
+				1782,
+				1733
 			],
 			"route": [
 				[
-					3084,
-					2129
+					1782,
+					1733
 				],
 				[
-					3316,
-					2063
+					2650,
+					1068
 				],
 				[
-					5371,
-					1927
+					4208,
+					1551
 				],
 				[
-					5502,
-					1943
+					5090,
+					2292
 				],
 				[
-					5481,
-					3995
+					2408,
+					3799
 				],
 				[
-					1411,
-					4229
+					2372,
+					2896
 				],
 				[
-					1497,
-					3403
+					1621,
+					3101
 				]
 			],
 			"lair": [
-				507,
-				1261
+				2526,
+				3351
 			],
 			"heading_deg": 90
 		},
@@ -1819,42 +1903,42 @@
 			"id": "eisback_1",
 			"species": "rimeback",
 			"spawn": [
-				1864,
-				1875
+				3019,
+				2488
 			],
 			"route": [
 				[
-					1864,
-					1875
+					3019,
+					2488
 				],
 				[
-					3708,
-					1076
+					5691,
+					1448
 				],
 				[
-					5774,
-					1770
+					4688,
+					2392
 				],
 				[
-					5825,
-					4004
+					1373,
+					4169
 				],
 				[
-					5358,
-					3974
+					1635,
+					3231
 				],
 				[
-					2355,
-					3887
+					1379,
+					3236
 				],
 				[
-					3140,
-					3016
+					2160,
+					2903
 				]
 			],
 			"lair": [
-				5416,
-				3954
+				3403,
+				2219
 			],
 			"heading_deg": 90
 		}
@@ -1864,8 +1948,8 @@
 			"id": "exp_0",
 			"kind": "expedition",
 			"pos": [
-				4532,
-				2881
+				5037,
+				3150
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1878,8 +1962,8 @@
 			"id": "exp_1",
 			"kind": "expedition",
 			"pos": [
-				3485,
-				3285
+				2228,
+				3972
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1893,8 +1977,8 @@
 			"id": "exp_2",
 			"kind": "expedition",
 			"pos": [
-				1898,
-				2969
+				1470,
+				1380
 			],
 			"name": "POI_EXPEDITION",
 			"burning": true,
@@ -1907,8 +1991,8 @@
 			"id": "exp_3",
 			"kind": "expedition",
 			"pos": [
-				717,
-				1435
+				5174,
+				3990
 			],
 			"name": "POI_EXPEDITION",
 			"burning": false,
@@ -1919,8 +2003,8 @@
 			"id": "landmark_0",
 			"kind": "landmark",
 			"pos": [
-				5330,
-				1270
+				4165,
+				3277
 			],
 			"name": "POI_LANDMARK_FROSTGRUND",
 			"asset": "prop.solar_wreck",
@@ -1928,15 +2012,15 @@
 		}
 	],
 	"relief": {
-		"seed": 6373,
+		"seed": 3226,
 		"amp": 1.0,
 		"scale": 900.0
 	},
-	"weather_mult": 2.0,
+	"weather_mult": 1.9599999999999997,
 	"gates": [
 		{
-			"id": "gate_eisenhalt",
-			"to": "eisenhalt",
+			"id": "gate_messstation",
+			"to": "messstation",
 			"side": "w",
 			"pos": [
 				0,
@@ -1949,8 +2033,8 @@
 			"heading_deg": 90
 		},
 		{
-			"id": "gate_weissgrat",
-			"to": "weissgrat",
+			"id": "gate_glutfeld",
+			"to": "glutfeld",
 			"side": "s",
 			"pos": [
 				3300,
@@ -1963,8 +2047,8 @@
 			"heading_deg": 0
 		},
 		{
-			"id": "gate_stahlheim",
-			"to": "stahlheim",
+			"id": "gate_hochstrasse",
+			"to": "hochstrasse",
 			"side": "n",
 			"pos": [
 				3300,

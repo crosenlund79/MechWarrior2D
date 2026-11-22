@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Builds the continental journey locations (data/locations/*.json) from data/journey.json:
 
-  settlements (safe zones): Ersthafen, Kaltbrunn, Eisenhalt, Stahlheim (hub)
-  territories (danger):     Salzpfanne, Rostfeld, Weißgrat, Frostgrund
+  settlements (safe zones): Ersthafen (coast), Grauwacht (scrap checkpoint), Eisenfurt (fortified
+                            crossing), Messstation Vier (outpost), Stahlheim (industrial city, hub)
+  territories (danger):     Wrackküste, Rostfeld, Schrottgrund, Dornpass, Weißgrat, Salzpfanne,
+                            Glaswüste, Glutfeld, Frostgrund, Hochstraße
   + patches the existing Taubecken map (desert_basin_01) with gates, tier, relief and POIs.
 
 Everything is generated deterministically (fixed seeds) from the existing illustrated prop kit, then
@@ -23,6 +25,8 @@ ZT = json.loads(json.dumps(BASIN["zone_types"]))
 ZT["settlement"] = {"ambient": 46.0, "solar": 0.55, "abrasion": 0.2, "drag": 1.0, "grip": 1.05, "suit": 0.35, "cooling": 1.25,
                     "label": "ZONE_SETTLEMENT", "storm_exposure": 0.35, "safe": True}
 ZT["frost"] = {"ambient": 49.0, "solar": 1.15, "abrasion": 0.5, "drag": 0.95, "grip": 0.8, "suit": 1.2, "label": "ZONE_FROST", "storm_exposure": 1.0}
+ZT["glass"] = {"ambient": 70.0, "solar": 1.5, "abrasion": 0.6, "drag": 1.0, "grip": 0.82, "suit": 1.5, "label": "ZONE_GLASS", "storm_exposure": 1.0}
+ZT["vent"] = {"ambient": 84.0, "solar": 1.4, "abrasion": 0.8, "drag": 0.92, "grip": 0.9, "suit": 1.9, "label": "ZONE_VENT", "storm_exposure": 1.0}
 ZT["scorch"] = {"ambient": 66.0, "solar": 1.35, "abrasion": 1.0, "drag": 1.0, "grip": 0.95, "suit": 1.4, "label": "ZONE_SCORCH", "storm_exposure": 1.0}
 
 
@@ -135,10 +139,14 @@ def base_loc(node, W, H):
 
 
 # ----------------------------------------------------------------------------- settlements
-SIGN = {"ersthafen": "sign.ersthafen", "kaltbrunn": "sign.kaltbrunn", "eisenhalt": "sign.eisenhalt", "stahlheim": "sign.stahlheim"}
+SIGN = {"ersthafen": "sign.ersthafen", "grauwacht": "sign.grauwacht", "eisenfurt": "sign.eisenfurt", "messstation": "sign.messstation", "stahlheim": "sign.stahlheim"}
+STYLE = {"ersthafen": "coast", "grauwacht": "scrap", "eisenfurt": "fort", "messstation": "outpost", "stahlheim": "city"}
 
 
 def settlement(node, big=False, sides=None):
+    style = STYLE.get(node, "coast")
+    if style == "city":
+        return city(node, sides)
     W, H = (4400, 3400) if big else (3600, 2800)
     L = base_loc(node, W, H)
     rng = random.Random(node)
@@ -185,7 +193,8 @@ def settlement(node, big=False, sides=None):
     prop(props, "werkstatt_sign", "sign.eisenwolf", (gx, gy - 170), "low", collision={"rect": [250, 30]})
     prop(props, "werkstatt_lamp_a", "junker.lamp", (gx - 175, gy + 110), "low", collision={"circle": 12}, light=True, light_color=[1.0, 0.7, 0.35], light_energy=0.45, light_scale=1.8)
     prop(props, "werkstatt_lamp_b", "junker.lamp", (gx + 175, gy + 110), "low", collision={"circle": 12}, light=True, light_color=[1.0, 0.7, 0.35], light_energy=0.45, light_scale=1.8)
-    L["garage"] = {"pos": [round(gx), round(gy)], "radius": 260.0, "services": ["repair", "fuel", "sell", "upgrade", "storage"], "name": "GARAGE_EISENWOLF"}
+    services = ["repair", "fuel", "sell", "storage"] if style == "outpost" else ["repair", "fuel", "sell", "upgrade", "storage"]
+    L["garage"] = {"pos": [round(gx), round(gy)], "radius": 260.0, "services": services, "name": "GARAGE_EISENWOLF" if style != "outpost" else "GARAGE_OUTPOST"}
     L["mech_start"] = {"pos": [round(gx), round(gy)], "heading_deg": 180}
     # Tankstelle: canopy over two pumps east of the garage
     tx, ty = cx + 420, cy - 300
@@ -203,6 +212,7 @@ def settlement(node, big=False, sides=None):
         prop(props, f"tent_{i}", "shelter.awning", (cx + dx, cy + dy), "overhead", occlude=True)
         prop(props, f"crates_{i}", "refuge.crates", (cx + dx + 130, cy + dy + 60), "low", collision={"rect": [90, 80]})
     prop(props, "flag", "shelter.flag", (cx + 40, cy - 40), "low")
+    style_props(style, props, rng, cx, cy, hw, hh, roads)
     prop(props, "generator", "junker.generator", (cx + hw - 220, cy - hh + 160), "low", collision={"rect": [150, 100]})
     prop(props, "barrels", "shelter.barrels", (cx - hw + 170, cy - hh + 170), "low", collision={"circle": 44})
     if big:
@@ -229,12 +239,159 @@ def settlement(node, big=False, sides=None):
     return L
 
 
+def style_props(style, props, rng, cx, cy, hw, hh, roads):
+    """Gives each settlement its own character (all outside the yard's driving lanes)."""
+    def put(pid, asset, dx, dy, col, rot=0, layer="low", **kw):
+        p = (cx + dx, cy + dy)
+        if near_roads(p, roads, 150):
+            return
+        prop(props, pid, asset, p, layer, rot=rot, collision=col, **kw)
+    if style == "coast":     # Ersthafen: the old arrival harbour — containers, a beached hull
+        for i, (dx, dy, r) in enumerate([(hw - 220, -80, 0), (hw - 220, 60, 0), (hw - 380, 40, 90), (-hw + 240, 120, 90)]):
+            put(f"container_{i}", "coast.container", dx, dy, {"rect": [210, 90]}, r)
+        put("hull", "coast.hull", -hw + 420, -hh + 300, {"rect": [380, 150]}, 12)
+    elif style == "scrap":   # Grauwacht: checkpoint scrapyard — scrap stacks, wrecks, tyre walls
+        for i, (dx, dy) in enumerate([(hw - 220, -hh + 260), (hw - 260, hh - 300), (-hw + 260, -hh + 520), (-hw + 300, hh - 520)]):
+            put(f"scrapstack_{i}", "junker.scrap_stack", dx, dy, {"circle": 70}, rng.randint(0, 359))
+            put(f"tires_{i}", "prop.tire_stack", dx + 110, dy + 40, {"circle": 34})
+        put("wreck_hauler", "wreck.hauler", 520, -hh + 220, {"rect": [300, 120]}, 4)
+        put("checkpoint_shed", "junker.shed", -560, -hh + 220, {"rect": [220, 160]})
+    elif style == "fort":    # Eisenfurt: guarded crossing — gun emplacements, sheds, floodlights
+        for i, (dx, dy) in enumerate([(-hw + 150, -hh + 150), (hw - 150, -hh + 150), (-hw + 150, hh - 150), (hw - 150, hh - 150)]):
+            put(f"emplacement_{i}", "junker.turret_base", dx, dy, {"circle": 50})
+            put(f"emplacement_gun_{i}", "junker.turret_gun", dx, dy, None, rng.randint(0, 359), "high")
+            put(f"flood_{i}", "refuge.light_post", dx + (60 if dx < 0 else -60), dy + (60 if dy < 0 else -60), {"circle": 12}, light=True,
+                light_color=[1.0, 0.85, 0.6], light_energy=0.5, light_scale=2.2)
+        put("mechanics_shed", "junker.workshop", 640, 420, {"rect": [520, 350]})
+        put("radiator_bank", "cs.radiator_bank", -720, -380, {"rect": [220, 110]})
+    elif style == "outpost": # Messstation Vier: research outpost — tanks, pipe racks, an instrument mast
+        put("outpost_tank", "cs.tank", 560, 260, {"circle": 70})
+        put("outpost_pipes", "cs.pipe_rack", -560, 320, {"rect": [300, 60]})
+        put("outpost_mast", "city.mast", 650, -320, {"circle": 40})
+        put("outpost_shed", "cs.control_shed", -620, -300, {"rect": [200, 140]})
+
+
+# ----------------------------------------------------------------------------- Stahlheim (industrial city)
+def city(node, sides):
+    """Stahlheim: a walled industrial metropolis — dense blocks, towers, transmitter masts,
+    defences on the walls, an Eisenwolf garage just inside the gate."""
+    W, H = 6400, 5000
+    L = base_loc(node, W, H)
+    rng = random.Random(node)
+    gates = make_gates(node, W, H, sides or {})
+    L["gates"] = gates
+    L["relief"]["amp"] = 0.25
+    props = L["props"]
+    x0, y0, x1, y1 = 500, 500, W - 500, H - 500
+    cx, cy = W / 2, H / 2
+    # boulevard grid (asphalt): a main avenue from every gate to the centre + cross streets
+    roads = []
+    for g in gates:
+        door = {"n": [g["pos"][0], y0], "s": [g["pos"][0], y1], "w": [x0, g["pos"][1]], "e": [x1, g["pos"][1]]}[g["side"]]
+        roads.append([g["pos"], door, [round(door[0]), round(cy)] if g["side"] in "ns" else [round(cx), round(door[1])], [round(cx), round(cy)]])
+    for yy in (cy - 900, cy + 900):
+        roads.append([[x0 + 150, round(yy)], [x1 - 150, round(yy)]])
+    for xx in (cx - 1500, cx + 1500):
+        roads.append([[round(xx), y0 + 150], [round(xx), y1 - 150]])
+    roads.append([[x0 + 150, round(cy)], [x1 - 150, round(cy)]])
+    roads.append([[round(cx), y0 + 150], [round(cx), y1 - 150]])
+    for i, r in enumerate(roads):
+        L["patches"].append({"id": f"street_{i}", "tile": "ground.asphalt", "width": 170, "path": r})
+    L["patches"].insert(0, {"id": "city_ground", "tile": "ground.junker_dirt", "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]})
+    # city wall with gate gaps + defensive gun towers
+    gaps = {"n": [], "s": [], "w": [], "e": []}
+    for g in gates:
+        gaps[g["side"]].append(g["pos"][0] if g["side"] in "ns" else g["pos"][1])
+    segs = []
+    def wall_line(a, b, cuts, horizontal):
+        lo, hi = (a[0], b[0]) if horizontal else (a[1], b[1])
+        cur = lo
+        for c in sorted(cuts):
+            if c - 220 > cur:
+                segs.append([[cur, a[1]], [c - 220, a[1]]] if horizontal else [[a[0], cur], [a[0], c - 220]])
+            cur = c + 220
+        if cur < hi:
+            segs.append([[cur, a[1]], [hi, a[1]]] if horizontal else [[a[0], cur], [a[0], hi]])
+    wall_line([x0, y0], [x1, y0], gaps["n"], True)
+    wall_line([x0, y1], [x1, y1], gaps["s"], True)
+    wall_line([x0, y0], [x0, y1], gaps["w"], False)
+    wall_line([x1, y0], [x1, y1], gaps["e"], False)
+    L["terrain"]["walls"].append({"id": "city_wall", "tile": "junker.wall_strip", "width": 44, "segments": [[[round(p[0]), round(p[1])] for p in sg] for sg in segs]})
+    for i, (px, py) in enumerate([(x0, y0), (x1, y0), (x0, y1), (x1, y1), (cx - 1100, y1), (cx + 1100, y1), (x0, cy), (x1, cy)]):
+        prop(props, f"wall_tower_{i}", "junker.turret_base", (px, py), "low", collision={"circle": 60})
+        prop(props, f"wall_gun_{i}", "junker.turret_gun", (px, py), "high", rot=rng.randint(0, 359))
+    # Eisenwolf garage just inside the (south) gate
+    g0 = gates[0]
+    gx, gy = (g0["pos"][0] + 420, y1 - 520) if g0["side"] == "s" else (cx - 520, cy + 520)
+    prop(props, "werkstatt_floor", "refuge.workshop_floor", (gx, gy), "floor")
+    prop(props, "werkstatt_roof", "refuge.workshop_roof", (gx, gy), "overhead", occlude=True)
+    prop(props, "werkstatt_sign", "sign.eisenwolf", (gx, gy - 170), "low", collision={"rect": [250, 30]})
+    L["garage"] = {"pos": [round(gx), round(gy)], "radius": 260.0, "services": ["repair", "fuel", "sell", "upgrade", "storage"], "name": "GARAGE_STAHLHEIM"}
+    L["mech_start"] = {"pos": [round(gx), round(gy)], "heading_deg": 180}
+    prop(props, "town_sign", "sign.stahlheim", (g0["entry"][0] + 300, g0["entry"][1] - 160 if g0["side"] == "s" else g0["entry"][1]), "low", collision={"rect": [250, 30]})
+    # blocks: big industrial roofs on every free cell of the grid; towers and masts between them
+    blocks = 0
+    for bx in range(int(x0 + 330), int(x1 - 250), 420):
+        for by in range(int(y0 + 330), int(y1 - 250), 380):
+            p = (bx + rng.uniform(-30, 30), by + rng.uniform(-30, 30))
+            if near_roads(p, roads, 270) or math.dist(p, (gx, gy)) < 650:
+                continue
+            kind = rng.random()
+            if kind < 0.18:
+                prop(props, f"tower_{blocks}", "city.tower", p, "low", collision={"circle": 120})
+            elif kind < 0.3:
+                prop(props, f"cooling_{blocks}", "cs.cooling_tower", p, "low", collision={"circle": 150})
+            else:
+                prop(props, f"block_{blocks}", "city.block_a" if kind < 0.65 else "city.block_b", p, "low", rot=rng.choice([0, 180]), collision={"rect": [360, 300]})
+            blocks += 1
+    for i, (px, py) in enumerate([(cx - 900, cy - 1500), (cx + 1700, cy - 300), (cx - 2200, cy + 600)]):
+        if not near_roads((px, py), roads, 200):
+            prop(props, f"transmitter_{i}", "city.mast", (px, py), "low", collision={"circle": 40})
+    for i in range(14):
+        p = (rng.uniform(x0 + 200, x1 - 200), rng.uniform(y0 + 200, y1 - 200))
+        if near_roads(p, roads, 140) and not near_roads(p, roads, 100):
+            prop(props, f"lamp_{i}", "refuge.light_post", p, "low", collision={"circle": 12}, light=True, light_color=[1.0, 0.8, 0.5], light_energy=0.45, light_scale=2.0)
+    L["zones"].append({"id": "city", "type": "settlement", "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]})
+    L["areas"].append({"id": "area_" + node, "name": NODES[node]["name"], "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]})
+    L["scatter"].append({"seed": rng.randint(1, 999), "count": 50, "area": [0, 0, W, H], "spacing": 100, "assets": ["prop.rock_small_a", "prop.stones"]})
+    L["scatter_avoid"].append([x0 - 100, y0 - 100, x1 - x0 + 200, y1 - y0 + 200])
+    L["teleports"]["garage"] = {"pos": L["garage"]["pos"], "heading_deg": 180}
+    L["_roads"] = roads
+    return L
+
+
 # ----------------------------------------------------------------------------- territories
 THEMES = {
-    "salzpfanne": {"patch": ("ground.saltpan", "salt"), "patches": 5, "ridges": 6, "packs": 2, "grind": 3, "eis": 1, "rivals": 0, "zone": "scorch"},
-    "rostfeld": {"patch": ("ground.junker_dirt", None), "patches": 4, "ridges": 7, "packs": 2, "grind": 2, "eis": 1, "rivals": 3, "zone": None},
-    "weissgrat": {"patch": ("ground.dunes", "dunes"), "patches": 4, "ridges": 11, "packs": 3, "grind": 2, "eis": 2, "rivals": 0, "zone": None},
-    "frostgrund": {"patch": ("ground.saltpan", "frost"), "patches": 6, "ridges": 8, "packs": 3, "grind": 3, "eis": 2, "rivals": 2, "zone": "frost"},
+    # Region I — Ersthafen coast
+    "wrackkueste": {"patch": ("ground.dunes", "dunes"), "patches": 4, "ridges": 6, "packs": 3, "grind": 1, "eis": 1, "rivals": 0, "zone": None,
+                    "clusters": [("coast.container", 9, {"rect": [210, 90]}), ("coast.hull", 3, {"rect": [380, 150]}), ("prop.scrap_pile", 6, {"circle": 40})],
+                    "landmark": "coast.hull", "storm": 1.0},
+    # Region II — Rostmark
+    "rostfeld": {"patch": ("ground.junker_dirt", None), "patches": 4, "ridges": 7, "packs": 2, "grind": 2, "eis": 1, "rivals": 3, "zone": None,
+                 "clusters": [("wreck.hauler", 3, {"rect": [300, 120]}), ("prop.engine_block", 6, {"circle": 36}), ("prop.tire_stack", 6, {"circle": 34})],
+                 "landmark": "wreck.hauler", "storm": 1.1},
+    "schrottgrund": {"patch": ("ground.junker_dirt", None), "patches": 6, "ridges": 5, "packs": 2, "grind": 3, "eis": 0, "rivals": 4, "zone": None,
+                     "clusters": [("junker.scrap_stack", 10, {"circle": 70}), ("road.car", 12, {"rect": [170, 86]}), ("junker.burn_barrel", 6, {"circle": 18})],
+                     "landmark": "junker.workshop", "storm": 1.1},
+    # Region III — Dornpass
+    "dornpass": {"patch": ("ground.junker_dirt", None), "patches": 2, "ridges": 20, "packs": 3, "grind": 1, "eis": 1, "rivals": 1, "zone": None, "canyon": True,
+                 "clusters": [("prop.rock_large_a", 10, {"circle": 50}), ("shelter.awning", 2, None)], "landmark": "shelter.roof", "storm": 0.8},
+    "weissgrat": {"patch": ("ground.dunes", "dunes"), "patches": 4, "ridges": 11, "packs": 3, "grind": 2, "eis": 2, "rivals": 0, "zone": None,
+                  "clusters": [("prop.pylon", 5, {"circle": 30})], "landmark": "prop.pylon", "storm": 1.2},
+    # Region IV — Glaswüste
+    "salzpfanne": {"patch": ("ground.saltpan", "salt"), "patches": 5, "ridges": 6, "packs": 2, "grind": 3, "eis": 1, "rivals": 0, "zone": "scorch",
+                   "clusters": [("wreck.pump_rig", 2, {"rect": [260, 200]}), ("prop.mineral_a", 8, {"circle": 40})], "landmark": "wreck.pump_rig", "storm": 1.3},
+    "glaswueste": {"patch": ("ground.saltpan", "glass"), "patches": 7, "ridges": 6, "packs": 3, "grind": 2, "eis": 1, "rivals": 0, "zone": "scorch",
+                   "clusters": [("prop.mineral_b", 12, {"circle": 40}), ("cs.control_shed", 2, {"rect": [200, 140]}), ("cs.tank", 2, {"circle": 70})],
+                   "landmark": "cs.control_shed", "storm": 1.5},
+    "glutfeld": {"patch": ("ground.saltpan", "vent"), "patches": 6, "ridges": 8, "packs": 2, "grind": 3, "eis": 1, "rivals": 0, "zone": "scorch",
+                 "clusters": [("glut.vent", 12, None), ("prop.mineral_a", 6, {"circle": 40})], "landmark": "glut.vent", "storm": 1.2},
+    # Region V — Stahlheim approach
+    "frostgrund": {"patch": ("ground.saltpan", "frost"), "patches": 6, "ridges": 8, "packs": 3, "grind": 3, "eis": 2, "rivals": 2, "zone": "frost",
+                   "clusters": [("prop.solar_wreck", 4, {"rect": [200, 120]})], "landmark": "prop.solar_wreck", "storm": 1.4},
+    "hochstrasse": {"patch": ("ground.junker_dirt", None), "patches": 3, "ridges": 9, "packs": 4, "grind": 2, "eis": 2, "rivals": 2, "zone": None, "highway": True,
+                    "clusters": [("road.car", 14, {"rect": [170, 86]}), ("prop.pylon", 6, {"circle": 30}), ("road.billboard", 3, {"rect": [290, 40]})],
+                    "landmark": "road.billboard", "storm": 1.6},
 }
 
 
@@ -247,9 +404,16 @@ def territory(node, sides=None):
     gates = make_gates(node, W, H, sides or {})
     L["gates"] = gates
     hub = [round(W * rng.uniform(0.42, 0.58)), round(H * rng.uniform(0.42, 0.58))]
-    roads = [meander(g["pos"], hub, rng, 380, 7) for g in gates]
+    roads = [meander(g["pos"], hub, rng, 380 if not th.get("canyon") else 260, 7) for g in gates]
     for i, r in enumerate(roads):
         L["patches"].append({"id": f"track_{i}", "tile": "ground.track", "width": 110, "path": r})
+    if th.get("highway") and len(gates) >= 2:
+        # the old Stahlheim highway: a straight broken asphalt line between the first two gates
+        hw_road = [gates[0]["pos"], [round((gates[0]["pos"][0] + hub[0]) / 2), round((gates[0]["pos"][1] + hub[1]) / 2)], hub,
+                   [round((gates[1]["pos"][0] + hub[0]) / 2), round((gates[1]["pos"][1] + hub[1]) / 2)], gates[1]["pos"]]
+        L["patches"].append({"id": "highway", "tile": "ground.asphalt", "width": 190, "path": hw_road})
+        roads.append(hw_road)
+    L["weather_mult"] = th.get("storm", 1.0) * (1.0 + 0.1 * tier)
     props = L["props"]
     # theme patches (large soft polygons)
     for k in range(th["patches"]):
@@ -275,7 +439,7 @@ def territory(node, sides=None):
             continue
         if any(math.dist(c, g["pos"]) < 900 for g in gates):
             continue
-        if any(math.dist(c, r2["_c"]) < 900 for r2 in ridges):
+        if any(math.dist(c, r2["_c"]) < (520 if th.get("canyon") else 900) for r2 in ridges):
             continue
         rd["_c"] = c
         ridges.append(rd)
@@ -290,6 +454,23 @@ def territory(node, sides=None):
         if near_roads(p, roads, 240) or any(near_poly(p, m["polygon"], 160) for m in ridges) or any(math.dist(p, g["pos"]) < 600 for g in gates):
             continue
         prop(props, f"rock_{k}", "prop.rock_large_a" if k % 2 else "prop.rock_large_b", p, "low", rot=rng.randint(0, 359), collision={"circle": 50})
+    # theme props: clusters of the region's debris, never on the roads or the gate approaches
+    for asset, count, col in th.get("clusters", []):
+        for k in range(count):
+            for _ in range(40):
+                p = (rng.uniform(400, W - 400), rng.uniform(400, H - 400))
+                if near_roads(p, roads, 260) or any(near_poly(p, m["polygon"], 180) for m in ridges) or any(math.dist(p, g["pos"]) < 800 for g in gates):
+                    continue
+                if any("collision" in q and math.dist(p, q["pos"]) < 240 for q in props):
+                    continue
+                pid = f"{asset.split('.')[-1]}_{k}"
+                if asset == "glut.vent":
+                    prop(props, pid, asset, p, "floor", light=True, light_color=[1.0, 0.45, 0.2], light_energy=0.55, light_scale=1.6)
+                    L["zones"].append({"id": f"vent_{k}", "type": "vent", "polygon": [[round(p[0] + math.cos(a) * 170), round(p[1] + math.sin(a) * 170)] for a in [i / 8 * math.tau for i in range(8)]]})
+                else:
+                    prop(props, pid, asset, p, "low" if col else "overhead", rot=rng.randint(0, 359) if asset not in ("road.billboard",) else 0,
+                         collision=col, **({"occlude": True} if not col else {}))
+                break
     L["scatter"].append({"seed": rng.randint(1, 999), "count": 160, "area": [0, 0, W, H], "spacing": 90, "assets": ["prop.rock_small_a", "prop.rock_small_b", "prop.stones", "prop.stones"]})
     for r in roads:
         for i in range(len(r) - 1):
@@ -352,7 +533,7 @@ def territory(node, sides=None):
     lm = free_spot(260, 150)
     if lm:
         L["pois"].append({"id": "landmark_0", "kind": "landmark", "pos": lm, "name": f"POI_LANDMARK_{node.upper()}",
-                          "asset": {"salzpfanne": "wreck.pump_rig", "rostfeld": "wreck.hauler", "weissgrat": "prop.pylon", "frostgrund": "prop.solar_wreck"}[node], "loot": {}})
+                          "asset": th.get("landmark", "prop.pylon"), "loot": {}})
     L["teleports"]["hub"] = {"pos": hub, "heading_deg": 90}
     for g in gates:
         L["teleports"][g["id"]] = {"pos": g["entry"], "heading_deg": g["heading_deg"]}
@@ -367,13 +548,13 @@ def patch_basin():
     b = d["bounds"]  # [-2600, 0, 9400, 6200]
     d["gates"] = [
         {"id": "gate_ersthafen", "to": "ersthafen", "side": "w", "pos": [b[0], 3330], "entry": [b[0] + 420, 3330], "heading_deg": 90},
-        {"id": "gate_kaltbrunn", "to": "kaltbrunn", "side": "e", "pos": [b[0] + b[2], 2150], "entry": [b[0] + b[2] - 420, 2150], "heading_deg": 270},
+        {"id": "gate_wrackkueste", "to": "wrackkueste", "side": "e", "pos": [b[0] + b[2], 2150], "entry": [b[0] + b[2] - 420, 2150], "heading_deg": 270},
         {"id": "gate_rostfeld", "to": "rostfeld", "side": "e", "pos": [b[0] + b[2], 2700], "entry": [b[0] + b[2] - 420, 2700], "heading_deg": 270},
     ]
     d["quarry"] = "rimeback"
     d["relief"] = {"seed": 4242, "amp": 1.0, "scale": 950.0}
     d["weather_mult"] = 1.0
-    d["zone_types"].update({k: ZT[k] for k in ("settlement", "frost", "scorch")})
+    d["zone_types"].update({k: ZT[k] for k in ("settlement", "frost", "scorch", "glass", "vent")})
     d["pois"] = [
         {"id": "exp_basin_0", "kind": "expedition", "pos": [1700, 5600], "name": "POI_EXPEDITION", "burning": True, "wreck": "road.car", "loot": {"salvaged_parts": 1, "logbook": 1}},
         {"id": "exp_basin_1", "kind": "expedition", "pos": [2300, 5300], "name": "POI_EXPEDITION", "burning": False, "wreck": "rival.wreck", "loot": {}},
@@ -435,14 +616,8 @@ def write(L, path):
 
 
 SIDES = {
-    "ersthafen": {"taubecken": "e"},
-    "kaltbrunn": {"taubecken": "w", "salzpfanne": "e"},
-    "eisenhalt": {"salzpfanne": "n", "rostfeld": "w", "frostgrund": "e"},
-    "stahlheim": {"frostgrund": "s"},
-    "salzpfanne": {"kaltbrunn": "w", "eisenhalt": "s"},
-    "rostfeld": {"taubecken": "w", "eisenhalt": "n", "weissgrat": "e"},
-    "weissgrat": {"rostfeld": "w", "frostgrund": "n"},
-    "frostgrund": {"eisenhalt": "w", "weissgrat": "s", "stahlheim": "n"},
+    # explicit sides where the automatic (map-angle) choice would put two roads awkwardly
+    "ersthafen": {"taubecken": "e", "wrackkueste": "n"},
 }
 out = {}
 for node, n in NODES.items():

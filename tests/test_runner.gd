@@ -1490,11 +1490,11 @@ func test_pt006_fast_bullets_hit_without_tunnelling() -> void:
 
 func test_cj_route_network_branches_and_reconnects() -> void:
 	var nodes := Journey.nodes()
-	check(nodes.size() >= 9, "a genuinely playable network (%d nodes)" % nodes.size())
+	check(nodes.size() >= 15, "a genuinely playable network (%d nodes)" % nodes.size())
 	check(str(Journey.data()["start"]) == "ersthafen" and str(Journey.data()["goal"]) == "stahlheim", "Ersthafen → Stahlheim")
 	check(Journey.neighbors("taubecken").size() >= 3, "Taubecken branches")
-	check(Journey.neighbors("eisenhalt").size() >= 3, "routes reconnect at Eisenhalt")
-	check(Journey.next_hop("ersthafen", "stahlheim") == "taubecken", "routing works from the start")
+	check(Journey.neighbors("grauwacht").size() >= 3 and Journey.neighbors("eisenfurt").size() >= 3, "routes reconnect at Grauwacht and Eisenfurt")
+	check(Journey.next_hop("ersthafen", "stahlheim") in Journey.neighbors("ersthafen"), "routing works from the start")
 	var tiers_ok := true
 	for id in nodes:
 		var loc := Content.location(str(nodes[id]["location"]))
@@ -1625,7 +1625,7 @@ func test_cj_pois_discover_search_once() -> void:
 	check(l1 > l0, "searching drops its loot on the ground")
 	Session._finish_search(str(p["id"]))
 	check(Session.state["world"]["loot"].size() == l1, "searching again finds nothing new (no duplication)")
-	Session.travel_to("kaltbrunn", true)
+	Session.travel_to("messstation", true)
 	Session.travel_to("salzpfanne", true)
 	check(bool(Session.poi_state(str(p["id"]))["searched"]), "the searched state persists across travel")
 	Session.running = false
@@ -1675,7 +1675,7 @@ func test_cj_migration_v6_to_v7_single_map_save() -> void:
 	var env := SaveCodec.encode(st)
 	env["version"] = 6
 	var up = SaveCodec.migrate(env)
-	check(up is Dictionary and int(up["version"]) == 7 and SaveCodec.validate(up) == "", "v6 → v7")
+	check(up is Dictionary and int(up["version"]) == SaveCodec.VERSION and SaveCodec.validate(up) == "", "v6 → current")
 	var s2 := GameState.sanitize(up["state"], loc)
 	check(str(s2["journey"]["node"]) == "taubecken", "an old basin save continues in the Taubecken")
 	check(int(s2["money"]) > 0 and float(s2["mech"]["fuel"]) > 0.0, "money and fuel added")
@@ -1878,3 +1878,41 @@ func test_cg_launcher_blast_hurts_nearby_creatures() -> void:
 	Session._explode(Content.v2(c["pos"]) + Vector2(60, 0), 150.0, 60.0, {"damage": 60.0, "owner": "player"})
 	check(float(c["hp"]) < hp0, "a launcher blast damages a creature 60 px away")
 	Session.running = false
+
+
+func test_cg_migration_v7_to_v8_renamed_settlement() -> void:
+	var loc := Content.location("ersthafen")
+	var st := GameState.create(loc, 1)
+	st["location"] = "kaltbrunn"
+	st["journey"]["node"] = "kaltbrunn"
+	st["journey"]["visited"]["kaltbrunn"] = true
+	st["journey"]["last_safe"] = "eisenhalt"
+	st["sites"] = {"eisenhalt": {"creatures": {}}}
+	st.erase("difficulty")
+	st.erase("story")
+	var env := SaveCodec.encode(st)
+	env["version"] = 7
+	var up = SaveCodec.migrate(env)
+	check(up is Dictionary and int(up["version"]) == 8 and SaveCodec.validate(up) == "", "v7 → v8")
+	var s2: Dictionary = up["state"]
+	check(str(s2["location"]) == "grauwacht" and bool(s2.get("_relocate", false)), "a save parked in Kaltbrunn continues in Grauwacht (moved to the garage)")
+	check(s2["sites"].has("eisenfurt") and not s2["sites"].has("eisenhalt"), "Eisenhalt's remembered state moves to Eisenfurt")
+	var s3 := GameState.sanitize(s2, Content.location("grauwacht"))
+	check(str(s3["journey"]["node"]) == "grauwacht" and bool(s3["journey"]["visited"].get("grauwacht", false)), "the journey position follows the rename")
+	check(str(s3["journey"]["last_safe"]) == "eisenfurt", "so does the recovery settlement")
+	check(str(s3["difficulty"]) == "jaeger" and bool(s3["story"]["flags"].get("kern7_received", false)), "old saves play on Jäger and already carry Kern-7")
+	check(str(s3["mech"]["weapon"]) == "mg" and str(s3["mech"]["chassis"]) == "marder", "and get the twin MG on a Marder")
+
+
+func test_cg_continent_regions_and_locations() -> void:
+	var regions := {}
+	for id in Journey.nodes():
+		var n := Journey.node(str(id))
+		var loc := Content.location(str(n["location"]))
+		check(not loc.is_empty(), "%s has a playable map" % id)
+		check(loc.get("gates", []).size() == Journey.neighbors(str(id)).size(), "%s has one gate per route" % id)
+		regions[str(n.get("region", ""))] = true
+	check(regions.size() == 5, "five regions (%s)" % [regions.keys()])
+	var stahl := Content.location("stahlheim")
+	check(stahl["props"].size() > 60 and stahl["bounds"][2] > 5000, "Stahlheim is a big, dense city (%d props)" % stahl["props"].size())
+	check(not Content.location("messstation")["garage"]["services"].has("upgrade"), "the Messstation is an outpost without upgrades")
