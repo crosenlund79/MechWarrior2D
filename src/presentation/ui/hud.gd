@@ -397,6 +397,8 @@ func _process(delta: float) -> void:
 	strain_bar.value = float(p["strain"])
 	# Objective, prompts, cargo
 	hint_label.text = tr(Session.hint())
+	# notices stack under the hint, however many lines it wraps to
+	notices.offset_top = hint_label.offset_top + (hint_label.size.y if hint_label.text != "" else 0.0) + 14.0
 	var lines: PackedStringArray = []
 	for it in Session.interactions():
 		if it["kind"] == "exit" and not it["enabled"]:

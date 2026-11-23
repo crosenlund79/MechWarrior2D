@@ -317,6 +317,17 @@ func _run(line: String) -> void:
 			await _wait(0.5)
 		"difficulty":
 			Session.state["difficulty"] = a[0]
+		"press":  # press <action>: a real input event, as from the keyboard (e.g. interact = E)
+			var evp := InputEventAction.new()
+			evp.action = a[0]
+			evp.pressed = true
+			Input.parse_input_event(evp)
+			await get_tree().process_frame
+			var evr := InputEventAction.new()
+			evr.action = a[0]
+			evr.pressed = false
+			Input.parse_input_event(evr)
+			await _wait(0.1)
 		"clock":  # clock <hour>
 			Session.dev_set_clock(float(a[0]))
 			await _wait(0.2)
@@ -603,10 +614,13 @@ func _state() -> Dictionary:
 		st["difficulty"] = Session.difficulty_id() if Session.running else ""
 		st["story"] = Session.story().duplicate(true) if Session.running else {}
 		st["clock"] = Session.clock() if Session.running else 0.0
+		st["help_visible"] = main.game.hud.help != null and main.game.hud.help.visible if main and main.game and main.game.hud else false
 		st["daylight"] = Session.daylight() if Session.running else 1.0
 		st["story_cards"] = Session.story_cards.duplicate()
 		st["card_dbg"] = [main.game.hud.story_card._site, Session.site_serial, main.game.hud.story_card.is_inside_tree(), main.game.hud.modal_open()] if main and main.game and main.game.hud and main.game.hud.story_card else []
 		st["card_showing"] = main.game.hud.story_card.showing() if main and main.game and main.game.hud and main.game.hud.story_card else false
+		var _en = main.game.pause_layer.get_node_or_null("Ending") if main and main.game else null
+		st["ending_dbg"] = [_en._credits.position, _en._credits.size, _en._credits.visible, _en._credits.get_child_count(), _en.size, _en._rolling, _en._i] if _en else []
 		st["ending_up"] = main.game.pause_layer.get_node_or_null("Ending") != null if main and main.game else false
 		st["pois"] = Session.pois().map(func(p): return str(p["id"])) if Session.running else []
 		st["services"] = Session.garage_services() if Session.loc.has("garage") else []

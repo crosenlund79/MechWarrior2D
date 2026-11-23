@@ -14,6 +14,7 @@ var _credits: VBoxContainer
 var _scroll := 0.0
 var _rolling := false
 var _cool := 0.0
+var shade: ColorRect
 
 
 func _ready() -> void:
@@ -31,7 +32,7 @@ func _ready() -> void:
 	_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_img.modulate = Color(1, 1, 1, 0.0)
 	add_child(_img)
-	var shade := ColorRect.new()
+	shade = ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.45)
 	shade.anchor_top = 0.68
 	shade.anchor_right = 1.0
@@ -48,8 +49,8 @@ func _ready() -> void:
 	add_child(_text)
 	_credits = VBoxContainer.new()
 	_credits.name = "Credits"
-	_credits.alignment = BoxContainer.ALIGNMENT_CENTER
-	_credits.add_theme_constant_override("separation", 10)
+	_credits.alignment = BoxContainer.ALIGNMENT_BEGIN
+	_credits.add_theme_constant_override("separation", 5)
 	_credits.anchor_left = 0.2
 	_credits.anchor_right = 0.8
 	_credits.visible = false
@@ -78,9 +79,18 @@ func _roll_credits() -> void:
 	_rolling = true
 	_img.visible = false
 	_text.visible = false
+	shade.visible = false
 	for c in _credits.get_children():
 		c.queue_free()
-	_credits.add_child(UiTheme.label(tr("CREDITS_TITLE"), 34, UiTheme.STRAW))
+	# the creator's logo heads the credits (ui.logo → assets/Illustrations/Thawborn Logo.png)
+	var logo := TextureRect.new()
+	logo.name = "CreditsLogo"
+	logo.texture = Assets.texture("ui.logo")
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	logo.custom_minimum_size = Vector2(340, 190)
+	logo.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_credits.add_child(logo)
 	for row in Story.data().get("credits", []):
 		var k := UiTheme.label(tr(str(row[0])), 14, UiTheme.DIM)
 		k.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -91,9 +101,11 @@ func _roll_credits() -> void:
 	var stats := UiTheme.label(_stats_line(), 15, UiTheme.COOLANT)
 	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stats.custom_minimum_size = Vector2(560, 0)
 	_credits.add_child(stats)
 	var b := UiTheme.btn(tr("END_KEEP_HUNTING"), func() -> void: _close())
 	b.name = "KeepHunting"
+	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_credits.add_child(b)
 	_credits.visible = true
 	_scroll = size.y
@@ -112,8 +124,13 @@ func _stats_line() -> String:
 func _process(delta: float) -> void:
 	_cool = maxf(0.0, _cool - delta)
 	if _rolling and _credits.visible:
-		_scroll = maxf(size.y * 0.08, _scroll - delta * 60.0)
+		_scroll = maxf(_rest_y(), _scroll - delta * 60.0)
 		_credits.position.y = _scroll
+
+
+## Where the roll stops: near the top, or higher if the list is taller than the screen.
+func _rest_y() -> float:
+	return minf(size.y * 0.06, size.y - _credits.size.y - 16.0)
 
 
 func _close() -> void:
@@ -127,6 +144,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") or event.is_action_pressed("ui_accept") or (event is InputEventMouseButton and event.pressed and not _rolling):
 		get_viewport().set_input_as_handled()
 		if _rolling:
-			_scroll = size.y * 0.08
+			_scroll = _rest_y()
 		else:
 			_next()
