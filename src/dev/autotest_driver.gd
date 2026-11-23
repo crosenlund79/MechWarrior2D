@@ -519,6 +519,9 @@ func _run(line: String) -> void:
 				"hud":
 					if main.game:
 						main.game.hud.visible = on
+				"help":
+					if main.game and (main.game.hud.help == null or main.game.hud.help.visible != on):
+						main.game.hud.toggle_help()
 				"grade":
 					if main.game:
 						main.game.world.atmosphere.set_enabled(on)

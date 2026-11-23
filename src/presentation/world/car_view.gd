@@ -287,7 +287,9 @@ func _process(delta: float) -> void:
 	var dim := clampf(Session.storm_here * 1.2 + (0.6 if world_ref and world_ref.cover_amount() > 0.5 else 0.0) + (1.0 - Session.daylight()) * 1.4, 0.0, 1.4)
 	for hl in headlights:
 		hl.energy = move_toward(hl.energy, (0.65 * dim) if engine == "running" else 0.0, delta * 2.0)
-		hl.texture_scale = 1.0 + (1.0 - Session.daylight()) * 1.6   # long beams at night
+		var nite := 1.0 - Session.daylight()
+		hl.texture_scale = 1.0 + nite * 1.6   # long beams at night, thrown ahead of the nose
+		hl.position = Vector2(signf(hl.position.x) * 40.0, -150.0 - nite * 230.0)
 	# Gun ring: rotates toward the aim; recoil springs settle.
 	_step_recoil(delta)
 	housing_holder.rotation = Session.housing_angle + _h_rot
