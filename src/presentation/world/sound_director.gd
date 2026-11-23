@@ -39,7 +39,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	for k in ["wind", "distant", "engine", "fan", "servo", "storm"]:
+	for k in ["wind", "distant", "engine", "engine_low", "turbo", "fan", "servo", "storm"]:
 		Audio.stop_loop(k)
 	Audio.set_shelter(0.0)
 	Audio.set_storm(0.0)
@@ -59,6 +59,7 @@ func target_exposure() -> float:
 	return minf(e, 1.0 - cover * 0.88)
 
 
+var _boost := 0.0
 var _rev := 0.0
 var _rime_t := 0.0
 
@@ -92,10 +93,32 @@ func _process(delta: float) -> void:
 		# revs follow speed and throttle (a car, not a walker): idle burble → howl
 		var thr := absf(Session.drive_throttle) if Session.mode() == "mech" else 0.0
 		_rev = lerpf(_rev, clampf(frac * 0.8 + thr * 0.35, 0.0, 1.2), 1.0 - exp(-4.0 * delta))
+		# the installed equipment is audible: chassis sets the voice, engine level adds a
+		# heavier rumble layer, a turbo whines under load and blows off on lift
+		var ch := Session.chassis_id()
+		var voice := {"falke": 1.16, "baer": 0.82}.get(ch, 1.0) as float
+		var eng := Garage.level(Session.upgrades(), "engine")
+		var tur := Garage.level(Session.upgrades(), "turbo")
 		Audio.loop("engine", "sfx.car_engine")
-		Audio.set_loop_params("engine", -11.0 + _rev * 7.0, 0.62 + _rev * 0.85)
+		Audio.set_loop_params("engine", -11.0 + _rev * 7.0 + eng * 0.8, (0.62 + _rev * 0.85) * voice * (1.0 - eng * 0.03))
+		if eng > 0 or ch == "baer":
+			Audio.loop("engine_low", "sfx.mech_engine")
+			Audio.set_loop_params("engine_low", -26.0 + eng * 3.0 + (4.0 if ch == "baer" else 0.0) + _rev * 4.0, (0.45 + _rev * 0.4) * voice)
+		else:
+			Audio.stop_loop("engine_low")
+		if tur > 0:
+			var load := clampf(thr * _rev, 0.0, 1.0)
+			Audio.loop("turbo", "sfx.servo")
+			Audio.set_loop_params("turbo", -40.0 + load * (16.0 + tur * 3.0), 2.1 + _rev * 0.9 + tur * 0.15)
+			if _boost > 0.6 and thr < 0.15:
+				Audio.play("sfx.steam", -16.0 + tur * 2.0, 1.7, 400)   # blow-off valve
+			_boost = lerpf(_boost, load, 1.0 - exp(-3.0 * delta))
+		else:
+			Audio.stop_loop("turbo")
 	else:
 		Audio.stop_loop("engine")
+		Audio.stop_loop("engine_low")
+		Audio.stop_loop("turbo")
 	var slip := float(m.get("slip", 0.0))
 	if Session.mode() == "mech" and slip > float(Session.tun("mech").get("skid_slip", 120.0)) * 0.8:
 		Audio.loop("skid", "sfx.tyre_skid")

@@ -89,6 +89,9 @@ func _build() -> void:
 	_row([["Travel to selected node", func() -> void: Session.travel_to(_node_pick.get_item_text(_node_pick.selected), true)],
 		["Clear territory creatures", func() -> void: Session.dev_clear_creatures()]])
 	_row([["Restore cooling", func() -> void: Session.dev_restore_cooling()]])
+	_head("Time of day")
+	_row([["Dawn 6:00", func() -> void: Session.dev_set_clock(6.0)], ["Noon", func() -> void: Session.dev_set_clock(12.0)],
+		["Dusk 19:00", func() -> void: Session.dev_set_clock(19.0)], ["Midnight", func() -> void: Session.dev_set_clock(0.0)]])
 	_head("Story")
 	_story_pick = OptionButton.new()
 	for b in Story.beats():

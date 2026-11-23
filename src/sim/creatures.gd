@@ -120,6 +120,7 @@ static func _senses(c: Dictionary, target: Dictionary, ts: Dictionary) -> float:
 	var r := float(ts.get("sight", 260.0)) + float(target.get("noise", 0.0)) * float(ts.get("hearing", 600.0))
 	r += maxf(0.0, float(target.get("heat", 60.0)) - 80.0) * float(ts.get("heat_sense", 0.0))
 	r *= float(target.get("vis", 1.0))
+	r *= 1.0 + float(ts.get("night_bonus", 0.0)) * float(target.get("night", 0.0))   # night hunters
 	return clampf(1.0 - d / maxf(r, 1.0), 0.0, 1.0) if d < r else 0.0
 
 

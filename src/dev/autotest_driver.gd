@@ -317,6 +317,9 @@ func _run(line: String) -> void:
 			await _wait(0.5)
 		"difficulty":
 			Session.state["difficulty"] = a[0]
+		"clock":  # clock <hour>
+			Session.dev_set_clock(float(a[0]))
+			await _wait(0.2)
 		"story":  # story advance <beat> | story event <type> [key=value ...] | story cards (dismiss all) | story flag <f>
 			match a[0]:
 				"advance":
@@ -596,6 +599,8 @@ func _state() -> Dictionary:
 		st["board"] = Session.contract_board() if Session.running else []
 		st["difficulty"] = Session.difficulty_id() if Session.running else ""
 		st["story"] = Session.story().duplicate(true) if Session.running else {}
+		st["clock"] = Session.clock() if Session.running else 0.0
+		st["daylight"] = Session.daylight() if Session.running else 1.0
 		st["story_cards"] = Session.story_cards.duplicate()
 		st["card_dbg"] = [main.game.hud.story_card._site, Session.site_serial, main.game.hud.story_card.is_inside_tree(), main.game.hud.modal_open()] if main and main.game and main.game.hud and main.game.hud.story_card else []
 		st["card_showing"] = main.game.hud.story_card.showing() if main and main.game and main.game.hud and main.game.hud.story_card else false

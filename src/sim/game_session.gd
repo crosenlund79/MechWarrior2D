@@ -270,7 +270,45 @@ func weather() -> Dictionary:
 
 ## Zone at a position with the current storm folded in (same rules for every mech).
 func zone_with_weather(pos: Vector2) -> Dictionary:
-	return Weather.apply(Content.zone_at(loc, pos), weather(), tun("weather"))
+	var z: Dictionary = Weather.apply(Content.zone_at(loc, pos), weather(), tun("weather")).duplicate()
+	var night := 1.0 - daylight()
+	if night > 0.0:
+		# cold nights: the sun is gone and the ground gives its heat back to the sky
+		var tdn := tun("daynight")
+		z["solar"] = float(z.get("solar", 1.0)) * lerpf(1.0, float(tdn.get("night_solar", 0.12)), night)
+		z["ambient"] = float(z.get("ambient", 58.0)) - float(tdn.get("night_cool", 12.0)) * night
+	return z
+
+
+# ---------------------------------------------------------------- day and night
+
+## World clock in hours (0..24), global across maps, saved.
+func clock() -> float:
+	if state.is_empty():
+		return 12.0
+	return float(state.get("clock", tun("daynight").get("start_hour", 8.0)))
+
+
+## 1 at full day, 0 at night; dawn 5–7:30, dusk 18–20:30.
+func daylight() -> float:
+	var h := clock()
+	return smoothstep(5.0, 7.5, h) * (1.0 - smoothstep(18.0, 20.5, h))
+
+
+func _tick_clock(dt: float) -> void:
+	var mins := maxf(float(tun("daynight").get("day_minutes", 24.0)), 0.5)
+	state["clock"] = fposmod(clock() + dt * 24.0 / (mins * 60.0), 24.0)
+
+
+## Sight is shorter at night (rivals and creatures alike).
+func night_vis() -> float:
+	return lerpf(float(tun("daynight").get("night_vis", 0.6)), 1.0, daylight())
+
+
+func dev_set_clock(h: float) -> void:
+	state["clock"] = fposmod(h, 24.0)
+	_refresh_zones()
+	_dev_mark()
 
 
 func _refresh_zones() -> void:
@@ -462,6 +500,7 @@ func _physics_process(delta: float) -> void:
 
 func tick(dt: float) -> void:
 	state["playtime"] = float(state["playtime"]) + dt
+	_tick_clock(dt)
 	_tick_weather(dt)
 	_refresh_zones()
 	var m := mech()
@@ -1303,7 +1342,7 @@ func _tick_enemies(dt: float) -> void:
 	var thermal := enemy_thermal()
 	var w: Dictionary = tun("combat")["enemy_weapon"]
 	var aggro := bool(dev["aggression"])
-	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather"))
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather")) * night_vis()
 	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "heat": float(mech()["heat"]), "visibility": vis,
 		"noise": noise() if mode() == "mech" else 0.0}
 	var tenc := tun("encounter")
@@ -1586,7 +1625,7 @@ func turret_def(id: String) -> Dictionary:
 func _tick_turrets(dt: float) -> void:
 	var tt := tun("turret")
 	var aggro := bool(dev["aggression"])
-	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather"))
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, mech_pos()), tun("weather")) * night_vis()
 	var target := {"valid": aggro and float(mech()["integrity"]) > 0.0, "pos": mech_pos(), "visibility": vis}
 	# Engagement limiter: only the closest few engaged turrets may wind up / fire.
 	var cands: Array = []
@@ -1850,10 +1889,10 @@ func _creature_target() -> Dictionary:
 	var aggro := bool(dev["aggression"])
 	var foot := mode() == "foot"
 	var p := pilot_pos() if foot else mech_pos()
-	var vis := Weather.visibility(weather(), Content.zone_at(loc, p), tun("weather"))
+	var vis := Weather.visibility(weather(), Content.zone_at(loc, p), tun("weather")) * night_vis()
 	var v := Vector2.ZERO if foot else Drive.velocity(mech())
 	return {"valid": aggro and mode() != "collapsed" and (foot or float(mech()["integrity"]) > 0.0), "pos": p, "vel": v,
-		"noise": noise(), "heat": 60.0 if foot else float(mech()["heat"]), "vis": vis, "foot": foot}
+		"noise": noise(), "heat": 60.0 if foot else float(mech()["heat"]), "vis": vis, "foot": foot, "night": 1.0 - daylight()}
 
 
 func _tick_creatures(dt: float) -> void:
@@ -3156,6 +3195,7 @@ func dev_grant_upgrade(line: String) -> bool:
 	var before_max := max_integrity()
 	upgrades()[line] = Garage.level(upgrades(), line) + 1
 	mech()["integrity"] = minf(max_integrity(), float(mech()["integrity"]) + maxf(0.0, max_integrity() - before_max))
+	combat_event.emit("garage", {"module": line})
 	_dev_mark()
 	notice.emit("NOTICE_DEV", ["DEV_UPGRADE_GRANTED"])
 	return true

@@ -19,6 +19,8 @@ const RING_POS := Vector2(0, 0)
 var body: Node2D          # rotates with heading
 var chassis: Node2D       # rolls / squats inside body
 var hull: Sprite2D
+var kits := {}            # kit id -> Sprite2D (upgrade parts drawn on the car)
+var exhaust_fx: Array[CPUParticles2D] = []
 var wheels: Array[Sprite2D] = []
 var shadow: Node2D
 var heat_glow: PointLight2D
@@ -82,6 +84,17 @@ func _ready() -> void:
 	for i in 4:
 		wheels.append(_part("car.wheel", WHEELS[i], chassis))
 	hull = _part(Vehicles.body_asset(Session.chassis_id()) if not Session.state.is_empty() else "car.body", Vector2.ZERO, chassis)
+	for k in KIT_IDS:
+		kits[k] = _part("car.kit_" + k, Vector2.ZERO, chassis)
+	for sx in [-1.0, 1.0]:
+		var ex := FxKit.puff(Color(0.18, 0.16, 0.15, 0.55), 6)
+		ex.one_shot = false
+		ex.emitting = false
+		ex.lifetime = 0.7
+		ex.position = Vector2(sx * 58.0, 20.0)
+		chassis.add_child(ex)
+		exhaust_fx.append(ex)
+	_refresh_kits()
 	for sx in [-1.0, 1.0]:
 		var hl := LightKit.glow(Color(1.0, 0.82, 0.5), 0.9, 0.0)
 		hl.position = Vector2(sx * 40.0, -150.0)
@@ -233,6 +246,9 @@ func _process(delta: float) -> void:
 	var driving := Session.mode() == "mech" and Session.engine_on()
 	# Front wheels steer with the input; all wheels roll (tread scroll via offset).
 	_steer = lerpf(_steer, (Session.drive_turn if driving else 0.0) * 0.5, 1.0 - exp(-10.0 * delta))
+	var turbo := Garage.level(Session.upgrades(), "turbo") > 0
+	for ex in exhaust_fx:
+		ex.emitting = turbo and driving and Session.drive_throttle > 0.6 and absf(float(m["speed"])) < max_s * 0.8
 	for i in 2:
 		wheels[i].get_parent().rotation = _steer
 	# Mass: squat on throttle, dive under braking, roll in corners (visual only).
@@ -268,9 +284,10 @@ func _process(delta: float) -> void:
 	var glow_f := clampf((heat - (warn - 20.0)) / (crit - warn + 20.0), 0.0, 1.0)
 	heat_glow.energy = glow_f * (0.55 + 0.15 * sin(Time.get_ticks_msec() * 0.008))
 	steam.emitting = heat >= warn or engine == "shutdown"
-	var dim := clampf(Session.storm_here * 1.2 + (0.6 if world_ref and world_ref.cover_amount() > 0.5 else 0.0), 0.0, 1.0)
+	var dim := clampf(Session.storm_here * 1.2 + (0.6 if world_ref and world_ref.cover_amount() > 0.5 else 0.0) + (1.0 - Session.daylight()) * 1.4, 0.0, 1.4)
 	for hl in headlights:
 		hl.energy = move_toward(hl.energy, (0.65 * dim) if engine == "running" else 0.0, delta * 2.0)
+		hl.texture_scale = 1.0 + (1.0 - Session.daylight()) * 1.6   # long beams at night
 	# Gun ring: rotates toward the aim; recoil springs settle.
 	_step_recoil(delta)
 	housing_holder.rotation = Session.housing_angle + _h_rot
@@ -317,6 +334,7 @@ func _on_mech_event(ev: String) -> void:
 			var bid := Vehicles.body_asset(Session.chassis_id())
 			hull.set_meta("asset", bid)
 			Assets.apply_to_sprite(hull, bid)
+			_refresh_kits()
 			_build_shadow()
 
 
@@ -368,6 +386,9 @@ func recoil_state() -> Dictionary:
 
 func on_combat(kind: String, data: Dictionary) -> void:
 	match kind:
+		"upgrade_fitted", "garage":
+			_refresh_kits()
+			_shake = maxf(_shake, 0.25)
 		"player_hit":
 			_flash = 0.8
 			_shake = maxf(_shake, 0.5 if str(data.get("kind", "")) != "structure" else 0.35)
@@ -393,3 +414,30 @@ func on_combat(kind: String, data: Dictionary) -> void:
 				if world_ref and world_ref.camera:
 					var rc: Dictionary = Session.tun("combat").get("recoil", {})
 					world_ref.camera.add_shake(float(rc.get("shake", 0.16)) * 0.8, float(rc.get("shake_max", 0.45)))
+
+
+# ---------------------------------------------------------------- upgrade kits
+
+const KIT_IDS := ["armor", "armor_heavy", "bullbar", "rack", "rack_big", "cooler", "exhaust", "jerrycans", "mount", "antenna"]
+
+
+## Fitted upgrade lines show on the car: plates, push bar, racks, coolers,
+## exhaust stacks, jerrycans, mount ring, tracking mast; bigger tyres.
+func _refresh_kits() -> void:
+	if Session.state.is_empty():
+		for k in kits:
+			kits[k].visible = false
+		return
+	var up := Session.upgrades()
+	var lv := func(line: String) -> int: return Garage.level(up, line)
+	var show := {
+		"armor": lv.call("armor") >= 1 and lv.call("armor") < 3, "armor_heavy": lv.call("armor") >= 3,
+		"bullbar": lv.call("chassis") >= 1, "rack": lv.call("cargo") >= 1 and lv.call("cargo") < 3, "rack_big": lv.call("cargo") >= 3,
+		"cooler": lv.call("cooling") >= 1, "exhaust": lv.call("turbo") >= 1, "jerrycans": lv.call("fuel") >= 1,
+		"mount": lv.call("mounts") >= 1, "antenna": lv.call("tracker") >= 1,
+	}
+	for k in kits:
+		kits[k].get_parent().visible = bool(show.get(k, false))
+	var tyre := 1.0 + 0.07 * float(lv.call("tires")) + 0.04 * float(lv.call("suspension"))
+	for w in wheels:
+		w.get_parent().scale = Vector2(tyre, tyre)

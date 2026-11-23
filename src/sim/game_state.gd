@@ -54,6 +54,7 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 		"weather": Weather.create(Content.tuning.get("weather", {})),
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0, "kills": 0, "harvests": 0, "upgrades": 0},
 		"difficulty": str(Content.tuning.get("difficulty", {}).get("default", "jaeger")),
+		"clock": float(Content.tuning.get("daynight", {}).get("start_hour", 8.0)),
 		"contracts": Contracts.create(),
 		"story": Story.create(),
 		"bestiary": {},

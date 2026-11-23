@@ -420,6 +420,8 @@ func _process(delta: float) -> void:
 		cargo_label.text += "  ·  " + tr("HUD_KERN7")
 	_update_hunt(delta)
 	zone_label.text = tr("HUD_ZONE") % [tr(str(Session.pilot_zone.get("label", "ZONE_OPEN_SAND"))), int(Session.pilot_zone.get("ambient", 58))]
+	var hh := Session.clock()
+	zone_label.text += "  ·  %02d:%02d" % [int(hh), int(fmod(hh, 1.0) * 60.0)]
 	var sheltered := bool(Session.pilot_zone.get("sheltered", false))
 	if sheltered:
 		zone_label.text += "  ·  " + tr("HUD_SHELTERED")

@@ -2686,6 +2686,186 @@
 				0.5
 			],
 			"note": "story card portrait (replace with your own art)"
+		},
+		"car.kit_armor": {
+			"path": "vehicles/player/kit_armor",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: side armour plates (Plattenkleid)"
+		},
+		"car.kit_armor_heavy": {
+			"path": "vehicles/player/kit_armor_heavy",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: heavy armour (Plattenkleid Schwer / Eisbackpanzer)"
+		},
+		"car.kit_bullbar": {
+			"path": "vehicles/player/kit_bullbar",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: frame reinforcement: push bar + nose guard"
+		},
+		"car.kit_rack": {
+			"path": "vehicles/player/kit_rack",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: cargo racks with strapped crates"
+		},
+		"car.kit_rack_big": {
+			"path": "vehicles/player/kit_rack_big",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: extended cargo cage"
+		},
+		"car.kit_cooler": {
+			"path": "vehicles/player/kit_cooler",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: Kühlwerk radiator bank on the nose"
+		},
+		"car.kit_exhaust": {
+			"path": "vehicles/player/kit_exhaust",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: Sturmlader turbo exhaust stacks"
+		},
+		"car.kit_jerrycans": {
+			"path": "vehicles/player/kit_jerrycans",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: Zusatztank jerrycans on the flanks"
+		},
+		"car.kit_mount": {
+			"path": "vehicles/player/kit_mount",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: Lafette armoured mount ring"
+		},
+		"car.kit_antenna": {
+			"path": "vehicles/player/kit_antenna",
+			"display": [
+				132,
+				240
+			],
+			"source": [
+				264,
+				480
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"facing": "up",
+			"rotates": true,
+			"note": "upgrade kit overlay: Spürgerät tracking mast"
 		}
 	},
 	"tiles": {

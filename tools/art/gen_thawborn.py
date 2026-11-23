@@ -95,6 +95,14 @@ PORTRAITS = {   # cast of the Kern-7 crossing: (coat, skin, hair, accessory)
 }
 for k in PORTRAITS:
     ENTRIES["ui.portrait_" + k] = S("ui/portrait_" + k, 160, 160, rot=False, note="story card portrait (replace with your own art)")
+KITS = {   # upgrade kits drawn over the car body (same 132×240 box, transparent background)
+    "armor": "side armour plates (Plattenkleid)", "armor_heavy": "heavy armour (Plattenkleid Schwer / Eisbackpanzer)",
+    "bullbar": "frame reinforcement: push bar + nose guard", "rack": "cargo racks with strapped crates",
+    "rack_big": "extended cargo cage", "cooler": "Kühlwerk radiator bank on the nose", "exhaust": "Sturmlader turbo exhaust stacks",
+    "jerrycans": "Zusatztank jerrycans on the flanks", "mount": "Lafette armoured mount ring", "antenna": "Spürgerät tracking mast",
+}
+for k, note in KITS.items():
+    ENTRIES["car.kit_" + k] = S("vehicles/player/kit_" + k, 132, 240, note="upgrade kit overlay: " + note)
 HEIGHTS = {"coast.container": 22, "coast.hull": 40, "city.block_a": 60, "city.block_b": 60, "city.tower": 90, "city.mast": 120, "glut.vent": 0}
 for k, v in WORLD.items():
     v["height"] = HEIGHTS[k]
@@ -990,6 +998,74 @@ def gen_portraits():
         c.save(out(eid))
 
 
+def gen_car_kits():
+    """Overlays in the car body's frame (264×480 source; nose up, cab ~156–300, bed ~306–454)."""
+    for k in KITS:
+        eid = "car.kit_" + k
+        c = canvas_for(eid, 1500 + len(k))
+        W, H = ENTRIES[eid]["source"]
+        cx = W / 2
+        if k in ("armor", "armor_heavy"):
+            heavy = k == "armor_heavy"
+            for sx in (-1, 1):
+                x0 = cx + sx * (114 if not heavy else 118)
+                for i, (y0, y1) in enumerate(((150, 230), (236, 300), (312, 380), (386, 446))):
+                    w = 14 if not heavy else 20
+                    pl = [(x0, y0), (x0 + sx * w, y0 + 6), (x0 + sx * w, y1 - 6), (x0, y1)]
+                    plate(c, pl, (118, 116, 106) if not heavy else (86, 92, 96), line=2.2, grime=0.5, hatch_alpha=50)
+                    c.rivets([(x0 + sx * w * 0.5, y0 + 12), (x0 + sx * w * 0.5, y1 - 12)], 1.8)
+            if heavy:
+                plate(c, [(cx - 90, 150), (cx + 90, 150), (cx + 84, 168), (cx - 84, 168)], (86, 92, 96), line=2.2, grime=0.4)
+        elif k == "bullbar":
+            c.ink([(cx - 112, 2), (cx + 112, 2)], 12.0, wobble=0.15, color=(62, 60, 56), alpha=255)
+            c.ink([(cx - 112, 2), (cx + 112, 2)], 2.6, wobble=0.15)
+            for x in (cx - 70, cx - 24, cx + 24, cx + 70):
+                c.ink([(x, 2), (x, 22)], 6.0, wobble=0.1, color=(62, 60, 56), alpha=255)
+            for sx in (-1, 1):
+                c.ink([(cx + sx * 112, 2), (cx + sx * 118, 40)], 7.0, wobble=0.1, color=(62, 60, 56), alpha=255)
+        elif k in ("rack", "rack_big"):
+            big = k == "rack_big"
+            rail = [(cx - 104, 304), (cx + 104, 304), (cx + 106, 458 if not big else 474), (cx - 106, 458 if not big else 474)]
+            c.ink_poly(rail, 5.0)
+            for y in range(320, 456 if not big else 472, 22):
+                c.ink([(cx - 104, y), (cx + 104, y)], 2.4, alpha=200)
+            crates = [(cx + 20, 330, cx + 86, 380), (cx + 24, 386, cx + 84, 440)] + ([(cx - 90, 410, cx - 30, 466)] if big else [])
+            for (a0, b0, a1, b1) in crates:
+                plate(c, [(a0, b0), (a1, b0), (a1, b1), (a0, b1)], G.OCHRE, line=2.0, grime=0.5)
+                c.ink([(a0, b0), (a1, b1)], 1.6, alpha=160); c.ink([(a1, b0), (a0, b1)], 1.6, alpha=160)
+        elif k == "cooler":
+            bank = [(cx - 84, 16), (cx + 84, 16), (cx + 90, 48), (cx - 90, 48)]
+            plate(c, bank, G.COOLANT, line=2.4, grime=0.2, hatch=False)
+            for x in range(int(cx - 78), int(cx + 80), 8):
+                c.ink([(x, 20), (x, 44)], 1.4, color=(30, 50, 52), alpha=220)
+            for sx in (-1, 1):
+                c.ink([(cx + sx * 60, 48), (cx + sx * 50, 120)], 5.0, wobble=0.2, color=(70, 120, 120), alpha=255)
+        elif k == "exhaust":
+            for sx in (-1, 1):
+                x = cx + sx * 116
+                c.fill([(x - 9, 250), (x + 9, 250), (x + 9, 320), (x - 9, 320)], (70, 64, 58), tex=0.3)
+                c.ink_poly([(x - 9, 250), (x + 9, 250), (x + 9, 320), (x - 9, 320)], 1.8)
+                c.fill_ellipse((x - 11, 240, x + 11, 262), (30, 26, 24), tex=0.1)
+                c.ink_ellipse((x - 11, 240, x + 11, 262), 2.0)
+        elif k == "jerrycans":
+            for sx in (-1, 1):
+                for y in (318, 372):
+                    x0 = cx + sx * 104
+                    box = [(x0, y), (x0 + sx * 22, y), (x0 + sx * 22, y + 44), (x0, y + 44)]
+                    plate(c, box, (150, 50, 36), line=2.0, grime=0.4)
+        elif k == "mount":
+            c.ink_ellipse((cx - 54, 186, cx + 54, 294), 9.0, color=(70, 72, 70), alpha=255)
+            c.ink_ellipse((cx - 54, 186, cx + 54, 294), 2.2)
+            c.rivets([(cx + math.cos(a) * 54, 240 + math.sin(a) * 54) for a in np.linspace(0, math.tau, 16, endpoint=False)], 2.0)
+        elif k == "antenna":
+            c.ink([(cx - 80, 440), (cx - 80, 300)], 4.0, wobble=0.1, color=(60, 60, 58), alpha=255)
+            c.fill_ellipse((cx - 98, 286, cx - 62, 322), (176, 170, 150), tex=0.2)
+            c.ink_ellipse((cx - 98, 286, cx - 62, 322), 2.0)
+            c.ink([(cx - 98, 304), (cx - 62, 304)], 1.6)
+        c.desertize(dust=0.4, abrasion=0.35, bleach=0.3, seams=0.5)
+        c.save(out(eid))
+
+
 def gen_world_props():
     """Regional props for the complete game: coast, city, geothermal flats."""
     # container: corrugated steel box
@@ -1081,7 +1157,7 @@ def gen_logo_fallback():
     c.save(out("ui.logo"))
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props, gen_new_species, gen_portraits]
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props, gen_new_species, gen_portraits, gen_car_kits]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

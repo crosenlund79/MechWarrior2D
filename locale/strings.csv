@@ -287,10 +287,10 @@ HELP_TITLE,THAWBORN — field guide,THAWBORN — felthåndbog
 HELP_DRIVE,DRIVE: {move_up} accelerate · {move_down} brake / reverse · {move_left}{move_right} steer (the car only turns while rolling; reversing steers gently) · {handbrake} handbrake to drift.,KØR: {move_up} speeder · {move_down} brems / bak · {move_left}{move_right} styr (bilen drejer kun i fart) · {handbrake} håndbremse til drift.
 HELP_SHOOT,"SHOOT: aim with the mouse, hold left click or {fire}. The roof guns swing after the cursor; firing heats the engine.","SKYD: sigt med musen, hold venstre klik eller {fire}. Taggeværerne følger markøren; skud varmer motoren."
 HELP_HEAT,"HEAT: normal driving is safe near the refuge. Long fights, damage, storms and hot ground push the engine toward shutdown — ease off and find shade.","VARME: normal kørsel er sikker nær tilflugten. Lange kampe, skader, storme og hed jord presser motoren mod nødstop — slip speederen og find skygge."
-HELP_TRACK,TRACK & TRAVEL: creatures leave tracks — the compass points along the freshest sign. Drive to a map edge to leave; {journey_map} opens the continental map. Fuel runs down while you drive.,"SPOR & REJSE: dyrene efterlader spor — kompasset peger langs det friskeste spor. Kør til kanten af kortet for at rejse videre; {journey_map} åbner kontinentkortet. Brændstof bruges, mens du kører."
+HELP_TRACK,"TRACK & TRAVEL: creatures leave tracks — the compass points along the freshest sign. Drive to a map edge to leave; {journey_map} opens the continental map. Fuel runs down while you drive; nights are cooler but darker, and some packs hunt by night.","SPOR & REJSE: dyrene efterlader spor — kompasset peger langs det friskeste spor. Kør til kanten af kortet for at rejse videre; {journey_map} åbner kontinentkortet. Brændstof bruges, mens du kører; nætterne er køligere men mørkere, og nogle flokke jager om natten."
 HELP_HUNT,"HUNT: every creature telegraphs — skirrs crouch, a Wühler races a sand mound at you, the Eisback lowers its head and draws a lane. Steer out of it, then shoot weak parts. Speed and gunfire are loud.","JAGT: alle dyr varsler — skirrer dukker sig, en Wühler sender en sandbunke mod dig, Eisbacken sænker hovedet og tegner en bane. Styr ud af den, og skyd de svage dele. Fart og skud larmer."
 HELP_HARVEST,"HARVEST: stop by a carcass, get out ({interact}) and harvest. Materials drop on the sand — drive slowly over them to load the car.","SLAGT: stop ved et kadaver, stig ud ({interact}) og slagt. Materialer falder på sandet — kør langsomt hen over dem for at læsse dem."
-HELP_GARAGE,"GARAGE: park in a settlement's Eisenwolf garage and press {garage}: repair, refuel, sell loot for Mark, buy upgrades (unlocked by Jäger rank) and store cargo.","GARAGE: parker i en bosættelses Eisenwolf-værksted og tryk {garage}: reparer, tank op, sælg bytte for Mark, køb opgraderinger (låst op af Jäger-rang) og opbevar last."
+HELP_GARAGE,"GARAGE: park in a settlement's Eisenwolf garage and press {garage}: repair, refuel, restock ammunition, sell loot, take contracts, buy upgrades, weapons and chassis, store cargo. Stranded? Esc → recovery truck.","GARAGE: parker i en bosættelses Eisenwolf-værksted og tryk {garage}: reparer, tank, genopfyld ammunition, sælg bytte, tag kontrakter, køb opgraderinger, våben og chassis, opbevar last. Strandet? Esc → bjærgningsvogn."
 HELP_FOOT,ON FOOT: the heat suit drains outside the car — shade slows it. Close the grille shutters ({service}) in the dunes.,TIL FODS: hededragten tømmes uden for bilen — skygge sænker det. Luk kølerskodderne ({service}) i klitterne.
 HELP_CLOSE,{help} toggles this guide.,{help} viser/skjuler denne håndbog.
 MENU_CARD_HEADER,EISENWOLF WERKE · AUFTRAGSKARTE · ERSTHAFEN,EISENWOLF WERKE · AUFTRAGSKARTE · ERSTHAFEN
@@ -762,3 +762,11 @@ CT_RUNNERS_DESC,"Stahlheim garrison: ""Aschenläufer packs still hunt the Hochst
 CTG_RIVALS,disable %d rival cars,sæt %d rivaliserende biler ud af spillet
 DEV_STORY,story advanced,historien fremrykket
 HUD_KERN7,Kern-7 ✓,Kern-7 ✓
+GUIDE_RECORD,Hunting record,Jagtjournal
+GUIDE_UNKNOWN,— not yet seen —,— endnu ikke set —
+GUIDE_SLAIN,slain,nedlagt
+GUIDE_AT_LARGE,"seen, still at large","set, stadig på fri fod"
+GUIDE_TALLY,seen %d · brought down %d,set %d · nedlagt %d
+GUIDE_TOTALS,%d of %d species known · %d brought down,%d af %d arter kendt · %d nedlagt
+GUIDE_ANOMALIES,This map: %d of %d sites identified,Dette kort: %d af %d steder identificeret
+GUIDE_MAPS,Continent: %d of %d places visited,Kontinentet: %d af %d steder besøgt

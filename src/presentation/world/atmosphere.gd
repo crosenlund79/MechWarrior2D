@@ -95,6 +95,8 @@ var _cave := 0.0    # 0 = open sky, 1 = under rock cover
 var _storm := 0.0
 var storm_dust: CPUParticles2D
 const STORM_LIGHT := Color(0.94, 0.78, 0.6)
+const NIGHT_LIGHT := Color(0.3, 0.34, 0.5)
+const DUSK_LIGHT := Color(1.0, 0.74, 0.55)
 
 
 func _ready() -> void:
@@ -224,7 +226,11 @@ func _process(delta: float) -> void:
 	var cave_t := maxf(cover, 0.35 if zt == "canyon" else 0.0)
 	_cave = move_toward(_cave, cave_t, delta * 0.8)
 	_storm = move_toward(_storm, Session.storm_here, delta * 0.35)
-	light.color = DAY_LIGHT.lerp(STORM_LIGHT, _storm * 0.85).lerp(CAVE_LIGHT, smoothstep(0.0, 1.0, _cave))
+	# day/night: blue-grey night, warm low sun at dawn and dusk
+	var day := Session.daylight()
+	var twilight := clampf(1.0 - absf(day - 0.5) * 2.0, 0.0, 1.0)
+	var sky := DAY_LIGHT.lerp(DUSK_LIGHT, twilight * 0.7).lerp(NIGHT_LIGHT, (1.0 - day))
+	light.color = sky.lerp(STORM_LIGHT * sky, _storm * 0.85).lerp(CAVE_LIGHT, smoothstep(0.0, 1.0, _cave) * day)
 	mat.set_shader_parameter("storm", _storm)
 	streaks.storm = _storm
 	storm_dust.emitting = _storm > 0.04

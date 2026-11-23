@@ -758,8 +758,22 @@ T6 = [
  ('DEV_STORY', 'story advanced', 'historien fremrykket'),
  ('HUD_KERN7', 'Kern-7 ✓', 'Kern-7 ✓'),
 ]
+
+# ---- complete game: stage F (field guide record, day/night)
+T7 = [
+ ('GUIDE_RECORD', 'Hunting record', 'Jagtjournal'),
+ ('GUIDE_UNKNOWN', '— not yet seen —', '— endnu ikke set —'),
+ ('GUIDE_SLAIN', 'slain', 'nedlagt'),
+ ('GUIDE_AT_LARGE', 'seen, still at large', 'set, stadig på fri fod'),
+ ('GUIDE_TALLY', 'seen %d · brought down %d', 'set %d · nedlagt %d'),
+ ('GUIDE_TOTALS', '%d of %d species known · %d brought down', '%d af %d arter kendt · %d nedlagt'),
+ ('GUIDE_ANOMALIES', 'This map: %d of %d sites identified', 'Dette kort: %d af %d steder identificeret'),
+ ('GUIDE_MAPS', 'Continent: %d of %d places visited', 'Kontinentet: %d af %d steder besøgt'),
+ ('HELP_TRACK', 'TRACK & TRAVEL: creatures leave tracks — the compass points along the freshest sign. Drive to a map edge to leave; {journey_map} opens the continental map. Fuel runs down while you drive; nights are cooler but darker, and some packs hunt by night.', 'SPOR & REJSE: dyrene efterlader spor — kompasset peger langs det friskeste spor. Kør til kanten af kortet for at rejse videre; {journey_map} åbner kontinentkortet. Brændstof bruges, mens du kører; nætterne er køligere men mørkere, og nogle flokke jager om natten.'),
+ ('HELP_GARAGE', "GARAGE: park in a settlement's Eisenwolf garage and press {garage}: repair, refuel, restock ammunition, sell loot, take contracts, buy upgrades, weapons and chassis, store cargo. Stranded? Esc → recovery truck.", 'GARAGE: parker i en bosættelses Eisenwolf-værksted og tryk {garage}: reparer, tank, genopfyld ammunition, sælg bytte, tag kontrakter, køb opgraderinger, våben og chassis, opbevar last. Strandet? Esc → bjærgningsvogn.'),
+]
 _k = {r[0]: i for i, r in enumerate(S)}
-for r in T2 + T3 + T4 + T5 + T6:
+for r in T2 + T3 + T4 + T5 + T6 + T7:
     if r[0] in _k:
         S[_k[r[0]]] = r
     else:
