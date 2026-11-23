@@ -87,6 +87,7 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal advarselstape i øverste højre hjørne: DANGER / SAFE-ZONE / CLEARED. |
 | `src/presentation/ui/story_card.gd` | Historiekort (portræt, taler, tekst) og akttitler; pauser mens man læser, overlever kortskift. |
 | `src/presentation/ui/ending_screen.gd` | Slutbilleder, rulletekster med statistik, derefter tilbage til den åbne verden. |
+| `tools/shots_campaign.py` | Gengivet verifikation af hele kampagnen i vindue med skærmbilleder (menukunst, kort, overlays, apex-kampe, master om natten, Kaltvater, slutning, rulletekster). |
 | `tools/regression_campaign.py` | Kørselsregression: hele Kern-7-kampagnen fra start til slut (handling, akter, levering, master, Kaltvater, slutning, persistens). |
 | `src/presentation/ui/minimap.gd` | Minikort: veje, klipper, bosættelse, porte, blinkende anomalier, opdagede steder, spillerpil. |
 | `src/presentation/ui/journey_map.gd` | Kontinentkort (M): knudernes status, ruter med brændstofpris, knudeinfo, sæt kurs. |

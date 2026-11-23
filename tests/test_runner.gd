@@ -2124,3 +2124,51 @@ func test_cg_legacy_save_skips_the_intro() -> void:
 	Session.story_event({"event": "start"})
 	check(Session.story_cards.is_empty(), "an old save is not shown the new-game intro")
 	Session.running = false
+
+
+# ---------------------------------------------------------------- complete game: stage F
+
+func test_cg_day_night_cycle() -> void:
+	var s := _fresh_session()
+	s["mech"]["pos"] = [300.0, 2100.0]   # open sand, under the sun
+	s["clock"] = 12.0
+	check(absf(Session.daylight() - 1.0) < 0.01, "noon is full daylight")
+	var noon := Session.zone_with_weather(Session.mech_pos())
+	s["clock"] = 0.5
+	check(Session.daylight() < 0.01, "after midnight it is night")
+	var night := Session.zone_with_weather(Session.mech_pos())
+	check(float(night["ambient"]) < float(noon["ambient"]) - 8.0 and float(night["solar"]) < float(noon["solar"]) * 0.5, "nights are cold (%d → %d °C)" % [int(noon["ambient"]), int(night["ambient"])])
+	check(Session.night_vis() < 0.7, "sight is shorter at night")
+	var tc := Session.creature_tuning()
+	var c := Creatures.create({"id": "k", "species": "skirr", "spawn": [0, 0]}, tc)
+	var day_t := {"valid": true, "pos": Vector2(420, 0), "noise": 0.3, "heat": 70.0, "vis": 1.0, "night": 0.0}
+	var night_t := {"valid": true, "pos": Vector2(420, 0), "noise": 0.3, "heat": 70.0, "vis": 1.0, "night": 1.0}
+	check(Creatures._senses(c, night_t, tc["skirr"]) > Creatures._senses(c, day_t, tc["skirr"]), "skirr hunt better in the dark (night hunters)")
+	var h0 := Session.clock()
+	Session._tick_clock(60.0)
+	check(Session.clock() > h0 and Session.clock() - h0 < 1.0, "the clock runs (one minute = %.2f h)" % (Session.clock() - h0))
+	s["clock"] = 23.99
+	Session._tick_clock(60.0)
+	check(Session.clock() < 1.0, "midnight wraps")
+	Session.running = false
+
+
+func test_cg_field_guide_tallies() -> void:
+	var s := _fresh_session()
+	s["bestiary"] = {}
+	Session._bestiary("dornmaul", "seen")
+	Session._bestiary("dornmaul", "killed")
+	Session._bestiary("kaltvater", "killed")
+	check(int(s["bestiary"]["dornmaul"]["seen"]) == 1 and int(s["bestiary"]["dornmaul"]["killed"]) == 1, "seen and killed are tallied")
+	check(int(s["bestiary"]["kaltvater"]["seen"]) == 1, "a kill also counts as a sighting")
+	var env := SaveCodec.encode(s)
+	var back := GameState.sanitize(env["state"], Session.loc)
+	check(int(back["bestiary"]["dornmaul"]["killed"]) == 1, "the record is saved")
+	var guide := HelpOverlay.new()
+	add_child(guide)
+	await get_tree().process_frame
+	guide.refresh()
+	await get_tree().process_frame
+	check(guide.find_child("HuntingRecord", true, false).get_child_count() >= 12, "the field guide lists the hunting record")
+	guide.queue_free()
+	Session.running = false

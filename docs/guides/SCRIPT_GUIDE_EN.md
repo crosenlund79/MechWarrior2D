@@ -87,6 +87,7 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal hazard tape in the top-right corner: DANGER / SAFE-ZONE / CLEARED. |
 | `src/presentation/ui/story_card.gd` | Story dialogue cards (portrait, speaker, text) and act titles; pauses while reading, survives map changes. |
 | `src/presentation/ui/ending_screen.gd` | Ending slides, credits roll with run statistics, then back to the open world. |
+| `tools/shots_campaign.py` | Windowed, rendered verification of the whole campaign with screenshots (menu art, cards, overlays, apex fights, masts at night, Kaltvater, ending, credits). |
 | `tools/regression_campaign.py` | Runtime regression: the whole Kern-7 campaign start to finish (story beats, acts, delivery, masts, Kaltvater, ending, persistence). |
 | `src/presentation/ui/minimap.gd` | Minimap: roads, rock, settlement, gates, blinking anomalies, discovered sites, player arrow. |
 | `src/presentation/ui/journey_map.gd` | Continental map screen (M): node states, routes with fuel cost, node info, set course. |
