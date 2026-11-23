@@ -594,6 +594,7 @@ func _state() -> Dictionary:
 		st["difficulty"] = Session.difficulty_id() if Session.running else ""
 		st["story"] = Session.story().duplicate(true) if Session.running else {}
 		st["story_cards"] = Session.story_cards.duplicate()
+		st["card_dbg"] = [main.game.hud.story_card._site, Session.site_serial, main.game.hud.story_card.is_inside_tree(), main.game.hud.modal_open()] if main and main.game and main.game.hud and main.game.hud.story_card else []
 		st["card_showing"] = main.game.hud.story_card.showing() if main and main.game and main.game.hud and main.game.hud.story_card else false
 		st["ending_up"] = main.game.pause_layer.get_node_or_null("Ending") != null if main and main.game else false
 		st["pois"] = Session.pois().map(func(p): return str(p["id"])) if Session.running else []

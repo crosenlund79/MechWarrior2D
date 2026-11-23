@@ -20,7 +20,7 @@ var _site := Session.site_serial   # a card UI of a map we already left must not
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_panel = PanelContainer.new()
@@ -105,6 +105,9 @@ func _show(card: Dictionary) -> void:
 	_cool = 0.35
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var hud := get_parent()
+	if hud and hud.get("help") and hud.help:
+		hud.help.visible = false   # read the story first; H brings the guide back
 	if card.has("title"):
 		_panel.visible = false
 		_title.visible = true
