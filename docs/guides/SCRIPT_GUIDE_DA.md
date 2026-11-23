@@ -82,8 +82,12 @@ Hvad hvert script gør. Hold den i trit med `tools/guide_rows.py`, og kør `pyth
 | `src/sim/arsenal.gd` | Tagmonterede våbenfamilier (data/weapons.json): ejerskab, ammunitionskapacitet og genopfyldningspris, balance med monterede linjer. |
 | `src/sim/vehicles.gd` | Chassiskatalog (data/vehicles.json): Marder, Falke, Bär — køre-/panser-/last-/brændstofkarakter oven på opgraderingerne. |
 | `src/sim/contracts.gd` | Jäger-kontrakter: opslagstavler i bosættelser (skrevne + genererede fra territoriernes indhold), fremskridt fra hændelser, udbetaling. |
+| `src/sim/story.gd` | Kern-7-kampagnen (data/story.json): handlingsslag udløst af hændelser, flag, mål, låst historieindhold, udvikler-fremrykning. |
 | `src/sim/journey.gd` | Kontinentets rutenet (data/journey.json): knuder, forbindelser, brændstof, ankomst-bogføring, korteste rute og nærmeste sikre zone. |
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal advarselstape i øverste højre hjørne: DANGER / SAFE-ZONE / CLEARED. |
+| `src/presentation/ui/story_card.gd` | Historiekort (portræt, taler, tekst) og akttitler; pauser mens man læser, overlever kortskift. |
+| `src/presentation/ui/ending_screen.gd` | Slutbilleder, rulletekster med statistik, derefter tilbage til den åbne verden. |
+| `tools/regression_campaign.py` | Kørselsregression: hele Kern-7-kampagnen fra start til slut (handling, akter, levering, master, Kaltvater, slutning, persistens). |
 | `src/presentation/ui/minimap.gd` | Minikort: veje, klipper, bosættelse, porte, blinkende anomalier, opdagede steder, spillerpil. |
 | `src/presentation/ui/journey_map.gd` | Kontinentkort (M): knudernes status, ruter med brændstofpris, knudeinfo, sæt kurs. |
 | `src/presentation/world/poi_view.gd` | Forladte ekspeditionssteder (vrag, død fører, papirer, ild) og vartegn. |

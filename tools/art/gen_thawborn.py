@@ -83,6 +83,18 @@ for k, b in SPECIES_ART.items():
     ENTRIES["creature." + k] = e
 for it in ["asche_hide", "dorn_spike", "glut_scale", "glut_gland", "eisback_horn", "dornkrone", "glutkern", "kaltvater_herz"]:
     ENTRIES["item." + it] = S("items/" + it, 44, 44, rot=False)
+PORTRAITS = {   # cast of the Kern-7 crossing: (coat, skin, hair, accessory)
+    "greta": ((120, 96, 64), (206, 168, 140), (150, 120, 96), "headscarf"),
+    "konrad": ((90, 80, 70), (180, 150, 130), (60, 52, 46), "bandage"),
+    "mika": ((70, 76, 64), (196, 160, 128), (40, 34, 30), "goggles"),
+    "oskar": ((96, 56, 44), (190, 150, 120), (110, 104, 98), "hat"),
+    "henrik": ((64, 70, 84), (200, 168, 140), (160, 150, 140), "glasses"),
+    "ilse": ((150, 140, 120), (210, 176, 150), (170, 120, 80), "bandage"),
+    "aurich": ((214, 210, 196), (200, 160, 130), (70, 56, 48), "glasses"),
+    "radio": ((60, 64, 60), (0, 0, 0), (0, 0, 0), "radio"),
+}
+for k in PORTRAITS:
+    ENTRIES["ui.portrait_" + k] = S("ui/portrait_" + k, 160, 160, rot=False, note="story card portrait (replace with your own art)")
 HEIGHTS = {"coast.container": 22, "coast.hull": 40, "city.block_a": 60, "city.block_b": 60, "city.tower": 90, "city.mast": 120, "glut.vent": 0}
 for k, v in WORLD.items():
     v["height"] = HEIGHTS[k]
@@ -932,6 +944,52 @@ def gen_new_species():
                                                  c.fill_ellipse((W * 0.4, H * 0.42, W * 0.6, H * 0.64), (150, 120, 200), tex=0.05)))
 
 
+def gen_portraits():
+    """Template portraits for the story cards: shoulders and head in ink, one telling accessory."""
+    for k, (coat, skin, hair, acc) in PORTRAITS.items():
+        eid = "ui.portrait_" + k
+        c = canvas_for(eid, 1400 + len(k))
+        W, H = ENTRIES[eid]["source"]
+        c.fill([(0, 0), (W, 0), (W, H), (0, H)], (196, 178, 140), tex=0.5, cell=30)
+        if acc == "radio":
+            box = [(W * 0.2, H * 0.3), (W * 0.8, H * 0.3), (W * 0.8, H * 0.8), (W * 0.2, H * 0.8)]
+            plate(c, box, coat, line=3.0, grime=0.4)
+            c.fill_ellipse((W * 0.28, H * 0.42, W * 0.5, H * 0.64), (40, 40, 40), tex=0.3)
+            c.ink_ellipse((W * 0.28, H * 0.42, W * 0.5, H * 0.64), 2.0)
+            for y in (0.42, 0.52, 0.62):
+                c.ink([(W * 0.58, H * y), (W * 0.74, H * y)], 3.0)
+            c.ink([(W * 0.7, H * 0.3), (W * 0.82, H * 0.08)], 3.0)
+        else:
+            shoulders = [(W * 0.08, H), (W * 0.18, H * 0.74), (W * 0.82, H * 0.74), (W * 0.92, H)]
+            plate(c, shoulders, coat, line=3.0, grime=0.5)
+            c.ink([(W * 0.5, H * 0.74), (W * 0.5, H)], 2.0, alpha=150)
+            head = blob(W * 0.5, H * 0.44, W * 0.2, H * 0.25, 18, 0.06, len(k))
+            plate(c, head, skin, line=2.8, grime=0.1, hatch_alpha=40)
+            hairp = [(W * 0.3, H * 0.36), (W * 0.36, H * 0.2), (W * 0.64, H * 0.2), (W * 0.7, H * 0.36), (W * 0.5, H * 0.28)]
+            plate(c, hairp, hair, line=2.0, grime=0.2)
+            for ex in (0.43, 0.57):
+                c.fill_ellipse((W * ex - 6, H * 0.44 - 4, W * ex + 6, H * 0.44 + 4), (40, 30, 26), tex=0.0)
+            c.ink([(W * 0.45, H * 0.58), (W * 0.55, H * 0.58)], 2.0)
+            if acc == "goggles":
+                c.ink([(W * 0.3, H * 0.33), (W * 0.7, H * 0.33)], 7.0, color=(60, 50, 40), alpha=255)
+                for ex in (0.42, 0.58):
+                    c.fill_ellipse((W * ex - 12, H * 0.33 - 10, W * ex + 12, H * 0.33 + 10), (120, 160, 170), tex=0.2)
+                    c.ink_ellipse((W * ex - 12, H * 0.33 - 10, W * ex + 12, H * 0.33 + 10), 2.0)
+            elif acc == "hat":
+                plate(c, [(W * 0.22, H * 0.26), (W * 0.78, H * 0.26), (W * 0.66, H * 0.1), (W * 0.34, H * 0.1)], (60, 44, 36), line=2.4, grime=0.3)
+            elif acc == "glasses":
+                for ex in (0.43, 0.57):
+                    c.ink_ellipse((W * ex - 11, H * 0.44 - 9, W * ex + 11, H * 0.44 + 9), 2.2)
+            elif acc == "headscarf":
+                plate(c, [(W * 0.28, H * 0.38), (W * 0.34, H * 0.16), (W * 0.66, H * 0.16), (W * 0.72, H * 0.38), (W * 0.5, H * 0.24)], (150, 50, 40), line=2.2, grime=0.3)
+            elif acc == "bandage":
+                c.ink([(W * 0.32, H * 0.3), (W * 0.68, H * 0.36)], 9.0, color=(226, 220, 204), alpha=255)
+                c.ink([(W * 0.52, H * 0.31), (W * 0.56, H * 0.36)], 3.0, color=(150, 50, 40), alpha=220)
+        c.ink_poly([(4, 4), (W - 4, 4), (W - 4, H - 4), (4, H - 4)], 4.0)
+        c.desertize(dust=0.4, abrasion=0.3, bleach=0.3, seams=0.4)
+        c.save(out(eid))
+
+
 def gen_world_props():
     """Regional props for the complete game: coast, city, geothermal flats."""
     # container: corrugated steel box
@@ -1023,7 +1081,7 @@ def gen_logo_fallback():
     c.save(out("ui.logo"))
 
 
-GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props, gen_new_species]
+GENS = [gen_car_body, gen_car_wheel, gen_car_gun_ring, gen_car_twin_gun, gen_rivals, gen_skirr, gen_grindback, gen_rimeback, gen_decals, gen_materials, gen_signs, gen_poi, gen_expedition_items, gen_continent, gen_menu_table, gen_photo_fallbacks, gen_logo_fallback, gen_world_props, gen_new_species, gen_portraits]
 
 if __name__ == "__main__":
     filt = sys.argv[1:]

@@ -49,6 +49,18 @@ func _ready() -> void:
 	sound = SoundDirector.new()
 	sound.world = world
 	add_child(sound)
+	Session.ending_requested.connect(_on_ending)
+
+
+## The campaign is over: slides + credits, then back to the open world.
+func _on_ending() -> void:
+	get_tree().paused = true
+	var e := EndingScreen.new()
+	e.name = "Ending"
+	pause_layer.add_child(e)
+	e.finished.connect(func() -> void:
+		get_tree().paused = false
+		Session.save_now("ending"))
 
 
 func toggle_pause() -> void:

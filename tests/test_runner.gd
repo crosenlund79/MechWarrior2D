@@ -2000,3 +2000,127 @@ func test_cg_apex_does_not_respawn() -> void:
 	Session._maybe_respawn("dornkoenig", c, 1.0e7)
 	check(str(s["creatures"]["dornkoenig"]["ai"]) == "dead", "a slain apex stays dead")
 	Session.running = false
+
+
+# ---------------------------------------------------------------- complete game: stage D (campaign)
+
+func _story_session() -> Dictionary:
+	var s := _fresh_session()
+	_at_settlement(s)
+	s["journey"] = Journey.create()
+	s["story"] = Story.create()
+	s["creatures"] = {}
+	s["enemies"] = {}
+	s["world"] = GameState.create_world()
+	Session.story_cards.clear()
+	Session.loc = Content.location("ersthafen")
+	return s
+
+
+func test_cg_story_beats_reference_real_content() -> void:
+	var known_cast: Dictionary = Story.data()["cast"]
+	var pois := {}
+	var creatures := {}
+	for id in Journey.nodes():
+		var loc := Content.location(str(Journey.node(str(id))["location"]))
+		for p in loc.get("pois", []):
+			pois[str(p["id"])] = str(id)
+		for c in loc.get("creatures", []):
+			creatures[str(c["id"])] = str(id)
+	for b in Story.beats():
+		var w: Dictionary = b["when"]
+		if w.has("node"):
+			check(Journey.nodes().has(str(w["node"])), "%s: node %s exists" % [b["id"], w["node"]])
+		if w.has("poi"):
+			check(pois.has(str(w["poi"])), "%s: poi %s is placed in a map" % [b["id"], w["poi"]])
+		if w.has("creature"):
+			check(creatures.has(str(w["creature"])), "%s: creature %s is placed in a map" % [b["id"], w["creature"]])
+		for a in b["do"]:
+			for cd in a.get("cards", []):
+				check(known_cast.has(str(cd[0])), "%s: speaker %s is in the cast" % [b["id"], cd[0]])
+			if a.has("contract"):
+				check(Contracts.authored().has(str(a["contract"])), "%s: contract %s exists" % [b["id"], a["contract"]])
+
+
+func test_cg_campaign_act_one_kern7() -> void:
+	var s := _story_session()
+	Session.story_event({"event": "start"})
+	check(Session.story_cards.size() >= 2 and str(Session.story_cards[0]["speaker"]) == "greta", "a new game opens with Greta")
+	check(str(Session.objective().get("text", "")) == "OBJ_FIRST_JOB", "first objective: take a job")
+	check(Session.travel_to("taubecken") == "", "drive out to hunt")
+	check(Story.flag(Session.story(), "visited_territory"), "first outing noted")
+	check(not bool(Session.journey()["delivered"]), "nothing delivered yet")
+	check(Session.travel_to("ersthafen") == "", "come home")
+	check(Story.flag(Session.story(), "wreck_arrived"), "the burning car has arrived")
+	var ids := Session.pois().map(func(p): return str(p["id"]))
+	check("konrad_wreck" in ids, "Konrad's wreck is now at the east gate (%s)" % [ids])
+	Session.story_cards.clear()
+	Session._finish_search("konrad_wreck")
+	check(Story.flag(Session.story(), "kern7_received"), "Kern-7 received from the dying driver")
+	var speakers := Session.story_cards.map(func(c): return str(c.get("speaker", "")))
+	check("konrad" in speakers and "radio" in speakers and "mika" in speakers, "Konrad, the recorder and Mika speak (%s)" % [speakers])
+	var active: Array = Session.contracts()["active"].map(func(c): return str(c["id"]))
+	check("ct_alt_eisback" in active, "the Alter Eisback hunt is a story contract (%s)" % [active])
+	Session.running = false
+
+
+func test_cg_campaign_acts_and_delivery_gate() -> void:
+	var s := _story_session()
+	check(Session.travel_to("stahlheim", true) == "", "jump to Stahlheim")
+	check(not bool(Session.journey()["delivered"]) and not Story.flag(Session.story(), "finale_started"), "arriving without Kern-7 delivers nothing")
+	Session.travel_to("ersthafen", true)
+	Session.set_flag("kern7_received")
+	Session.story_cards.clear()
+	Session.travel_to("grauwacht", true)
+	check(Session.act() == 2, "entering the Rostmark starts Act II")
+	check(Session.story_cards.any(func(c): return c.has("title")), "an act title card is shown")
+	check(Session.contracts()["active"].any(func(c): return str(c["id"]) == "ct_junker_crew"), "Oskar posts the Junker job")
+	Session.travel_to("frostgrund", true)
+	check(Session.act() == 3, "the Stahlheim approach starts Act III")
+	var m0 := Session.money()
+	Session.travel_to("stahlheim", true)
+	check(Story.flag(Session.story(), "kern7_delivered") and Story.flag(Session.story(), "finale_started"), "Kern-7 delivered; the finale begins")
+	check(Session.money() > m0 + 5000, "the delivery pays (%d → %d)" % [m0, Session.money()])
+	check(Session.zone_status() == "safe", "Stahlheim is not CLEARED yet — the migration is coming")
+	Session.running = false
+
+
+func test_cg_campaign_finale_and_ending() -> void:
+	var s := _story_session()
+	Session.dev_story_advance("delivery")
+	Session.story_cards.clear()
+	check(Session.travel_to("hochstrasse", true) == "", "back out to the Hochstraße")
+	var masts: Array = Session.pois().filter(func(p): return str(p["kind"]) == "transmitter")
+	check(masts.size() == 3, "three transmitter masts are there (%d)" % masts.size())
+	check(Session.state["creatures"].keys().any(func(k): return str(k).begins_with("migration_")), "the migration is on the highway")
+	check(not Session.state["creatures"].has("kaltvater"), "Kaltvater has not shown itself yet")
+	for p in masts:
+		Session.mech()["pos"] = [float(p["pos"][0]) + 120.0, float(p["pos"][1])]
+		Session.mech()["speed"] = 0.0
+		check(Session._near_transmitter() == str(p["id"]), "parked beside %s" % p["id"])
+		Session._finish_activate(str(p["id"]))
+	check(Story.flag(Session.story(), "transmitters_on"), "all three masts running")
+	check(Session.state["creatures"].has("kaltvater"), "Kaltvater comes down the highway")
+	var diverted := 0
+	for k in Session.state["creatures"]:
+		if str(k).begins_with("migration_") and bool(Session.state["creatures"][k].get("diverted", false)):
+			diverted += 1
+	check(diverted >= 5, "the migration turns away (%d runners diverted)" % diverted)
+	Session.story_cards.clear()
+	var kv: Dictionary = Session.state["creatures"]["kaltvater"]
+	kv["hp"] = 0.0
+	Session._creature_dies("kaltvater", kv)
+	check(Story.flag(Session.story(), "campaign_complete") and Session.act() == 4, "Kaltvater down: the campaign is complete")
+	check(Session.take_ending(), "the ending sequence is requested")
+	Session.travel_to("stahlheim", true)
+	check(Session.zone_status() == "cleared", "Stahlheim is CLEARED")
+	check(Session.travel_to("hochstrasse", true) == "" and Session.running, "the world stays open afterwards")
+	Session.running = false
+
+
+func test_cg_legacy_save_skips_the_intro() -> void:
+	var s := _story_session()
+	s["story"]["flags"] = {"kern7_received": true, "legacy_save": true}
+	Session.story_event({"event": "start"})
+	check(Session.story_cards.is_empty(), "an old save is not shown the new-game intro")
+	Session.running = false

@@ -24,8 +24,9 @@ func _ready() -> void:
 	var seed := hash(str(def["id"]))
 	if kind == "expedition":
 		var wreck := _sprite(str(def.get("wreck", "rival.wreck")), Vector2(0, 0), float(seed % 360))
-		wreck.modulate = Color(0.62, 0.56, 0.5)
-		_sprite("poi.corpse", Vector2(95, 55), float((seed / 7) % 360))
+		wreck.modulate = Color(0.62, 0.56, 0.5) if not bool(def.get("survivor", false)) else Color(0.9, 0.88, 0.84)
+		if not bool(def.get("survivor", false)):
+			_sprite("poi.corpse", Vector2(95, 55), float((seed / 7) % 360))
 		_sprite("poi.papers", Vector2(-70, 80), float((seed / 13) % 360))
 		var body := StaticBody2D.new()
 		body.collision_layer = 1
@@ -50,7 +51,11 @@ func _ready() -> void:
 		glint.position = Vector2(95, 55)
 		add_child(glint)
 	elif str(def.get("asset", "")) != "":
-		_sprite(str(def["asset"]), Vector2.ZERO, float(seed % 360))
+		_sprite(str(def["asset"]), Vector2.ZERO, float(seed % 360) if kind != "transmitter" else 0.0)
+		if kind == "transmitter":
+			# warning lamp: slow red blink while dead, steady white-blue once restarted
+			mast_light = LightKit.glow(Color(1.0, 0.25, 0.15), 1.2, 1.4)
+			add_child(mast_light)
 
 
 func _sprite(asset: String, at: Vector2, rot_deg: float) -> Sprite2D:
@@ -64,10 +69,17 @@ func _sprite(asset: String, at: Vector2, rot_deg: float) -> Sprite2D:
 	return s
 
 
+var mast_light: PointLight2D
+
+
 func _process(delta: float) -> void:
 	if not Session.running:
 		return
 	_t += delta
+	if mast_light:
+		var on := bool(Session.poi_state(str(def["id"])).get("activated", false))
+		mast_light.color = Color(0.7, 0.85, 1.0) if on else Color(1.0, 0.25, 0.15)
+		mast_light.energy = 1.6 if on else (1.2 if fmod(_t, 1.4) < 0.5 else 0.15)
 	var ps := Session.poi_state(str(def["id"]))
 	if glint:
 		glint.energy = 0.0 if bool(ps.get("searched", false)) else 0.3 + 0.2 * sin(_t * 2.5)

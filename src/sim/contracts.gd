@@ -11,7 +11,7 @@ extends RefCounted
 ## POIs that really exist in nearby territories (never impossible objectives).
 
 const MAX_ACTIVE := 4
-const KINDS := ["hunt", "cull", "apex", "investigate", "recover"]
+const KINDS := ["hunt", "cull", "apex", "investigate", "recover", "rivals"]
 
 
 static func create() -> Dictionary:
@@ -188,6 +188,8 @@ static func on_event(cs: Dictionary, ev: Dictionary) -> Array:
 				hit = ev["type"] in ["discover", "search"] and str(a.get("poi", "")) == str(ev.get("poi", ""))
 			"recover":
 				hit = ev["type"] == "search" and str(a.get("poi", "")) == str(ev.get("poi", ""))
+			"rivals":
+				hit = ev["type"] == "rival" and at_node
 		if str(a.get("flag", "")) != "" and ev["type"] == "flag" and str(ev.get("flag", "")) == str(a["flag"]):
 			hit = true
 		if hit:

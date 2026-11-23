@@ -2174,6 +2174,148 @@
 				2453
 			],
 			"heading_deg": 90
+		},
+		{
+			"id": "kaltvater",
+			"species": "kaltvater",
+			"spawn": [
+				6097,
+				2370
+			],
+			"apex": true,
+			"requires": [
+				"transmitters_on"
+			]
+		},
+		{
+			"id": "migration_0_0",
+			"species": "aschenlaeufer",
+			"pack": "migration_0",
+			"migration": true,
+			"spawn": [
+				3029,
+				3224
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_0_1",
+			"species": "aschenlaeufer",
+			"pack": "migration_0",
+			"migration": true,
+			"spawn": [
+				2953,
+				3329
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_0_2",
+			"species": "aschenlaeufer",
+			"pack": "migration_0",
+			"migration": true,
+			"spawn": [
+				2830,
+				3289
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_0_3",
+			"species": "aschenlaeufer",
+			"pack": "migration_0",
+			"migration": true,
+			"spawn": [
+				2830,
+				3159
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_0_4",
+			"species": "aschenlaeufer",
+			"pack": "migration_0",
+			"migration": true,
+			"spawn": [
+				2953,
+				3119
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_1_0",
+			"species": "aschenlaeufer",
+			"pack": "migration_1",
+			"migration": true,
+			"spawn": [
+				2929,
+				1456
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_1_1",
+			"species": "aschenlaeufer",
+			"pack": "migration_1",
+			"migration": true,
+			"spawn": [
+				2853,
+				1561
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_1_2",
+			"species": "aschenlaeufer",
+			"pack": "migration_1",
+			"migration": true,
+			"spawn": [
+				2730,
+				1521
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_1_3",
+			"species": "aschenlaeufer",
+			"pack": "migration_1",
+			"migration": true,
+			"spawn": [
+				2730,
+				1391
+			],
+			"requires": [
+				"finale_started"
+			]
+		},
+		{
+			"id": "migration_1_4",
+			"species": "aschenlaeufer",
+			"pack": "migration_1",
+			"migration": true,
+			"spawn": [
+				2853,
+				1351
+			],
+			"requires": [
+				"finale_started"
+			]
 		}
 	],
 	"pois": [
@@ -2243,10 +2385,55 @@
 			"name": "POI_LANDMARK_HOCHSTRASSE",
 			"asset": "road.billboard",
 			"loot": {}
+		},
+		{
+			"id": "transmitter_0",
+			"kind": "transmitter",
+			"pos": [
+				3800,
+				1722
+			],
+			"name": "POI_TRANSMITTER",
+			"asset": "city.mast",
+			"loot": {},
+			"requires": [
+				"finale_started"
+			],
+			"story": true
+		},
+		{
+			"id": "transmitter_1",
+			"kind": "transmitter",
+			"pos": [
+				2027,
+				3992
+			],
+			"name": "POI_TRANSMITTER",
+			"asset": "city.mast",
+			"loot": {},
+			"requires": [
+				"finale_started"
+			],
+			"story": true
+		},
+		{
+			"id": "transmitter_2",
+			"kind": "transmitter",
+			"pos": [
+				3752,
+				1663
+			],
+			"name": "POI_TRANSMITTER",
+			"asset": "city.mast",
+			"loot": {},
+			"requires": [
+				"finale_started"
+			],
+			"story": true
 		}
 	],
 	"relief": {
-		"seed": 1392,
+		"seed": 7710,
 		"amp": 1.0,
 		"scale": 900.0
 	},

@@ -278,6 +278,8 @@ func _ct_goal(c: Dictionary) -> String:
 			return tr("CTG_INVESTIGATE")
 		"recover":
 			return tr("CTG_RECOVER")
+		"rivals":
+			return tr("CTG_RIVALS") % int(c.get("count", 1))
 	return ""
 
 

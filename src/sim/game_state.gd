@@ -55,7 +55,8 @@ static func create(loc: Dictionary, slot: int) -> Dictionary:
 		"stats": {"repairs": 0, "overheats": 0, "salvaged": 0, "collapses": 0, "distance": 0.0, "kills": 0, "harvests": 0, "upgrades": 0},
 		"difficulty": str(Content.tuning.get("difficulty", {}).get("default", "jaeger")),
 		"contracts": Contracts.create(),
-		"story": {"flags": {}, "seen": {}, "act": 1},
+		"story": Story.create(),
+		"bestiary": {},
 	}
 	Vehicles.ensure(s["mech"])
 	Arsenal.ensure(s["mech"], Content.tuning.get("shop", {}), s["mech"]["upgrades"])
@@ -87,6 +88,8 @@ static func create_creatures(loc: Dictionary) -> Dictionary:
 	var out := {}
 	var tc: Dictionary = Creatures.scaled(Content.tuning.get("creatures", {}), int(loc.get("tier", 1)), Content.tuning.get("economy", {}))
 	for d in loc.get("creatures", []):
+		if d.has("requires"):
+			continue   # story creatures appear when their flags are set (Session._sync_gated)
 		var dd: Dictionary = d.duplicate()
 		if str(dd.get("species", "")) == "rimeback" and not dd.has("route") and loc.has("rimeback_route"):
 			dd["route"] = loc["rimeback_route"]
@@ -250,8 +253,11 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	var cr := {}
 	var hadc: Dictionary = s.get("creatures", {}) if s.get("creatures") is Dictionary else {}
 	var tc: Dictionary = Creatures.scaled(Content.tuning.get("creatures", {}), int(loc.get("tier", 1)), Content.tuning.get("economy", {}))
+	var story_s: Dictionary = s.get("story", {}) if s.get("story") is Dictionary else {}
 	for cd in loc.get("creatures", []):
 		var cid := str(cd["id"])
+		if cd.has("requires") and not hadc.has(cid) and not Story.available(story_s, cd):
+			continue
 		var fc := Creatures.create(cd, tc)
 		var c: Dictionary = hadc.get(cid, fc) if hadc.get(cid) is Dictionary else fc
 		for k in fc:
@@ -300,6 +306,9 @@ static func sanitize(s: Dictionary, loc: Dictionary) -> Dictionary:
 	if not dtun.has(str(s.get("difficulty", ""))) or str(s.get("difficulty", "")).begins_with("_"):
 		s["difficulty"] = str(dtun.get("default", "jaeger"))
 	s["contracts"] = Contracts.sanitize(s.get("contracts"))
+	s["story"] = Story.sanitize(s.get("story"))
+	if not (s.get("bestiary") is Dictionary):
+		s["bestiary"] = {}
 	if not (s["world"].get("pois") is Dictionary):
 		s["world"]["pois"] = {}
 	if not (s.get("garage") is Dictionary):

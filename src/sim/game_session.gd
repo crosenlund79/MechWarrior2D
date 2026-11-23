@@ -124,6 +124,7 @@ func start_new(slot_index: int, difficulty_preset: String = "") -> void:
 	recovered_from_backup = false
 	_begin()
 	Log.info("session", "new_game", {"slot": slot, "id": state["id"]})
+	story_event({"event": "start"})
 	save_now("new_game")
 
 
@@ -563,7 +564,13 @@ func _tick_suit(dt: float) -> void:
 func _tick_task(dt: float) -> void:
 	if task.is_empty():
 		return
-	if mode() != "foot" or walk_dir.length() > 0.1:
+	if str(task["type"]) == "activate":
+		# only driving off cancels the restart (being shoved by a runner does not)
+		if mode() != "mech" or absf(drive_throttle) > 0.2 or absf(float(mech()["speed"])) > 180.0:
+			notice.emit("NOTICE_TASK_CANCELLED", [])
+			task = {}
+			return
+	elif mode() != "foot" or walk_dir.length() > 0.1:
 		notice.emit("NOTICE_TASK_CANCELLED", [])
 		task = {}
 		return
@@ -584,6 +591,8 @@ func _tick_task(dt: float) -> void:
 				_finish_harvest(str(done["target"]))
 			"search":
 				_finish_search(str(done["target"]))
+			"activate":
+				_finish_activate(str(done["target"]))
 			"hull":
 				_finish_hull_repair(false)
 			"patch":
@@ -763,6 +772,10 @@ func interactions() -> Array:
 			if at_garage():
 				out.append({"action": "garage", "kind": "garage", "target": "mech", "label": "ACT_GARAGE",
 					"enabled": absf(float(mech()["speed"])) <= 40.0})
+			var mast := _near_transmitter()
+			if mast != "":   # beside a mast, E restarts it (getting out comes second)
+				out.push_front({"action": "interact", "kind": "activate", "target": mast, "label": "ACT_ACTIVATE_MAST",
+					"enabled": absf(float(mech()["speed"])) <= 40.0})
 		"foot":
 			var pp := pilot_pos()
 			var r := float(tun("pilot").get("interact_radius", 85.0))
@@ -821,7 +834,7 @@ func _nearest_pickup(pp: Vector2, r: float) -> Dictionary:
 		if dc <= best_d + reach:
 			best_d = dc - reach
 			best = {"action": "interact", "kind": "harvest", "target": cid, "label": "ACT_HARVEST", "enabled": true}
-	for p in loc.get("pois", []):
+	for p in pois():
 		if str(p.get("kind", "")) != "expedition" or bool(poi_state(str(p["id"]))["searched"]):
 			continue
 		var dp := pp.distance_to(Content.v2(p["pos"]))
@@ -887,6 +900,8 @@ func request(action: String) -> bool:
 				return _start_task("patch", "mech", float(tun("hull_repair").get("emergency_duration", 6.0)))
 			"search":
 				return _start_task("search", str(it["target"]), 2.5)
+			"activate":
+				return _start_task("activate", str(it["target"]), float(tun("story").get("activate_time", 4.0)))
 			"harvest":
 				return _start_task("harvest", str(it["target"]), float(tun("creatures").get("harvest_duration", 4.0)))
 			"loot":
@@ -1069,6 +1084,15 @@ func nearest_objective() -> Vector2:
 	if not running:
 		return Vector2.INF
 	var from := actor_pos()
+	# the story points somewhere specific on this map (Konrad's wreck, the station, a mast)
+	var op := str(objective().get("poi", ""))
+	if op != "":
+		var pd := poi_def(op)
+		if not pd.is_empty() and not bool(poi_state(op)["searched"]) and not bool(poi_state(op).get("activated", false)):
+			return Content.v2(pd["pos"])
+	for tp in pois():
+		if str(tp.get("kind", "")) == "transmitter" and not bool(poi_state(str(tp["id"])).get("activated", false)):
+			return Content.v2(tp["pos"])
 	# hunting loop: carcass → loot → garage → hunting grounds
 	for cid in state.get("creatures", {}):
 		var dc: Dictionary = state["creatures"][cid]
@@ -1362,6 +1386,8 @@ func _check_enemy_disabled(id: String, e: Dictionary, thermal: Dictionary) -> vo
 	e["salvaged"] = false
 	brains[id]["windup"] = 0.0
 	notice.emit("NOTICE_ENEMY_DISABLED", [])
+	if not bool(e.get("dev", false)):
+		contract_event({"type": "rival", "enemy": id})
 	if not bool(e.get("dev", false)):
 		add_xp(xp_for("rival"), "rival")
 	combat_event.emit("enemy_disabled", {"id": id, "pos": Content.v2(e["pos"]), "cooked": cooked})
@@ -2047,6 +2073,7 @@ func _creature_dies(id: String, c: Dictionary) -> void:
 	state["stats"]["kills"] = int(state["stats"].get("kills", 0)) + 1
 	add_xp(xp_for(str(c["species"])), "kill")
 	contract_event({"type": "kill", "species": str(c["species"]), "creature": id})
+	story_event({"event": "kill", "creature": id, "species": str(c["species"])})
 	_bestiary(str(c["species"]), "killed")
 	if id == str(loc.get("quarry", "")) and not bool(c.get("dev", false)):
 		complete_node(current_node())
@@ -2491,18 +2518,156 @@ func turn_in_contracts() -> int:
 
 
 func set_flag(flag: String) -> void:
-	if not (state.get("story") is Dictionary):
-		state["story"] = {"flags": {}}
-	if not (state["story"].get("flags") is Dictionary):
-		state["story"]["flags"] = {}
+	state["story"] = Story.sanitize(state.get("story"))
 	if bool(state["story"]["flags"].get(flag, false)):
 		return
 	state["story"]["flags"][flag] = true
 	contract_event({"type": "flag", "flag": flag})
 	flag_set.emit(flag)
+	_sync_gated()
+	story_event({"event": "flag", "flag": flag})
 
 
 signal flag_set(flag: String)
+
+
+# ---------------------------------------------------------------- story (the Kern-7 crossing)
+
+signal story_cards_queued
+signal ending_requested
+
+## Dialogue/act cards waiting to be shown ({speaker, text} or {title}); the HUD
+## drains this queue (works across a map change). Not saved.
+var story_cards: Array = []
+
+
+func story() -> Dictionary:
+	if not (state.get("story") is Dictionary):
+		state["story"] = Story.create()
+	return state["story"]
+
+
+func act() -> int:
+	return int(story().get("act", 1))
+
+
+func objective() -> Dictionary:
+	return story().get("objective", {})
+
+
+## Runs every beat matching this event and applies its actions.
+func story_event(ev: Dictionary) -> void:
+	if state.is_empty():
+		return
+	for fired in Story.on_event(story(), ev):
+		Log.info("story", "beat", {"id": fired["beat"]})
+		for a in fired["do"]:
+			_story_action(a)
+
+
+func _story_action(a: Dictionary) -> void:
+	if a.has("cards"):
+		for cd in a["cards"]:
+			story_cards.append({"speaker": str(cd[0]), "text": str(cd[1])})
+		story_cards_queued.emit()
+	if a.has("flag"):
+		set_flag(str(a["flag"]))
+	if a.has("objective"):
+		var o: Dictionary = a["objective"].duplicate()
+		story()["objective"] = o
+		if str(o.get("node", "")) != "" and str(o["node"]) != current_node():
+			set_course(str(o["node"]))
+	if a.has("money"):
+		add_money(int(a["money"]))
+		notice.emit("NOTICE_STORY_PAID", [int(a["money"])])
+	if a.has("act"):
+		story()["act"] = int(a["act"])
+		story_cards.append({"title": str(Story.data().get("acts", {}).get(str(a["act"]), "ACT_%d" % int(a["act"])))})
+		story_cards_queued.emit()
+	if a.has("contract"):
+		var cid := str(a["contract"])
+		var ac: Dictionary = Contracts.authored().get(cid, {})
+		if not ac.is_empty() and not contracts()["done"].has(cid):
+			var c := ac.duplicate(true)
+			c["id"] = cid
+			c["giver"] = current_node()
+			c["story"] = bool(ac.get("story", false))
+			if Contracts.accept(contracts(), c, current_node()) == "":
+				notice.emit("NOTICE_CONTRACT_TAKEN", [c.get("title", "")])
+	if bool(a.get("ending", false)):
+		_ending_pending = true
+
+
+var _ending_pending := false
+## The HUD calls this once the last card is read: the ending sequence starts.
+func take_ending() -> bool:
+	if not _ending_pending:
+		return false
+	_ending_pending = false
+	ending_requested.emit()
+	return true
+
+
+## Location content whose story flags are set: POIs and creatures.
+func pois() -> Array:
+	var out: Array = []
+	for p in loc.get("pois", []):
+		if Story.available(story(), p):
+			out.append(p)
+	return out
+
+
+## Adds story creatures that just became available (Kaltvater, the migration)
+## and turns the migration away once the transmitters run.
+func _sync_gated() -> void:
+	if state.is_empty() or not running and loc.is_empty():
+		return
+	var tc := creature_tuning()
+	for d in loc.get("creatures", []):
+		if not d.has("requires") or state["creatures"].has(str(d["id"])) or not Story.available(story(), d):
+			continue
+		var c := Creatures.create(d, tc)
+		state["creatures"][str(d["id"])] = c
+		if running:
+			dev_spawned.emit(str(d["id"]))
+	if Story.flag(story(), "transmitters_on"):
+		for d2 in loc.get("creatures", []):
+			if bool(d2.get("migration", false)) and state["creatures"].has(str(d2["id"])):
+				var mc: Dictionary = state["creatures"][str(d2["id"])]
+				if not Creatures.is_dead(mc) and not bool(mc.get("diverted", false)):
+					# the restored transmitters turn the runners away from the city
+					mc["diverted"] = true
+					mc["home"] = [float(loc["bounds"][0]) + 200.0, float(mc["pos"][1])]
+					mc["ai"] = "flee"
+
+
+func _near_transmitter() -> String:
+	for p in pois():
+		if str(p.get("kind", "")) == "transmitter" and not bool(poi_state(str(p["id"])).get("activated", false)):
+			if mech_pos().distance_to(Content.v2(p["pos"])) < float(tun("story").get("activate_radius", 260.0)):
+				return str(p["id"])
+	return ""
+
+
+func _finish_activate(id: String) -> void:
+	var ps := poi_state(id)
+	if bool(ps.get("activated", false)):
+		return
+	ps["activated"] = true
+	ps["discovered"] = true
+	story()["activated"] = int(story().get("activated", 0)) + 1
+	notice.emit("NOTICE_MAST_ON", [int(story()["activated"])])
+	combat_event.emit("mast_on", {"id": id, "pos": Content.v2(poi_def(id).get("pos", [0, 0]))})
+	story_event({"event": "activate", "count": int(story()["activated"])})
+	save_now("transmitter")
+
+
+func dev_story_advance(beat: String) -> void:
+	for f in Story.advance_to(story(), beat):
+		contract_event({"type": "flag", "flag": f})
+	_sync_gated()
+	_dev_mark()
+	notice.emit("NOTICE_DEV", ["DEV_STORY"])
 
 
 # ---------------------------------------------------------------- recovery (failure)
@@ -2669,8 +2834,11 @@ func is_safe_zone() -> bool:
 
 ## "danger" | "safe" | "cleared" for the hazard ribbon.
 func zone_status() -> String:
-	if str(loc.get("kind", "")) == "hub" and bool(journey().get("delivered", false)):
-		return "cleared"
+	if str(loc.get("kind", "")) == "hub" and Story.flag(story(), "campaign_complete"):
+		return "cleared"   # Stahlheim survived the migration
+	if not is_safe_zone() and bool(journey()["completed"].get(current_node(), false)) and str(loc.get("quarry", "")) != "" \
+			and bool(tun("creatures").get(str(creature(str(loc.get("quarry", ""))).get("species", "")), {}).get("apex", false)):
+		return "cleared"   # a territory whose apex has been brought down
 	return "safe" if is_safe_zone() else "danger"
 
 
@@ -2738,7 +2906,11 @@ func travel_to(node_id: String, force: bool = false, at_start: bool = false) -> 
 		m["engine"] = "running"
 	pilot()["pos"] = [p.x, p.y]
 	state = GameState.sanitize(state, loc)
+	var was_delivered := bool(journey().get("delivered", false))
 	var evs := Journey.arrive(journey(), node_id)
+	if not Story.flag(story(), "kern7_received") and not was_delivered:
+		journey()["delivered"] = false   # nothing to deliver without Kern-7
+		evs.erase("delivered")
 	if Journey.is_safe(node_id):
 		journey()["last_safe"] = node_id
 	for ev in evs:
@@ -2751,7 +2923,12 @@ func travel_to(node_id: String, force: bool = false, at_start: bool = false) -> 
 	exit_prompt = {}
 	_exit_cd = 3.0
 	Log.info("journey", "travel", {"from": here, "to": node_id, "fuel": snappedf(fuel(), 0.1)})
+	story_event({"event": "arrive", "node": node_id})
+	_sync_gated()
+	var keep_dev := dev.duplicate()   # cheats stay on across a map change (never saved)
 	_begin()
+	dev = keep_dev
+	time_scale = float(dev.get("time_scale", 1.0))
 	notice.emit("NOTICE_ARRIVED", [str(nd.get("name", node_id))])
 	travelled.emit(here, node_id)
 	save_now("travel")
@@ -2862,16 +3039,16 @@ func decline_exit() -> void:
 # ---------------------------------------------------------------- points of interest (anomalies)
 
 func poi_state(id: String) -> Dictionary:
-	var pois: Dictionary = state["world"].get("pois", {})
-	if not pois.has(id):
-		pois[id] = {"discovered": false, "searched": false}
-		state["world"]["pois"] = pois
-	return pois[id]
+	var all_ps: Dictionary = state["world"].get("pois", {})
+	if not all_ps.has(id):
+		all_ps[id] = {"discovered": false, "searched": false}
+		state["world"]["pois"] = all_ps
+	return all_ps[id]
 
 
 func _tick_pois() -> void:
 	var at := actor_pos()
-	for p in loc.get("pois", []):
+	for p in pois():
 		var ps := poi_state(str(p["id"]))
 		if bool(ps["discovered"]):
 			continue
@@ -2886,7 +3063,7 @@ func _tick_pois() -> void:
 
 
 func poi_def(id: String) -> Dictionary:
-	for p in loc.get("pois", []):
+	for p in pois():
 		if str(p["id"]) == id:
 			return p
 	return {}
@@ -2900,6 +3077,7 @@ func _finish_search(id: String) -> void:
 	ps["searched"] = true
 	ps["discovered"] = true
 	contract_event({"type": "search", "poi": id})
+	story_event({"event": "search", "poi": id})
 	var drops: Dictionary = p.get("loot", {})
 	if drops.is_empty():
 		notice.emit("NOTICE_SEARCH_EMPTY", [])

@@ -1152,7 +1152,7 @@
 			]
 		},
 		"kaltvater": {
-			"hp": 3200.0,
+			"hp": 2200.0,
 			"collision": 200.0,
 			"parts": {
 				"head": {
@@ -1747,5 +1747,10 @@
 			"heat": 1.12,
 			"start_money": 150
 		}
+	},
+	"story": {
+		"_note": "Transmitter masts (finale): hold still in the car within activate_radius for activate_time seconds.",
+		"activate_time": 4.0,
+		"activate_radius": 260.0
 	}
 }

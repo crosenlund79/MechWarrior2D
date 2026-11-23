@@ -314,6 +314,32 @@ func _run(line: String) -> void:
 			await _wait(0.5)
 		"difficulty":
 			Session.state["difficulty"] = a[0]
+		"story":  # story advance <beat> | story event <type> [key=value ...] | story cards (dismiss all) | story flag <f>
+			match a[0]:
+				"advance":
+					Session.dev_story_advance(a[1])
+				"flag":
+					Session.set_flag(a[1])
+				"event":
+					var ev := {"event": a[1]}
+					for kv in a.slice(2):
+						var kvp: PackedStringArray = str(kv).split("=")
+						ev[kvp[0]] = int(kvp[1]) if kvp[1].is_valid_int() else kvp[1]
+					Session.story_event(ev)
+				"cards":
+					Session.story_cards.clear()
+					if main.game and main.game.hud.story_card:
+						main.game.hud.story_card._showing = false
+						main.game.hud.story_card._panel.visible = false
+						main.game.hud.story_card._title.visible = false
+					get_tree().paused = false
+			await _wait(0.2)
+		"ending":  # ending skip: close the ending screen if it is up
+			if main.game:
+				var en = main.game.pause_layer.get_node_or_null("Ending")
+				if en:
+					en._close()
+			await _wait(0.2)
 		"set_fuel":
 			Session.mech()["fuel"] = float(a[0])
 		"map":  # map on|off|select <node>|course
@@ -566,6 +592,11 @@ func _state() -> Dictionary:
 		st["contracts"] = Session.contracts().duplicate(true) if Session.running else {}
 		st["board"] = Session.contract_board() if Session.running else []
 		st["difficulty"] = Session.difficulty_id() if Session.running else ""
+		st["story"] = Session.story().duplicate(true) if Session.running else {}
+		st["story_cards"] = Session.story_cards.duplicate()
+		st["card_showing"] = main.game.hud.story_card.showing() if main and main.game and main.game.hud and main.game.hud.story_card else false
+		st["ending_up"] = main.game.pause_layer.get_node_or_null("Ending") != null if main and main.game else false
+		st["pois"] = Session.pois().map(func(p): return str(p["id"])) if Session.running else []
 		st["services"] = Session.garage_services() if Session.loc.has("garage") else []
 		st["objective"] = Session.nearest_objective()
 		var ps: Array = []

@@ -842,9 +842,26 @@
 		}
 	},
 	"creatures": [],
-	"pois": [],
+	"pois": [
+		{
+			"id": "konrad_wreck",
+			"kind": "expedition",
+			"pos": [
+				3120,
+				1700
+			],
+			"name": "POI_KONRAD",
+			"burning": true,
+			"wreck": "road.car",
+			"loot": {},
+			"requires": [
+				"wreck_arrived"
+			],
+			"story": true
+		}
+	],
 	"relief": {
-		"seed": 6548,
+		"seed": 9394,
 		"amp": 0.5,
 		"scale": 900.0
 	},

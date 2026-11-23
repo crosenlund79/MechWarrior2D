@@ -2558,6 +2558,134 @@
 				0.5,
 				0.5
 			]
+		},
+		"ui.portrait_greta": {
+			"path": "ui/portrait_greta",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_konrad": {
+			"path": "ui/portrait_konrad",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_mika": {
+			"path": "ui/portrait_mika",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_oskar": {
+			"path": "ui/portrait_oskar",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_henrik": {
+			"path": "ui/portrait_henrik",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_ilse": {
+			"path": "ui/portrait_ilse",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_aurich": {
+			"path": "ui/portrait_aurich",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
+		},
+		"ui.portrait_radio": {
+			"path": "ui/portrait_radio",
+			"display": [
+				160,
+				160
+			],
+			"source": [
+				320,
+				320
+			],
+			"pivot": [
+				0.5,
+				0.5
+			],
+			"note": "story card portrait (replace with your own art)"
 		}
 	},
 	"tiles": {

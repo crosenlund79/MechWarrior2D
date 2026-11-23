@@ -72,7 +72,7 @@ func _draw() -> void:
 		draw_string(font, lp, name, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.95, 0.9, 0.78, 0.85))
 	# points of interest
 	var anomaly := false
-	for p2 in Session.loc.get("pois", []):
+	for p2 in Session.pois():
 		var ps := Session.poi_state(str(p2["id"]))
 		var at := to_map(Content.v2(p2["pos"]))
 		if bool(ps["discovered"]):

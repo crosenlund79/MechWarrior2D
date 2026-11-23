@@ -213,6 +213,11 @@ def settlement(node, big=False, sides=None):
         prop(props, f"crates_{i}", "refuge.crates", (cx + dx + 130, cy + dy + 60), "low", collision={"rect": [90, 80]})
     prop(props, "flag", "shelter.flag", (cx + 40, cy - 40), "low")
     style_props(style, props, rng, cx, cy, hw, hh, roads)
+    if node == "ersthafen":
+        # Konrad's burning car arrives outside the east gate (story: wreck_arrived)
+        eg = [g for g in gates if g["to"] == "taubecken"][0]
+        L["pois"].append({"id": "konrad_wreck", "kind": "expedition", "pos": [round(eg["entry"][0] - 60), round(eg["entry"][1] + 300)],
+                          "name": "POI_KONRAD", "burning": True, "wreck": "road.car", "loot": {}, "requires": ["wreck_arrived"], "story": True})
     prop(props, "generator", "junker.generator", (cx + hw - 220, cy - hh + 160), "low", collision={"rect": [150, 100]})
     prop(props, "barrels", "shelter.barrels", (cx - hw + 170, cy - hh + 170), "low", collision={"circle": 44})
     if big:
@@ -574,6 +579,29 @@ def territory(node, sides=None):
     if lm:
         L["pois"].append({"id": "landmark_0", "kind": "landmark", "pos": lm, "name": f"POI_LANDMARK_{node.upper()}",
                           "asset": th.get("landmark", "prop.pylon"), "loot": {}})
+    # ---- story content (appears when its flags are set; see data/story.json)
+    if node == "glaswueste":
+        p = free_spot(300, 260)
+        L["pois"].append({"id": "research_station", "kind": "expedition", "pos": p, "name": "POI_RESEARCH_STATION", "burning": False,
+                          "wreck": "cs.control_shed", "loot": {"logbook": 1, "instrument": 1}, "requires": ["kern7_received"], "story": True, "survivor": True})
+    if node == "hochstrasse":
+        for k in range(3):
+            p = free_spot(260, 200)
+            L["pois"].append({"id": f"transmitter_{k}", "kind": "transmitter", "pos": p, "name": "POI_TRANSMITTER", "asset": "city.mast",
+                              "loot": {}, "requires": ["finale_started"], "story": True})
+        kv = free_spot(420, 300)
+        L["creatures"].append({"id": "kaltvater", "species": "kaltvater", "spawn": kv, "apex": True, "requires": ["transmitters_on"]})
+        for k in range(2):
+            for _try in range(30):
+                c = free_spot(360, 320)
+                if not c:
+                    continue
+                pts = [[round(c[0] + math.cos(i / 5 * math.tau) * 110), round(c[1] + math.sin(i / 5 * math.tau) * 110)] for i in range(5)]
+                if all(not any("collision" in q and math.dist(m, q["pos"]) < 200 for q in props) for m in pts):
+                    for i, m in enumerate(pts):
+                        L["creatures"].append({"id": f"migration_{k}_{i}", "species": "aschenlaeufer", "pack": f"migration_{k}", "migration": True,
+                                               "spawn": m, "requires": ["finale_started"]})
+                    break
     L["teleports"]["hub"] = {"pos": hub, "heading_deg": 90}
     L["mech_start"] = {"pos": hub, "heading_deg": 90}   # dev travel / recovery lands at the crossroads
     for g in gates:

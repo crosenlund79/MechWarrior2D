@@ -89,6 +89,11 @@ func _build() -> void:
 	_row([["Travel to selected node", func() -> void: Session.travel_to(_node_pick.get_item_text(_node_pick.selected), true)],
 		["Clear territory creatures", func() -> void: Session.dev_clear_creatures()]])
 	_row([["Restore cooling", func() -> void: Session.dev_restore_cooling()]])
+	_head("Story")
+	_story_pick = OptionButton.new()
+	for b in Story.beats():
+		_story_pick.add_item(str(b["id"]))
+	_pick_row(_story_pick, "Advance story to (incl.)", func() -> void: Session.dev_story_advance(_story_pick.get_item_text(_story_pick.selected)))
 	_toggle("invuln", "Invulnerable", func() -> void: Session.dev["invulnerable"] = not Session.dev["invulnerable"])
 	_head("Simulation speed")
 	var sp := []
@@ -111,6 +116,7 @@ func _build() -> void:
 		_intensity.value = 0.85]])
 
 
+var _story_pick: OptionButton
 var _upgrade_pick: OptionButton
 var _node_pick: OptionButton
 var _tp_pick: OptionButton

@@ -1,7 +1,94 @@
 {
 	"_note": "Authored Jäger contracts (story and fixed). Fields: kind (hunt|cull|apex|investigate|recover), node (territory), species/creature/poi, count, reward (Mark), xp, boards (settlements that post it; empty = any), requires/until (story flags), on_complete (flag set when paid), story (cannot be abandoned), repeat.",
 	"contracts": {
-		"ct_skirr_pests": {"kind": "hunt", "title": "CT_SKIRR_PESTS", "desc": "CT_SKIRR_PESTS_DESC", "node": "taubecken", "species": "skirr", "count": 3,
-			"reward": 180, "xp": 40, "boards": ["ersthafen"]}
+		"ct_skirr_pests": {
+			"kind": "hunt",
+			"title": "CT_SKIRR_PESTS",
+			"desc": "CT_SKIRR_PESTS_DESC",
+			"node": "taubecken",
+			"species": "skirr",
+			"count": 3,
+			"reward": 180,
+			"xp": 40,
+			"boards": [
+				"ersthafen"
+			]
+		},
+		"ct_alt_eisback": {
+			"kind": "apex",
+			"title": "CT_ALT_EISBACK",
+			"desc": "CT_ALT_EISBACK_DESC",
+			"node": "wrackkueste",
+			"creature": "eisback_alt",
+			"target_name": "SPECIES_EISBACK_ALT",
+			"count": 1,
+			"reward": 1200,
+			"xp": 200,
+			"boards": [
+				"ersthafen"
+			],
+			"requires": "kern7_received",
+			"story": true
+		},
+		"ct_junker_crew": {
+			"kind": "rivals",
+			"title": "CT_JUNKER_CREW",
+			"desc": "CT_JUNKER_CREW_DESC",
+			"node": "schrottgrund",
+			"count": 2,
+			"reward": 1500,
+			"xp": 200,
+			"boards": [
+				"grauwacht"
+			],
+			"requires": "kern7_received",
+			"on_complete": "junkers_scattered",
+			"story": true
+		},
+		"ct_dornkoenig": {
+			"kind": "apex",
+			"title": "CT_DORNKOENIG",
+			"desc": "CT_DORNKOENIG_DESC",
+			"node": "dornpass",
+			"creature": "dornkoenig",
+			"target_name": "SPECIES_DORNKOENIG",
+			"count": 1,
+			"reward": 2600,
+			"xp": 300,
+			"boards": [
+				"eisenfurt"
+			],
+			"requires": "kern7_received"
+		},
+		"ct_glutmutter": {
+			"kind": "apex",
+			"title": "CT_GLUTMUTTER",
+			"desc": "CT_GLUTMUTTER_DESC",
+			"node": "glutfeld",
+			"creature": "glutmutter",
+			"target_name": "SPECIES_GLUTMUTTER",
+			"count": 1,
+			"reward": 3600,
+			"xp": 400,
+			"boards": [
+				"messstation",
+				"eisenfurt"
+			],
+			"requires": "kern7_received"
+		},
+		"ct_hochstrasse_runners": {
+			"kind": "hunt",
+			"title": "CT_RUNNERS",
+			"desc": "CT_RUNNERS_DESC",
+			"node": "hochstrasse",
+			"species": "aschenlaeufer",
+			"count": 5,
+			"reward": 900,
+			"xp": 120,
+			"boards": [
+				"stahlheim"
+			],
+			"repeat": true
+		}
 	}
 }

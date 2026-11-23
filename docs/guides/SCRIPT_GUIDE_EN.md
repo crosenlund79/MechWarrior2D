@@ -82,8 +82,12 @@ What each script does. Keep in sync with `tools/guide_rows.py`, then run `python
 | `src/sim/arsenal.gd` | Roof-mount weapon families (data/weapons.json): ownership, ammunition capacity and restock cost, tuning with fitted lines. |
 | `src/sim/vehicles.gd` | Chassis catalogue (data/vehicles.json): Marder, Falke, Bär — handling/armour/cargo/fuel character applied on top of the upgrades. |
 | `src/sim/contracts.gd` | Jäger contracts: settlement job boards (authored + generated from real territory content), progress from game events, turn-in. |
+| `src/sim/story.gd` | The Kern-7 campaign (data/story.json): beats fired by game events, flags, objectives, gated story content, dev advance. |
 | `src/sim/journey.gd` | Continental route network (data/journey.json): nodes, edges, fuel costs, arrival bookkeeping, shortest route and nearest safe zone. |
 | `src/presentation/ui/hazard_ribbon.gd` | Diagonal hazard tape in the top-right corner: DANGER / SAFE-ZONE / CLEARED. |
+| `src/presentation/ui/story_card.gd` | Story dialogue cards (portrait, speaker, text) and act titles; pauses while reading, survives map changes. |
+| `src/presentation/ui/ending_screen.gd` | Ending slides, credits roll with run statistics, then back to the open world. |
+| `tools/regression_campaign.py` | Runtime regression: the whole Kern-7 campaign start to finish (story beats, acts, delivery, masts, Kaltvater, ending, persistence). |
 | `src/presentation/ui/minimap.gd` | Minimap: roads, rock, settlement, gates, blinking anomalies, discovered sites, player arrow. |
 | `src/presentation/ui/journey_map.gd` | Continental map screen (M): node states, routes with fuel cost, node info, set course. |
 | `src/presentation/world/poi_view.gd` | Abandoned expedition sites (wreck, dead driver, papers, fire) and landmarks. |

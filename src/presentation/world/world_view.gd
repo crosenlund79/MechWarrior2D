@@ -68,7 +68,7 @@ func _ready() -> void:
 		pv.setup(d)
 		props.append(pv)
 	Scatter.build(low, loc)
-	for pd in loc.get("pois", []):
+	for pd in Session.pois():
 		var pv2 := PoiView.new()
 		pv2.setup(pd)
 		low.add_child(pv2)

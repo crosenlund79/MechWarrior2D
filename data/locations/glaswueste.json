@@ -2002,10 +2002,30 @@
 			"name": "POI_LANDMARK_GLASWUESTE",
 			"asset": "cs.control_shed",
 			"loot": {}
+		},
+		{
+			"id": "research_station",
+			"kind": "expedition",
+			"pos": [
+				2249,
+				3646
+			],
+			"name": "POI_RESEARCH_STATION",
+			"burning": false,
+			"wreck": "cs.control_shed",
+			"loot": {
+				"logbook": 1,
+				"instrument": 1
+			},
+			"requires": [
+				"kern7_received"
+			],
+			"story": true,
+			"survivor": true
 		}
 	],
 	"relief": {
-		"seed": 7973,
+		"seed": 1629,
 		"amp": 1.0,
 		"scale": 900.0
 	},

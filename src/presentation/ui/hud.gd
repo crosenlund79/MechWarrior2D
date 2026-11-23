@@ -46,6 +46,7 @@ var ammo_label: Label
 var contract_label: Label
 var money_label: Label
 var ribbon: HazardRibbon
+var story_card: StoryCard
 var minimap: Minimap
 var exit_panel: PanelContainer
 var exit_label: Label
@@ -69,6 +70,7 @@ void fragment() {
 func _ready() -> void:
 	super._ready()
 	_build()
+	add_child(story_card)   # above every other HUD element
 	Session.notice.connect(_on_notice)
 	Session.mech_event.connect(_on_mech_event)
 	if Settings.values.get("show_tutorial", true) and float(Session.state.get("playtime", 0.0)) < 5.0:
@@ -102,7 +104,7 @@ func open_map() -> void:
 
 
 func modal_open() -> bool:
-	return garage != null or map_screen != null
+	return garage != null or map_screen != null or (story_card != null and story_card.showing())
 
 
 func _on_mech_event(ev: String) -> void:
@@ -245,6 +247,8 @@ func _build() -> void:
 	# --- hazard ribbon (top-right corner), minimap (bottom-right), exit prompt (centre)
 	ribbon = HazardRibbon.new()
 	add_child(ribbon)
+	story_card = StoryCard.new()
+	story_card.name = "StoryCard"
 	minimap = Minimap.new()
 	minimap.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	minimap.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -412,6 +416,8 @@ func _process(delta: float) -> void:
 				mats += int(inv[k])
 	cargo_label.text = tr("HUD_CARGO") % [Session.cargo_bulk(), Session.cargo_capacity(), Session.scrap_available(),
 		GameState.count(p["pack"], item) + GameState.count(m["storage"], item), mats]
+	if Story.flag(Session.story(), "kern7_received") and not Story.flag(Session.story(), "kern7_delivered"):
+		cargo_label.text += "  ·  " + tr("HUD_KERN7")
 	_update_hunt(delta)
 	zone_label.text = tr("HUD_ZONE") % [tr(str(Session.pilot_zone.get("label", "ZONE_OPEN_SAND"))), int(Session.pilot_zone.get("ambient", 58))]
 	var sheltered := bool(Session.pilot_zone.get("sheltered", false))
@@ -509,12 +515,16 @@ func _on_notice(key: String, args: Array) -> void:
 	tw.tween_callback(l.queue_free)
 
 
-## One line per active contract (progress, or "return to a settlement").
+## The story objective, then one line per active contract (progress, or "return to a settlement").
 func _contract_line() -> String:
 	var lines: PackedStringArray = []
+	var ob := Session.objective()
+	if str(ob.get("text", "")) != "":
+		lines.append("◆ " + tr(str(ob["text"])))
 	for c in Session.contracts().get("active", []):
 		if str(c.get("status", "")) == "ready":
 			lines.append(tr("HUD_CONTRACT_READY") % tr(str(c.get("title", ""))))
 		else:
 			lines.append(tr("HUD_CONTRACT") % [tr(str(c.get("title", ""))), int(c.get("progress", 0)), int(c.get("count", 1))])
 	return "\n".join(lines)
+
