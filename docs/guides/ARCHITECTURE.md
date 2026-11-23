@@ -160,9 +160,32 @@ Input (PlayerInput / AutotestDriver) ── intents ──► Session.state ◄�
 - **Content pipeline.** `tools/build_world_south.py` (the basin) then `tools/build_continent.py`
   (settlements, territories, gates, POIs; validates geometry).
 
+## Complete game (master brief v1.0)
+New systems are separate modules; `Session` stays the facade that owns state and side effects.
+- **Arsenal** (`src/sim/arsenal.gd`, `data/weapons.json`): five roof-weapon families. `mech.weapon`,
+  `mech.owned_weapons`, `mech.ammo`. `Session.player_weapon()` = family + upgrade lines; pellets,
+  `part_mult` (damage on breakable parts) and `explosive` (blast via `Session._explode`) ride on the shot.
+- **Vehicles** (`src/sim/vehicles.gd`, `data/vehicles.json`): chassis multipliers applied after the
+  upgrade lines in `car_tun()`; `damage_taken` scales hits; body art per chassis.
+- **Contracts** (`src/sim/contracts.gd`, `data/contracts.json`): boards (authored + generated from the
+  creatures/POIs really placed in nearby territories), progress from `Session.contract_event()` (kill,
+  rival, discover, search, flag), paid at a settlement garage.
+- **Story** (`src/sim/story.gd`, `data/story.json`): beats `{when, requires, unless, do}` fire once on
+  `Session.story_event()` (start, arrive, search, kill, flag, activate). Actions: cards (queued in
+  `Session.story_cards`, shown by `StoryCard`, survive map changes), flags, objective (+ course), money,
+  act, contract, ending (`EndingScreen`). Location items with `requires` (Konrad's wreck, the research
+  station, the masts, Kaltvater, the migration) appear when their flags are set (`Session.pois()`,
+  `_sync_gated()`); the migration is diverted when the masts run.
+- **Creatures**: every species in `tuning.creatures` names a `brain` (skirr / grindback / rimeback) and
+  its `art`; apexes add `apex`, `scale`, `tint`. Dornmaul = grindback brain with `surface`; Kaltvater
+  adds `quake` and `summon`. `state.bestiary` tallies seen / killed.
+- **Recovery and difficulty**: `call_recovery()` tows to `journey.last_safe` (fee + cargo share from the
+  difficulty preset); `diff(key)` scales creatures, enemies, fuel, prices and sales.
+- **Dev cheats** survive map changes within a session (still never saved).
+
 ## Saves
 `<user>/saves/slot_<1..3>.json`, envelope `{format, version, saved_unix, game_version, summary, state}`.
-Format version **7** (v6 → v7 adds fuel, money, rank, journey, per-site stash and POI state; v5 → v6 garage storage; v4 → v5 Thawborn). Earlier **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
+Format version **8** (v7 → v8 renames Kaltbrunn/Eisenhalt to Grauwacht/Eisenfurt, adds difficulty and story; v6 → v7 adds fuel, money, rank, journey, per-site stash and POI state; v5 → v6 garage storage; v4 → v5 Thawborn). Earlier **4** (v3 → v4 adds weather + turrets); earlier **3** (v2 → v3 adds `enemy.pilot`); previously version **2** (adds `mech.integrity` and `enemies`; v1 saves migrate automatically).
 Write: temp → read back → validate → previous file to `.bak` → replace. Load: main → validate/migrate →
 else `.bak` (reported as "recovered"). Migrations: `SaveCodec.MIGRATIONS[from_version]`. Stable IDs:
 salvage nodes and props are named in location data; drops get `drop_<n>`. Autosave: new game, enter

@@ -36,6 +36,17 @@
 6. Back at your mech: R repairs the radiator with the core, and R again patches the hull with 2 scrap.
    If your hull hits 0, the mech is crippled. Step out and R gives a slow, free emergency patch to 25 %.
 
+## The campaign (a first playthrough is several hours; see the plan doc for the estimate)
+1. New game: choose a difficulty. Greta's cards explain the garage; take a contract (G → Aufträge).
+2. Hunt in the Taubecken or on the Wrackküste, come back, sell. On your return the burning car is at
+   Ersthafen's east gate: get out (E), walk to it, search (E). You now carry Kern-7 (HUD cargo line).
+3. Follow the ◆ objective (top right) and the pointer: the Alter Eisback, Grauwacht, Eisenfurt, the
+   Glaswüste research station, Stahlheim. Each region raises the danger.
+4. In Stahlheim, Dr. Aurich sends you back to the Hochstraße: park beside each of the three masts and
+   hold E. Then Kaltvater comes. Bring it down → ending + credits → keep hunting.
+5. Stranded or out of fuel: Esc → Call recovery truck.
+6. F10 → Story → "Advance story to" jumps to any beat for testing.
+
 ## The continental journey (about 20–30 minutes)
 1. New game: you start in **Ersthafen** (SAFE-ZONE tape, top right). Press **M** for the continental map.
    Click a node for its info and **Set course**.
@@ -94,6 +105,7 @@ python3 tools/regression_refuge.py
 python3 tools/regression_junkers.py
 python3 tools/regression_balance.py
 python3 tools/regression_hunt.py
+python3 tools/regression_campaign.py
 python3 tools/heat_balance.py
 python3 tools/check_script_guides.py
 ```
@@ -114,6 +126,13 @@ python3 tools/check_script_guides.py
 `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/regression_playtest.py` checks reverse steering,
 starter-area heat, the garage cursor and purchases, cargo unloading and storage persistence, and bullet
 speed in a windowed game process. The cursor can only be checked with a real display.
+
+## Windows build on GitHub Actions
+Every push to an `iteration/**` branch runs the *Windows build* workflow
+(`.github/workflows/windows-build.yml`): it installs Godot 4.7.2 and the export templates, runs the
+unit tests, exports, and uploads two artifacts — **Thawborn-windows-zip** (portable, unzip and run
+`Thawborn/Thawborn.exe`) and **Thawborn-windows-installer**. Find them on the run's page under
+Actions → Windows build.
 
 ## Windows build and installer
 `python3 tools/build_windows.py` exports with the *Windows Desktop* preset (needs the Godot 4.7.2 export

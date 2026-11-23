@@ -28,6 +28,7 @@ Never modify another project. Never alter `backup/*` branches.
 - `python3 tools/regression_refuge.py` (roof guns, canyon + overhang, workshop, music, parked-car encounter)
 - `python3 tools/regression_junkers.py` (recoil, sandstorm, F10 dev menu, exploration, Junker base, turrets, defenders)
 - `python3 tools/regression_balance.py` (speed/responsiveness, progressive heat pressure)
+- `python3 tools/regression_campaign.py` (the whole Kern-7 campaign start to finish, ending, persistence)
 - `python3 tools/regression_hunt.py` (full Thawborn loop: drive, track, hunt, harvest, loot, garage, save/reload; rival car, skirrs, grindback, storm)
 - `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/regression_playtest.py` (playtest 001–006: reverse steering, starter heat, garage cursor, cargo storage, bullet speed)
 - Heat tuning changes: run `python3 tools/heat_balance.py` — ordinary travel must never warn.
@@ -49,10 +50,13 @@ Never modify another project. Never alter `backup/*` branches.
 - Multiplayer is NOT approved. Any future multiplayer must be host-authoritative.
 - No speculative systems. Scope limits: see `docs/DESIGN_REGISTER.md` (DEFERRED).
 
-## Journey
-Ersthafen → branching routes → Stahlheim (`data/journey.json`), carrying a sealed case whose identity is
-NOT defined — do not invent it. Crafting/mining/ore/smelting/recipes are removed from the design.
-German-industrial frontier naming, never WWII/Nazi aesthetics; UI text stays English.
+## Game (complete-game brief, v1.0 draft)
+Campaign: the Kern-7 crossing, Ersthafen → 16 nodes / 5 regions → Stahlheim (`data/journey.json`,
+`data/story.json`, three acts, transmitter finale, Kaltvater, ending, open world after). Kern-7's story is
+defined by the creator's brief — keep it grounded industrial science, never supernatural. No crafting,
+mining, ore, smelting or recipes: money from selling drops buys everything. German-industrial frontier
+naming, never WWII/Nazi aesthetics; UI text stays English. Data-driven: weapons, vehicles, contracts,
+story, creatures (`tuning.creatures`, species → brain archetype), locations.
 
 ## Visual direction
 `docs/VISUAL_DIRECTION.md`. Straight top-down (not Red Thaw's 3/4). Provisional until the creator reviews.

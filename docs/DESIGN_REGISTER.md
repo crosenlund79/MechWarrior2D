@@ -82,6 +82,17 @@ review · **DEFERRED** = explicitly out of scope for now.
 | CJ-10 | F10: fuel, full repair, grant upgrade, complete node, clear territory creatures, money | APPROVED | never saved |
 | CJ-11 | Main menu: weathered workshop table with the creator's two prints and the creator's logo as the title (`assets/Illustrations/`), job card menu | EXPLORING | prints + logo are creator art; table is a template |
 | TB-33 | Further species, cities, quests, networking, full mining economy | DEFERRED | scope guard |
+| **CG-01** | **Complete game (master brief v1.0)**: the Kern-7 campaign — three acts, recurring cast (Greta, Konrad, Mika, Oskar, Henrik, Ilse, Dr. Aurich), delivery, transmitter finale, Kaltvater, ending + credits, open world afterwards | EXPLORING | `data/story.json`; branch `iteration/complete-game` |
+| CG-02 | Continent: 16 nodes, 5 regions; Kaltbrunn → Grauwacht, Eisenhalt → Eisenfurt (save v8 migration); Messstation Vier outpost (no upgrades); Stahlheim walled industrial city | EXPLORING | `tools/build_continent.py` |
+| CG-03 | Weapon families: twin MG, flak (8 pellets), 30 mm autocannon, precision cannon (part damage), launcher (blast); ammunition bought in settlements | EXPLORING | `data/weapons.json` |
+| CG-04 | Chassis: Eisenwolf Marder (start), Krähe Falke (light), Eisenwolf Bär (heavy); upgrades carry over | EXPLORING | `data/vehicles.json` |
+| CG-05 | 13 upgrade lines (+ suspension, weapon mounts, ammunition, tracking, fuel tanks) | EXPLORING | `tuning.shop` |
+| CG-06 | Jäger contracts: authored (story) + generated from real territory content; paid at any settlement garage | EXPLORING | `data/contracts.json` |
+| CG-07 | Failure: recovery truck to the last settlement (fee + cargo share by difficulty), never Kern-7 or story | EXPLORING | |
+| CG-08 | Difficulty presets Wanderer / Jäger / Veteran | EXPLORING | `tuning.difficulty` |
+| CG-09 | Creatures: Aschenläufer (fast packs), Dornmaul (surface charger), Glutkriecher (magma spit heats the engine); apexes Alter Eisback, Dornkönig, Glutmutter, Kaltvater (quake + summons its runners) | EXPLORING | species → brain archetype |
+| CG-10 | Field-guide tallies (seen / killed per species) | EXPLORING | `state.bestiary` |
+| CG-11 | Windows build on GitHub Actions (ZIP + installer artifacts) | APPROVED | `.github/workflows/windows-build.yml` |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |
 | HS-17 | Western-style towns, trade economy, factions, NPCs | DEFERRED | |
