@@ -51,3 +51,13 @@ Captain's Hat (LCH). Only lessons that apply here are listed.
   to back out with opposite lock.
 - **One live site, the rest stashed.** Per-location state (`state.sites`) keeps the save flat and lets
   every existing system keep reading `state.creatures` etc. unchanged.
+- **Zero-size containers hide UI.** A full-screen overlay created with `set_anchors_preset` alone keeps
+  a 0×0 rect; bottom-anchored children end up off-screen. Use `set_anchors_and_offsets_preset`.
+- **Auto-wrapping labels need a width.** An autowrapped label without a minimum width in a VBox wraps every
+  word and makes the box thousands of pixels tall (the blank credits).
+- **Screens being replaced must not consume shared queues.** The old game screen's story card took the
+  card meant for the new map; views now check `Session.site_serial` and hand cards back on exit.
+- **Pausing story beats break scripted tests.** System tests placed on a map skip story cards; the
+  campaign regression and the rendered `shots_campaign.py` read them with real key presses.
+- **Keep heavy batches isolated.** Editing scripts or data while a regression batch runs produced false
+  failures; parallel work now happens in a separate git worktree.
