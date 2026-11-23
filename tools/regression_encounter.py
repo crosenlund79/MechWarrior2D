@@ -172,6 +172,10 @@ try:
         g.cmd(f"walk_to {mp[0] + dx} {mp[1] + dy} 25")
         if any(i["kind"] == "enter" for i in g.state()["interactions"]):
             break
+    _d = g.state()
+    if not any(i["kind"] == "enter" for i in _d["interactions"]):
+        print(f"       (could not reach the car: pilot {[round(v) for v in _d['game']['pilot']['pos']]}, car {[round(v) for v in _d['game']['mech']['pos']]}, "
+              f"mode {_d['game']['mode']}, paused {_d['paused']}, cards {len(_d.get('story_cards', []))}, interactions {[i['kind'] for i in _d['interactions']]})")
     rad0 = g.state()["game"]["mech"]["radiator"]
     g.cmd("service"); g.cmd("wait_task")
     st = g.state()

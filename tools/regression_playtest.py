@@ -82,7 +82,7 @@ try:
     g.cmd("dev clear")
 
     print("4. garage cursor (004) and 5. storage (005)")
-    g.cmd("travel ersthafen force"); g.cmd("devx money 2000"); g.cmd("give_materials")
+    g.cmd("travel ersthafen force"); g.cmd("story cards"); g.cmd("devx money 2000"); g.cmd("give_materials")
     gp = g.state()["game"]["mech"]["pos"]
     g.cmd("dev teleport garage"); g.cmd("wait 0.5")
     st = g.state()

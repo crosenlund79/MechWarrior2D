@@ -1757,7 +1757,7 @@
 	},
 	"daynight": {
 		"_note": "World clock (hours, global across maps). One day takes day_minutes of play. Night: cooler ground (night_cool °C, solar × night_solar), shorter sight (× night_vis); creatures with night_bonus sense farther in the dark; headlights come on.",
-		"day_minutes": 24.0,
+		"day_minutes": 40.0,
 		"start_hour": 8.0,
 		"night_vis": 0.6,
 		"night_cool": 12.0,

@@ -164,10 +164,11 @@ try:
     print("6. flee back to Ersthafen, sell, refuel, upgrade")
     st = g.state()
     print(f"       (car body {st['game']['mech']['integrity']:.0f}, grille {st['game']['mech']['radiator']:.2f}, fuel {st['fuel']:.0f} L, rank {st['rank']})")
-    if st["game"]["mech"]["integrity"] <= 0:
-        g.cmd("stop"); g.cmd("interact"); g.cmd("service"); g.cmd("wait 6.5"); g.cmd("interact")
+    if st["game"]["mech"]["integrity"] < 30:
+        # what a player does before the drive home: patch the body on foot (scrap, or the slow emergency patch)
+        g.cmd("stop"); g.cmd("interact"); g.cmd("service"); g.cmd("wait_task"); g.cmd("wait 0.3"); g.cmd("interact")
         st = g.state()
-        check(st["game"]["mech"]["integrity"] > 0, "field patch on foot makes a crippled car drivable")
+        check(st["game"]["mech"]["integrity"] > 0, f"field patch on foot before the drive home ({st['game']['mech']['integrity']:.0f})")
     for x, y in ROAD_BACK:
         g.cmd(f"drive_to {x} {y} 35")
     st = leave_by(g, "w", None, (-300, 0))
@@ -179,6 +180,7 @@ try:
     g.cmd(f"drive_to {me[0] - 700:.0f} {me[1]:.0f} 10")
     st = g.state()
     check(st["node"] == "ersthafen", f"driving on past the boundary exits anyway ({st['node']})")
+    g.cmd("story cards")   # first return home: Konrad's car arrives (regression_campaign.py follows that story)
     cargo_before = dict(st["game"]["mech"]["storage"])
     gp = json.load(open("data/locations/ersthafen.json"))["garage"]["pos"]
     for x, y in ((2950, 1400), (1800, 1400)):   # in through the compound's east gate, along the road
