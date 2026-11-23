@@ -45,7 +45,10 @@
 4. In Stahlheim, Dr. Aurich sends you back to the Hochstraße: park beside each of the three masts and
    hold E. Then Kaltvater comes. Bring it down → ending + credits → keep hunting.
 5. Stranded or out of fuel: Esc → Call recovery truck.
-6. F10 → Story → "Advance story to" jumps to any beat for testing.
+6. F10 → Story → "Advance story to" jumps to any beat for testing; F10 → Time of day sets dawn, noon,
+   dusk or midnight (one day lasts 40 minutes of play).
+7. Rendered check of the whole campaign with screenshots:
+   `xvfb-run -a -s "-screen 0 2600x1200x24" python3 tools/shots_campaign.py docs/screenshots/complete`
 
 ## The continental journey (about 20–30 minutes)
 1. New game: you start in **Ersthafen** (SAFE-ZONE tape, top right). Press **M** for the continental map.

@@ -92,6 +92,9 @@ review · **DEFERRED** = explicitly out of scope for now.
 | CG-08 | Difficulty presets Wanderer / Jäger / Veteran | EXPLORING | `tuning.difficulty` |
 | CG-09 | Creatures: Aschenläufer (fast packs), Dornmaul (surface charger), Glutkriecher (magma spit heats the engine); apexes Alter Eisback, Dornkönig, Glutmutter, Kaltvater (quake + summons its runners) | EXPLORING | species → brain archetype |
 | CG-10 | Field-guide tallies (seen / killed per species) | EXPLORING | `state.bestiary` |
+| CG-12 | Day/night: 40-min day; cold nights (ambient −12 °C, little sun), shorter sight, skirr-family night hunters, headlights, dusk grading, HUD clock | EXPLORING | `tuning.daynight` |
+| CG-13 | Upgrade kits drawn on the car (plates, push bar, racks, cooler, exhausts, jerrycans, mount ring, tracker mast, bigger tyres); engine voice per chassis, rumble per engine level, turbo whine/blow-off | EXPLORING | template art |
+| CG-14 | Field guide hunting record (species seen/killed, apexes, anomalies, places visited, act) | EXPLORING | |
 | CG-11 | Windows build on GitHub Actions (ZIP + installer artifacts) | APPROVED | `.github/workflows/windows-build.yml` |
 | HS-15 | Multiplayer | DEFERRED | not approved; must be host-authoritative if ever added |
 | HS-16 | Antarctic research station on the world map | DEFERRED | do not build yet |

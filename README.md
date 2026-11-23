@@ -35,6 +35,9 @@ and part of your cargo — never Kern-7.
 - **Weapons:** Hagel twin MG, Streuer flak, Hammer 30 autocannon, Weitblick precision cannon,
   Sprengwerfer launcher (keys 1–5, Q cycles). **Chassis:** Eisenwolf Marder, Krähe Falke, Eisenwolf Bär.
 - **Difficulty:** Wanderer / Jäger / Veteran, chosen at new game.
+- **Day and night:** one day is 40 minutes; nights are cold and dark (headlights), and skirr packs hunt
+  better in the dark. Fitted upgrades show on the car and change its engine note. **H** shows the field
+  guide with your hunting record.
 
 ## Play it on Windows
 - **Installer / ZIP:** see [`dist/README.md`](dist/README.md); every push to an iteration branch also
