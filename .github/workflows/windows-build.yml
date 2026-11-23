@@ -1,0 +1,59 @@
+# Builds the playable Windows x64 package of Thawborn on every push to an iteration branch
+# (and on demand): Godot 4.7.2 export → portable ZIP + NSIS installer, uploaded as artifacts.
+# Nothing to install on the player's side: unzip and run Thawborn.exe, or run the installer.
+name: Windows build
+
+on:
+  push:
+    branches: ["iteration/**"]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  windows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot ${{ env.GODOT_VERSION }} and the export templates
+        run: |
+          set -e
+          V="${GODOT_VERSION}-stable"
+          for base in "https://github.com/godotengine/godot-builds/releases/download/${V}" "https://github.com/godotengine/godot/releases/download/${V}"; do
+            if curl -fsSL -o godot.zip "${base}/Godot_v${V}_linux.x86_64.zip" && curl -fsSL -o templates.tpz "${base}/Godot_v${V}_export_templates.tpz"; then
+              echo "downloaded from ${base}"; break
+            fi
+          done
+          test -s godot.zip && test -s templates.tpz
+          unzip -q godot.zip && sudo mv "Godot_v${V}_linux.x86_64" /usr/local/bin/godot
+          mkdir -p ~/.local/share/godot/export_templates/"${GODOT_VERSION}.stable"
+          unzip -q templates.tpz && mv templates/* ~/.local/share/godot/export_templates/"${GODOT_VERSION}.stable"/
+          godot --version
+
+      - name: Install NSIS
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq nsis
+
+      - name: Import, unit tests
+        run: |
+          godot --headless --path . --import || true
+          godot --headless --path . res://tests/run_tests.tscn -- --instance=unit_tests
+
+      - name: Export Windows build, ZIP and installer
+        run: python3 tools/build_windows.py
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Thawborn-windows-zip
+          path: export/Thawborn-*-windows.zip
+          if-no-files-found: error
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Thawborn-windows-installer
+          path: export/Thawborn-*-setup.exe
+          if-no-files-found: error

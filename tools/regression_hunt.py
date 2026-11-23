@@ -45,6 +45,7 @@ g.wipe(); g.start()
 try:
     print("1. start in Ersthafen and leave by the gate")
     st = g.cmd("new 1")["state"]
+    g.cmd("story cards")   # the campaign intro (regression_campaign.py reads it)
     check(st["node"] == "ersthafen" and st["zone_status"] == "safe", f"the journey starts in Ersthafen, a safe zone ({st['node']})")
     check(st["at_garage"] and st["money"] > 0 and st["fuel"] > 90, "parked at the Eisenwolf garage with money and a full tank")
     gate = [g2 for g2 in json.load(open("data/locations/ersthafen.json"))["gates"] if g2["to"] == "taubecken"][0]
@@ -278,13 +279,16 @@ try:
         st = g.cmd("exit yes")["state"]
     check(st["node"] == "wrackkueste" and st["zone_status"] == "danger", f"onward to the Wrackküste ({st['node']})")
     check(st["journey"]["discovered"].get("schrottgrund"), "arriving reveals the next route")
+    g.cmd("story flag kern7_received"); g.cmd("story cards")   # (the Kern-7 story itself: regression_campaign.py)
     for n in ("schrottgrund", "grauwacht", "dornpass", "eisenfurt", "glaswueste", "glutfeld", "frostgrund", "hochstrasse", "stahlheim"):
         st = g.cmd(f"travel {n}")["state"]
-    check(st["node"] == "stahlheim" and st["zone_status"] == "cleared", f"Stahlheim reached with the cargo: CLEARED ({st['zone_status']})")
-    check(st["journey"]["delivered"], "the sealed case is delivered")
+        g.cmd("story cards")
+    st = g.state()
+    check(st["node"] == "stahlheim" and st["zone_status"] == "safe", f"Stahlheim reached with Kern-7 ({st['zone_status']})")
+    check(st["journey"]["delivered"] and st["story"]["flags"].get("kern7_delivered"), "Kern-7 is delivered")
     g.cmd("save"); g.quit(); g.start()
     st = g.cmd("continue 1")["state"]
-    check(st["node"] == "stahlheim" and st["journey"]["delivered"] and st["zone_status"] == "cleared", "the delivered journey persists")
+    check(st["node"] == "stahlheim" and st["journey"]["delivered"] and st["story"]["flags"].get("finale_started"), "the delivered journey persists")
 finally:
     g.quit()
 print("\nRESULT:", "PASS" if not fails else f"FAIL ({len(fails)})")

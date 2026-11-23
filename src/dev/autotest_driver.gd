@@ -71,7 +71,10 @@ func _run(line: String) -> void:
 			Session.start_new(int(a[0]) if a.size() > 0 else 1)
 			if a.size() > 1:
 				Session.travel_to(a[1], true, true)   # placed at the map's start spot (the refuge in the Taubecken)
+				Session.story_cards.clear()           # system tests placed on a map skip the story cards
 			await _wait(0.3)
+			if a.size() > 1:
+				get_tree().paused = false
 		"continue":
 			PlayerInput.driver_control = true
 			err = Session.continue_slot(int(a[0]) if a.size() > 0 else Saves.most_recent_slot())
